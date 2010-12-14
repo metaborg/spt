@@ -10,4 +10,6 @@ colorer
   
   _.RegexPattern : darkgreen
   _.AtomLiteral : darkgreen   
-  _.description : darkgreen  
+  _.description : 0 128 0 bold 
+  
+  
