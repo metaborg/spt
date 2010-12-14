@@ -1,0 +1,143 @@
+module generate
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-sglr
+  libstratego-aterm
+  include/Spoofax-Testing
+  lib/editor-common.generated
+  spoofax_testing
+  aterm-eq
+  file-resolving
+
+rules
+  to-java:
+    testsuite(name(x), topsort(s), d*) ->
+       ($[editor/java/tests/[x].java], 
+        $[ package tests;
+        
+           import org.strategoxt.lang.Context;
+           import trans.trans;
+           import org.junit.Test;
+           import static org.junit.Assert.assertNull;
+           import static org.junit.Assert.assertNotNull;
+           import static org.junit.Assert.assertEquals;
+           import trans.parse_string_0_0;
+           import trans.aterm_eq_0_1;
+           import org.strategoxt.stratego_lib.read_text_file_0_0;
+           import org.spoofax.interpreter.terms.*;
+           import java.io.IOException;
+
+           public class [x] {
+               protected Context context;
+               
+               public [x]() {
+                   context = trans.init();
+               }
+               [d'*]
+           }
+        ])
+    with 
+      d'* := <map-with-index(try(desugar-test) ; test-to-java)> d*
+
+
+  desugar-test :
+    parse-test(i, r) -> parse-test(" ", description(""), i, r)
+
+  escape-string = 
+  	string-replace(|"\\","\\\\")
+  ; string-replace(|"\n","\\n")
+  ; string-replace(|"\"","\\\"") 
+
+  test-to-java :
+    (i, tst) ->  
+      $[
+          @Test
+          public void test[i]() {
+              [stmt*]
+          }  
+      ]  
+      with
+          stmt* := <test-to-java-stmts>tst
+
+  to-java-test-decl :
+    parse-test(_, description(d), string(_,s,_), _) -> 
+      $[
+          String input = "[s']"; 
+          String description = "[d']";
+          IStrategoTerm ast = parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input));
+      ]
+      with 
+        d' := <escape-string>d
+      ; s' := <escape-string>s    
+
+  to-java-test-decl :
+    parse-test(_, description(d), file(f), _) -> 
+      $[
+          IStrategoTerm input = read_text_file_0_0.instance.invoke(context, context.getFactory().makeString("[f']")); 
+          String description = "[d']";
+          IStrategoTerm ast = parse_string_0_0.instance.invoke(context, input);
+      ]
+      with 
+        d' := <escape-string>d
+      ; f' := <resolve-path(|<current-path>) ; escape-string>f
+        
+  test-to-java-stmts:
+    parse-test(_, _, _, success()) ->
+      $[
+          [<to-java-test-decl>]
+          assertNotNull(description, ast); 
+       ]  
+
+  test-to-java-stmts:
+    parse-test(_, _, _, failure()) ->
+      $[
+          [<to-java-test-decl>]
+          assertNull(description, ast); 
+       ]  
+  test-to-java-stmts:
+    parse-test(_, _, _, file(f)) ->
+      $[ 
+          [<to-java-test-decl>]
+          IStrategoTerm expected = null;
+          try {
+          	 expected = context.getFactory().parseFromFile("[f']");
+          } catch (IOException e) {
+             // do some logging 	 	
+          }
+          assertEquals(description, parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input)), expected ); 
+      ]  
+      with 
+        f' := <resolve-path(|<current-path>) ; escape-string>f
+
+  test-to-java-stmts:
+    parse-test(_, _, _, pattern(p)) ->
+      $[
+          [<to-java-test-decl>]
+          
+          assertNotNull(description, aterm_eq_0_1.instance.invoke(context, ast, context.getFactory().makeString("[p']")));
+       ]  
+      with p' := <write-to-string ; escape-string>p
+        
+strategies
+  
+  generate-ast-file = 
+    if ?(file(f), position, ast, path, project-path) then
+      abs := <resolve-path(|path)>f
+    ; if not(file-exists) then
+        if <oncetd(?parse-test(_, _, _, _) ; oncetd(?file(f)); ?parse-test(_, _, string(_,s,_), _))>ast then
+          result := <parse-string>s 
+        else
+          fatal-err-msg(|$[Could not find a string input for generating AST.])  
+        end 
+      else
+        fatal-err-msg(|$[File [f] already exists.])
+      end
+    else
+      fatal-err-msg(|$[Unable to determine which file to generate.])
+    end 
+  ; <queue-analysis> path  
+  ; !(abs, result)
+    
+    

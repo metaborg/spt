@@ -1,0 +1,58 @@
+module spoofax_testing
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/Spoofax-Testing
+  lib/editor-common.generated
+  analysis
+  check
+  generate
+  file-resolving
+
+rules // Main editor interface (defined by editor/Spoofax-Testing-Builders and -References.esv)
+  
+  // Analyzes the current program, returning a tuple with errors, warnings, and notes;
+  // each a list of (term, message) tuples or simply (message) terms.
+  editor-analyze:
+    (ast, path, project-path) -> (ast, errors, warnings, notes)
+    with
+      scope-paths(
+        editor-init;
+        <chdir> project-path;
+        <record-all-sdfs> ".";
+        errors   := <collect-all(constraint-error, conc)> ast;
+        warnings := <collect-all(constraint-warning, conc)> ast;
+        notes    := <collect-all(constraint-note, conc)> ast;
+        if not([] := errors) then
+            rules ( HasErrors := () )
+        end
+      | path, project-path)
+  
+  // Transforms a selection to Java
+  generate-java:
+    (selected, position, ast, path, project-path) -> result
+    with
+      scope-paths( result := <to-java> selected | path, project-path)
+  
+  // Prints the abstract syntax ATerm of a selection.
+  generate-aterm:
+    (selected, position, ast, path, project-path) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"aterm")> path;
+      result   := selected // we just return the input term
+  
+  // Returns "hover help" information for a particular node in the editor.
+  // For references, this rule is invoked using the resolved term.
+  editor-hover:
+    (string(_,s,_), _, _, _, _) -> hover
+    with
+      hover := <parse-string-and-pp-aterm ; string-replace(|"\n", "<br>")>s
+
+  parse-string-and-pp-aterm =
+    ast   := <parse-string>
+  ; pp    := <pp-aterm-box>ast
+  ; <box2text-string(|80)>pp
+
+

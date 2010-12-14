@@ -1,0 +1,61 @@
+testsuite testsuites
+topsort TestSuite
+
+parse test testsuite (1)
+  ""
+    testsuite ASD
+    topsort TypeDec
+    parse test rob is gek
+       "asd" fails 
+  "" -> testsuite( name("ASD"), _, _)
+  
+parse test missing topsort
+  ""
+    testsuite ASD
+    parse test rob is gek
+      "asd" fails 
+  "" fails
+
+parse test file input test (self) (1)
+  file ./test.spt succeeds
+
+parse test file input test (2) 
+  file ./example2.spt succeeds
+ 
+parse test test 1
+  ""
+    testsuite ASD
+    topsort TypeDec
+    parse test rob is gek
+      "asd" fails 
+  "" -> file ./asd.aterm
+
+parse test test 2
+  ""
+    testsuite ASD123
+    topsort TypeDec
+    parse test rob is gek
+      "asd" fails 
+  "" -> file ./asd3.aterm
+
+/*
+
+editor test simple testsuite editor test (1)
+
+  ""
+    testsuite ASD
+    topsort TypeDec
+    parse test rob is gek
+      "asd" fails 
+  "" no errors, no warnings
+  
+editor test simple testsuite editor test (2)
+  ""
+    testsuite ASD
+    topsort TypeDec
+  ""  
+  no errors, 1 warning, /no tests in/
+
+*/
+
+ 

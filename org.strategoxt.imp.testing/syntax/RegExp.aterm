@@ -1,0 +1,9 @@
+prod(
+  [sort("Branche")]
+, sort("Pattern")
+, attrs(
+    [term(
+       default(appl(unquoted("cons"), [fun(quoted("\"SingleBranch\""))]))
+     )]
+  )
+)

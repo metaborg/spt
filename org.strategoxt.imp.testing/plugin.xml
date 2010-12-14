@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?eclipse version="3.0"?>
+
+<plugin>
+       <extension point="org.eclipse.imp.runtime.languageDescription">
+          <language extensions="spt" description="Spoofax-Testing" language="Spoofax-Testing" derivedFrom="DynamicRoot" validator="org.strategoxt.imp.testing.SpoofaxTestingValidator" validatorClass="org.strategoxt.imp.testing.SpoofaxTestingValidator"></language>
+       </extension>
+       <extension id="org.strategoxt.imp.testing.parser" name="Spoofax-Testing Parser" point="org.eclipse.imp.runtime.parser">
+          <parser class="org.strategoxt.imp.testing.SpoofaxTestingParseController" language="Spoofax-Testing">
+          </parser>
+       </extension>    
+    </plugin>
