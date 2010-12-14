@@ -47,9 +47,10 @@ rules // Main editor interface (defined by editor/Spoofax-Testing-Builders and -
   // For references, this rule is invoked using the resolved term.
   editor-hover:
     (string(_,s,_), _, _, _, _) -> hover
-    with
-      hover := <parse-string-and-pp-aterm ; hover-input-string>s
+    where
+      hover := <parse-string-and-pp-aterm ; hover-input-string>s  
 
+  
   hover-input-string = 
     <concat-strings>
       [ "Using the current parsetable, the input string result in the following AST:<br>"
@@ -62,4 +63,4 @@ rules // Main editor interface (defined by editor/Spoofax-Testing-Builders and -
   ; pp    := <pp-aterm-box>ast
   ; <box2text-string(|80)>pp
 
-
+  external input-dialog(|title, message, initial)
