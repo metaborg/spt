@@ -48,7 +48,14 @@ rules // Main editor interface (defined by editor/Spoofax-Testing-Builders and -
   editor-hover:
     (string(_,s,_), _, _, _, _) -> hover
     with
-      hover := <parse-string-and-pp-aterm ; string-replace(|"\n", "<br>")>s
+      hover := <parse-string-and-pp-aterm ; hover-input-string>s
+
+  hover-input-string = 
+    <concat-strings>
+      [ "Using the current parsetable, the input string result in the following AST:<br>"
+      , "<br>"
+      , "<b><pre>",<id>,"</pre></b>"
+      ] 
 
   parse-string-and-pp-aterm =
     ast   := <parse-string>
