@@ -1,1 +1,6 @@
-file("./asd2.aterm")
+parse-test(
+  " "
+, description("missing topsort")
+, string("\"\"", "\n    testsuite ASD\n    parse test rob is gek\n      \"asd\" fails \n  ", "\"\"")
+, failure()
+)

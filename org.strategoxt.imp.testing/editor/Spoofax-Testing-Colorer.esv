@@ -9,4 +9,5 @@ colorer
   // See the imported file for a brief introduction and examples.
   
   _.RegexPattern : darkgreen
-  _.AtomLiteral : darkgreen     
+  _.AtomLiteral : darkgreen   
+  _.description : darkgreen  
