@@ -15,4 +15,15 @@ completions
                                          
   completion proposer                  : editor-complete
                                          
-  completion trigger                   : ":"
+  completion template : Test =
+    "parse test" " " <description> "\n\t" "\"\"\n\t\"\" " "succeeds" (blank)
+
+  completion template : Test =
+    "parse test" " " <description> "\n\t" "\"\"\n\t\"\" " "fails" (blank)
+    
+  completion template : Test =
+    "parse test" " " <description> "\n\t" "\"\"\n\t\"\" " "->" "file" <path> (blank)
+
+  completion template : Test =
+    "parse test" " " <description> "\n\t" "\"\"\n\t\"\" " "->" <pattern> (blank)
+    
