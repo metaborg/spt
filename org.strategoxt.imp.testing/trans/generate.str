@@ -127,7 +127,7 @@ strategies
       abs := <resolve-path(|path)>f
     ; if not(file-exists) then
         if <oncetd(?parse-test(_, _, _, _) ; oncetd(?file(f)); ?parse-test(_, _, string(_,s,_), _))>ast then
-          result := <parse-string>s 
+          result := <spt-parse-string>s 
         else
           fatal-err-msg(|$[Could not find a string input for generating AST.])  
         end 

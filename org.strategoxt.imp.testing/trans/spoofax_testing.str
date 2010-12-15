@@ -4,6 +4,7 @@ imports
   libstratego-lib
   libstratego-gpp
   libstratego-aterm
+  libstratego-sglr
   include/Spoofax-Testing
   lib/editor-common.generated
   analysis
@@ -11,10 +12,8 @@ imports
   generate
   file-resolving
 
-rules // Main editor interface (defined by editor/Spoofax-Testing-Builders and -References.esv)
-  
-  // Analyzes the current program, returning a tuple with errors, warnings, and notes;
-  // each a list of (term, message) tuples or simply (message) terms.
+rules
+    
   editor-analyze:
     (ast, path, project-path) -> (ast, errors, warnings, notes)
     with
@@ -30,26 +29,20 @@ rules // Main editor interface (defined by editor/Spoofax-Testing-Builders and -
         end
       | path, project-path)
   
-  // Transforms a selection to Java
   generate-java:
     (selected, position, ast, path, project-path) -> result
     with
       scope-paths( result := <to-java> selected | path, project-path)
   
-  // Prints the abstract syntax ATerm of a selection.
   generate-aterm:
-    (selected, position, ast, path, project-path) -> (filename, result)
+    (selected, position, ast, path, project-path) -> (filename, selected)
     with
-      filename := <guarantee-extension(|"aterm")> path;
-      result   := selected // we just return the input term
+      filename := <guarantee-extension(|"aterm")> path
   
-  // Returns "hover help" information for a particular node in the editor.
-  // For references, this rule is invoked using the resolved term.
   editor-hover:
     (string(_,s,_), _, _, _, _) -> hover
     where
-      hover := <parse-string-and-pp-aterm ; hover-input-string>s  
-
+      hover := <parse-string-and-pp-aterm ; hover-input-string>s 
   
   hover-input-string = 
     <concat-strings>
@@ -59,8 +52,25 @@ rules // Main editor interface (defined by editor/Spoofax-Testing-Builders and -
       ] 
 
   parse-string-and-pp-aterm =
-    ast   := <parse-string>
+    ast   := <spt-parse-string>
   ; pp    := <pp-aterm-box>ast
   ; <box2text-string(|80)>pp
 
   external input-dialog(|title, message, initial)
+
+// 
+strategies
+
+  spt-get-parsetable =
+  	spt-parsetable
+   <+ <readdir>"./include" 
+    ; fetch-elem(has-extension(|"tbl")) 
+    ; pt := <ReadFromFile>$[./include/[<id>]]
+    ; rules( spt-parsetable := pt )    
+  	
+  spt-parse-string =
+    parse-string(
+      id
+    | <spt-get-parsetable>
+    )    
+    
