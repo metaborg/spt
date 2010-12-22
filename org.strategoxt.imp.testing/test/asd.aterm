@@ -1,10 +1,13 @@
 testsuite(
   name("ASD")
 , topsort("TypeDec")
-, [parse-test(
-     " "
-   , description("rob is gek")
-   , string("\"", "asd", "\"")
-   , failure()
-   )]
+, [ parse-tests(
+      [parse-test(
+         " "
+       , description("rob is gek")
+       , string("\"", "asd", "\"")
+       , failure()
+       )]
+    )
+  ]
 )

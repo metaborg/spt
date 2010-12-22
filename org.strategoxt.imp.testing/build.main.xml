@@ -18,7 +18,7 @@
         <property name="dist" location="bin/dist"/>
         
         <!-- Imports -->
-        <property name="build.sdf.imports" value=""/>
+        <property name="build.sdf.imports" value="-Idef ${syntax}/Stratego-Sugar.def"/>
         <property name="build.stratego.args" value="
                         --library
                         -I &quot;${trans}&quot;

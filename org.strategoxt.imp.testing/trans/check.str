@@ -2,50 +2,44 @@ module check
 
 imports
   libstratego-lib
+  libstratego-aterm
   include/Spoofax-Testing
   lib/editor-common.generated
-
-rules
-
-  // Analysis: does a topdown traversal of the tree,
-  // and tries to apply the record-entity rule.
-  analyze:
-    t -> t
-    with
-      <topdown(try(record-entity))> t
-
-  // Records the definition of an entity in a dynamic rule GetEntity.
-  record-entity:
-    Entity(x, body) -> Entity(x, body)
-    with
-      // For a name 'x', GetEntity will return the original 'x' tree node
-      rules(
-        GetEntity :+ x -> x
-      )
-rules
-    
-  // Reports an error if a property type is undefined.
-  // This error is reported on the type name 'type'.
-  constraint-error:
-    Property(x, Type(type)) -> (type, $[Type [type] is not defined])
-    where
-      not(!type => "String"); // String and Int are built-in types
-      not(!type => "Int");
-      not(<GetEntity> type) // no entity for this type
+  aterm-eq
+  spoofax_testing
+  file-resolving
   
-  // Reports an error if an entity is defined more than once.
-  // This constraint is implemented by testing if the "bag" of
-  // all entities x is not a singleton list.
-  constraint-error:
-    Entity(x, _) -> (x, $[Duplicate entity name])
-    where
-      not(<bagof-GetEntity> x => [_])
+rules
+  constraint-note = fail
   
   constraint-warning:
-    Entity(x, _) -> (x, $[Entity names must start with a capital])
+    parse-test(_,description(d), i, e) -> (d, $[Test fails])
     where
-      not(<string-starts-with-capital> x)
-  
-  constraint-note:
-    Module(x @ "example", _) -> (x, $[This is just an example program in the "entities" language
-                                      (this note is defined in trans/check.str) ])
+      input := <parse-test-get-input>i
+    ; expected := <parse-test-get-expected>e  
+    ; exploded := <explode-aterm>input
+    where
+      not(<aterm-eq>(exploded, expected))
+
+  constraint-warning:
+    parse-test(_,description(d), i, failure()) -> (d, $[Test fails])
+    where
+      <parse-test-get-input>i
+
+  parse-test-get-input :
+    file(f) -> <resolve-path(|<current-path>) ; read-text-file ; spt-parse-string>f
+    
+  parse-test-get-input :
+    string(_,s,_) -> <spt-parse-string>s
+
+  parse-test-get-expected :
+    pattern(p) -> p
+
+  parse-test-get-expected :
+    success() -> wildcard()
+
+  parse-test-get-expected :
+    file(f) -> <resolve-path(|<current-path>) ; ReadFromFile; explode-aterm>f
+
+ 
+    

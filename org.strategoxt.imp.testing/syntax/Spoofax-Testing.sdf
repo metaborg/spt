@@ -6,6 +6,7 @@ imports Common
 imports Spoofax-Testing-String-Quotation
 imports languages/aterm/syntax/ATerms
 imports RegExp
+imports Stratego-Sugar
 
 exports
   context-free start-symbols TestSuite
@@ -13,11 +14,18 @@ exports
 exports
   sorts TestSuite TopSort Test Input Result
   context-free syntax
-    "testsuite" Name Options Test* -> TestSuite {cons("testsuite")}
+    "testsuite" Name Options TestSuitePart* -> TestSuite {cons("testsuite")}
     "topsort" Sort    -> Options {cons("topsort")}
     "options" Option+ -> Options {cons("options")}
     OptionValue OptionValue -> Option {cons("option")}
 
+    StrategoTests -> TestSuitePart
+    ParseTests    -> TestSuitePart
+    VarDecls      -> TestSuitePart
+    
+    "stratego" "tests" StrategoTest* -> StrategoTests {cons("stratego-tests")}
+    "parse" "tests" ParseTest*       -> ParseTests {cons("parse-tests")}
+    
   lexical syntax
     ~[\ \t\n\r]+ -> OptionValue
     "test"       -> OptionValue {reject}
@@ -27,8 +35,19 @@ exports
 
   %% The description syntax is very ambiguous if comments are allowed around it. So, we forbid comments.
   syntax
-    "parse" <LAYOUT?-CF> "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result-CF> -> <Test-CF> {cons("parse-test")}
-    "parse" <LAYOUT?-CF> "test" <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result-CF> -> <Test-CF>  {cons("parse-test")}
+    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result-CF> -> <ParseTest-CF> {cons("parse-test")}
+
+  context-free syntax
+    "variables" TermDecl* -> VarDecls {cons("Variables")} 
+    ID "=" ATerm          -> TermDecl {cons("VarDecl")}
+    
+  syntax
+    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Strategy-CF> <LAYOUT?-CF> <StrategoResult-CF> -> <StrategoTest-CF> {cons("stratego-test")}
+    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Strategy-CF> -> <StrategoTest-CF> {cons("stratego-test")}
+
+  context-free syntax
+    "fails" -> StrategoResult {cons("failure")}
+    
 
   lexical syntax
     [\ ]+ -> Space

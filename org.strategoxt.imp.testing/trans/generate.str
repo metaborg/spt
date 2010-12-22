@@ -18,13 +18,11 @@ rules
         $[ package tests;
         
            import org.strategoxt.lang.Context;
-           import trans.trans;
+           import trans.*;
            import org.junit.Test;
            import static org.junit.Assert.assertNull;
            import static org.junit.Assert.assertNotNull;
            import static org.junit.Assert.assertEquals;
-           import trans.parse_string_0_0;
-           import trans.aterm_eq_0_1;
            import org.strategoxt.stratego_lib.read_text_file_0_0;
            import org.spoofax.interpreter.terms.*;
            import java.io.IOException;
@@ -39,11 +37,11 @@ rules
            }
         ])
     with 
-      d'* := <map-with-index(try(desugar-test) ; test-to-java)> d*
+      d'* := <mapconcat(?parse-tests(<id>) <+ ![]) ; map-with-index(try(desugar-test) ; test-to-java)> d*
 
-
-  desugar-test :
-    parse-test(i, r) -> parse-test(" ", description(""), i, r)
+    desugar-test = fail
+//  desugar-test :
+//    parse-test(i, r) -> parse-test(" ", description(""), i, r)
 
   escape-string = 
   	string-replace(|"\\","\\\\")
@@ -66,7 +64,7 @@ rules
       $[
           String input = "[s']"; 
           String description = "[d']";
-          IStrategoTerm ast = parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input));
+          IStrategoTerm ast = spt_parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input));
       ]
       with 
         d' := <escape-string>d
@@ -77,7 +75,7 @@ rules
       $[
           IStrategoTerm input = read_text_file_0_0.instance.invoke(context, context.getFactory().makeString("[f']")); 
           String description = "[d']";
-          IStrategoTerm ast = parse_string_0_0.instance.invoke(context, input);
+          IStrategoTerm ast = spt_parse_string_0_0.instance.invoke(context, input);
       ]
       with 
         d' := <escape-string>d
@@ -106,7 +104,7 @@ rules
           } catch (IOException e) {
              // do some logging 	 	
           }
-          assertEquals(description, parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input)), expected ); 
+          assertEquals(description, spt_parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input)), expected ); 
       ]  
       with 
         f' := <resolve-path(|<current-path>) ; escape-string>f

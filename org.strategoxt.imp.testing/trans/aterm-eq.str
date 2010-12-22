@@ -14,7 +14,7 @@ strategies
   aterm-eq(|p) =
     <aterm-eq>(<explode-aterm>,<read-from-string>p)
 
-  aterm-eq =
+  aterm-eq = 
     rec x(
         list-term-eq(x)
     +    int-term-eq(x)
@@ -22,8 +22,8 @@ strategies
     +   appl-term-eq(x)
     +        afun-eq(x)
     +    wildcard-eq(x)
-    + wildcardvar-eq(x)
-    )
+    + wildcardvar-eq(x) 
+    ) 
 
 rules
 
