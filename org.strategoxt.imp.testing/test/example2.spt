@@ -1,5 +1,0 @@
-testsuite ASD
-    topsort TypeDec
-    parse tests
-    test rob is gek
-      "asd" fails

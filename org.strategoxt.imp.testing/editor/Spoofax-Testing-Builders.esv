@@ -16,7 +16,7 @@ builders
                                                                                                                                
   observer : editor-analyze                                                                                   
                                                                                                                                
-  builder  : "Generate Java code (for selection)"            = generate-java (openeditor)               
+  builder  : "Generate JUnit test"            = generate-java (openeditor)               
   builder  : "Show abstract syntax (for selection)"          = generate-aterm (openeditor) (realtime) (meta) (source)  
   builder  : "Generate missing output file with current AST" = generate-ast-file (cursor)              
                                                                                                                                

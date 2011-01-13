@@ -1,0 +1,16 @@
+module TestingTesting.main
+
+imports TestingTesting-Builders TestingTesting-Colorer TestingTesting-Completions TestingTesting-Folding TestingTesting-Outliner TestingTesting-References TestingTesting-Syntax
+
+language General properties
+                  
+  name          : TestingTesting
+  id            : org.strategoxt.imp.testing.test
+  extends       : Root
+                  
+  description   : "Spoofax/IMP-generated editor for the TestingTesting language"
+  url           : http://strategoxt.org
+                  
+  extensions    : spt-test
+  table         : include/TestingTesting.tbl
+  start symbols : Start

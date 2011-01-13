@@ -1,1 +1,0 @@
-("editor/java/tests/Comments", "package tests;\nimport org.junit.Test;\nimport static org.junit.Assert.assertEquals;\n\n       class Comments {\n       \t    @Test\n       \t    public void test1() {\n       \t    \tassertEquals(5,4);\n       \t    } \n       }\n")

@@ -46,7 +46,7 @@ rules
   
   hover-input-string = 
     <concat-strings>
-      [ "Using the current parsetable, the input string result in the following AST:<br>"
+      [ "The input string currently result in the following AST:<br>"
       , "<br>"
       , "<b><pre>",<id>,"</pre></b>"
       ] 
