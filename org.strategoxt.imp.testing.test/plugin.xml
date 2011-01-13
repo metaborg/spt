@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?eclipse version="3.0"?>
+
+<plugin>
+       <extension point="org.eclipse.imp.runtime.languageDescription">
+          <language extensions="spt-test" description="TestingTesting" language="TestingTesting" derivedFrom="DynamicRoot" validator="org.strategoxt.imp.testing.test.TestingTestingValidator" validatorClass="org.strategoxt.imp.testing.test.TestingTestingValidator"></language>
+       </extension>
+       <extension id="org.strategoxt.imp.testing.test.parser" name="TestingTesting Parser" point="org.eclipse.imp.runtime.parser">
+          <parser class="org.strategoxt.imp.testing.test.TestingTestingParseController" language="TestingTesting">
+          </parser>
+       </extension>    
+    </plugin>
