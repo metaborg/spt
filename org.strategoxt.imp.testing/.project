@@ -3,8 +3,6 @@
 	<name>org.strategoxt.imp.testing</name>
 	<comment></comment>
 	<projects>
-		<project>org.strategoxt.imp.editors.aterm</project>
-		<project>org.strategoxt.imp.editors.stratego</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

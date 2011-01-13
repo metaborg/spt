@@ -15,25 +15,41 @@ rules
   to-java:
     testsuite(name(x), topsort(s), d*) ->
        ($[editor/java/tests/[x].java], 
-        $[ package tests;
-        
-           import org.strategoxt.lang.Context;
-           import trans.*;
-           import org.junit.Test;
-           import static org.junit.Assert.assertNull;
-           import static org.junit.Assert.assertNotNull;
-           import static org.junit.Assert.assertEquals;
-           import org.strategoxt.stratego_lib.read_text_file_0_0;
-           import org.spoofax.interpreter.terms.*;
-           import java.io.IOException;
+        $[package tests;
 
-           public class [x] {
-               protected Context context;
-               
-               public [x]() {
-                   context = trans.init();
-               }
-               [d'*]
+          import junit.framework.TestCase;
+          
+          import org.junit.Before;
+          import org.junit.Test;
+          import org.spoofax.interpreter.core.InterpreterException;
+          import org.spoofax.interpreter.terms.IStrategoTerm;
+          import org.strategoxt.HybridInterpreter;
+          import org.strategoxt.imp.runtime.Environment;
+          import org.strategoxt.imp.runtime.dynamicloading.Descriptor;
+          import org.strategoxt.imp.runtime.parser.JSGLRI;
+          import org.spoofax.jsglr.SGLRException;
+          import org.strategoxt.imp.runtime.services.StrategoObserver;
+          import org.strategoxt.imp.testing.test.TestingTestingParseController;
+          
+          @SuppressWarnings("unused")
+          public class [x] extends TestCase {
+          
+              private final JSGLRI parser;
+              
+              private final HybridInterpreter stratego;
+              
+              public ASD() throws Exception {
+                Descriptor descriptor = TestingTestingParseController.getDescriptor();
+                parser = new JSGLRI(Environment.getParseTableProvider(descriptor.getLanguage()), "Start");
+                StrategoObserver observer = descriptor.createService(StrategoObserver.class, null);
+                observer.getLock().lock();
+                try {
+                    stratego = observer.getRuntime();
+                } finally {
+                    observer.getLock().unlock();
+                }
+              }
+              [d'*]
            }
         ])
     with 
@@ -44,7 +60,7 @@ rules
 //    parse-test(i, r) -> parse-test(" ", description(""), i, r)
 
   escape-string = 
-  	string-replace(|"\\","\\\\")
+    string-replace(|"\\","\\\\")
   ; string-replace(|"\n","\\n")
   ; string-replace(|"\"","\\\"") 
 
@@ -52,7 +68,7 @@ rules
     (i, tst) ->  
       $[
           @Test
-          public void test[i]() {
+          public void test[i]() throws Exception {
               [stmt*]
           }  
       ]  
@@ -61,10 +77,9 @@ rules
 
   to-java-test-decl :
     parse-test(_, description(d), string(_,s,_), _) -> 
-      $[
-          String input = "[s']"; 
+      $[  String input = "[s']"; 
           String description = "[d']";
-          IStrategoTerm ast = spt_parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input));
+          IStrategoTerm ast = parser.parse(input, description);
       ]
       with 
         d' := <escape-string>d
@@ -75,7 +90,7 @@ rules
       $[
           IStrategoTerm input = read_text_file_0_0.instance.invoke(context, context.getFactory().makeString("[f']")); 
           String description = "[d']";
-          IStrategoTerm ast = spt_parse_string_0_0.instance.invoke(context, input);
+          IStrategoTerm ast = parser.parse(input, description));
       ]
       with 
         d' := <escape-string>d
@@ -83,28 +98,26 @@ rules
         
   test-to-java-stmts:
     parse-test(_, _, _, success()) ->
-      $[
-          [<to-java-test-decl>]
+      $[  [<to-java-test-decl>]
           assertNotNull(description, ast); 
        ]  
 
   test-to-java-stmts:
     parse-test(_, _, _, failure()) ->
-      $[
-          [<to-java-test-decl>]
-          assertNull(description, ast); 
+      $[  try {
+              [<to-java-test-decl>]
+              fail(description);
+          } catch (SGLRException e) {
+              // failure expected
+          } 
        ]  
   test-to-java-stmts:
     parse-test(_, _, _, file(f)) ->
       $[ 
           [<to-java-test-decl>]
           IStrategoTerm expected = null;
-          try {
-          	 expected = context.getFactory().parseFromFile("[f']");
-          } catch (IOException e) {
-             // do some logging 	 	
-          }
-          assertEquals(description, spt_parse_string_0_0.instance.invoke(context, context.getFactory().makeString(input)), expected ); 
+          expected = context.getFactory().parseFromFile("[f']");
+          assertEquals(description, parser.parse(input, description), expected); 
       ]  
       with 
         f' := <resolve-path(|<current-path>) ; escape-string>f

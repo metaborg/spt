@@ -19,8 +19,8 @@
         
         <!-- Imports -->
         <property name="build.sdf.imports" value="
-        	              -Idef ../org.strategoxt.imp.editors.stratego/include/Stratego-Sugar.def
-        	              -Idef ../org.strategoxt.imp.editors.aterm/include/ATerm.def"/>
+        	              -Idef &quot;${basedir}/../org.strategoxt.imp.editors.stratego/include/Stratego-Sugar.def&quot;
+        	              -Idef &quot;${basedir}/../org.strategoxt.imp.editors.aterm/include/ATerm.def&quot;"/>
         <property name="build.stratego.args" value="
                         --library
                         -I &quot;${trans}&quot;
@@ -42,5 +42,5 @@
         <import file="build.generated.xml"/>
     
         <!-- Main target -->
-        <target name="all" depends="init,java.jar,spoofaximp.default.jar"/>
+        <target name="all" depends="spoofaximp.default.jar"/>
     </project>
