@@ -69,6 +69,7 @@ strategies
     ; rules( spt-parsetable := pt )    
   	
   spt-parse-string =
+    prim("STRSGLR_set_recovery_on");
     parse-string(
       id
     | <spt-get-parsetable>
