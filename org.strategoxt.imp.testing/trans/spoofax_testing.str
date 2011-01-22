@@ -21,9 +21,10 @@ rules
         editor-init;
         <chdir> project-path;
         <record-all-sdfs> ".";
-        errors   := <collect-all(constraint-error, conc)> ast;
-        warnings := <collect-all(constraint-warning, conc)> ast;
-        notes    := <collect-all(constraint-note, conc)> ast;
+        rules(InputFile := path);
+        errors   := <collect-all(check-error, conc)> ast;
+        warnings := <collect-all(check-warning, conc)> ast;
+        notes    := <collect-all(check-note, conc)> ast;
         if not([] := errors) then
             rules ( HasErrors := () )
         end
@@ -58,15 +59,23 @@ rules
 
   external input-dialog(|title, message, initial)
 
-// 
+
 strategies
+	
+	// XXX: read Observer(_) subterm from ./include/*.packed.esv
+	spt-get-observer =
+		!"editor-analyze"
+	
+	// XXX: read LanguageName(_) subterm from ./include/*.packed.esv
+	spt-get-language =
+		!"TestingTesting"
 
   spt-get-parsetable =
-  	spt-parsetable
+  	SPTParseTable
    <+ <readdir>"./include" 
     ; fetch-elem(has-extension(|"tbl")) 
     ; pt := <ReadFromFile>$[./include/[<id>]]
-    ; rules( spt-parsetable := pt )    
+    ; rules( SPTParseTable := pt )    
   	
   spt-parse-string =
     prim("STRSGLR_set_recovery_on");

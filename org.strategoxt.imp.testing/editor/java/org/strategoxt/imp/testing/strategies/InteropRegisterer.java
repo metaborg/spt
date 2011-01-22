@@ -9,6 +9,6 @@ package org.strategoxt.imp.testing.strategies;
        public class InteropRegisterer extends JavaInteropRegisterer {
 
          public InteropRegisterer() {
-           super(new Strategy[] { java_strategy_0_0.instance });
+           super(new Strategy[] { java_strategy_0_0.instance, input_dialog_0_3.instance, invoke_plugin_strategy_0_2.instance, open_editor_0_0.instance });
          }
        }

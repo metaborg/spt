@@ -2,6 +2,9 @@ package org.strategoxt.imp.testing.test;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.parser.IParseController;
 import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
@@ -34,14 +37,25 @@ public class TestingTestingParseControllerGenerated extends DynamicParseControll
   { 
     try
     { 
-      InputStream descriptorStream = TestingTestingParseController.class.getResourceAsStream(DESCRIPTOR);
-      InputStream table = TestingTestingParseController.class.getResourceAsStream(TABLE);
+      InputStream descriptorStream = TestingTestingParseControllerGenerated.class.getResourceAsStream(DESCRIPTOR);
+      InputStream table = TestingTestingParseControllerGenerated.class.getResourceAsStream(TABLE);
+      boolean filesystem = false;
+      if(descriptorStream == null && new File("./" + DESCRIPTOR).exists())
+      { 
+        descriptorStream = new FileInputStream("./" + DESCRIPTOR);
+        filesystem = true;
+      }
+      if(table == null && new File("./" + TABLE).exists())
+      { 
+        table = new FileInputStream("./" + TABLE);
+        filesystem = true;
+      }
       if(descriptorStream == null)
         throw new BadDescriptorException("Could not load descriptor file from " + DESCRIPTOR + " (not found in plugin: " + getPluginLocation() + ")");
       if(table == null)
         throw new BadDescriptorException("Could not load parse table from " + TABLE + " (not found in plugin: " + getPluginLocation() + ")");
-      descriptor = DescriptorFactory.load(descriptorStream, table, null);
-      descriptor.setAttachmentProvider(TestingTestingParseController.class);
+      descriptor = DescriptorFactory.load(descriptorStream, table, filesystem ? Path.fromPortableString("./") : null);
+      descriptor.setAttachmentProvider(TestingTestingParseControllerGenerated.class);
     }
     catch(BadDescriptorException exc)
     { 

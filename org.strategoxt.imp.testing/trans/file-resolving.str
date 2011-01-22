@@ -16,7 +16,7 @@ strategies
        ) ; s
     |}
  
-  constraint-error :
+  check-error :
     file(f) -> (<id>, $[File '[f]' does not exist.])
     where 
       path := <current-path>
