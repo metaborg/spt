@@ -42,10 +42,11 @@ exports
     ID "=" ATerm -> VarDecl {cons("VarDecl")}
 
   context-free syntax
-              -> StrategoResult {cons("StrategySuccess")}
-    "fails"   -> StrategoResult {cons("StrategyFails")}
-    "==" Term -> StrategoResult {cons("StrategyEquals")}
-    Strategy  -> TestStrategy
+               -> StrategoResult {cons("StrategySuccess")}
+    "succeeds" -> StrategoResult {cons("StrategySuccess")}
+    "fails"    -> StrategoResult {cons("StrategyFails")}
+    "==" ATerm -> StrategoResult {cons("StrategyEquals")}
+    Strategy   -> TestStrategy
     String                               -> TestStrategy {reject}
     "[" {Strategy ","}* "]" 		         -> TestStrategy {reject}
     "[" {Strategy ","}* "|" Strategy "]" -> TestStrategy {reject}

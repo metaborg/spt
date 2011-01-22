@@ -15,15 +15,20 @@ import org.strategoxt.lang.Context;
 import org.strategoxt.lang.MissingStrategyException;
 import org.strategoxt.lang.Strategy;
 
-public class invoke_plugin_strategy_0_2 extends Strategy {
+/**
+ * Evaluate a strategy in a stratego instance belonging to a language plugin.
+ * 
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+public class plugin_strategy_invoke_0_2 extends Strategy {
 
-	public static invoke_plugin_strategy_0_2 instance = new invoke_plugin_strategy_0_2();
+	public static plugin_strategy_invoke_0_2 instance = new plugin_strategy_invoke_0_2();
 
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName, IStrategoTerm strategy) {
-		// XXX: we should invoke this strategy on the plugin, not on the current context
 		try {
 			Descriptor descriptor = Environment.getDescriptor(LanguageRegistry.findLanguage(asJavaString(languageName)));
+			if (descriptor == null) throw new BadDescriptorException("No language known with the name " + languageName);
 	        StrategoObserver observer = descriptor.createService(StrategoObserver.class, null);
 	        IOAgent ioAgent = context.getIOAgent();
 	        if (ioAgent instanceof EditorIOAgent) {
@@ -44,6 +49,9 @@ public class invoke_plugin_strategy_0_2 extends Strategy {
 			Environment.logException("Problem loading descriptor for testing", e);
 			return null;
 		} catch (InterpreterException e) {
+			Environment.logException("Problem executing strategy for testing: " + strategy, e);
+			return null;
+		} catch (RuntimeException e) {
 			Environment.logException("Problem executing strategy for testing: " + strategy, e);
 			return null;
 		}
