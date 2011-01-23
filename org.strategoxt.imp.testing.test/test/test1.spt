@@ -11,7 +11,7 @@ testsuite ASD
       [[x ]]
     
     test rob is gek
-      [[module x]] -> Module(_, _)
+      [[module x]] == Module(_, _)
     
     test rob is gek
       [[module x entity X { a : B } ]] succeeds parsing
@@ -32,7 +32,7 @@ testsuite ASD
       true succeeds
 
     test stratego
-      true fails
+      ![1,2,3]; let s = {?x; <inc> x} in map(s) end == [2,3,4]
 
     test stratego
       1 + !2 == 2

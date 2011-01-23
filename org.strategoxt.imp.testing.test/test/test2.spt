@@ -27,7 +27,7 @@ topsort TestSuite
 	    
 	    test rob is gek
 	      "asd" fails 
-	  "" -> file ./asd.aterm
+	  "" == file ./asd.aterm
 	
 	test test 2
 	  ""
@@ -38,7 +38,7 @@ topsort TestSuite
 	    test rob is gek
 	    
 	      "asd" fails 
-	  "" -> file ./asd3.aterm
+	  "" == file ./asd3.aterm
 	
 	test empty file should fail
 	    ""
@@ -48,7 +48,7 @@ topsort TestSuite
 	  <Hd> [1, 2, 3, 4] == 1
 	
 	test Hd on empty list should fail
-	  <Hd>[] fails
+	  <Hd> [] fails
 	
 	test test-term-projection-in-anno
 	  <?_{<id>}>1{2} == 2

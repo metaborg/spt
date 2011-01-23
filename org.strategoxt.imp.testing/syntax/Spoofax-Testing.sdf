@@ -46,6 +46,7 @@ exports
     "succeeds" -> StrategoResult {cons("StrategySuccess")}
     "fails"    -> StrategoResult {cons("StrategyFails")}
     "==" ATerm -> StrategoResult {cons("StrategyEquals")}
+    "->" ATerm -> StrategoResult {cons("StrategyEquals"), deprecated("Use == instead of ->")}
     Strategy   -> TestStrategy
     String                               -> TestStrategy {reject}
     "[" {Strategy ","}* "]" 		         -> TestStrategy {reject}
@@ -60,8 +61,11 @@ exports
 
   context-free syntax
   	
-    "->" "file" PathName -> Result {cons("file")}
-    "->" ATerm           -> Result {cons("pattern")}
+    "->" "file" PathName -> Result {cons("file"), deprecated("Use == instead of ->")}
+    "->" ATerm           -> Result {cons("pattern"), deprecated("Use == instead of ->")}
+    
+    "==" "file" PathName -> Result {cons("file")}
+    "==" ATerm           -> Result {cons("pattern")}
 
     "fails"              -> Result {cons("Fails")}
     "fails" "parsing"    -> Result {cons("FailsParsing")}
