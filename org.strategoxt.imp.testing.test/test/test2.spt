@@ -1,20 +1,10 @@
 testsuite testsuites
 topsort TestSuite
 
-variables 
+// variables 
 	input1 = []
 	input2 = [1,2,3]
 	input3 = Int(1)
-
-parse tests 
-	test testsuite (1)
-	  ""
-	    testsuite ASD
-	    topsort TypeDec
-	    parse tests
-	      test rob is gek123
-	         "asd" fails 
-	  "" -> testsuite( name("ASD"), _, _)
 	  
 	test missing topsort
 	  ""
@@ -23,11 +13,11 @@ parse tests
 	      "asd" fails 
 	  "" fails
 	
-	test file input test (self) (1)
-	  file ./test.spt succeeds
+	//test file input test (self) (1)
+	//  file ./test.spt succeeds
 	
-	test file input test (2) 
-	  file ./example2.spt succeeds
+	//test file input test (2) 
+	//  file ./example2.spt succeeds
 	 
 	test test 1
 	  ""
@@ -37,7 +27,7 @@ parse tests
 	    
 	    test rob is gek
 	      "asd" fails 
-	  "" -> file ./asd.aterm
+	  "" == file ./asd.aterm
 	
 	test test 2
 	  ""
@@ -48,38 +38,26 @@ parse tests
 	    test rob is gek
 	    
 	      "asd" fails 
-	  "" -> file ./asd3.aterm
+	  "" == file ./asd3.aterm
 	
 	test empty file should fail
 	    ""
 	    "" fails
 
-stratego tests
-
 	test Hd on list
-	  <Hd>[1,2,3,4] => 1
+	  <Hd> [1, 2, 3, 4] == 1
 	
 	test Hd on empty list should fail
-	  <Hd>[] fails
+	  <Hd> [] fails
 	
 	test test-term-projection-in-anno
-	  <?_{<id>}>1{2} => 2
+	  <?_{<id>}>1{2} == 2
 	
-	test test-term-projection-in-anno
-	  <catch-annos> Plus(Var("a"), Var("b")){Int} => Anno(Plus(Var("a"), Var("b")), [Int])
+	test catch-annos
+	  <catch-annos> Plus(Var("a"), Var("b")){Int()} == Anno(_, [Int])
 
 
 /*
-
-editor test simple testsuite editor test (1)
-  
-  ""
-    testsuite ASD
-    topsort TypeDec
-    parse test rob is gek
-      "asd" fails 
-  "" no errors, no warnings
-  
 editor test simple testsuite editor test (2)
   ""
     testsuite ASD

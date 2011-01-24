@@ -5,9 +5,7 @@ import static org.spoofax.interpreter.core.Tools.isTermString;
 import java.io.FileNotFoundException;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.junit.launcher.JUnitLaunchShortcut;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;

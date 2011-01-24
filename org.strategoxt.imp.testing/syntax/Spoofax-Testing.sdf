@@ -14,17 +14,16 @@ exports
 exports
   sorts TestSuite TopSort Test Input Result
   context-free syntax
-    "testsuite" Name Options TestSuitePart* -> TestSuite {cons("testsuite")}
+    "testsuite" Name Options TestDecl* -> TestSuite {cons("testsuite")}
     "topsort" Sort    -> Options {cons("topsort")}
     "options" Option+ -> Options {cons("options")}
     OptionValue OptionValue -> Option {cons("option")}
-
-    StrategoTests -> TestSuitePart
-    ParseTests    -> TestSuitePart
-    VarDecls      -> TestSuitePart
     
-    "stratego" "tests" StrategoTest* -> StrategoTests {cons("stratego-tests")}
-    "parse" "tests" ParseTest*       -> ParseTests {cons("parse-tests")}
+    %% TODO: make topsort optional
+
+    ParseTest    -> TestDecl
+    StrategoTest -> TestDecl
+    VarDecl      -> TestDecl
     
   lexical syntax
     ~[\ \t\n\r]+ -> OptionValue
@@ -35,19 +34,24 @@ exports
 
   %% The description syntax is very ambiguous if comments are allowed around it. So, we forbid comments.
   syntax
-    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result-CF> -> <ParseTest-CF> {cons("parse-test")}
+    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result*-CF> -> <ParseTest-CF> {cons("Test")}
+    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <TestStrategy-CF> <LAYOUT?-CF> <StrategoResult-CF>
+      -> <StrategoTest-CF> {cons("TestStratego")}
 
   context-free syntax
-    "variables" TermDecl* -> VarDecls {cons("Variables")} 
-    ID "=" ATerm          -> TermDecl {cons("VarDecl")}
-    
-  syntax
-    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Strategy-CF> <LAYOUT?-CF> <StrategoResult-CF> -> <StrategoTest-CF> {cons("stratego-test")}
-    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Strategy-CF> -> <StrategoTest-CF> {cons("stratego-test")}
+    ID "=" ATerm -> VarDecl {cons("VarDecl")}
 
   context-free syntax
-    "fails" -> StrategoResult {cons("failure")}
-    
+               -> StrategoResult {cons("StrategySuccess")}
+    "succeeds" -> StrategoResult {cons("StrategySuccess")}
+    "fails"    -> StrategoResult {cons("StrategyFails")}
+    "==" ATerm -> StrategoResult {cons("StrategyEquals")}
+    "->" ATerm -> StrategoResult {cons("StrategyEquals"), deprecated("Use == instead of ->")}
+    Strategy   -> TestStrategy
+    String                               -> TestStrategy {reject}
+    "[" {Strategy ","}* "]" 		         -> TestStrategy {reject}
+    "[" {Strategy ","}* "|" Strategy "]" -> TestStrategy {reject}
+    "fails"                              -> Term {reject}
 
   lexical syntax
     [\ ]+ -> Space
@@ -56,27 +60,54 @@ exports
     Space -/- [\ ]
 
   context-free syntax
-    "->" "file" PathName -> Result {cons("file")}
-    "->" ATerm           -> Result {cons("pattern")}
-    "_"                  -> ATerm  {cons("wildcard")}
-    "..."                -> { ATerm ","}+ {cons("wildcardvar")}
+  	
+    "->" "file" PathName -> Result {cons("file"), deprecated("Use == instead of ->")}
+    "->" ATerm           -> Result {cons("pattern"), deprecated("Use == instead of ->")}
+    
+    "==" "file" PathName -> Result {cons("file")}
+    "==" ATerm           -> Result {cons("pattern")}
 
-    "fails"    -> Result {cons("failure")}
-    "succeeds" -> Result {cons("success")}
+    "fails"              -> Result {cons("Fails")}
+    "fails" "parsing"    -> Result {cons("FailsParsing")}
+    "succeeds"           -> Result {cons("Success")}
+    "succeeds" "parsing" -> Result {cons("SuccessParsing")}
 
     "file" PathName -> Input {cons("file")}
 
+    "no" "errors"     -> Result    {cons("NoErrors")} 
+    "1" "error"       -> Result    {cons("Error")}
+    INT "errors"      -> Result    {cons("Errors")}
+    
+    "no" "warnings"   -> Result    {cons("NoWarnings")} 
+    INT "warnings"    -> Result    {cons("Warnings")}
+    "1" "warning"     -> Result    {cons("Warning")}
+    
+    "resolves" ID                    -> Result {cons("Resolves")}
+    "resolves" ID "to" ID            -> Result {cons("ResolvesTo")}
+    "completes" ID "to" ID           -> Result {cons("Completes")}
+    "builds" Id "to" ATerm           -> Result {cons("Builds")}
+    "builds" Id "to" "file" PathName -> Result {cons("BuildsFile")}
+    
+    RegexExp          -> Constraint
+
+context-free syntax
+
+  %% UNDONE: ATerm syntax patches that should be in our ATerm.def already
+
   %% allow unquoted upper case AFuns
-  lexical syntax
-    "" -> IdCon {cons("empty")}
+  %% lexical syntax
+  %%   "" -> IdCon {cons("empty")}
 
   %% empty is ok, but cannot be a complete ATerm.
-  context-free syntax
-    ""-> ATerm {reject}
+  %% context-free syntax
+  %%   ""-> ATerm {reject}
 
   %% allow function applications without arguments
-  context-free syntax
-    fun:AFun "(" ")" -> ATerm {cons("fun")}
+  %%context-free syntax
+  %%  fun:AFun "(" ")" -> ATerm {cons("fun")}
+  
+    "_"                  -> ATerm  {cons("wildcard")}
+    "..."                -> { ATerm ","}+ {cons("wildcardvar")}
 
   context-free syntax
   	StringQuotation -> Input
@@ -171,18 +202,3 @@ exports
     ShortCom    -> LAYOUT
     LongCom     -> LAYOUT
 
-  syntax
-    "editor" <LAYOUT?-CF> "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <EditorResults-CF> -> <Test-CF> {cons("editor-test")}
-    
-  context-free syntax 
-    {Constraint ","}+ -> EditorResults {cons("Constraints")}
-
-    "no" "errors"     -> Constraint    {cons("NoErrors")} 
-    "1" "error"       -> Constraint    {cons("Error")}
-    INT "errors"      -> Constraint    {cons("Errors")}
-    
-    "no" "warnings"   -> Constraint    {cons("NoWarnings")} 
-    INT "warnings"    -> Constraint    {cons("Warnings")}
-    "1" "warning"     -> Constraint    {cons("Warning")}
-    
-    RegexExp          -> Constraint

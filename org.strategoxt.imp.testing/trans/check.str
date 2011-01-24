@@ -10,36 +10,186 @@ imports
   file-resolving
   
 rules
-  constraint-note = fail
+  check-note = fail
   
-  constraint-warning:
-    parse-test(_,description(d), i, e) -> (d, $[Test fails])
+  check-error:
+    Test(_, d, _, [_, _ | _]) -> (d, "Specify only one success condition") // maybe in the future...
+  
+  //check-error:
+  //  Test(_, _, string(_, _, close), []) -> (close, "Specify a success condition")
+  
+  check-warning:
+    Test(_,description(d), i, expectations) -> (d, warnings)
     where
-      input := <parse-test-get-input>i
-    ; expected := <parse-test-get-expected>e  
-    ; exploded := <explode-aterm>input
-    where
-      not(<aterm-eq>(exploded, expected))
+      input := <Test-get-input <+ !FailsParsing()>i
+    ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
+        // TODO: set starting directory to project path using invoke-plugin-strategy
+        plugin-strategy-invoke(|<spt-get-language>, "editor-init")
+      ; input' := (input, <project-path>, <InputFile>)
+      ; messages := <try(\(t,e,w,n)->(e,w,n)\)> <plugin-strategy-invoke(|<spt-get-language>, <spt-get-observer>)> input'
+      <+
+        messages := Fails()
+      else
+        messages := ([], [], [])
+      end
+    ; if !expectations => [] then
+        warnings := <filter(check-expectation(|input, messages))> [Success()]
+      else
+        warnings := <filter(check-expectation(|input, messages))> expectations
+      end
+    ; not([])
 
-  constraint-warning:
-    parse-test(_,description(d), i, failure()) -> (d, $[Test fails])
-    where
-      <parse-test-get-input>i
-
-  parse-test-get-input :
+  external plugin-strategy-invoke(|language, name)
+  
+  Test-get-input :
     file(f) -> <resolve-path(|<current-path>) ; read-text-file ; spt-parse-string>f
     
-  parse-test-get-input :
+  Test-get-input :
     string(_,s,_) -> <spt-parse-string>s
 
-  parse-test-get-expected :
-    pattern(p) -> p
+  check-expectation(|ast, messages) :
+    <not(Fails + FailsParsing)> -> $[Fails to parse]
+    where
+      not(?Fails() + ?FailsParsing())
+    ; !ast => FailsParsing()
 
-  parse-test-get-expected :
-    success() -> wildcard()
+  check-expectation(|ast, messages) :
+    <not(Fails)> -> $[Observer fails]
+    where
+      !messages => Fails()
 
-  parse-test-get-expected :
-    file(f) -> <resolve-path(|<current-path>) ; ReadFromFile; explode-aterm>f
+  check-expectation(|ast, messages) :
+    Fails() -> $[Failure expected]
+    where
+      !messages => ([], [], [])
+    ; not(!ast => FailsParsing())
 
- 
+  check-expectation(|ast, messages) :
+    FailsParsing() -> $[Failure expected]
+    where
+      not(!ast => FailsParsing())
+
+  check-expectation(|ast, messages) :
+    pattern(p) -> $[Does not match pattern: [<write-to-string> ast]]
+    where
+      exploded := <explode-aterm> ast
+    ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
+
+  check-expectation(|ast, messages) :
+    file(f) -> $[Does not match pattern: [<write-to-string> ast]]
+    where
+      exploded := <explode-aterm> ast
+    ; p := <resolve-path(|<current-path>); ReadFromFile; explode-aterm> f
+    ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
+
+  check-expectation(|ast, messages) :
+    Success() -> $[Unexpected message(s): [<messages-to-string> messages]]
+    where
+      not(!messages => ([], [], []))
+
+  check-expectation(|ast, messages) :
+    NoErrors() -> $[No errors expected: [<errors-to-string> messages]]
+    where
+      not(!messages => ([], _, _))
+
+  check-expectation(|ast, messages) :
+    Errors(n) -> $[[n] errors expected: [<errors-to-string> messages]]
+    where
+      !messages => (errors, _, _)
+    ; not(<eq> (<length> errors, <string-to-int> n))
+
+  check-expectation(|ast, messages) :
+    Error() -> $[1 error expected: [<errors-to-string> messages]]
+    where
+      not(!messages => ([_], _, _))
+
+  check-expectation(|ast, messages) :
+    NoWarnings() -> $[No warnings expected: [<errors-to-string> messages]]
+    where
+      not(!messages => (_, [], _))
+
+  check-expectation(|ast, messages) :
+    Warnings(n) -> $[[n] warnings expected: [<errors-to-string> messages]]
+    where
+      !messages => (_, warnings, _)
+    ; not(<eq> (<length> warnings, <string-to-int> n))
+
+  check-expectation(|ast, messages) :
+    Warning() -> $[1 warning expected: [<errors-to-string> messages]]
+    where
+      not(!messages => (_, [_], _))
+
+  check-expectation(|ast, messages) :
+    Completes(_, _) -> $[Not implemented: [<write-to-string>]]
+
+  check-expectation(|ast, messages) :
+    Builds(_, _) -> $[Not implemented: [<write-to-string>]]
+
+  check-expectation(|ast, messages) :
+    BuildsFile(_, _) -> $[Not implemented: [<write-to-string>]]
+
+  check-expectation(|ast, messages) :
+    Resolves(x) -> <check-expectation(|ast, messages)> ResolvesTo(x, x)
+
+  check-expectation(|ast, messages) :
+    ResolvesTo(_, _) -> $[Not implemented: [<write-to-string>]]
+
+  check-expectation(|ast, messages) :
+    ResolvesTo(_, _) -> $[Not implemented: [<write-to-string>]]
+
+  check-expectation(|ast, messages) :
+    VarDecl(_, _) -> $[Not implemented: [<write-to-string>]]
     
+  is-parse-only-test =
+    SuccessParsing + FailsParsing
+
+  messages-to-string:
+    (errors, warnings, notes) -> <write-to-string> // TODO
+
+  errors-to-string:
+    (errors, _, _) -> <write-to-string> errors // TODO
+
+  warnings-to-string:
+    (_, warnings, _) -> <write-to-string> warnings // TODO
+
+signature constructors
+  
+  Fail : String -> Term
+  Error : String -> Term
+  fun : AFun -> ATerm
+
+rules
+
+  external plugin-strategy-evaluate(|language, strategy)
+
+  check-warning:
+    TestStratego(_, description(d), s, expectation) -> (d, warning)
+    where
+      plugin-strategy-invoke(|<spt-get-language>, "editor-init")
+    ; s' := SDefT(d, [], [], s)
+    ; result := <plugin-strategy-evaluate(|<spt-get-language>, s') <+ Fails()> ()
+    ; if !result => Error(error) then
+        warning := error
+      else
+        warning := <check-expectation(|result)> expectation
+      end
+
+  check-expectation(|result) :
+    StrategyFails() -> $[Failure expected: <pre>[<write-to-string> result']</pre>]
+    where
+      !result => Some(result')
+
+  check-expectation(|result) :
+    <not(StrategyFails)> -> $[Failure unexpected: <pre>[trace]</pre>]
+    where
+      !result => Fail(trace)
+
+  check-expectation(|result) :
+    StrategyEquals(p) -> $[Unexpected result: [<write-to-string> result']]
+    where
+      !result => Some(result')
+    ; result'' := <explode-aterm> result'
+    ; not(<aterm-eq> (result'', <aterm-appl0-to-fun> p))
+    
+  aterm-appl0-to-fun =
+  	topdown(try(\appl(s, []) -> fun(s)\))

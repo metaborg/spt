@@ -12,12 +12,13 @@ exports
     "\\\""                -> StringChar
     BackSlashChar         -> StringChar
     "\\"                  -> BackSlashChar
-    
-    [\ \t\n\r] -> LAYOUT
-    
-    [\*]                             -> CommentChar
-    "/*" (~[\*] | CommentChar)* "*/" -> LAYOUT
-    "//" ~[\n\r]* ([\n\r] | EOF)     -> LAYOUT
+
+    %% UNDONE: also in main module or Stratego-Sugar syntax
+    %%    
+    %%[\ \t\n\r] -> LAYOUT
+    %%[\*]                             -> CommentChar
+    %%"/*" (~[\*] | CommentChar)* "*/" -> LAYOUT
+    %%"//" ~[\n\r]* ([\n\r] | EOF)     -> LAYOUT
     
     -> EOF
   
