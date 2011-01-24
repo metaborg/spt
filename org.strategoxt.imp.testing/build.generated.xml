@@ -7,8 +7,8 @@
         <target name="spoofaximp.default.jar" depends="check-classpath,init,sdf2table,meta-sdf2table,ppgen,pppack,stratego.aster,java.jar,stratego.jar,  sdf2imp,refresh"/>
     
         <!-- Initialization -->
-        <available file="${build}/org/strategoxt/imp/editors/editorservice/strategies/Main.class" property="java.jar.enabled"/>
-        <condition property="java.jar.import" value="-la org.strategoxt.imp.editors.editorservice.strategies" else="">
+        <available file="${build}/org/strategoxt/imp/testing/strategies/Main.class" property="java.jar.enabled"/>
+        <condition property="java.jar.import" value="-la org.strategoxt.imp.testing.strategies" else="">
             <isset property="java.jar.enabled"/>
         </condition>
         <condition property="java.jar.classpath" value=":${include}/${strmodule}-java.jar" else="">
@@ -263,6 +263,8 @@
                 <arg value="-i"/>
                 <arg value="${include}/${sdfmodule}.def"/>
                 <arg value="-t"/>
+                <arg value="-b"/>
+                <arg value="-o"/>
                 <arg value="${include}/${sdfmodule}.generated.pp.af"/>
             </java>
             <java classname="run" failonerror="false">
