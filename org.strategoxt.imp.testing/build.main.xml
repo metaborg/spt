@@ -33,10 +33,11 @@
         <property name="externaljarflags" value="-la org.lib"/>
         -->
 
-        <!-- Sanity check -->
+        <!-- Sanity check 
         <available file="${build}/org/strategoxt/imp/testing/strategies/Main.class" property="java.jar.enabled"/>
         <fail unless="java.jar.enabled" message="Java components were not built yet"/>
-     
+        -->
+
         <!-- Environment configuration for command-line builds -->
         <condition property="build.strategoxt.sdf" value="${eclipse.spoofaximp.nativeprefix}" else="">
             <isset property="eclipse.spoofaximp.nativeprefix"/>
