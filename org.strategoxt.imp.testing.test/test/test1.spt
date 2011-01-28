@@ -8,10 +8,13 @@ testsuite ASD
       [[asdf]] fails parsing
     
     test another test
-      [[x ]]
+      [[ module x ]]
     
     test rob is gek
-      [[module x]] == Module(_, _)
+      "module x" => Module(_, _)
+    
+    test rob is gek
+      [[module x entity Y {} ]] => Module(_, _)
     
     test rob is gek
       [[module x entity X { a : B } ]] succeeds parsing
@@ -32,7 +35,10 @@ testsuite ASD
       true succeeds
 
     test stratego
-      ![1,2,3]; let s = {?x; <inc> x} in map(s) end == [2,3,4]
+      ![1,2,3]; let s = {?x; <inc> x} in map(s) end => [2,3,4]
 
     test stratego
-      1 + !2 == 2
+      1 + !2 => 2
+
+    test and again
+      [[ module a ]] => Module(_, _)

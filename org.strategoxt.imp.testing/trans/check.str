@@ -88,11 +88,6 @@ rules
       not(!messages => ([], [], []))
 
   check-expectation(|ast, messages) :
-    NoErrors() -> $[No errors expected: [<errors-to-string> messages]]
-    where
-      not(!messages => ([], _, _))
-
-  check-expectation(|ast, messages) :
     Errors(n) -> $[[n] errors expected: [<errors-to-string> messages]]
     where
       !messages => (errors, _, _)
@@ -102,11 +97,6 @@ rules
     Error() -> $[1 error expected: [<errors-to-string> messages]]
     where
       not(!messages => ([_], _, _))
-
-  check-expectation(|ast, messages) :
-    NoWarnings() -> $[No warnings expected: [<errors-to-string> messages]]
-    where
-      not(!messages => (_, [], _))
 
   check-expectation(|ast, messages) :
     Warnings(n) -> $[[n] warnings expected: [<errors-to-string> messages]]
@@ -160,14 +150,15 @@ signature constructors
 
 rules
 
-  external plugin-strategy-evaluate(|language, strategy)
+  external plugin-strategy-evaluate(print-trace |language, strategy)
 
   check-warning:
     TestStratego(_, description(d), s, expectation) -> (d, warning)
     where
       plugin-strategy-invoke(|<spt-get-language>, "editor-init")
     ; s' := SDefT(d, [], [], s)
-    ; result := <plugin-strategy-evaluate(|<spt-get-language>, s') <+ Fails()> ()
+    ; result := <plugin-strategy-evaluate(<not(StrategyFails)> expectation
+                                          |<spt-get-language>, s')> ()
     ; if !result => Error(error) then
         warning := error
       else

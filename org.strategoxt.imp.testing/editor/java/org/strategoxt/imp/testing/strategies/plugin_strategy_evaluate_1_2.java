@@ -6,6 +6,7 @@ import org.eclipse.imp.language.LanguageRegistry;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.imp.runtime.Environment;
@@ -21,15 +22,15 @@ import org.strategoxt.lang.Strategy;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class plugin_strategy_evaluate_0_2 extends Strategy {
+public class plugin_strategy_evaluate_1_2 extends Strategy {
 
-	public static plugin_strategy_evaluate_0_2 instance = new plugin_strategy_evaluate_0_2();
+	public static plugin_strategy_evaluate_1_2 instance = new plugin_strategy_evaluate_1_2();
 
 	/**
 	 * @return Fail(trace) for strategy failure, Error(message) a string for errors, or Some(term) for success.
 	 */
 	@Override
-	public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName, IStrategoTerm strategy) {
+	public IStrategoTerm invoke(Context context, IStrategoTerm current, Strategy printTrace, IStrategoTerm languageName, IStrategoTerm strategy) {
 		ITermFactory factory = context.getFactory();
 		try {
 			Descriptor descriptor = Environment.getDescriptor(LanguageRegistry.findLanguage(asJavaString(languageName)));
@@ -47,9 +48,10 @@ public class plugin_strategy_evaluate_0_2 extends Strategy {
 				current = factory.makeAppl(factory.makeConstructor("Some", 1), current);
 				return current;
 			} else {
-				observer.reportRewritingFailed();
-				return factory.makeAppl(factory.makeConstructor("Fail", 1),
-						factory.makeString("rewriting failed\n" + context.getTraceString()));
+				IStrategoString trace = factory.makeString("rewriting failed\n" + context.getTraceString());
+				if (printTrace.invoke(context, trace) != null)
+					observer.reportRewritingFailed();
+				return factory.makeAppl(factory.makeConstructor("Fail", 1), trace);
 			}
 		} catch (BadDescriptorException e) {
 			Environment.logException("Problem loading descriptor for testing", e);
