@@ -262,8 +262,6 @@
                 <arg value="org.strategoxt.tools.main-ppgen"/>
                 <arg value="-i"/>
                 <arg value="${include}/${sdfmodule}.def"/>
-                <arg value="-t"/>
-                <arg value="-b"/>
                 <arg value="-o"/>
                 <arg value="${include}/${sdfmodule}.generated.pp.af"/>
             </java>
@@ -376,7 +374,7 @@
                 <param name="build.stratego.outputfile" value="${src-gen}/trans/Main.java"/>
                 <param name="build.stratego.extraargs" value="-la java-front ${java.jar.import}"/>
             </antcall>
-            <javac classpath="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}:target/classes" srcdir="${src-gen}" includes="trans/**" destdir="${build}" source="1.5" target="1.5" debug="on"/>
+            <javac classpath="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}" srcdir="${src-gen}" includes="trans/**" destdir="${build}" source="1.5" target="1.5" debug="on"/>
             <!-- copy imported terms -->
             <copy todir="${build}/trans">
                 <fileset dir="${src-gen}/trans" excludes="**/*.java"/>

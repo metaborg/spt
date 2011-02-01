@@ -45,12 +45,15 @@ exports
                -> StrategoResult {cons("StrategySuccess")}
     "succeeds" -> StrategoResult {cons("StrategySuccess")}
     "fails"    -> StrategoResult {cons("StrategyFails")}
-    "==" ATerm -> StrategoResult {cons("StrategyEquals")}
-    "->" ATerm -> StrategoResult {cons("StrategyEquals"), deprecated("Use == instead of ->")}
+    "=>" ATerm -> StrategoResult {cons("StrategyEquals")}
+    "->" ATerm -> StrategoResult {cons("StrategyEquals"), deprecated("Use => instead of ->")}
     Strategy   -> TestStrategy
+
     String                               -> TestStrategy {reject}
     "[" {Strategy ","}* "]" 		         -> TestStrategy {reject}
     "[" {Strategy ","}* "|" Strategy "]" -> TestStrategy {reject}
+    Strategy "=>" Term 		  	           -> TestStrategy {reject}
+    "succeeds"                           -> Term {reject}
     "fails"                              -> Term {reject}
 
   lexical syntax
@@ -61,11 +64,11 @@ exports
 
   context-free syntax
   	
-    "->" "file" PathName -> Result {cons("file"), deprecated("Use == instead of ->")}
-    "->" ATerm           -> Result {cons("pattern"), deprecated("Use == instead of ->")}
+    "->" "file" PathName -> Result {cons("file"),    deprecated("Use => instead of ->")}
+    "->" ATerm           -> Result {cons("pattern"), deprecated("Use => instead of ->")}
     
-    "==" "file" PathName -> Result {cons("file")}
-    "==" ATerm           -> Result {cons("pattern")}
+    "=>" "file" PathName -> Result {cons("file")}
+    "=>" ATerm           -> Result {cons("pattern")}
 
     "fails"              -> Result {cons("Fails")}
     "fails" "parsing"    -> Result {cons("FailsParsing")}
@@ -74,13 +77,11 @@ exports
 
     "file" PathName -> Input {cons("file")}
 
-    "no" "errors"     -> Result    {cons("NoErrors")} 
     "1" "error"       -> Result    {cons("Error")}
     INT "errors"      -> Result    {cons("Errors")}
     
-    "no" "warnings"   -> Result    {cons("NoWarnings")} 
-    INT "warnings"    -> Result    {cons("Warnings")}
     "1" "warning"     -> Result    {cons("Warning")}
+    INT "warnings"    -> Result    {cons("Warnings")}
     
     "resolves" ID                    -> Result {cons("Resolves")}
     "resolves" ID "to" ID            -> Result {cons("ResolvesTo")}
@@ -119,7 +120,9 @@ context-free syntax
     <DQuote3-LEX> <InputChars3-LEX> <DQuote3-LEX> -> <Input-CF> {cons("string")}
     <DQuote4-LEX> <InputChars4-LEX> <DQuote4-LEX> -> <Input-CF> {cons("string")}
 
-    <Bracket1-LEX> <InputChars21-LEX> <CloseBracket1-LEX> -> <Input-CF> {cons("string")}
+  %% Too close to Stratego
+  %%<Bracket1-LEX> <InputChars21-LEX> <CloseBracket1-LEX> -> <Input-CF> {cons("string")}
+  
     <Bracket2-LEX> <InputChars22-LEX> <CloseBracket2-LEX> -> <Input-CF> {cons("string")}
     <Bracket3-LEX> <InputChars23-LEX> <CloseBracket3-LEX> -> <Input-CF> {cons("string")}
     <Bracket4-LEX> <InputChars24-LEX> <CloseBracket4-LEX> -> <Input-CF> {cons("string")}

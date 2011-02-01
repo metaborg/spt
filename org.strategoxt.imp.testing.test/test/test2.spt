@@ -27,7 +27,7 @@ topsort TestSuite
 	    
 	    test rob is gek
 	      "asd" fails 
-	  "" == file ./asd.aterm
+	  "" => file ./asd.aterm
 	
 	test test 2
 	  ""
@@ -38,23 +38,23 @@ topsort TestSuite
 	    test rob is gek
 	    
 	      "asd" fails 
-	  "" == file ./asd3.aterm
+	  "" => file ./asd3.aterm
 	
 	test empty file should fail
 	    ""
 	    "" fails
 
 	test Hd on list
-	  <Hd> [1, 2, 3, 4] == 1
+	  <Hd> [1, 2, 3, 4] => 1
 	
 	test Hd on empty list should fail
 	  <Hd> [] fails
 	
 	test test-term-projection-in-anno
-	  <?_{<id>}>1{2} == 2
+	  <?_{<id>}>1{2} => 2
 	
 	test catch-annos
-	  <catch-annos> Plus(Var("a"), Var("b")){Int()} == Anno(_, [Int])
+	  <catch-annos> Plus(Var("a"), Var("b")){Int()} => Anno(_, [Int])
 
 
 /*
