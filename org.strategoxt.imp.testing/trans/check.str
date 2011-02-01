@@ -39,6 +39,9 @@ rules
       end
     ; not([])
 
+  check-warning:
+  	annotated(_, _) -> $[Matching with annotations not implemented(?)] // TODO: extend aterm-eq
+
   external plugin-strategy-invoke(|language, name)
   
   Test-get-input :
