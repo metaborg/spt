@@ -8,12 +8,19 @@ imports
   aterm-eq
   spoofax_testing
   file-resolving
+
+signature constructors
+  error : Term * Term -> Term
+  localized : Term * Term -> Term
   
 rules
   check-note = fail
   
   check-error:
     Test(_, d, _, [_, _ | _]) -> (d, "Specify only one success condition") // maybe in the future...
+  
+  check-error:
+    TestEmpty(_, d) -> (d, "Empty test case")
   
   //check-error:
   //  Test(_, _, string(_, _, close), []) -> (close, "Specify a success condition")
@@ -48,13 +55,28 @@ rules
     file(f) -> <resolve-path(|<current-path>) ; read-text-file ; spt-parse-string>f
     
   Test-get-input :
-    string(_,s,_) -> <spt-parse-string>s
+    string(_,s,_){a*} -> parsed'
+    where
+      !a* => [parsed];
+      if !parsed => Error(_) then
+        parsed' := FailsParsing()
+      else
+        parsed' := parsed
+      end
+    <+
+      parsed' := <spt-parse-string> s
 
   check-expectation(|ast, messages) :
-    <not(Fails + FailsParsing)> -> $[Fails to parse]
+    <not(Fails + FailsParsing)> -> parse-failed
     where
-      not(?Fails() + ?FailsParsing())
-    ; !ast => FailsParsing()
+      if !ast => FailsParsing() + !ast => error(_, _) then
+        parse-failed := <extract-parse-error>
+      <+
+        parse-failed := "Fails to parse"
+      end
+  
+  extract-parse-error =
+    ?error(_, [localized(<id>, _) | _])
 
   check-expectation(|ast, messages) :
     <not(Fails)> -> $[Observer fails]
@@ -62,15 +84,10 @@ rules
       !messages => Fails()
 
   check-expectation(|ast, messages) :
-    Fails() -> $[Failure expected]
-    where
-      !messages => ([], [], [])
-    ; not(!ast => FailsParsing())
-
-  check-expectation(|ast, messages) :
     FailsParsing() -> $[Failure expected]
     where
-      not(!ast => FailsParsing())
+      not(!ast => FailsParsing());
+      not(!ast => error(_, _))
 
   check-expectation(|ast, messages) :
     pattern(p) -> $[Does not match pattern: [<write-to-string> ast]]

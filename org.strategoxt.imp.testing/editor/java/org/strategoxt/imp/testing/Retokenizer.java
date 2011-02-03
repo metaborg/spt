@@ -42,7 +42,7 @@ public class Retokenizer {
 	*/
 	
 	public void copyTokensUpToIndex(int index) {
-		copyTokenRange(oldTokenizer, oldTokenizerCopiedIndex, index);
+		reassignTokenRange(oldTokenizer, oldTokenizerCopiedIndex, index);
 		oldTokenizerCopiedIndex = index + 1;
 	}
 	
@@ -54,30 +54,31 @@ public class Retokenizer {
 		copyTokensUpToIndex(oldTokenizer.getTokenCount() - 1);
 	}
 	
-	public void copyTokensFromFragment(IStrategoTerm fragment, IStrategoTerm parsedFragment, int startOffset) {
+	public void copyTokensFromFragment(IStrategoTerm fragment, IStrategoTerm parsedFragment, int startOffset, int endOffset) {
 		Tokenizer fragmentTokenizer = (Tokenizer) ImploderAttachment.getTokenizer(parsedFragment);
 		IToken startToken = fragmentTokenizer.getTokenAtOffset(startOffset);
+		IToken endToken = fragmentTokenizer.getTokenAtOffset(endOffset);
 		int startIndex = startToken.getIndex();
-		int endIndex = fragmentTokenizer.getTokenCount() - 1;
-		Token endToken = fragmentTokenizer.getTokenAt(endIndex);
+		int endIndex = endToken.getIndex();
 		
 		// Reassign new starting token to parsed fragment (skipping whitespace)
-		if (startToken.getKind() == TK_LAYOUT)
+		if (startToken.getKind() == TK_LAYOUT && startToken.getIndex() + 1 < newTokenizer.getTokenCount())
 			startToken = newTokenizer.getTokenAt(startToken.getIndex() + 1);
+		reassignTokenRange(fragmentTokenizer, startIndex, endIndex);
 		ImploderAttachment old = ImploderAttachment.get(parsedFragment);
-		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, old.getRightToken());
-		copyTokenRange(fragmentTokenizer, startIndex, endIndex);
+		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, endToken);
 		
 		// Reassign new tokens to unparsed fragment
 		ImploderAttachment.putImploderAttachment(fragment, fragment.isList(), getSort(fragment), startToken, endToken);
 	}
 	
-	private void copyTokenRange(Tokenizer fromTokenizer, int startIndex, int endIndex) {
+	private void reassignTokenRange(Tokenizer fromTokenizer, int startIndex, int endIndex) {
 		for (int i = startIndex; i <= endIndex; i++) {
 			Token token = fromTokenizer.getTokenAt(i);
 			/*Token newToken = newTokenizer.makeToken(token.getEndOffset(), token.getKind(), true);
 			newToken.setAstNode(token.getAstNode());
 			newToken.setError(token.getError());*/
+			// Since we case, we first clone before changing the token
 			newTokenizer.reassignToken(token);
 		}
 	}

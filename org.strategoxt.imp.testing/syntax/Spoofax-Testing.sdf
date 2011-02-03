@@ -14,10 +14,10 @@ exports
 exports
   sorts TestSuite TopSort Test Input Result
   context-free syntax
-    "testsuite" Name Options TestDecl* -> TestSuite {cons("testsuite")}
-    "topsort" Sort    -> Options {cons("topsort")}
-    "options" Option+ -> Options {cons("options")}
-    OptionValue OptionValue -> Option {cons("option")}
+    "testsuite" Name Option* TestDecl* -> TestSuite {cons("testsuite")}
+    "options"         -> Option {cons("Options"), deprecated}
+    "topsort" Sort    -> Option {cons("TopSort")}
+    "language" Sort   -> Option {cons("Language")}
     
     %% TODO: make topsort optional
 
@@ -37,6 +37,7 @@ exports
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result*-CF> -> <ParseTest-CF> {cons("Test")}
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <TestStrategy-CF> <LAYOUT?-CF> <StrategoResult-CF>
       -> <StrategoTest-CF> {cons("TestStratego")}
+    "test" <Space-LEX> <Description-CF> -> <ParseTest-CF> {cons("TestEmpty")}
 
   context-free syntax
     ID "=" ATerm -> VarDecl {cons("VarDecl")}
@@ -86,10 +87,14 @@ exports
     "resolves" ID                    -> Result {cons("Resolves")}
     "resolves" ID "to" ID            -> Result {cons("ResolvesTo")}
     "completes" ID "to" ID           -> Result {cons("Completes")}
-    "builds" Id "to" ATerm           -> Result {cons("Builds")}
-    "builds" Id "to" "file" PathName -> Result {cons("BuildsFile")}
+    "builds" ID "to" ATerm           -> Result {cons("Builds")}
+    "builds" ID "to" "file" PathName -> Result {cons("BuildsFile")}
     
     RegexExp          -> Constraint
+    
+    %% Handle a couple of lousy recoveries
+    "test" -> ID    {reject}
+    "test" -> ATerm {reject}
 
 context-free syntax
 

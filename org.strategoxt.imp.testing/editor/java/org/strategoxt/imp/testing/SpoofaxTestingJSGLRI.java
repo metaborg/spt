@@ -10,24 +10,19 @@ import java.io.IOException;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
-import org.eclipse.imp.parser.IParseController;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.terms.TermTransformer;
 import org.spoofax.terms.attachments.ParentTermFactory;
+import org.strategoxt.imp.runtime.Debug;
 import org.strategoxt.imp.runtime.Environment;
-import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.dynamicloading.Descriptor;
-import org.strategoxt.imp.runtime.dynamicloading.DynamicParseController;
 import org.strategoxt.imp.runtime.parser.JSGLRI;
-import org.strategoxt.imp.runtime.parser.SGLRParseController;
 
 public class SpoofaxTestingJSGLRI extends JSGLRI {
 	
@@ -35,6 +30,11 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	
 	private static final IStrategoConstructor STRING_3 =
 		Environment.getTermFactory().makeConstructor("string", 3);
+	
+	private static final IStrategoConstructor ERROR_1 =
+		Environment.getTermFactory().makeConstructor("Error", 1);
+	
+	private final CachedFragmentParser fragmentParser = new CachedFragmentParser();
 
 	public SpoofaxTestingJSGLRI(JSGLRI template) {
 		super(template.getParseTable(), template.getStartSymbol(), template.getController());
@@ -54,7 +54,9 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		final Tokenizer oldTokenizer = (Tokenizer) getTokenizer(root);
 		final Retokenizer retokenizer = new Retokenizer(oldTokenizer);
 		final ITermFactory factory = new ParentTermFactory(Environment.getTermFactory());
-		final JSGLRI testedParser = tryGetTestedParser();
+		final CachedFragmentParser testedParser = getFragmentParser();
+		if (!testedParser.isInitialized())
+			return root;
 		
 		IStrategoTerm result = new TermTransformer(factory, true) {
 			@Override
@@ -63,16 +65,19 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 					IStrategoTerm fragment = termAt(term, 1);
 					retokenizer.copyTokensUpToIndex(getLeftToken(fragment).getIndex() - 1);
 					retokenizer.skipTokensUpToIndex(getRightToken(fragment).getIndex());
-					String fragmentInput = createTestFragmentString(oldTokenizer, fragment);
 					try {
-						IStrategoTerm parsed = testedParser.parse(fragmentInput, oldTokenizer.getFilename());
-						retokenizer.copyTokensFromFragment(fragment, parsed, getLeftToken(fragment).getStartOffset());
+						IStrategoTerm parsed = testedParser.parseCached(oldTokenizer, fragment);
+						retokenizer.copyTokensFromFragment(fragment, parsed,
+								getLeftToken(fragment).getStartOffset(), getRightToken(fragment).getEndOffset());
 						// term = factory.makeAppl(STRING_3, termAt(term, 0), termAt(term, 1), parsed);
+						if (!getTokenizer(parsed).isSyntaxCorrect())
+							parsed = factory.makeAppl(ERROR_1, parsed);
 						term = factory.annotateTerm(term, factory.makeList(parsed));
 					} catch (Exception e) {
 						// Forget it, don't parse then
 						// Environment.logWarning("Failure parsing tested fragment", e);
 						// TODO: handle failure?
+						Debug.log("Could not parse tested code fragment", e);
 					}
 				}
 				return term;
@@ -83,48 +88,13 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		return result;
 	}
 	
-	private JSGLRI tryGetTestedParser() {
-		// TODO: find name of currently tested language
+	private CachedFragmentParser getFragmentParser() {
+		// XXX: find name of currently tested language
 		String languageName = "TestingTesting";
-		
-		return tryGetParser(languageName);
-	}
-
-	private JSGLRI tryGetParser(String languageName) {
-		try {
-			Language language = LanguageRegistry.findLanguage(languageName);
-			Descriptor descriptor = Environment.getDescriptor(language);
-			if (descriptor == null) return null;
-			IParseController controller;
-			controller = descriptor.createService(IParseController.class, null);
-			if (controller instanceof DynamicParseController)
-				controller = ((DynamicParseController) controller).getWrapped();
-			if (controller instanceof SGLRParseController) {
-				JSGLRI parser = ((SGLRParseController) controller).getParser(); 
-				JSGLRI result = new JSGLRI(parser.getParseTable(), parser.getStartSymbol());
-				return result;
-			}
-		} catch (BadDescriptorException e) {
-			Environment.logWarning("Could not load parser for " + languageName);
-		} catch (RuntimeException e) {
-			Environment.logWarning("Could not load parser for " + languageName);
-		}
-		return null;
-	}
-
-	private String createTestFragmentString(ITokenizer tokenizer, IStrategoTerm term) {
-		int fragmentOffset = getLeftToken(term).getStartOffset();
-		IToken endToken = getRightToken(term);
-		StringBuilder result = new StringBuilder(tokenizer.toString(tokenizer.getTokenAt(0), endToken));
-		for (int i = 0; i < fragmentOffset; i++) {
-			switch (result.charAt(i)) {
-				case ' ': case '\t': case '\r': case '\n':
-					break;
-				default:
-					result.setCharAt(i, ' ');
-			}
-		}
-		return result.toString();
+		Language language = LanguageRegistry.findLanguage(languageName);
+		Descriptor descriptor = Environment.getDescriptor(language);
+		fragmentParser.setDescriptor(descriptor);
+		return fragmentParser;
 	}
 
 }

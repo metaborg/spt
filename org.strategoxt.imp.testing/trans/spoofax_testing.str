@@ -45,12 +45,16 @@ rules
     where
       hover := <parse-string-and-pp-aterm ; hover-input-string>s 
   
-  hover-input-string = 
-    <concat-strings>
-      [ "The input string currently result in the following AST:<br>"
-      , "<br>"
-      , "<b><pre>",<id>,"</pre></b>"
-      ] 
+  hover-input-string =
+  	if ?error(_, _) then
+      extract-parse-error
+    else 
+      <concat-strings>
+        [ "The input string currently result in the following AST:<br>"
+        , "<br>"
+        , "<b><pre>",<id>,"</pre></b>"
+        ]
+    end 
 
   parse-string-and-pp-aterm =
     ast   := <spt-parse-string>
@@ -78,7 +82,7 @@ strategies
     ; rules( SPTParseTable := pt )    
   	
   spt-parse-string =
-    prim("STRSGLR_set_recovery_on");
+    prim("STRSGLR_set_recovery_off");
     parse-string(
       id
     | <spt-get-parsetable>

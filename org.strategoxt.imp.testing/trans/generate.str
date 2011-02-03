@@ -13,7 +13,7 @@ imports
 
 rules
   to-java:
-    testsuite(name(x), topsort(s), d*) ->
+    testsuite(name(x), TopSort(s), d*) ->
        ($[editor/java/tests/[x].java], 
         $[package tests;
 
