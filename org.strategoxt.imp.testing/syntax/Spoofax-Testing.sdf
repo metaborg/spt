@@ -6,7 +6,7 @@ imports Common
 imports Spoofax-Testing-String-Quotation
 imports languages/aterm/syntax/ATerms
 imports RegExp
-imports Stratego-Sugar
+imports Stratego-Sugar %% TODO: import Stratego-SugarMix
 
 exports
   context-free start-symbols TestSuite
@@ -89,6 +89,7 @@ exports
     "completes" ID "to" ID           -> Result {cons("Completes")}
     "builds" ID "to" ATerm           -> Result {cons("Builds")}
     "builds" ID "to" "file" PathName -> Result {cons("BuildsFile")}
+    %% TODO: hover help
     
     RegexExp          -> Constraint
     

@@ -103,31 +103,34 @@ rules
     ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
 
   check-expectation(|ast, messages) :
-    Success() -> $[Unexpected message(s): [<messages-to-string> messages]]
+    Success() -> $[Unexpected message(s): [<grab-messages> messages]]
     where
       not(!messages => ([], [], []))
 
   check-expectation(|ast, messages) :
-    Errors(n) -> $[[n] errors expected: [<errors-to-string> messages]]
+    Errors(n) -> $[[n] errors expected: [<grab-errors> messages]]
     where
       !messages => (errors, _, _)
     ; not(<eq> (<length> errors, <string-to-int> n))
 
   check-expectation(|ast, messages) :
-    Error() -> $[1 error expected: [<errors-to-string> messages]]
+    Error() -> $[1 error expected: [<grab-errors> messages]]
     where
       not(!messages => ([_], _, _))
 
   check-expectation(|ast, messages) :
-    Warnings(n) -> $[[n] warnings expected: [<errors-to-string> messages]]
+    Warnings(n) -> $[[n] warning(s) expected: [<grab-warnings> messages]]
     where
-      !messages => (_, warnings, _)
+      !messages => ([], warnings, _)
     ; not(<eq> (<length> warnings, <string-to-int> n))
 
   check-expectation(|ast, messages) :
-    Warning() -> $[1 warning expected: [<errors-to-string> messages]]
+    Warnings(n) -> $[No errors expected: [<grab-errors> messages]]
     where
-      not(!messages => (_, [_], _))
+      !messages => ([_ | _], _, _)
+
+  check-expectation(|ast, messages) :
+    Warning() -> <check-expectation(|ast, messages)> Warnings(1)
 
   check-expectation(|ast, messages) :
     Completes(_, _) -> $[Not implemented: [<write-to-string>]]
@@ -153,14 +156,22 @@ rules
   is-parse-only-test =
     SuccessParsing + FailsParsing
 
-  messages-to-string:
-    (errors, warnings, notes) -> <write-to-string> // TODO
+  grab-messages:
+    (errors, warnings, notes) -> <write-to-string> // TODO: make nice string?
+    where
+      rules(GrabbedErrors   :+= errors);
+      rules(GrabbedWarnings :+= warnings);
+      rules(GrabbedNotes    :+= notes)
 
-  errors-to-string:
-    (errors, _, _) -> <write-to-string> errors // TODO
+  grab-errors:
+    (errors, _, _) -> <write-to-string> errors // TODO: make nice string?
+    where
+      rules(GrabbedErrors :+= errors)
 
-  warnings-to-string:
-    (_, warnings, _) -> <write-to-string> warnings // TODO
+  grab-warnings:
+    (_, warnings, _) -> <write-to-string> warnings // TODO: make nice string?
+    where
+      rules(GrabbedWarnings :+= warnings)
 
 signature constructors
   

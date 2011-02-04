@@ -15,20 +15,24 @@ imports
 rules
     
   editor-analyze:
-    (ast, path, project-path) -> (ast, errors, warnings, notes)
+    (ast, path, project-path) -> (ast, errors', warnings', notes')
     with
-      scope-paths(
-        editor-init;
+      editor-init
+    ; scope-paths(
         <chdir> project-path;
         <record-all-sdfs> ".";
         rules(InputFile := path);
-        errors   := <collect-all(check-error, conc)> ast;
-        warnings := <collect-all(check-warning, conc)> ast;
-        notes    := <collect-all(check-note, conc)> ast;
+        errors    := <collect-all(check-error, conc)> ast;
+        warnings  := <collect-all(check-warning, conc)> ast;
+        notes     := <collect-all(check-note, conc)> ast;
+        errors'   := <flatten-list> [errors, <bagof-GrabbedErrors>];
+        warnings' := <flatten-list> [warnings, <bagof-GrabbedWarnings>];
+        notes'    := <flatten-list> [notes, <bagof-GrabbedNotes>];
         if not([] := errors) then
             rules ( HasErrors := () )
         end
-      | path, project-path)
+      | path, project-path
+      )
   
   generate-java:
     (selected, position, ast, path, project-path) -> result

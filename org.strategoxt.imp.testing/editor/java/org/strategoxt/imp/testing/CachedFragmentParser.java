@@ -10,6 +10,9 @@ import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -27,6 +30,7 @@ import org.strategoxt.imp.runtime.dynamicloading.Descriptor;
 import org.strategoxt.imp.runtime.dynamicloading.DynamicParseController;
 import org.strategoxt.imp.runtime.parser.JSGLRI;
 import org.strategoxt.imp.runtime.parser.SGLRParseController;
+import org.strategoxt.imp.runtime.stratego.SourceAttachment;
 import org.strategoxt.lang.WeakValueHashMap;
 
 /** 
@@ -52,10 +56,10 @@ public class CachedFragmentParser {
 	
 	private JSGLRI parser;
 
-	public void setDescriptor(Descriptor descriptor) {
+	public void configure(Descriptor descriptor, IPath path, ISourceProject project) {
 		if (parseCacheDescriptor != descriptor) {
 			parseCacheDescriptor = descriptor;
-			this.parser = getParser(descriptor);
+			this.parser = getParser(descriptor, path, project);
 			failParseCache.clear();
 			successParseCache.clear();
 		}
@@ -65,7 +69,7 @@ public class CachedFragmentParser {
 		return parser != null;
 	}
 
-	private JSGLRI getParser(Descriptor descriptor) {
+	private JSGLRI getParser(Descriptor descriptor, IPath path, ISourceProject project) {
 		try {
 			if (descriptor == null) return null;
 			
@@ -74,11 +78,15 @@ public class CachedFragmentParser {
 			if (controller instanceof DynamicParseController)
 				controller = ((DynamicParseController) controller).getWrapped();
 			if (controller instanceof SGLRParseController) {
-				JSGLRI parser = ((SGLRParseController) controller).getParser(); 
-				JSGLRI result = new JSGLRI(parser.getParseTable(), parser.getStartSymbol());
+				SGLRParseController sglrController = (SGLRParseController) controller;
+				controller.initialize(path, project, null);
+				JSGLRI parser = sglrController.getParser(); 
+				JSGLRI result = new JSGLRI(parser.getParseTable(), parser.getStartSymbol(), (SGLRParseController) controller);
 				result.setTimeout(FRAGMENT_PARSE_TIMEOUT);
 				result.setUseRecovery(true);
 				return result;
+			} else {
+				throw new IllegalStateException("SGLRParseController expected");
 			}
 		} catch (BadDescriptorException e) {
 			Environment.logWarning("Could not load parser for testing language");
@@ -97,6 +105,9 @@ public class CachedFragmentParser {
 		if (parsed == null) {
 			parsed = parser.parse(fragmentInput, oldTokenizer.getFilename());
 			cache.put(fragmentInput, parsed);
+			SGLRParseController controller = parser.getController();
+			IResource resource = controller.getResource();
+			SourceAttachment.putSource(parsed, resource, controller);
 			if (!successExpected)
 				clearTokenErrors(getTokenizer(parsed));
 		}

@@ -53,8 +53,10 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	private IStrategoTerm parseTestedFragments(final IStrategoTerm root) {
 		final Tokenizer oldTokenizer = (Tokenizer) getTokenizer(root);
 		final Retokenizer retokenizer = new Retokenizer(oldTokenizer);
-		final ITermFactory factory = new ParentTermFactory(Environment.getTermFactory());
+		final ITermFactory nonParentFactory = Environment.getTermFactory();
+		final ITermFactory factory = new ParentTermFactory(nonParentFactory);
 		final CachedFragmentParser testedParser = getFragmentParser();
+		assert !(nonParentFactory instanceof ParentTermFactory);
 		if (!testedParser.isInitialized())
 			return root;
 		
@@ -64,20 +66,22 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 				if (tryGetConstructor(term) == STRING_3) {
 					IStrategoTerm fragment = termAt(term, 1);
 					retokenizer.copyTokensUpToIndex(getLeftToken(fragment).getIndex() - 1);
-					retokenizer.skipTokensUpToIndex(getRightToken(fragment).getIndex());
 					try {
 						IStrategoTerm parsed = testedParser.parseCached(oldTokenizer, fragment);
+						int oldFragmentEndIndex = getRightToken(fragment).getIndex();
 						retokenizer.copyTokensFromFragment(fragment, parsed,
 								getLeftToken(fragment).getStartOffset(), getRightToken(fragment).getEndOffset());
 						// term = factory.makeAppl(STRING_3, termAt(term, 0), termAt(term, 1), parsed);
 						if (!getTokenizer(parsed).isSyntaxCorrect())
 							parsed = factory.makeAppl(ERROR_1, parsed);
-						term = factory.annotateTerm(term, factory.makeList(parsed));
-					} catch (Exception e) {
-						// Forget it, don't parse then
-						// Environment.logWarning("Failure parsing tested fragment", e);
-						// TODO: handle failure?
+						term = factory.annotateTerm(term, nonParentFactory.makeList(parsed));
+						retokenizer.skipTokensUpToIndex(oldFragmentEndIndex);
+					} catch (IOException e) {
 						Debug.log("Could not parse tested code fragment", e);
+					} catch (SGLRException e) {
+						Debug.log("Could not parse tested code fragment", e);
+					} catch (RuntimeException e) {
+						Environment.logException("Could not parse tested code fragment", e);
 					}
 				}
 				return term;
@@ -93,7 +97,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		String languageName = "TestingTesting";
 		Language language = LanguageRegistry.findLanguage(languageName);
 		Descriptor descriptor = Environment.getDescriptor(language);
-		fragmentParser.setDescriptor(descriptor);
+		fragmentParser.configure(descriptor, getController().getRelativePath(), getController().getProject());
 		return fragmentParser;
 	}
 
