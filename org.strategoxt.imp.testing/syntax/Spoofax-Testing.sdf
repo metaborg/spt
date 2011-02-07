@@ -51,9 +51,9 @@ exports
     Strategy   -> TestStrategy
 
     String                               -> TestStrategy {reject}
-    "[" {Strategy ","}* "]" 		         -> TestStrategy {reject}
+    "[" {Strategy ","}* "]"              -> TestStrategy {reject}
     "[" {Strategy ","}* "|" Strategy "]" -> TestStrategy {reject}
-    Strategy "=>" Term 		  	           -> TestStrategy {reject}
+    Strategy "=>" Term                   -> TestStrategy {reject}
     "succeeds"                           -> Term {reject}
     "fails"                              -> Term {reject}
 
@@ -64,7 +64,7 @@ exports
     Space -/- [\ ]
 
   context-free syntax
-  	
+    
     "->" "file" PathName -> Result {cons("file"),    deprecated("Use => instead of ->")}
     "->" ATerm           -> Result {cons("pattern"), deprecated("Use => instead of ->")}
     
@@ -96,6 +96,9 @@ exports
     %% Handle a couple of lousy recoveries
     "test" -> ID    {reject}
     "test" -> ATerm {reject}
+           -> "resolves" {recover, reject}
+           -> "=>" {recover, reject}
+           -> "->" {recover, reject}
 
 context-free syntax
 
@@ -117,8 +120,8 @@ context-free syntax
     "..."                -> { ATerm ","}+ {cons("wildcardvar")}
 
   context-free syntax
-  	StringQuotation -> Input
-  	
+    StringQuotation -> Input
+    
   sorts
   syntax
     <DQuote1-LEX> <InputChars1-LEX> <DQuote1-LEX> -> <Input-CF> {cons("string")}

@@ -130,7 +130,7 @@ rules
       !messages => ([_ | _], _, _)
 
   check-expectation(|ast, messages) :
-    Warning() -> <check-expectation(|ast, messages)> Warnings(1)
+    Warning() -> <check-expectation(|ast, messages)> Warnings("1")
 
   check-expectation(|ast, messages) :
     Completes(_, _) -> $[Not implemented: [<write-to-string>]]
@@ -190,6 +190,7 @@ rules
     ; s' := SDefT(d, [], [], s)
     ; result := <plugin-strategy-evaluate(<not(StrategyFails)> expectation
                                           |<spt-get-language>, s')> ()
+    ; try(<grab-strategy-success-result(|d, result)> expectation)
     ; if !result => Error(error) then
         warning := error
       else
@@ -200,6 +201,12 @@ rules
     StrategyFails() -> $[Failure expected: <pre>[<write-to-string> result']</pre>]
     where
       !result => Some(result')
+
+  grab-strategy-success-result(|d, result) :
+    StrategySuccess() -> StrategySuccess()
+    where
+      !result => Some(result')
+    ; rules(GrabbedNotes :+= (d, $[Result: [<write-to-string> result'] (no => expectation specified)]))
 
   check-expectation(|result) :
     <not(StrategyFails)> -> $[Failure unexpected: <pre>[trace]</pre>]

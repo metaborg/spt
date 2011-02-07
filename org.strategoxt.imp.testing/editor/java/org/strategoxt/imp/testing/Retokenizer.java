@@ -62,8 +62,8 @@ public class Retokenizer {
 		int endIndex = endToken.getIndex();
 		
 		// Reassign new starting token to parsed fragment (skipping whitespace)
-		if (startToken.getKind() == TK_LAYOUT && startToken.getIndex() + 1 < newTokenizer.getTokenCount())
-			startToken = newTokenizer.getTokenAt(startToken.getIndex() + 1);
+		if (startToken.getKind() == TK_LAYOUT && startIndex + 1 < newTokenizer.getTokenCount())
+			startToken = newTokenizer.getTokenAt(++startIndex);
 		reassignTokenRange(fragmentTokenizer, startIndex, endIndex);
 		ImploderAttachment old = ImploderAttachment.get(parsedFragment);
 		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, endToken);
@@ -79,7 +79,8 @@ public class Retokenizer {
 			newToken.setAstNode(token.getAstNode());
 			newToken.setError(token.getError());*/
 			// Since we case, we first clone before changing the token
-			newTokenizer.reassignToken(token);
+			if (token.getTokenizer() != newTokenizer) // can happen w/ ambs
+				newTokenizer.reassignToken(token);
 		}
 	}
 
