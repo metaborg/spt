@@ -40,7 +40,7 @@ strategies
       proposals := <all-keys-Constructor; string-sort>
 
   editor-complete:
-    (topsort(COMPLETION(s)), _, _, _, _) -> proposals
+    (TopSort(COMPLETION(s)), _, _, _, _) -> proposals
     where 
       proposals := <all-keys-TopSort ; string-sort>
 

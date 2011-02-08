@@ -15,20 +15,24 @@ imports
 rules
     
   editor-analyze:
-    (ast, path, project-path) -> (ast, errors, warnings, notes)
+    (ast, path, project-path) -> (ast, errors', warnings', notes')
     with
-      scope-paths(
-        editor-init;
+      editor-init
+    ; scope-paths(
         <chdir> project-path;
         <record-all-sdfs> ".";
         rules(InputFile := path);
-        errors   := <collect-all(check-error, conc)> ast;
-        warnings := <collect-all(check-warning, conc)> ast;
-        notes    := <collect-all(check-note, conc)> ast;
+        errors    := <collect-all(check-error, conc)> ast;
+        warnings  := <collect-all(check-warning, conc)> ast;
+        notes     := <collect-all(check-note, conc)> ast;
+        errors'   := <flatten-list> [errors, <bagof-GrabbedErrors>];
+        warnings' := <flatten-list> [warnings, <bagof-GrabbedWarnings>];
+        notes'    := <flatten-list> [notes, <bagof-GrabbedNotes>];
         if not([] := errors) then
             rules ( HasErrors := () )
         end
-      | path, project-path)
+      | path, project-path
+      )
   
   generate-java:
     (selected, position, ast, path, project-path) -> result
@@ -45,12 +49,16 @@ rules
     where
       hover := <parse-string-and-pp-aterm ; hover-input-string>s 
   
-  hover-input-string = 
-    <concat-strings>
-      [ "The input string currently result in the following AST:<br>"
-      , "<br>"
-      , "<b><pre>",<id>,"</pre></b>"
-      ] 
+  hover-input-string =
+  	if ?error(_, _) then
+      extract-parse-error
+    else 
+      <concat-strings>
+        [ "The input string currently result in the following AST:<br>"
+        , "<br>"
+        , "<b><pre>",<id>,"</pre></b>"
+        ]
+    end 
 
   parse-string-and-pp-aterm =
     ast   := <spt-parse-string>
@@ -78,7 +86,7 @@ strategies
     ; rules( SPTParseTable := pt )    
   	
   spt-parse-string =
-    prim("STRSGLR_set_recovery_on");
+    prim("STRSGLR_set_recovery_off");
     parse-string(
       id
     | <spt-get-parsetable>

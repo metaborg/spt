@@ -16,11 +16,11 @@ Require-Bundle: org.strategoxt.imp.runtime,
  org.eclipse.jface.text,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
- org.spoofax.aterm,
  org.spoofax.jsglr,
  org.strategoxt.strj,
  org.eclipse.jdt.junit,
- org.eclipse.jdt.core
+ org.eclipse.jdt.core,
+ org.spoofax.terms
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: org.strategoxt.imp.testing
