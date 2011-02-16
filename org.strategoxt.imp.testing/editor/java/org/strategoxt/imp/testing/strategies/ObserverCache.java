@@ -3,6 +3,7 @@ package org.strategoxt.imp.testing.strategies;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.spoofax.interpreter.library.IOAgent;
 import org.strategoxt.imp.runtime.Environment;
@@ -29,7 +30,9 @@ public class ObserverCache {
 	}
 
 	public StrategoObserver getObserver(Context context, String languageName) throws BadDescriptorException {
-		Descriptor descriptor = Environment.getDescriptor(LanguageRegistry.findLanguage(languageName));
+		Language language = LanguageRegistry.findLanguage(languageName);
+		if (language == null) throw new BadDescriptorException("No language known with the name " + languageName);
+		Descriptor descriptor = Environment.getDescriptor(language);
 		if (descriptor == null) throw new BadDescriptorException("No language known with the name " + languageName);
 		
 		return getObserver(context, descriptor);

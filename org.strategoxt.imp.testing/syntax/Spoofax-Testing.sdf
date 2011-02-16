@@ -14,14 +14,14 @@ exports
 exports
   sorts TestSuite TopSort Test Input Result
   context-free syntax
-    Header* TestDecl*     -> TestSuite {cons("testsuite")}
-    "testsuite" Name      -> Header {cons("Name"), deprecated("Use 'module' instead")}
-    "module" Name         -> Header {cons("Name")}
-    "package" Name        -> Header {cons("Package")}
-    "options"             -> Header {cons("Options"), deprecated}
-    "topsort" Sort        -> Header {cons("TopSort"), deprecated("Use 'start symbol' instead")}
-    "start" "symbol" Sort -> Header {cons("TopSort")}
-    "language" Sort       -> Header {cons("Language")}
+    Header* TestDecl*   -> TestSuite {cons("testsuite")}
+    "testsuite" ID      -> Header {cons("Name"), deprecated("Use 'module' instead")}
+    "module" ID         -> Header {cons("Name")}
+    "package" ID        -> Header {cons("Package")}
+    "options"           -> Header {cons("Options"), deprecated}
+    "topsort" ID        -> Header {cons("TopSort"), deprecated("Use 'start symbol' instead")}
+    "start" "symbol" ID -> Header {cons("TopSort")}
+    "language" ID       -> Header {cons("Language")}
 
     ParseTest    -> TestDecl
     StrategoTest -> TestDecl
@@ -140,13 +140,10 @@ context-free syntax
 
   sorts Name Description
   context-free syntax
-    EOLString -> Name {cons("name")}
     EOLString -> Description {cons("description")}
 
   sorts Sort EOLString
   lexical syntax
-    [A-Z]                          -> Sort
-    [A-Z][A-Za-z0-9\-]*[A-Za-z0-9] -> Sort
 
     ~[\n]+ -> EOLString
 
@@ -187,7 +184,6 @@ context-free syntax
     [A-Za-z0-9\-\_\.\\\/]+ -> PathName
 
   lexical restrictions
-    Sort      -/- [A-Za-z0-9\-]
     EOLString -/- ~[\n]
 
     DQuote1   -/- [\"]

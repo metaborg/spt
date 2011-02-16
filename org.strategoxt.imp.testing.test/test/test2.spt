@@ -1,5 +1,6 @@
-testsuite testsuites
-topsort TestSuite
+module testsuites
+start symbol TestSuite
+language TestingTesting
 
 // variables 
 	input1 = []

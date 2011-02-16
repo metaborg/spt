@@ -1,5 +1,7 @@
-testsuite ASD
-    topsort Start
+module ASD
+
+start symbol Start
+language TestingTesting
     
     test asdf fails
       [[asdf]] fails
