@@ -14,12 +14,14 @@ exports
 exports
   sorts TestSuite TopSort Test Input Result
   context-free syntax
-    "testsuite" Name Option* TestDecl* -> TestSuite {cons("testsuite")}
-    "options"         -> Option {cons("Options"), deprecated}
-    "topsort" Sort    -> Option {cons("TopSort")}
-    "language" Sort   -> Option {cons("Language")}
-    
-    %% TODO: make topsort optional
+    Header* TestDecl*     -> TestSuite {cons("testsuite")}
+    "testsuite" Name      -> Header {cons("Name"), deprecated("Use 'module' instead")}
+    "module" Name         -> Header {cons("Name")}
+    "package" Name        -> Header {cons("Package")}
+    "options"             -> Header {cons("Options"), deprecated}
+    "topsort" Sort        -> Header {cons("TopSort"), deprecated("Use 'start symbol' instead")}
+    "start" "symbol" Sort -> Header {cons("TopSort")}
+    "language" Sort       -> Header {cons("Language")}
 
     ParseTest    -> TestDecl
     StrategoTest -> TestDecl

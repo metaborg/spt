@@ -56,14 +56,16 @@ public class Retokenizer {
 	
 	public void copyTokensFromFragment(IStrategoTerm fragment, IStrategoTerm parsedFragment, int startOffset, int endOffset) {
 		Tokenizer fragmentTokenizer = (Tokenizer) ImploderAttachment.getTokenizer(parsedFragment);
-		IToken startToken = fragmentTokenizer.getTokenAtOffset(startOffset);
-		IToken endToken = fragmentTokenizer.getTokenAtOffset(endOffset);
+		IToken startToken = Tokenizer.getFirstTokenWithSameOffset(
+				fragmentTokenizer.getTokenAtOffset(startOffset));
+		IToken endToken = Tokenizer.getLastTokenWithSameEndOffset(
+				fragmentTokenizer.getTokenAtOffset(endOffset));
 		int startIndex = startToken.getIndex();
 		int endIndex = endToken.getIndex();
 		
 		// Reassign new starting token to parsed fragment (skipping whitespace)
-		if (startToken.getKind() == TK_LAYOUT && startIndex + 1 < newTokenizer.getTokenCount())
-			startToken = newTokenizer.getTokenAt(++startIndex);
+		if (startToken.getKind() == TK_LAYOUT && startIndex + 1 < fragmentTokenizer.getTokenCount())
+			startToken = fragmentTokenizer.getTokenAt(++startIndex);
 		reassignTokenRange(fragmentTokenizer, startIndex, endIndex);
 		ImploderAttachment old = ImploderAttachment.get(parsedFragment);
 		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, endToken);

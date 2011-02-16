@@ -3,13 +3,12 @@ module Spoofax-Testing-Colorer
 imports Spoofax-Testing-Colorer.generated
 
 colorer
-                                                                      
-  // This file can be used for custom colorer rules.                  
-  //                                                                  
-  // See the imported file for a brief introduction and examples.
   
   _.RegexPattern : darkgreen
-  _.AtomLiteral : darkgreen   
-  _.description : 0 128 0 bold 
+  _.AtomLiteral  : darkgreen   
+  _.pattern      : darkblue   
+  _.description  : 0 128 0 bold
+  
+  
   
   

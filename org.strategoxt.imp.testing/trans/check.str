@@ -31,9 +31,9 @@ rules
       input := <Test-get-input <+ !FailsParsing()>i
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
         // TODO: set starting directory to project path using invoke-plugin-strategy
-        plugin-strategy-invoke(|<spt-get-language>, "editor-init")
+        plugin-strategy-invoke(|<Language>, "editor-init")
       ; input' := (input, <project-path>, <InputFile>)
-      ; messages := <try(\(t,e,w,n)->(e,w,n)\)> <plugin-strategy-invoke(|<spt-get-language>, <spt-get-observer>)> input'
+      ; messages := <try(\(t,e,w,n)->(e,w,n)\)> <plugin-strategy-invoke(|<Language>, <spt-get-observer>)> input'
       <+
         messages := Fails()
       else
@@ -186,10 +186,10 @@ rules
   check-warning:
     TestStratego(_, description(d), s, expectation) -> (d, warning)
     where
-      plugin-strategy-invoke(|<spt-get-language>, "editor-init")
+      plugin-strategy-invoke(|<Language>, "editor-init")
     ; s' := SDefT(d, [], [], s)
     ; result := <plugin-strategy-evaluate(<not(StrategyFails)> expectation
-                                          |<spt-get-language>, s')> ()
+                                          |<Language>, s')> ()
     ; try(<grab-strategy-success-result(|d, result)> expectation)
     ; if !result => Error(error) then
         warning := error

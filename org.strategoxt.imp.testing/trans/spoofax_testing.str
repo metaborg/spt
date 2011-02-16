@@ -15,13 +15,20 @@ imports
 rules
     
   editor-analyze:
-    (ast, path, project-path) -> (ast, errors', warnings', notes')
+    (ast, path, project-path) ->
+    (ast, errors', warnings', notes')
     with
       editor-init
-    ; scope-paths(
+    with
+      (errors', warnings', notes') := <report-invalid-language> ast
+    <+
+      scope-paths(
         <chdir> project-path;
         <record-all-sdfs> ".";
-        rules(InputFile := path);
+        rules(
+          InputFile := path
+          Language  := <get-language> ast
+        );
         errors    := <collect-all(check-error, conc)> ast;
         warnings  := <collect-all(check-warning, conc)> ast;
         notes     := <collect-all(check-note, conc)> ast;
@@ -34,10 +41,28 @@ rules
       | path, project-path
       )
   
+  report-invalid-language:
+    testsuite(h*, _) -> ([error], warnings, notes)
+    with
+      warnings := [];
+      notes    := []
+    where
+      not(get-language);
+      error := (h*, "Specify a language to be tested")
+    <+
+      language := <get-language>;
+      not(<plugin-strategy-invoke(|language, "Hd"); debug(!3)> [1]);
+      error := (language, $[Language [language] not defined or not loaded])
+  
+  get-language:
+    testsuite(header*, _) -> language
+    where
+      <one(?Language(language))> header*
+  
   generate-java:
     (selected, position, ast, path, project-path) -> result
     with
-      scope-paths( result := <to-java> selected | path, project-path)
+      scope-paths( result := <to-java(|<base-filename> path)> selected | path, project-path)
   
   generate-aterm:
     (selected, position, ast, path, project-path) -> (filename, selected)
@@ -73,10 +98,6 @@ strategies
 	// XXX: read Observer(_) subterm from ./include/*.packed.esv
 	spt-get-observer =
 		!"editor-analyze"
-	
-	// XXX: read LanguageName(_) subterm from ./include/*.packed.esv
-	spt-get-language =
-		!"TestingTesting"
 
   spt-get-parsetable =
   	SPTParseTable

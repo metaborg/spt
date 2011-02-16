@@ -8,7 +8,6 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -55,6 +54,8 @@ public class CachedFragmentParser {
 	private Descriptor parseCacheDescriptor;
 	
 	private JSGLRI parser;
+	
+	private boolean isLastSyntaxCorrect;
 
 	public void configure(Descriptor descriptor, IPath path, ISourceProject project) {
 		if (parseCacheDescriptor != descriptor) {
@@ -98,20 +99,29 @@ public class CachedFragmentParser {
 
 	public IStrategoTerm parseCached(ITokenizer oldTokenizer, IStrategoTerm fragment)
 			throws TokenExpectedException, BadTokenException, SGLRException, IOException {
+		
 		String fragmentInput = createTestFragmentString(oldTokenizer, fragment);
 		boolean successExpected = isSuccessExpected(fragment);
-		Map<String, IStrategoTerm> cache = successExpected ? successParseCache : failParseCache;
-		IStrategoTerm parsed = cache.get(fragmentInput);
-		if (parsed == null) {
+		IStrategoTerm parsed = getCache(successExpected).get(fragmentInput);
+		if (parsed != null) {
+			isLastSyntaxCorrect = successExpected;
+		} else {
 			parsed = parser.parse(fragmentInput, oldTokenizer.getFilename());
-			cache.put(fragmentInput, parsed);
+			isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
 			SGLRParseController controller = parser.getController();
 			IResource resource = controller.getResource();
 			SourceAttachment.putSource(parsed, resource, controller);
 			if (!successExpected)
 				clearTokenErrors(getTokenizer(parsed));
+			if (isLastSyntaxCorrect == successExpected)
+				getCache(isLastSyntaxCorrect).put(fragmentInput, parsed);
 		}
 		return parsed;
+	}
+
+	private WeakValueHashMap<String, IStrategoTerm> getCache(
+			boolean parseSuccess) {
+		return parseSuccess ? successParseCache : failParseCache;
 	}
 
 	private String createTestFragmentString(ITokenizer tokenizer, IStrategoTerm term) {
@@ -138,6 +148,10 @@ public class CachedFragmentParser {
 				return false;
 		}
 		return true;
+	}
+	
+	public boolean isLastSyntaxCorrect() {
+		return isLastSyntaxCorrect;
 	}
 	
 	private void clearTokenErrors(ITokenizer tokenizer) {

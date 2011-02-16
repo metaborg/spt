@@ -12,9 +12,9 @@ imports
   file-resolving
 
 rules
-  to-java:
-    testsuite(name(x), TopSort(s), d*) ->
-       ($[editor/java/tests/[x].java], 
+  to-java(|name):
+    testsuite(header*, test*) ->
+       ($[editor/java/tests/[name].java], 
         $[package tests;
 
           import junit.framework.TestCase;
@@ -29,18 +29,18 @@ rules
           import org.strategoxt.imp.runtime.parser.JSGLRI;
           import org.spoofax.jsglr.SGLRException;
           import org.strategoxt.imp.runtime.services.StrategoObserver;
-          import org.strategoxt.imp.testing.test.TestingTestingParseController;
+          import org.strategoxt.imp.testing.test.[language]ParseController;
           
           @SuppressWarnings("unused")
-          public class [x] extends TestCase {
+          public class [name] extends TestCase {
           
               private final JSGLRI parser;
               
               private final HybridInterpreter stratego;
               
               public ASD() throws Exception {
-                Descriptor descriptor = TestingTestingParseController.getDescriptor();
-                parser = new JSGLRI(Environment.getParseTableProvider(descriptor.getLanguage()), "Start");
+                Descriptor descriptor = [language]ParseController.getDescriptor();
+                parser = new JSGLRI(Environment.getParseTableProvider(descriptor.getLanguage()), [start']);
                 StrategoObserver observer = descriptor.createService(StrategoObserver.class, null);
                 observer.getLock().lock();
                 try {
@@ -49,11 +49,17 @@ rules
                     observer.getLock().unlock();
                 }
               }
-              [d'*]
+              [test'*]
            }
         ])
     with 
-      d'* := <map-with-index(try(desugar-test) ; test-to-java)> d*
+      if <one(?TopSort(s))> header* then
+        start' := $["[s]"]
+      else
+        start' := $[null]
+      end;
+      language := <one(?Language(s))> header*;
+      test'*   := <map-with-index(try(desugar-test) ; test-to-java)> test*
 
     desugar-test = fail
 //  desugar-test :
