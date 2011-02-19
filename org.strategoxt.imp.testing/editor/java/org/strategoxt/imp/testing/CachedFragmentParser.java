@@ -1,5 +1,6 @@
 package org.strategoxt.imp.testing;
 
+import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
@@ -13,6 +14,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -31,6 +33,7 @@ import org.strategoxt.imp.runtime.parser.JSGLRI;
 import org.strategoxt.imp.runtime.parser.SGLRParseController;
 import org.strategoxt.imp.runtime.stratego.SourceAttachment;
 import org.strategoxt.lang.WeakValueHashMap;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -106,9 +109,14 @@ public class CachedFragmentParser {
 		if (parsed != null) {
 			isLastSyntaxCorrect = successExpected;
 		} else {
-			parsed = parser.parse(fragmentInput, oldTokenizer.getFilename());
-			isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
 			SGLRParseController controller = parser.getController();
+			controller.getParseLock().lock();
+			try {
+				parsed = parser.parse(fragmentInput, oldTokenizer.getFilename());
+			} finally {
+				controller.getParseLock().unlock();
+			}
+			isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
 			IResource resource = controller.getResource();
 			SourceAttachment.putSource(parsed, resource, controller);
 			if (!successExpected)
@@ -139,8 +147,20 @@ public class CachedFragmentParser {
 		return result.toString();
 	}
 	
+	private boolean isSetupToken(IToken token) {
+		if (token.getKind() != IToken.TK_STRING) return false;
+		IStrategoTerm node = (IStrategoTerm) token.getAstNode();
+		if (node != null && "Input".equals(getSort(node))) {
+			IStrategoTerm parent = getParent(node);
+			if (parent != null && isTermAppl(parent) && "Setup".equals(((IStrategoAppl) parent).getName()))
+				return true;
+		}
+		return false;
+	}
+	
 	private boolean isSuccessExpected(IStrategoTerm fragment) {
-		IStrategoTerm test = getParent(getParent(fragment));
+		IStrategoAppl test = (IStrategoAppl) getParent(getParent(fragment));
+		if (test.getName().equals("Setup")) return true;
 		IStrategoList expectations = termAt(test, test.getSubtermCount() - 1);
 		for (IStrategoTerm expectation : StrategoListIterator.iterable(expectations)) {
 			IStrategoConstructor cons = tryGetConstructor(expectation);

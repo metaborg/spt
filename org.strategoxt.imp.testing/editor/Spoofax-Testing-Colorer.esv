@@ -9,6 +9,8 @@ colorer
   _.pattern      : darkblue   
   _.description  : 0 128 0 bold
   
-  
+  //_.Unnumbered : black
+  //_.Numbered   : black
+  number       : black    
   
   

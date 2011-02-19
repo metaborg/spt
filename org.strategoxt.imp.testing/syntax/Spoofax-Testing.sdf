@@ -6,7 +6,7 @@ imports Common
 imports Spoofax-Testing-String-Quotation
 imports languages/aterm/syntax/ATerms
 imports RegExp
-imports Stratego-Sugar %% TODO: import Stratego-SugarMix
+imports Stratego-Sugar [ Ws -> LAYOUT => IGNORE -> NOTHING ]
 
 exports
   context-free start-symbols TestSuite
@@ -15,6 +15,7 @@ exports
   sorts TestSuite TopSort Test Input Result
   context-free syntax
     Header* TestDecl*   -> TestSuite {cons("testsuite")}
+    ID                  -> TestSuite {cons("EmptyFile"), recover}
     "testsuite" ID      -> Header {cons("Name"), deprecated("Use 'module' instead")}
     "module" ID         -> Header {cons("Name")}
     "package" ID        -> Header {cons("Package")}
@@ -26,16 +27,12 @@ exports
     ParseTest    -> TestDecl
     StrategoTest -> TestDecl
     VarDecl      -> TestDecl
-    
-  lexical syntax
-    ~[\ \t\n\r]+ -> OptionValue
-    "test"       -> OptionValue {reject}
-
-  lexical restrictions
-    OptionValue -/- ~[\ \t\n\r]
 
   %% The description syntax is very ambiguous if comments are allowed around it. So, we forbid comments.
   syntax
+    "setup" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> -> <ParseTest-CF> {cons("Setup")}
+    "setup" <Space-LEX> <Description-CF>                         -> <ParseTest-CF> {cons("SetupEmpty")}
+    
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result*-CF> -> <ParseTest-CF> {cons("Test")}
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <TestStrategy-CF> <LAYOUT?-CF> <StrategoResult-CF>
       -> <StrategoTest-CF> {cons("TestStratego")}
@@ -86,22 +83,33 @@ exports
     "1" "warning"     -> Result    {cons("Warning")}
     INT "warnings"    -> Result    {cons("Warnings")}
     
-    "resolves" ID                    -> Result {cons("Resolves")}
-    "resolves" ID "to" ID            -> Result {cons("ResolvesTo")}
-    "completes" ID "to" ID           -> Result {cons("Completes")}
-    "builds" ID "to" ATerm           -> Result {cons("Builds")}
-    "builds" ID "to" "file" PathName -> Result {cons("BuildsFile")}
-    %% TODO: hover help
+    "resolves" ResolveID                 -> Result {cons("Resolves")}
+    "resolves" ResolveID "to" ResolveID  -> Result {cons("ResolvesTo")}
+    "completes" ResolveID                -> Result {cons("Completes")}
+    "completes" ResolveID "to" ResolveID -> Result {cons("CompletesTo")}
+    "builds" ID                          -> Result {cons("Builds")}
+    "builds" ID "to" ATerm               -> Result {cons("BuildsTo")}
+    "builds" ID "to" "file" PathName     -> Result {cons("BuildsFile")}
+    %% TODO: hover help, refactoring, run, builds to with an 'Output' concrete syntax tree
     
     RegexExp          -> Constraint
     
+    ID "#" INT -> ResolveID {cons("Numbered")}
+    ID         -> ResolveID {cons("Unnumbered")}
+    
     %% Handle a couple of lousy recoveries
-    "test" -> ID    {reject}
-    "test" -> ATerm {reject}
-           -> "resolves" {recover, reject}
-           -> "=>" {recover, reject}
-           -> "->" {recover, reject}
-
+    "test"  -> ID    {reject}
+    "setup" -> ID    {reject}
+    "test"  -> ATerm {reject}
+    "setup" -> ATerm {reject}
+            -> "resolves" {recover, reject}
+            -> "=>" {recover, reject}
+            -> "->" {recover, reject}
+           
+  %% test Primitive refactoring test
+  %% [[ module x entity X {} ]] refactoring rename at X input Y =>
+  %% [[ module x entity Y {} ]]
+ 
 context-free syntax
 
   %% UNDONE: ATerm syntax patches that should be in our ATerm.def already

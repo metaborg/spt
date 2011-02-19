@@ -1,0 +1,72 @@
+module check-resolve
+
+imports
+  libstratego-lib
+  libstratego-aterm
+  include/Spoofax-Testing
+  lib/editor-common.generated
+  aterm-eq
+  spoofax_testing
+  check
+
+rules
+  
+  check-error:
+    Test(_, _, input{ast}, expectations) -> error*
+    where
+      resolve* := <collect-all(?Unnumbered(_) + ?Numbered(_, _), conc)> expectations;
+      error*   := <filter(add-matching-ids(|ast); check-error-resolve)> resolve*
+  
+  check-error-resolve:
+    (x, []) -> (x, $[Identifier not found in input])
+  
+  check-error-resolve:
+    (x, [_, _ | _]) -> (x, $[Add a #number to indicate the occurrence to use])
+  
+  add-matching-ids(|ast):
+    expected -> (expected, <find-matching-ids(|ast)> expected)
+  
+  find-matching-ids(|ast):
+    Unnumbered(x) -> <collect-all(?x, conc)> ast
+  
+  find-matching-ids(|ast):
+    Numbered(x, nr) -> results'
+    with
+      results  := <collect-all(?x, conc)> ast;
+      results' := <![<index> (<string-to-int> nr, results)] <+ ![]>
+  
+  check-expectation(|ast, messages) :
+    Resolves(x) -> <check-expectation(|ast, messages)> ResolvesTo(x, wildcard())
+
+  check-expectation(|ast, messages) :
+    ResolvesTo(_, _) -> $[No reference resolving defined for [<Language>]]
+    where
+      spt-get-reference-resolvers => []
+
+  check-expectation(|ast, messages) :
+    ResolvesTo(from, to) -> error
+    where
+      [from']   := <find-matching-ids(|ast)> from;
+      [to']     := <find-matching-ids(|ast)> to
+    with
+      from''    := <get-service-input-term> from';
+      resolvers := <spt-get-reference-resolvers>;
+      results   := <map(execute-resolver(|from''))> resolvers
+    where
+      switch !results
+        case one(is-successful-resolver(|to')): fail
+        case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
+        case one(?Error(m)): error := $[Unexpected error: [m]]
+        case one(?Fail(m)):  error := $[Unexpected error: [m]]
+        otherwise: with(fail)
+      end
+  
+  is-successful-resolver(|expected):
+    Some(result) -> <id>
+    where
+      oncetd(origin-equal(|expected))
+  
+  execute-resolver(|node):
+    resolver -> <plugin-strategy-invoke(|<Language>, resolver)> node
+  
+  external get-service-input-term(|)

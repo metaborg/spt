@@ -52,7 +52,7 @@ strategies
           current-path         := path
           current-project-path := project-path
         ) ;
-        proposals := <propose-completion <+ ![]> node
+        proposals := <propose-completion> node
       |}
 
   propose-completion :

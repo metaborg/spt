@@ -31,16 +31,16 @@ completions
     "test" " " <description> "\n\t" "[[" <  > "]] fails" (blank)
     
   completion template : TestDecl =
-    "test" " " <description> "\n\t" "[[" <  > "]] -> file " <path> (blank)
+    "test" " " <description> "\n\t" "[[" <  > "]] => file " <path> (blank)
 
   completion template : TestDecl =
-    "test" " " <description> "\n\t" "[[" <  > "]] -> " <pattern> (blank)
+    "test" " " <description> "\n\t" "[[" <  > "]] => " <pattern> (blank)
     
   completion template : Result = "fails"    
   completion template : Result = "fails parsing"  
   completion template : Result = "succeeds"
-  completion template : Result = "-> file " <path>
+  completion template : Result = "=> file " <path>
   completion template : Result = "resolves " <x>
-  completion template : Result = "resolves " <x> " to " <y>
-  completion template : Result = "completes " <x> " to " <y>
+  completion template : Result = "resolves " <x> "#2 to " <x> "#1"
+  completion template : Result = "completes " <x> " to " <x>
   

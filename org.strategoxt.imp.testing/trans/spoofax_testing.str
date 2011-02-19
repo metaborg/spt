@@ -42,16 +42,14 @@ rules
       )
   
   report-invalid-language:
-    testsuite(h*, _) -> ([error], warnings, notes)
-    with
-      warnings := [];
-      notes    := []
+    testsuite(h*, _) -> ([error], [], [])
     where
       not(get-language);
-      error := (h*, "Specify a language to be tested")
+      error := (h*, $[Specify a language to be tested e.g., language [
+      	                <spt-get-default-language <+ !""> ]])
     <+
       language := <get-language>;
-      not(<plugin-strategy-invoke(|language, "Hd"); debug(!3)> [1]);
+      not(spt-exists-language(|language));
       error := (language, $[Language [language] not defined or not loaded])
   
   get-language:
@@ -78,10 +76,9 @@ rules
   	if ?error(_, _) then
       extract-parse-error
     else 
-      <concat-strings>
-        [ "The input string currently result in the following AST:<br>"
-        , "<br>"
-        , "<b><pre>",<id>,"</pre></b>"
+      !$[The input string currently result in the following AST:<br />
+         <br />
+         <b><pre>,()<id>,</pre></b>
         ]
     end 
 
@@ -92,16 +89,50 @@ rules
 
   external input-dialog(|title, message, initial)
 
+strategies
+  
+  editor-complete:
+    (EmptyFile(_), _, _, path, _) ->
+    [[$( module (<base-filename; remove-extension> path) 
+       
+       language (<spt-get-default-language>)
+       
+       test First test
+         [[), " ", "test", " ]]"]]
+	
+  editor-complete:
+    (Language(t), _, _, _, _) -> [<spt-get-default-language>]
+
+  editor-complete = debug; fail
 
 strategies
+  
+  external plugin-get-property-values(|language)
+  
+  plugin-get-string-property:
+    property -> value
+    where
+      plugin-get-property-values(|<Language>) => [property#([value]) | _]
 	
-	// XXX: read Observer(_) subterm from ./include/*.packed.esv
-	spt-get-observer =
-		!"editor-analyze"
+  spt-get-observer =
+    <plugin-get-string-property> "SemanticObserver"
+
+  spt-get-reference-resolvers =
+    <plugin-get-property-values(|<Language>)> "ReferenceRule";
+    map(?"ReferenceRule"#([_, <id>]))
+  
+  spt-exists-language(|language) =
+    where(<plugin-get-property-values(|language)> "LanguageName")
+  
+  spt-get-default-language =
+    <readdir> $[[<project-path>]/include]
+    ; fetch-elem(has-extension(|"esv")) 
+    ; esv := <ReadFromFile>$[./include/[<id>]]
+    ; collect-one(?"LanguageName"#([<id>]))
 
   spt-get-parsetable =
   	SPTParseTable
-   <+ <readdir>"./include" 
+   <+ <readdir> $[[<project-path>]/include] 
     ; fetch-elem(has-extension(|"tbl")) 
     ; pt := <ReadFromFile>$[./include/[<id>]]
     ; rules( SPTParseTable := pt )    

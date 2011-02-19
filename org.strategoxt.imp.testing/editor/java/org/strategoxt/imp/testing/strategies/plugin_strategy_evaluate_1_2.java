@@ -23,7 +23,8 @@ public class plugin_strategy_evaluate_1_2 extends Strategy {
 	public static plugin_strategy_evaluate_1_2 instance = new plugin_strategy_evaluate_1_2();
 
 	/**
-	 * @return Fail(trace) for strategy failure, Error(message) a string for errors, or Some(term) for success.
+	 * @return Fail(trace) for strategy failure, Error(message) a string for errors, 
+	 *         or Some(term) for success.
 	 */
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, Strategy printTrace, IStrategoTerm languageName, IStrategoTerm strategy) {

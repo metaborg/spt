@@ -2,6 +2,9 @@ module ASD
 
 start symbol Start
 language TestingTesting
+
+    test Reference resolving
+      [[ module x entity Y { y : Y } ]] resolves Y#2 to Y#1
     
     test asdf fails
       [[asdf]] fails

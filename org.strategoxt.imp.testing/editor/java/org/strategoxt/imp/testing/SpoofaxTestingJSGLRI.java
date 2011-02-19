@@ -1,6 +1,7 @@
 package org.strategoxt.imp.testing;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
@@ -11,6 +12,7 @@ import java.io.IOException;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -49,6 +51,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		setUseRecovery(true);
 	}
 	
+	@Override
 	protected IStrategoTerm doParse(String input, String filename)
 			throws TokenExpectedException, BadTokenException, SGLRException,
 			IOException {
@@ -108,6 +111,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	}
 
 	private Language getLanguage(IStrategoTerm root) {
+		if (isTermAppl(root) && "EmptyFile".equals(((IStrategoAppl) root).getName()))
+			return null;
 		IStrategoList headers = termAt(root, 0);
 		for (IStrategoTerm header : StrategoListIterator.iterable(headers)) {
 			if (tryGetConstructor(header) == LANGUAGE_1) {

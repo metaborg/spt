@@ -8,6 +8,8 @@ imports
   aterm-eq
   spoofax_testing
   file-resolving
+  check-resolve
+  check-complete
 
 signature constructors
   error : Term * Term -> Term
@@ -17,13 +19,15 @@ rules
   check-note = fail
   
   check-error:
-    Test(_, d, _, [_, _ | _]) -> (d, "Specify only one success condition") // maybe in the future...
+    Test(_, d, _, [_, _ | _]) -> "Specify only one success condition)" // maybe in the future...
   
   check-error:
-    TestEmpty(_, d) -> (d, "Empty test case")
+    TestEmpty(_, d) -> "Empty test case"
   
-  //check-error:
-  //  Test(_, _, string(_, _, close), []) -> (close, "Specify a success condition")
+  check-error:
+    Test(_, _, _, expectations) -> $[No observer defined for [<Language>]]
+    where
+      not(spt-get-observer)
   
   check-warning:
     Test(_,description(d), i, expectations) -> (d, warnings)
@@ -32,17 +36,16 @@ rules
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
         // TODO: set starting directory to project path using invoke-plugin-strategy
         plugin-strategy-invoke(|<Language>, "editor-init")
-      ; input' := (input, <project-path>, <InputFile>)
-      ; messages := <try(\(t,e,w,n)->(e,w,n)\)> <plugin-strategy-invoke(|<Language>, <spt-get-observer>)> input'
-      <+
-        messages := Fails()
+      ; input'    := (input, <project-path>, <InputFile>)
+      ; messages  := <plugin-strategy-invoke(|<Language>, <spt-get-observer>)> input'
+      ; messages' := <try(?Some(<id>)); try(\(t,e,w,n)->(e,w,n)\)>  messages
       else
-        messages := ([], [], [])
+        messages' := ([], [], [])
       end
     ; if !expectations => [] then
-        warnings := <filter(check-expectation(|input, messages))> [Success()]
+        warnings := <filter(check-expectation(|input, messages'))> [Success()]
       else
-        warnings := <filter(check-expectation(|input, messages))> expectations
+        warnings := <filter(check-expectation(|input, messages'))> expectations
       end
     ; not([])
 
@@ -79,9 +82,14 @@ rules
     ?error(_, [localized(<id>, _) | _])
 
   check-expectation(|ast, messages) :
-    <not(Fails)> -> $[Observer fails]
+    <not(Fails)> -> $[Observer fails: [details]]
     where
-      !messages => Fails()
+      !messages => Fail(details)
+
+  check-expectation(|ast, messages) :
+    _ -> $[Observer error: [details]]
+    where
+      !messages => Error(details)
 
   check-expectation(|ast, messages) :
     FailsParsing() -> $[Failure expected]
@@ -133,22 +141,13 @@ rules
     Warning() -> <check-expectation(|ast, messages)> Warnings("1")
 
   check-expectation(|ast, messages) :
-    Completes(_, _) -> $[Not implemented: [<write-to-string>]]
+    Builds(x) -> <check-expectation(|ast, messages)> BuildsTo(x, wildcard())
 
   check-expectation(|ast, messages) :
-    Builds(_, _) -> $[Not implemented: [<write-to-string>]]
+    BuildsTo(_, _) -> $[Not implemented: [<write-to-string>]]
 
   check-expectation(|ast, messages) :
     BuildsFile(_, _) -> $[Not implemented: [<write-to-string>]]
-
-  check-expectation(|ast, messages) :
-    Resolves(x) -> <check-expectation(|ast, messages)> ResolvesTo(x, x)
-
-  check-expectation(|ast, messages) :
-    ResolvesTo(_, _) -> $[Not implemented: [<write-to-string>]]
-
-  check-expectation(|ast, messages) :
-    ResolvesTo(_, _) -> $[Not implemented: [<write-to-string>]]
 
   check-expectation(|ast, messages) :
     VarDecl(_, _) -> $[Not implemented: [<write-to-string>]]

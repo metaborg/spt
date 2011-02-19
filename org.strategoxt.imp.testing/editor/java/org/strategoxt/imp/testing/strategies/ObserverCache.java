@@ -30,12 +30,17 @@ public class ObserverCache {
 	}
 
 	public StrategoObserver getObserver(Context context, String languageName) throws BadDescriptorException {
+		Descriptor descriptor = getDescriptor(languageName);
+		
+		return getObserver(context, descriptor);
+	}
+
+	public Descriptor getDescriptor(String languageName) throws BadDescriptorException {
 		Language language = LanguageRegistry.findLanguage(languageName);
 		if (language == null) throw new BadDescriptorException("No language known with the name " + languageName);
 		Descriptor descriptor = Environment.getDescriptor(language);
 		if (descriptor == null) throw new BadDescriptorException("No language known with the name " + languageName);
-		
-		return getObserver(context, descriptor);
+		return descriptor;
 	}
 
 	private synchronized StrategoObserver getObserver(Context context, Descriptor descriptor) throws BadDescriptorException {
