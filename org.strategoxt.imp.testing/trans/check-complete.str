@@ -1,0 +1,18 @@
+module check-complete
+
+imports
+  libstratego-lib
+  libstratego-aterm
+  include/Spoofax-Testing
+  lib/editor-common.generated
+  aterm-eq
+  spoofax_testing
+  check-resolve
+
+rules
+
+  check-expectation(|ast, messages) :
+    Completes(x) -> <check-expectation(|ast, messages)> CompletesTo(x, wildcard())
+
+  check-expectation(|ast, messages) :
+    CompletesTo(_, _) -> $[Not implemented: [<write-to-string>]]
