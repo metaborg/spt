@@ -111,9 +111,13 @@ rules
     ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
 
   check-expectation(|ast, messages) :
-    Success() -> $[Unexpected message(s): [<grab-messages> messages]]
+    <not(is-semantic-failure-allowed)> -> $[Unexpected message(s)!!: [<grab-messages> messages]]
     where
       not(!messages => ([], [], []))
+  
+  is-semantic-failure-allowed =
+    Fails() + ?Errors(_) + ?Error(_) + ?Warning(_) + ?Warnings(_)
+  + ?Completes(_) + ?CompletesTo(_, _)
 
   check-expectation(|ast, messages) :
     Errors(n) -> $[[n] errors expected: [<grab-errors> messages]]
@@ -122,9 +126,7 @@ rules
     ; not(<eq> (<length> errors, <string-to-int> n))
 
   check-expectation(|ast, messages) :
-    Error() -> $[1 error expected: [<grab-errors> messages]]
-    where
-      not(!messages => ([_], _, _))
+    Error(n) -> <check-expectation(|ast, messages)> Errors(n)
 
   check-expectation(|ast, messages) :
     Warnings(n) -> $[[n] warning(s) expected: [<grab-warnings> messages]]
@@ -133,12 +135,12 @@ rules
     ; not(<eq> (<length> warnings, <string-to-int> n))
 
   check-expectation(|ast, messages) :
-    Warnings(n) -> $[No errors expected: [<grab-errors> messages]]
+    Warnings(n) -> $[No error(s) expected: [<grab-errors> messages]]
     where
       !messages => ([_ | _], _, _)
 
   check-expectation(|ast, messages) :
-    Warning() -> <check-expectation(|ast, messages)> Warnings("1")
+    Warning(n) -> <check-expectation(|ast, messages)> Warnings(n)
 
   check-expectation(|ast, messages) :
     Builds(x) -> <check-expectation(|ast, messages)> BuildsTo(x, wildcard())

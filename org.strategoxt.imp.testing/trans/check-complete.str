@@ -8,6 +8,12 @@ imports
   aterm-eq
   spoofax_testing
   check-resolve
+  check
+
+signature constructors
+    
+  COMPLETION : Term -> Term
+  NOCONTEXT  : Term -> Term
 
 rules
 
@@ -15,4 +21,45 @@ rules
     Completes(x) -> <check-expectation(|ast, messages)> CompletesTo(x, wildcard())
 
   check-expectation(|ast, messages) :
-    CompletesTo(_, _) -> $[Not implemented: [<write-to-string>]]
+    CompletesTo(from, to) -> error
+    where
+      [from']   := <find-matching-ids(|ast)> from;
+      [to']     := <find-matching-ids(|ast)> to
+    with
+      from''    := <get-completion-input-term> from';
+      resolvers := <spt-get-content-proposers>;
+      results   := <map(execute-service(|from''))> resolvers
+    where
+      switch !results
+        case one(is-successful-completion(|to')): fail
+        case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
+        case one(?Error(m)): error := $[Unexpected error: [m]]
+        case one(?Fail(m)):  error := $[Unexpected error: [m]]
+        otherwise: with(fail)
+      end;
+      // On failure, report any inline errors
+      <grab-messages> messages
+  
+  get-completion-input-term:
+    x -> tuple
+    where
+      x-root := <repeat(prim("SSL_EXT_get_parent", <id>))> x;
+      if y-root := <alltd(origin-equal(|x); !COMPLETION(<id>))> x-root then
+        y := <oncetd(?COMPLETION(_))> y-root;
+        debug(!"y")
+      else
+        y := NOCONTEXT(x)
+      end;
+      tuple := <get-service-input-term> y;
+      debug(!"y'")
+  
+  is-successful-completion(|expected):
+    Some(result) -> <id>
+    where
+      !expected => wildcard()
+    <+
+      !expected => Unchecked(x);
+      <oncetd(?x)> result
+    <+
+      oncetd(origin-equal(|expected))
+      

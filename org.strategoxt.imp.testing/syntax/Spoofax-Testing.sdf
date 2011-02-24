@@ -77,25 +77,28 @@ exports
 
     "file" PathName -> Input {cons("file")}
 
-    "1" "error"       -> Result    {cons("Error")}
+    INT "error"       -> Result    {cons("Error")}
     INT "errors"      -> Result    {cons("Errors")}
     
-    "1" "warning"     -> Result    {cons("Warning")}
+    INT "warning"     -> Result    {cons("Warning")}
     INT "warnings"    -> Result    {cons("Warnings")}
     
-    "resolves" ResolveID                 -> Result {cons("Resolves")}
-    "resolves" ResolveID "to" ResolveID  -> Result {cons("ResolvesTo")}
-    "completes" ResolveID                -> Result {cons("Completes")}
-    "completes" ResolveID "to" ResolveID -> Result {cons("CompletesTo")}
-    "builds" ID                          -> Result {cons("Builds")}
-    "builds" ID "to" ATerm               -> Result {cons("BuildsTo")}
-    "builds" ID "to" "file" PathName     -> Result {cons("BuildsFile")}
+    "resolves" ResolveID                       -> Result {cons("Resolves")}
+    "resolves" ResolveID "to" ResolveID        -> Result {cons("ResolvesTo")}
+    "completes" CompletionID                   -> Result {cons("Completes")}
+    "completes" CompletionID "to" CompletionID -> Result {cons("CompletesTo")}
+    "builds" ID                                -> Result {cons("Builds")}
+    "builds" ID "to" ATerm                     -> Result {cons("BuildsTo")}
+    "builds" ID "to" "file" PathName           -> Result {cons("BuildsFile")}
     %% TODO: hover help, refactoring, run, builds to with an 'Output' concrete syntax tree
     
     RegexExp          -> Constraint
     
     ID "#" INT -> ResolveID {cons("Numbered")}
     ID         -> ResolveID {cons("Unnumbered")}
+    
+    ID "#" INT -> CompletionID {cons("Numbered")}
+    ID         -> CompletionID {cons("Unchecked")}
     
     %% Handle a couple of lousy recoveries
     "test"  -> ID    {reject}

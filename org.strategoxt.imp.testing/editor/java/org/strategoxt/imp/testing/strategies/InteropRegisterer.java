@@ -16,6 +16,7 @@ package org.strategoxt.imp.testing.strategies;
         		   plugin_strategy_evaluate_1_2.instance,
         		   plugin_get_property_values_0_1.instance,
         		   get_service_input_term_0_0.instance,
-        		   open_editor_0_0.instance });
+        		   open_editor_0_0.instance,
+        		   get_completion_input_term_0_1.instance });
          }
        }

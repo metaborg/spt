@@ -30,10 +30,16 @@ rules
     Unnumbered(x) -> <collect-all(?x, conc)> ast
   
   find-matching-ids(|ast):
+    Unchecked(x) -> [x]
+  
+  find-matching-ids(|ast):
     Numbered(x, nr) -> results'
     with
       results  := <collect-all(?x, conc)> ast;
       results' := <![<index> (<string-to-int> nr, results)] <+ ![]>
+  
+  find-matching-ids(|ast):
+    wildcard() -> wildcard()
   
   check-expectation(|ast, messages) :
     Resolves(x) -> <check-expectation(|ast, messages)> ResolvesTo(x, wildcard())
@@ -51,7 +57,7 @@ rules
     with
       from''    := <get-service-input-term> from';
       resolvers := <spt-get-reference-resolvers>;
-      results   := <map(execute-resolver(|from''))> resolvers
+      results   := <map(execute-service(|from''))> resolvers
     where
       switch !results
         case one(is-successful-resolver(|to')): fail
@@ -64,9 +70,6 @@ rules
   is-successful-resolver(|expected):
     Some(result) -> <id>
     where
+      !expected => wildcard()
+    <+
       oncetd(origin-equal(|expected))
-  
-  execute-resolver(|node):
-    resolver -> <plugin-strategy-invoke(|<Language>, resolver)> node
-  
-  external get-service-input-term(|)

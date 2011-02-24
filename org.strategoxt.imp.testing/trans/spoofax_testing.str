@@ -120,6 +120,18 @@ strategies
   spt-get-reference-resolvers =
     <plugin-get-property-values(|<Language>)> "ReferenceRule";
     map(?"ReferenceRule"#([_, <id>]))
+
+  spt-get-content-proposers =
+    <plugin-get-property-values(|<Language>)> "CompletionProposer";
+    map(?"CompletionProposer"#([<id>]))
+
+  spt-get-hover-helpers =
+    <plugin-get-property-values(|<Language>)> "HoverRule";
+    map(?"HoverRule"#([_, <id>]))
+
+  spt-get-builders =
+    <plugin-get-property-values(|<Language>)> "Builder";
+    map(\"Builder"#([_, d, s]) -> (d, s)\)
   
   spt-exists-language(|language) =
     where(<plugin-get-property-values(|language)> "LanguageName")
@@ -143,5 +155,10 @@ strategies
       id
     | <spt-get-parsetable>
     )    
+  
+  execute-service(|node):
+    resolver -> <plugin-strategy-invoke(|<Language>, resolver)> node
+  
+  external get-service-input-term(|)
 
         
