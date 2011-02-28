@@ -106,7 +106,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		Language language = getLanguage(root);
 		if (language == null) return null;
 		Descriptor descriptor = Environment.getDescriptor(language);
-		fragmentParser.configure(descriptor, getController().getRelativePath(), getController().getProject());
+		fragmentParser.configure(descriptor, getController().getRelativePath(), getController().getProject(), root);
 		return fragmentParser;
 	}
 

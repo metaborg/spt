@@ -1,7 +1,12 @@
 package org.strategoxt.imp.testing;
 
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostLayoutToken;
+import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenAfter;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
-import static org.spoofax.jsglr.client.imploder.IToken.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
@@ -60,12 +65,14 @@ public class Retokenizer {
 				fragmentTokenizer.getTokenAtOffset(startOffset));
 		IToken endToken = Tokenizer.getLastTokenWithSameEndOffset(
 				fragmentTokenizer.getTokenAtOffset(endOffset));
+		((Token) endToken).setEndOffset(endOffset); // cut off if too long
 		int startIndex = startToken.getIndex();
 		int endIndex = endToken.getIndex();
 		
 		// Reassign new starting token to parsed fragment (skipping whitespace)
 		if (startToken.getKind() == TK_LAYOUT && startIndex + 1 < fragmentTokenizer.getTokenCount())
 			startToken = fragmentTokenizer.getTokenAt(++startIndex);
+		moveTokenErrorsToRange(fragmentTokenizer, startIndex, endIndex);
 		reassignTokenRange(fragmentTokenizer, startIndex, endIndex);
 		ImploderAttachment old = ImploderAttachment.get(parsedFragment);
 		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, endToken);
@@ -74,6 +81,48 @@ public class Retokenizer {
 		ImploderAttachment.putImploderAttachment(fragment, fragment.isList(), getSort(fragment), startToken, endToken);
 	}
 	
+	private void moveTokenErrorsToRange(Tokenizer tokenizer, int startIndex, int endIndex) {
+		List<IToken> prefixErrors = collectErrorTokens(tokenizer, 0, startIndex);
+		Token startToken = tokenizer.getTokenAt(startIndex);
+		if (prefixErrors.size() != 1 || prefixErrors.get(0) != startToken)
+			startToken.setError(combineAndClearErrors(prefixErrors));
+
+		List<IToken> postfixErrors = collectErrorTokens(tokenizer, 0, startIndex);
+		Token endToken = tokenizer.getTokenAt(endIndex);
+		if (postfixErrors.size() != 1 || postfixErrors.get(0) != endToken)
+			endToken.setError(combineAndClearErrors(postfixErrors));
+	}
+	
+	private List<IToken> collectErrorTokens(Tokenizer tokenizer, int startIndex, int endIndex) {
+		List<IToken> results = new ArrayList<IToken>();
+		for (int i = 0; i < endIndex; i++) {
+			Token token = tokenizer.internalGetTokenAt(i);
+			if (token.getError() != null)
+				results.add(token);
+		}
+		return results;
+	}
+	
+	private String combineAndClearErrors(List<IToken> tokens) {
+		String lastError = null;
+		StringBuilder result = new StringBuilder();
+		for (IToken token : tokens) {
+			String error = token.getError();
+			if (error != lastError) {
+				if (error.startsWith(ITokenizer.ERROR_SKIPPED_REGION)) {
+					token = getTokenAfter(findRightMostLayoutToken(token));
+					error = "unexpected construct(s)";
+				}
+				result.append("line " + token.getLine() + ": " + error + ", \n");
+				lastError = error;
+			}
+		}
+		if (result.length() == 0)
+			return null;
+		result.delete(result.length() - 3, result.length());
+		return result.toString();
+	}
+
 	private void reassignTokenRange(Tokenizer fromTokenizer, int startIndex, int endIndex) {
 		for (int i = startIndex; i <= endIndex; i++) {
 			Token token = fromTokenizer.getTokenAt(i);
