@@ -1,0 +1,28 @@
+module test3
+
+language TestingTesting
+
+start symbol Start
+
+setup Header
+  [[ module x 
+     entity Initial {}
+  ]]
+
+test origin
+  [[ entity x { a : x }  ]] 1 warnings
+
+test reference resolving
+  [[ entity Y { y : Y } ]] resolves Y#2 to Y#1
+
+test reference resolving
+  [[ entity Y { y : Initial } ]] resolves Initial#2 to Initial#1
+
+test stratego with unicode
+  !"i want c☕øffee"
+
+test constructor
+  <get-constructor> 1 => 1
+  
+test appl
+  <get-appl-arguments> (1,2) => [1,2]
