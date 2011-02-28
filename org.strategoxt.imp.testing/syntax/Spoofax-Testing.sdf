@@ -137,7 +137,9 @@ context-free syntax
     
   sorts
   syntax
-    <DQuote1-LEX> <InputChars1-LEX> <DQuote1-LEX> -> <Input-CF> {cons("string")}
+      
+  %% Too close to Stratego
+  %%  <DQuote1-LEX> <InputChars1-LEX> <DQuote1-LEX> -> <Input-CF> {cons("string")}
     <DQuote2-LEX> <InputChars2-LEX> <DQuote2-LEX> -> <Input-CF> {cons("string")}
     <DQuote3-LEX> <InputChars3-LEX> <DQuote3-LEX> -> <Input-CF> {cons("string")}
     <DQuote4-LEX> <InputChars4-LEX> <DQuote4-LEX> -> <Input-CF> {cons("string")}
@@ -156,7 +158,9 @@ context-free syntax
   sorts Sort EOLString
   lexical syntax
 
-    ~[\n]+ -> EOLString
+    (~[\n\[\"]|EOLQuote1|EOLQuote2)+ -> EOLString
+    [\"]                             -> EOLQuote1
+    [\[]                             -> EOLQuote2
 
   sorts
     InputChars1 InputChars2 InputChars3 InputChars4
@@ -195,7 +199,9 @@ context-free syntax
     [A-Za-z0-9\-\_\.\\\/]+ -> PathName
 
   lexical restrictions
-    EOLString -/- ~[\n]
+    EOLString -/- ~[\n\[\"]
+    EOLQuote1 -/- ~[\"]
+    EOLQuote2 -/- ~[\[]
 
     DQuote1   -/- [\"]
     DQuote2   -/- [\"]

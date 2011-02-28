@@ -4,13 +4,13 @@ language TestingTesting
 
 start symbol Start
 
-setup Header
-  [[ module x 
+setup Header [[
+     module x 
      entity Initial {}
   ]]
 
 test origin
-  [[ entity x { a : x }  ]] 1 warnings
+  "" entity x { a : x }  "" 1 warnings
 
 test reference resolving
   [[ entity Y { y : Y } ]] resolves Y#2 to Y#1
@@ -22,7 +22,7 @@ test stratego with unicode
   !"i want c☕øffee"
 
 test constructor
-  <get-constructor> <make-placeholder> 1 => _
+  prim("SSL_address",3)
   
 test appl
   <get-appl-arguments> (1,2) => [1,2]
