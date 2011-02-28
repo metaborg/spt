@@ -22,7 +22,7 @@ test stratego with unicode
   !"i want c☕øffee"
 
 test constructor
-  <get-constructor> 1 => 1
+  <get-constructor> <make-placeholder> 1 => _
   
 test appl
   <get-appl-arguments> (1,2) => [1,2]
