@@ -158,7 +158,7 @@ context-free syntax
   sorts Sort EOLString
   lexical syntax
 
-    (~[\n\[\"]|EOLQuote1|EOLQuote2)+ -> EOLString
+    (~[\n\[\"]|EOLQuote1|EOLQuote2)* -> EOLString
     [\"]                             -> EOLQuote1
     [\[]                             -> EOLQuote2
 

@@ -5,12 +5,14 @@ language TestingTesting
 start symbol Start
 
 setup Header [[
-     module x 
-     entity Initial {}
-  ]]
+   module x 
+   entity Initial {}
+]]
+
+test [[ entity AnonymousTestCase {} ]]
 
 test origin
-  "" entity x { a : x }  "" 1 warnings
+  [[ entity x { a : x } ]] 1 warnings
 
 test reference resolving
   [[ entity Y { y : Y } ]] resolves Y#2 to Y#1
