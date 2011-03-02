@@ -20,11 +20,6 @@ test reference resolving
 test reference resolving
   [[ entity Y { y : Initial } ]] resolves Initial#2 to Initial#1
 
-test stratego with unicode
-  !"i want c☕øffee"
-
-test constructor
-  prim("SSL_address",3)
-  
-test appl
-  <get-appl-arguments> (1,2) => [1,2]
+setup Footer [[
+    entity Z {}
+]]
