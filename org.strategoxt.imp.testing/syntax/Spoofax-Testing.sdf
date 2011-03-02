@@ -6,7 +6,7 @@ imports Common
 imports Spoofax-Testing-String-Quotation
 imports languages/aterm/syntax/ATerms
 imports RegExp
-imports Stratego-Sugar [ Ws -> LAYOUT => IGNORE -> NOTHING ]
+imports Stratego-Sugar [ Ws -> LAYOUT => IGNORE -> IGNORE ]
 
 exports
   context-free start-symbols TestSuite

@@ -9,6 +9,7 @@ import static org.spoofax.terms.Term.termAt;
 import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
@@ -24,6 +25,8 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.TermTransformer;
+import org.spoofax.terms.TermVisitor;
+import org.spoofax.terms.attachments.ParentAttachment;
 import org.spoofax.terms.attachments.ParentTermFactory;
 import org.strategoxt.imp.runtime.Debug;
 import org.strategoxt.imp.runtime.Environment;
@@ -43,7 +46,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	private static final IStrategoConstructor LANGUAGE_1 =
 		Environment.getTermFactory().makeConstructor("Language", 1);
 	
-	private final CachedFragmentParser fragmentParser = new CachedFragmentParser();
+	private final FragmentParser fragmentParser = new FragmentParser();
 
 	public SpoofaxTestingJSGLRI(JSGLRI template) {
 		super(template.getParseTable(), template.getStartSymbol(), template.getController());
@@ -65,7 +68,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		final Retokenizer retokenizer = new Retokenizer(oldTokenizer);
 		final ITermFactory nonParentFactory = Environment.getTermFactory();
 		final ITermFactory factory = new ParentTermFactory(nonParentFactory);
-		final CachedFragmentParser testedParser = getFragmentParser(root);
+		final FragmentParser testedParser = getFragmentParser(root);
 		assert !(nonParentFactory instanceof ParentTermFactory);
 		if (testedParser == null || !testedParser.isInitialized())
 			return root;
@@ -77,7 +80,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 					IStrategoTerm fragment = termAt(term, 1);
 					retokenizer.copyTokensUpToIndex(getLeftToken(fragment).getIndex() - 1);
 					try {
-						IStrategoTerm parsed = testedParser.parseCached(oldTokenizer, fragment);
+						IStrategoTerm parsed = testedParser.parse(oldTokenizer, fragment);
 						int oldFragmentEndIndex = getRightToken(fragment).getIndex();
 						retokenizer.copyTokensFromFragment(fragment, parsed,
 								getLeftToken(fragment).getStartOffset(), getRightToken(fragment).getEndOffset());
@@ -95,14 +98,24 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 				}
 				return term;
 			}
+			
+			@Override
+			public IStrategoTerm postTransform(IStrategoTerm term) {
+				Iterator<IStrategoTerm> iterator = TermVisitor.tryGetListIterator(term); 
+				for (int i = 0, max = term.getSubtermCount(); i < max; i++) {
+					IStrategoTerm kid = iterator == null ? term.getSubterm(i) : iterator.next();
+					ParentAttachment.putParent(kid, term, null);
+				}
+				return term;
+			}
 		}.transform(root);
 		retokenizer.copyTokensAfterFragments();
-		retokenizer.getTokenizer().setAst(root);
+		retokenizer.getTokenizer().setAst(result);
 		retokenizer.getTokenizer().initAstNodeBinding();
 		return result;
 	}
 	
-	private CachedFragmentParser getFragmentParser(IStrategoTerm root) {
+	private FragmentParser getFragmentParser(IStrategoTerm root) {
 		Language language = getLanguage(root);
 		if (language == null) return null;
 		Descriptor descriptor = Environment.getDescriptor(language);

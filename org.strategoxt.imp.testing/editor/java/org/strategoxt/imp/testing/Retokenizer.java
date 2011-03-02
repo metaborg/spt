@@ -61,10 +61,16 @@ public class Retokenizer {
 	
 	public void copyTokensFromFragment(IStrategoTerm fragment, IStrategoTerm parsedFragment, int startOffset, int endOffset) {
 		Tokenizer fragmentTokenizer = (Tokenizer) ImploderAttachment.getTokenizer(parsedFragment);
-		IToken startToken = Tokenizer.getFirstTokenWithSameOffset(
-				fragmentTokenizer.getTokenAtOffset(startOffset));
-		IToken endToken = Tokenizer.getLastTokenWithSameEndOffset(
-				fragmentTokenizer.getTokenAtOffset(endOffset));
+		IToken startToken, endToken;
+		if (fragmentTokenizer.getStartOffset() <= startOffset) {
+			endToken = fragmentTokenizer.currentToken();
+			startToken = Tokenizer.getFirstTokenWithSameOffset(endToken);
+		} else {
+			startToken = Tokenizer.getFirstTokenWithSameOffset(
+					fragmentTokenizer.getTokenAtOffset(startOffset));
+			endToken = Tokenizer.getLastTokenWithSameEndOffset(
+					fragmentTokenizer.getTokenAtOffset(endOffset));
+		}
 		((Token) endToken).setEndOffset(endOffset); // cut off if too long
 		int startIndex = startToken.getIndex();
 		int endIndex = endToken.getIndex();

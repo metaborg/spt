@@ -39,8 +39,10 @@ import org.strategoxt.lang.WeakValueHashMap;
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class CachedFragmentParser {
+public class FragmentParser {
 
+	private static final boolean ALLOW_CACHING = false; // currently useless; plus it breaks setup sections at end of file
+	
 	private static final int FRAGMENT_PARSE_TIMEOUT = 3000;
 	
 	private static final IStrategoConstructor FAILS_0 =
@@ -109,7 +111,7 @@ public class CachedFragmentParser {
 		return null;
 	}
 
-	public IStrategoTerm parseCached(ITokenizer oldTokenizer, IStrategoTerm fragment)
+	public IStrategoTerm parse(ITokenizer oldTokenizer, IStrategoTerm fragment)
 			throws TokenExpectedException, BadTokenException, SGLRException, IOException {
 		
 		// TODO: use context-independent caching key
@@ -120,7 +122,8 @@ public class CachedFragmentParser {
 		IStrategoTerm parsed = getCache(successExpected).get(fragmentInput/*Compact*/);
 		if (parsed != null) {
 			isLastSyntaxCorrect = successExpected;
-		} else {
+		}
+		if (parsed == null || !ALLOW_CACHING) {
 			//String fragmentInput = createTestFragmentString(oldTokenizer, fragment, false);
 			SGLRParseController controller = parser.getController();
 			controller.getParseLock().lock();

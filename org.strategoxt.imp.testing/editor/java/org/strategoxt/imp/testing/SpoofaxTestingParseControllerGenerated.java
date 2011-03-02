@@ -33,12 +33,7 @@ public class SpoofaxTestingParseControllerGenerated extends DynamicParseControll
     return descriptor;
   }
 
-  protected static synchronized void setDescriptor(Descriptor descriptor)
-  { 
-    SpoofaxTestingParseControllerGenerated.descriptor = descriptor;
-  }
-
-  protected static void createDescriptor()
+  private static void createDescriptor()
   { 
     try
     { 
