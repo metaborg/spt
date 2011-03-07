@@ -38,16 +38,24 @@ rules
         plugin-strategy-invoke(|<Language>, "editor-init")
       ; input'    := (input, <project-path>, <InputFile>)
       ; messages  := <plugin-strategy-invoke(|<Language>, <spt-get-observer>)> input'
-      ; messages' := <try(?Some(<id>)); try(\(t,e,w,n)->(e,w,n)\)>  messages
+      ; messages' := <strip-and-record-analyzed-ast <+ reset-analyzed-ast> <try(?Some(<id>))> messages
       else
         messages' := ([], [], [])
       end
-    ; if !expectations => [] then
+    ; if !expectations; debug(!"expects") => [] then
         warnings := <filter(check-expectation(|input, messages'))> [Success()]
       else
         warnings := <filter(check-expectation(|input, messages'))> expectations
       end
     ; not([])
+
+  strip-and-record-analyzed-ast:
+    (t, e, w, n) -> (e, w, n)
+    where
+      rules(LastAnalyzedAst := t)
+
+  reset-analyzed-ast =
+      rules(LastAnalyzedAst := None())
 
   check-warning:
   	annotated(_, _) -> $[Matching with annotations not implemented(?)] // TODO: extend aterm-eq

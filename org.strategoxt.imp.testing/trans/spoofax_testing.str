@@ -156,9 +156,10 @@ strategies
     | <spt-get-parsetable>
     )    
   
+  get-service-input-term =
+    get-service-input-term(|<LastAnalyzedAst>)
+  
   execute-service(|node):
     resolver -> <plugin-strategy-invoke(|<Language>, resolver)> node
   
-  external get-service-input-term(|)
-
-        
+  external get-service-input-term(|analyzed-ast)

@@ -76,7 +76,8 @@ public class Retokenizer {
 		int endIndex = endToken.getIndex();
 		
 		// Reassign new starting token to parsed fragment (skipping whitespace)
-		if (startToken.getKind() == TK_LAYOUT && startIndex + 1 < fragmentTokenizer.getTokenCount())
+		if (startToken.getKind() == TK_LAYOUT && startIndex + 1 < fragmentTokenizer.getTokenCount()
+				&& startIndex < endIndex)
 			startToken = fragmentTokenizer.getTokenAt(++startIndex);
 		moveTokenErrorsToRange(fragmentTokenizer, startIndex, endIndex);
 		reassignTokenRange(fragmentTokenizer, startIndex, endIndex);

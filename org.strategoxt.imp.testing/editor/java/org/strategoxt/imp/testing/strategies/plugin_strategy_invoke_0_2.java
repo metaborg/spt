@@ -42,6 +42,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 				current = factory.makeAppl(factory.makeConstructor("Some", 1), current);
 				return current;
 			} else {
+				// TODO: show only foreign part of stack trace (without using setTrace(), won't work here)
 				IStrategoString trace = factory.makeString("rewriting failed\n" + context.getTraceString());
 				//if (printTrace.invoke(context, trace) != null)
 				//	observer.reportRewritingFailed();
