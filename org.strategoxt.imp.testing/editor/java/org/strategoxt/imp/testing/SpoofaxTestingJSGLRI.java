@@ -19,6 +19,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.jsglr.shared.BadTokenException;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -86,12 +87,16 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 								getLeftToken(fragment).getStartOffset(), getRightToken(fragment).getEndOffset());
 						if (!testedParser.isLastSyntaxCorrect())
 							parsed = factory.makeAppl(ERROR_1, parsed);
+						ImploderAttachment implodement = ImploderAttachment.get(term);
 						term = factory.annotateTerm(term, nonParentFactory.makeList(parsed));
+						term.putAttachment(implodement.clone());
 						retokenizer.skipTokensUpToIndex(oldFragmentEndIndex);
 					} catch (IOException e) {
 						Debug.log("Could not parse tested code fragment", e);
 					} catch (SGLRException e) {
 						Debug.log("Could not parse tested code fragment", e);
+					} catch (CloneNotSupportedException e) {
+						Environment.logException("Could not parse tested code fragment", e);
 					} catch (RuntimeException e) {
 						Environment.logException("Could not parse tested code fragment", e);
 					}

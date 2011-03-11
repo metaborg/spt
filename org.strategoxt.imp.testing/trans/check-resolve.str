@@ -57,9 +57,9 @@ rules
     with
       from''    := <get-service-input-term> from';
       resolvers := <spt-get-reference-resolvers>;
-      results   := <debug(!"a"); map(execute-service(|from''); debug(!"b"))> resolvers
+      results   := <map(execute-service(|from''))> resolvers
     where
-      switch !results; debug(!"results:")
+      switch !results
         case one(is-successful-resolver(|to')): fail
         case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
         case one(?Error(m)): error := $[Unexpected error: [m]]
@@ -72,4 +72,4 @@ rules
     where
       !expected => wildcard()
     <+
-      debug(!1); oncetd(origin-equal(|expected)); debug(!2)
+      oncetd(origin-equal(|expected))
