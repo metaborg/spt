@@ -68,9 +68,9 @@ rules
       filename := <guarantee-extension(|"aterm")> path
   
   editor-hover:
-    (string(_,s,_), _, _, _, _) -> hover
+    (string(_,s,_){ast}, _, _, _, _) -> hover
     where
-      hover := <parse-string-and-pp-aterm ; hover-input-string>s 
+      hover := <spt-pp-aterm ; hover-input-string>ast 
   
   hover-input-string =
   	if ?error(_, _) then
@@ -78,15 +78,18 @@ rules
     else 
       !$[The input string currently result in the following AST:<br />
          <br />
-         <b><pre>,()<id>,</pre></b>
+         <b>
+           <pre>
+             [<id>]
+           </pre>
+         </b>
         ]
     end 
 
-  parse-string-and-pp-aterm =
-    ast   := <spt-parse-string>
-  ; pp    := <pp-aterm-box>ast
-  ; <box2text-string(|80)>pp
 
+  spt-pp-aterm =
+    pp-aterm-box ; box2text-string(|80)
+    
   external input-dialog(|title, message, initial)
 
 strategies
