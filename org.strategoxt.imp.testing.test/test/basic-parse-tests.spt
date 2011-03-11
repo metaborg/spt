@@ -1,0 +1,13 @@
+module basic-parse-tests
+
+start symbol Start
+language TestingTesting
+
+test parsing with AST matching
+  [[module x entity Y {} ]] => Module(_, _)
+    
+test successful parsing
+  [[module x entity X { a : B } ]] succeeds parsing
+    
+test failed parsing
+  [[module x entity X { a : } ]] fails parsing
