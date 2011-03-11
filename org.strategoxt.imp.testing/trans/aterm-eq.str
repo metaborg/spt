@@ -23,6 +23,7 @@ strategies
     +        afun-eq(x)
     +    wildcard-eq(x)
     + wildcardvar-eq(x) 
+    +   annotated-eq(x)
     ) 
 
 rules
@@ -85,6 +86,11 @@ rules
     ?(appl(s1, x1*), appl(s2, x2*))
     ; where(<x> (s1, s2))
     ; where(<zip(x)> (x1*, x2*))
+
+  annotated-eq(x) =
+    ?(annotated(t1, default(a1*)), annotated(t2, default(a2*)))
+    ; where(<x> (t1, t2))
+    ; where(<zip(x)> (a1*, a2*))
 
 rules
 
