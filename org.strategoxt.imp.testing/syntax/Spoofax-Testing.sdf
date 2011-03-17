@@ -32,7 +32,7 @@ exports
   syntax
     "setup" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> -> <ParseTest-CF> {cons("Setup")}
     "setup" <Space-LEX> <Description-CF>                         -> <ParseTest-CF> {cons("SetupEmpty")}
-    
+
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result*-CF> -> <ParseTest-CF> {cons("Test")}
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <TestStrategy-CF> <LAYOUT?-CF> <StrategoResult-CF>
       -> <StrategoTest-CF> {cons("TestStratego")}
@@ -63,10 +63,10 @@ exports
     Space -/- [\ ]
 
   context-free syntax
-    
+
     "->" "file" PathName -> Result {cons("file"),    deprecated("Use => instead of ->")}
     "->" ATerm           -> Result {cons("pattern"), deprecated("Use => instead of ->")}
-    
+
     "=>" "file" PathName -> Result {cons("file")}
     "=>" ATerm           -> Result {cons("pattern")}
 
@@ -79,10 +79,10 @@ exports
 
     INT "error"       -> Result    {cons("Error")}
     INT "errors"      -> Result    {cons("Errors")}
-    
+
     INT "warning"     -> Result    {cons("Warning")}
     INT "warnings"    -> Result    {cons("Warnings")}
-    
+
     "resolves" ResolveID                       -> Result {cons("Resolves")}
     "resolves" ResolveID "to" ResolveID        -> Result {cons("ResolvesTo")}
     "completes" CompletionID                   -> Result {cons("Completes")}
@@ -91,15 +91,15 @@ exports
     "builds" ID "to" ATerm                     -> Result {cons("BuildsTo")}
     "builds" ID "to" "file" PathName           -> Result {cons("BuildsFile")}
     %% TODO: hover help, refactoring, run, builds to with an 'Output' concrete syntax tree
-    
+
     RegexExp          -> Constraint
-    
+
     ID "#" INT -> ResolveID {cons("Numbered")}
     ID         -> ResolveID {cons("Unnumbered")}
-    
+
     ID "#" INT -> CompletionID {cons("Numbered")}
     ID         -> CompletionID {cons("Unchecked")}
-    
+
     %% Handle a couple of lousy recoveries
     "test"  -> ID    {reject}
     "setup" -> ID    {reject}
@@ -108,11 +108,11 @@ exports
             -> "resolves" {recover, reject}
             -> "=>" {recover, reject}
             -> "->" {recover, reject}
-           
+
   %% test Primitive refactoring test
   %% [[ module x entity X {} ]] refactoring rename at X input Y =>
   %% [[ module x entity Y {} ]]
- 
+
 context-free syntax
 
   %% UNDONE: ATerm syntax patches that should be in our ATerm.def already
@@ -128,16 +128,16 @@ context-free syntax
   %% allow function applications without arguments
   %%context-free syntax
   %%  fun:AFun "(" ")" -> ATerm {cons("fun")}
-  
+
     "_"                  -> ATerm  {cons("wildcard")}
     "..."                -> { ATerm ","}+ {cons("wildcardvar")}
 
   context-free syntax
     StringQuotation -> Input
-    
+
   sorts
   syntax
-      
+
   %% Too close to Stratego
   %%  <DQuote1-LEX> <InputChars1-LEX> <DQuote1-LEX> -> <Input-CF> {cons("string")}
     <DQuote2-LEX> <InputChars2-LEX> <DQuote2-LEX> -> <Input-CF> {cons("string")}
@@ -146,7 +146,7 @@ context-free syntax
 
   %% Too close to Stratego
   %%<Bracket1-LEX> <InputChars21-LEX> <CloseBracket1-LEX> -> <Input-CF> {cons("string")}
-  
+
     <Bracket2-LEX> <InputChars22-LEX> <CloseBracket2-LEX> -> <Input-CF> {cons("string")}
     <Bracket3-LEX> <InputChars23-LEX> <CloseBracket3-LEX> -> <Input-CF> {cons("string")}
     <Bracket4-LEX> <InputChars24-LEX> <CloseBracket4-LEX> -> <Input-CF> {cons("string")}
@@ -200,8 +200,8 @@ context-free syntax
 
   lexical restrictions
     EOLString -/- ~[\n\[\"]
-    EOLQuote1 -/- ~[\"]
-    EOLQuote2 -/- ~[\[]
+    EOLQuote1 -/- [\"]
+    EOLQuote2 -/- [\[]
 
     DQuote1   -/- [\"]
     DQuote2   -/- [\"]
@@ -216,7 +216,7 @@ context-free syntax
     "//" ~[\n]* ([\n] | Eof) -> ShortCom
     "/*" CommChar* "*/"      -> LongCom
                              -> Eof
-    
+
     ~[\*]      -> CommChar
 
     "*"        -> Asterisk

@@ -4,10 +4,10 @@ language TestingTesting
 
 start symbol Start
 
-setup Header [[
-   module x 
+setup Header [[[
+   module x
    entity Initial {}
-]]
+]]]
 
 test [[ entity AnonymousTestCase {} ]]
 
