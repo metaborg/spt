@@ -42,7 +42,7 @@ rules
       else
         messages' := ([], [], [])
       end
-    ; if !expectations; debug(!"expects") => [] then
+    ; if !expectations => [] then
         warnings := <filter(check-expectation(|input, messages'))> [Success()]
       else
         warnings := <filter(check-expectation(|input, messages'))> expectations
@@ -116,9 +116,9 @@ rules
     ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
 
   check-expectation(|ast, messages) :
-    <not(is-semantic-failure-allowed)> -> $[Unexpected message(s)!!: [<grab-messages> messages]]
+    <not(is-semantic-failure-allowed)> -> $[Unexpected message(s): [<grab-messages> messages]]
     where
-      not(!messages => ([], [], []))
+      not(!messages => ([], [], _))
   
   is-semantic-failure-allowed =
     Fails() + ?Errors(_) + ?Error(_) + ?Warning(_) + ?Warnings(_)

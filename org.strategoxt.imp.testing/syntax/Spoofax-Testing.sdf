@@ -24,35 +24,37 @@ exports
     "start" "symbol" ID -> Header {cons("TopSort")}
     "language" ID       -> Header {cons("Language")}
 
-    ParseTest    -> TestDecl
+    Test         -> TestDecl
     StrategoTest -> TestDecl
     VarDecl      -> TestDecl
 
   %% The description syntax is very ambiguous if comments are allowed around it. So, we forbid comments.
   syntax
-    "setup" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> -> <ParseTest-CF> {cons("Setup")}
-    "setup" <Space-LEX> <Description-CF>                         -> <ParseTest-CF> {cons("SetupEmpty")}
+    %% TODO: support tests with no fragment (other than the setup blocks) but only a condition
+    
+    "setup" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> -> <Test-CF> {cons("Setup")}
+    "setup" <Space-LEX> <Description-CF>                         -> <Test-CF> {cons("SetupEmpty")}
 
-    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result*-CF> -> <ParseTest-CF> {cons("Test")}
-    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <TestStrategy-CF> <LAYOUT?-CF> <StrategoResult-CF>
+    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result*-CF> -> <Test-CF> {cons("Test")}
+    "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <TestStratego-CF> <LAYOUT?-CF> <StrategoResult-CF>
       -> <StrategoTest-CF> {cons("TestStratego")}
-    "test" <Space-LEX> <Description-CF> -> <ParseTest-CF> {cons("TestEmpty")}
+    "test" <Space-LEX> <Description-CF> -> <Test-CF> {cons("TestEmpty")}
 
   context-free syntax
     ID "=" ATerm -> VarDecl {cons("VarDecl")}
 
   context-free syntax
-               -> StrategoResult {cons("StrategySuccess")}
-    "succeeds" -> StrategoResult {cons("StrategySuccess")}
-    "fails"    -> StrategoResult {cons("StrategyFails")}
-    "=>" ATerm -> StrategoResult {cons("StrategyEquals")}
-    "->" ATerm -> StrategoResult {cons("StrategyEquals"), deprecated("Use => instead of ->")}
-    Strategy   -> TestStrategy
+               -> StrategoResult {cons("StrategoSuccess")}
+    "succeeds" -> StrategoResult {cons("StrategoSuccess")}
+    "fails"    -> StrategoResult {cons("StrategoFails")}
+    "=>" ATerm -> StrategoResult {cons("StrategoEquals")}
+    "->" ATerm -> StrategoResult {cons("StrategoEquals"), deprecated("Use => instead of ->")}
+    Strategy   -> TestStratego
 
-    String                               -> TestStrategy {reject}
-    "[" {Strategy ","}* "]"              -> TestStrategy {reject}
-    "[" {Strategy ","}* "|" Strategy "]" -> TestStrategy {reject}
-    Strategy "=>" Term                   -> TestStrategy {reject}
+    String                               -> TestStratego {reject}
+    "[" {Strategy ","}* "]"              -> TestStratego {reject}
+    "[" {Strategy ","}* "|" Strategy "]" -> TestStratego {reject}
+    Strategy "=>" Term                   -> TestStratego {reject}
     "succeeds"                           -> Term {reject}
     "fails"                              -> Term {reject}
 
@@ -87,9 +89,17 @@ exports
     "resolves" ResolveID "to" ResolveID        -> Result {cons("ResolvesTo")}
     "completes" CompletionID                   -> Result {cons("Completes")}
     "completes" CompletionID "to" CompletionID -> Result {cons("CompletesTo")}
+    
+    %% TODO: implement the following:
+    TestStratego                               -> Result {cons("Stratego")} 
     "builds" ID                                -> Result {cons("Builds")}
-    "builds" ID "to" ATerm                     -> Result {cons("BuildsTo")}
+    "builds" ID "to" ATerm                     -> Result {cons("BuildsToTerm")}
+    "builds" ID "to" Output                    -> Result {cons("BuildsToTree")}
     "builds" ID "to" "file" PathName           -> Result {cons("BuildsFile")}
+    "runs" ID                                  -> Result {cons("Runs")}
+    "runs" ID "to" ATerm                       -> Result {cons("RunsTo")}
+    "runs" ID "to" Output                      -> Result {cons("RunsToTre")}
+    "runs" ID "to" "file" PathName             -> Result {cons("RunsFile")}
     %% TODO: hover help, refactoring, run, builds to with an 'Output' concrete syntax tree
 
     RegexExp          -> Constraint
@@ -146,10 +156,21 @@ context-free syntax
 
   %% Too close to Stratego
   %%<Bracket1-LEX> <InputChars21-LEX> <CloseBracket1-LEX> -> <Input-CF> {cons("string")}
-
     <Bracket2-LEX> <InputChars22-LEX> <CloseBracket2-LEX> -> <Input-CF> {cons("string")}
     <Bracket3-LEX> <InputChars23-LEX> <CloseBracket3-LEX> -> <Input-CF> {cons("string")}
     <Bracket4-LEX> <InputChars24-LEX> <CloseBracket4-LEX> -> <Input-CF> {cons("string")}
+
+  %% Too close to Stratego
+  %%  <DQuote1-LEX> <InputChars1-LEX> <DQuote1-LEX> -> <Output-CF> {cons("string")}
+    <DQuote2-LEX> <InputChars2-LEX> <DQuote2-LEX> -> <Output-CF> {cons("string")}
+    <DQuote3-LEX> <InputChars3-LEX> <DQuote3-LEX> -> <Output-CF> {cons("string")}
+    <DQuote4-LEX> <InputChars4-LEX> <DQuote4-LEX> -> <Output-CF> {cons("string")}
+
+  %% Too close to Stratego
+  %%<Bracket1-LEX> <InputChars21-LEX> <CloseBracket1-LEX> -> <Output-CF> {cons("string")}
+    <Bracket2-LEX> <InputChars22-LEX> <CloseBracket2-LEX> -> <Output-CF> {cons("string")}
+    <Bracket3-LEX> <InputChars23-LEX> <CloseBracket3-LEX> -> <Output-CF> {cons("string")}
+    <Bracket4-LEX> <InputChars24-LEX> <CloseBracket4-LEX> -> <Output-CF> {cons("string")}
 
   sorts Name Description
   context-free syntax
