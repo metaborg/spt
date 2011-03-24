@@ -93,13 +93,13 @@ exports
     %% TODO: implement the following:
     TestStratego                               -> Result {cons("Stratego")} 
     "builds" ID                                -> Result {cons("Builds")}
-    "builds" ID "to" ATerm                     -> Result {cons("BuildsToTerm")}
-    "builds" ID "to" Output                    -> Result {cons("BuildsToTree")}
-    "builds" ID "to" "file" PathName           -> Result {cons("BuildsFile")}
-    "runs" ID                                  -> Result {cons("Runs")}
-    "runs" ID "to" ATerm                       -> Result {cons("RunsTo")}
-    "runs" ID "to" Output                      -> Result {cons("RunsToTre")}
-    "runs" ID "to" "file" PathName             -> Result {cons("RunsFile")}
+    "builds" ID "to" ATerm                     -> Result {cons("BuildsTo")}
+    %%"builds" ID "to" Output                  -> Result {cons("BuildsToTree")}
+    "builds" ID "to" "file" PathName           -> Result {cons("BuildsToFile")}
+    "runs" ID "using" STRING                   -> Result {cons("Runs")}
+    "runs" ID "using" STRING "to" ATerm        -> Result {cons("RunsTo")}
+    %%"runs" ID "using" STRING "to" Output     -> Result {cons("RunsToTree")}
+    "runs" ID "using" STRING "to" "file" PathName -> Result {cons("RunsToFile")}
     %% TODO: hover help, refactoring, run, builds to with an 'Output' concrete syntax tree
 
     RegexExp          -> Constraint

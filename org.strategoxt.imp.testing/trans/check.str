@@ -36,7 +36,7 @@ rules
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
         // TODO: set starting directory to project path using invoke-plugin-strategy
         plugin-strategy-invoke(|<Language>, "editor-init")
-      ; input'    := (input, <project-path>, <InputFile>)
+      ; input'    := (input, <InputFile>, <project-path>)
       ; messages  := <plugin-strategy-invoke(|<Language>, <spt-get-observer>)> input'
       ; messages' := <strip-and-record-analyzed-ast <+ reset-analyzed-ast> <try(?Some(<id>))> messages
       else
@@ -154,7 +154,16 @@ rules
     BuildsTo(_, _) -> $[Not implemented: [<write-to-string>]]
 
   check-expectation(|ast, messages) :
-    BuildsFile(_, _) -> $[Not implemented: [<write-to-string>]]
+    BuildsToFile(_, _) -> $[Not implemented: [<write-to-string>]]
+
+  check-expectation(|ast, messages) :
+    Runs(x, y) -> <check-expectation(|ast, messages)> RunsTo(x, y, wildcard())
+
+  check-expectation(|ast, messages) :
+    RunsTo(_, _, _) -> $[Not implemented: [<write-to-string>]]
+
+  check-expectation(|ast, messages) :
+    RunsToFile(_, _, _) -> $[Not implemented: [<write-to-string>]]
 
   check-expectation(|ast, messages) :
     VarDecl(_, _) -> $[Not implemented: [<write-to-string>]]
@@ -194,7 +203,7 @@ rules
     where
       plugin-strategy-invoke(|<Language>, "editor-init")
     ; s' := SDefT(d, [], [], s)
-    ; result := <plugin-strategy-evaluate(<not(StrategyFails)> expectation
+    ; result := <plugin-strategy-evaluate(<not(StrategoFails)> expectation
                                           |<Language>, s')> ()
     ; try(<grab-strategy-success-result(|d, result)> expectation)
     ; if !result => Error(error) then
@@ -204,23 +213,23 @@ rules
       end
 
   check-expectation(|result) :
-    StrategyFails() -> $[Failure expected: <pre>[<write-to-string> result']</pre>]
+    StrategoFails() -> $[Failure expected: <pre>[<write-to-string> result']</pre>]
     where
       !result => Some(result')
 
   grab-strategy-success-result(|d, result) :
-    StrategySuccess() -> StrategySuccess()
+    StrategoSuccess() -> StrategoSuccess()
     where
       !result => Some(result')
     ; rules(GrabbedNotes :+= (d, $[Result: [<write-to-string> result'] (no => expectation specified)]))
 
   check-expectation(|result) :
-    <not(StrategyFails)> -> $[Failure unexpected: <pre>[trace]</pre>]
+    <not(StrategoFails)> -> $[Failure unexpected: <pre>[trace]</pre>]
     where
       !result => Fail(trace)
 
   check-expectation(|result) :
-    StrategyEquals(p) -> $[Unexpected result: [<write-to-string> result']]
+    StrategoEquals(p) -> $[Unexpected result: [<write-to-string> result']]
     where
       !result => Some(result')
     ; result'' := <explode-aterm> result'
