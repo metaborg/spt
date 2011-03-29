@@ -2,23 +2,34 @@ package org.strategoxt.imp.testing;
 
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenAfter;
+import static org.spoofax.jsglr.client.imploder.IToken.TK_ESCAPE_OPERATOR;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_LAYOUT;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
+import static org.spoofax.terms.Term.isTermString;
+import static org.spoofax.terms.Term.tryGetConstructor;
+import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
+import org.spoofax.terms.TermVisitor;
+import org.strategoxt.imp.runtime.Environment;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class Retokenizer {
+	
+	private static final IStrategoConstructor QUOTEPART_1 =
+		Environment.getTermFactory().makeConstructor("QuotePart", 1);
 	
 	private final Tokenizer oldTokenizer;
 	
@@ -59,7 +70,7 @@ public class Retokenizer {
 		copyTokensUpToIndex(oldTokenizer.getTokenCount() - 1);
 	}
 	
-	public void copyTokensFromFragment(IStrategoTerm fragment, IStrategoTerm parsedFragment, int startOffset, int endOffset) {
+	public void copyTokensFromFragment(IStrategoTerm fragmentHead, IStrategoTerm fragmentTail, IStrategoTerm parsedFragment, int startOffset, int endOffset) {
 		Tokenizer fragmentTokenizer = (Tokenizer) ImploderAttachment.getTokenizer(parsedFragment);
 		IToken startToken, endToken;
 		if (fragmentTokenizer.getStartOffset() <= startOffset) {
@@ -85,7 +96,31 @@ public class Retokenizer {
 		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, endToken);
 		
 		// Reassign new tokens to unparsed fragment
-		ImploderAttachment.putImploderAttachment(fragment, fragment.isList(), getSort(fragment), startToken, endToken);
+		recolorMarkingBrackets(fragmentTail, fragmentTokenizer);
+		assignTokens(fragmentHead, startToken, endToken);
+		assignTokens(fragmentTail, startToken, endToken);
+	}
+
+	private void assignTokens(IStrategoTerm tree, final IToken startToken, final IToken endToken) {
+		// HACK: asssign the same tokens to all tree nodes in fragments
+		//       (breaks some editor services)
+		new TermVisitor() {
+			public void preVisit(IStrategoTerm term) {
+				ImploderAttachment.putImploderAttachment(term, false, getSort(term), startToken, endToken);
+			}
+		}.visit(tree);
+	}
+
+	private void recolorMarkingBrackets(IStrategoTerm term, final ITokenizer tokenizer) {
+		new TermVisitor() {
+			public void preVisit(IStrategoTerm term) {
+				if (isTermString(term) && tryGetConstructor(getParent(term)) != QUOTEPART_1) {
+					IToken token1 = getLeftToken(term);
+					IToken token2 = tokenizer.getTokenAtOffset(token1.getStartOffset());
+					token2.setKind(TK_ESCAPE_OPERATOR);
+				}
+			}
+		}.visit(term);
 	}
 	
 	private void moveTokenErrorsToRange(Tokenizer tokenizer, int startIndex, int endIndex) {

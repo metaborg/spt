@@ -17,14 +17,14 @@ signature constructors
 
 rules
 
-  check-expectation(|ast, messages) :
-    Completes(x) -> <check-expectation(|ast, messages)> CompletesTo(x, wildcard())
+  check-expectation(|ast, selections, messages) :
+    Completes(x) -> <check-expectation(|ast, selections, messages)> CompletesTo(x, wildcard())
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     CompletesTo(from, to) -> error
     where
-      [from']   := <find-matching-ids(|ast)> from;
-      [to']     := <find-matching-ids(|ast)> to
+      from' := <resolve-selection(|selections)> from;
+      to'   := <resolve-selection(|selections)> to
     with
       from''    := <get-completion-input-term> from';
       resolvers := <spt-get-content-proposers>;
@@ -58,8 +58,5 @@ rules
     where
       !expected => wildcard()
     <+
-      !expected => Unchecked(x);
-      <oncetd(?x)> result
-    <+
-      oncetd(origin-equal(|expected))
+      <oncetd(strip-annos; ?expeceted)> result
       

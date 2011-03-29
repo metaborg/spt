@@ -10,50 +10,41 @@ imports
   check
 
 rules
-  
-  check-error:
-    Test(_, _, input{ast}, expectations) -> error*
-    where
-      resolve* := <collect-all(?Unnumbered(_) + ?Numbered(_, _), conc)> expectations;
-      error*   := <filter(add-matching-ids(|ast); check-error-resolve)> resolve*
-  
-  check-error-resolve:
-    (x, []) -> (x, $[Identifier not found in input])
-  
-  check-error-resolve:
-    (x, [_, _ | _]) -> (x, $[Add a #number to indicate the occurrence to use])
-  
-  add-matching-ids(|ast):
-    expected -> (expected, <find-matching-ids(|ast)> expected)
-  
-  find-matching-ids(|ast):
-    Unnumbered(x) -> <collect-all(?x, conc)> ast
-  
-  find-matching-ids(|ast):
-    Unchecked(x) -> [x]
-  
-  find-matching-ids(|ast):
-    Numbered(x, nr) -> results'
-    with
-      results  := <collect-all(?x, conc)> ast;
-      results' := <![<index> (<string-to-int> nr, results)] <+ ![]>
-  
-  find-matching-ids(|ast):
-    wildcard() -> wildcard()
-  
-  check-expectation(|ast, messages) :
-    Resolves(x) -> <check-expectation(|ast, messages)> ResolvesTo(x, wildcard())
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     ResolvesTo(_, _) -> $[No reference resolving defined for [<Language>]]
     where
       spt-get-reference-resolvers => []
+  
+  check-error:
+    Test(_, _, input{a*}, expectations) -> error*
+    where
+      !a* => [ast | selections];
+      reference* := <collect-all(?Numbered(_) + ?Unnumbered(), conc)> expectations;
+      error*     := <filter(check-selection(|selections))> reference*
+  
+  check-selection(|selections):
+    Numbered(n) -> (n, $[Identifier not found in input])
+    where
+      not(resolve-selection(|selections))
+  
+  resolve-selection(|selections):
+    Numbered(n) -> selection
+    where
+      n'        := <string-to-int> n;
+      selection := <index(|n')> selections
+  
+  resolve-selection(|selections):
+    Unnumbered() -> <resolve-selection(|selections)> Numbered("1")
+  
+  check-expectation(|ast, selections, messages) :
+    Resolves(x) -> <check-expectation(|ast, selections, messages)> ResolvesTo(x, wildcard())
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     ResolvesTo(from, to) -> error
     where
-      [from'] := <find-matching-ids(|ast)> from;
-      [to']   := <find-matching-ids(|ast)> to
+      from' := <resolve-selection(|selections)> from;
+      to'   := <resolve-selection(|selections)> to
     with
       from''    := <get-service-input-term> from';
       resolvers := <spt-get-reference-resolvers>;

@@ -32,7 +32,7 @@ rules
   check-warning:
     Test(_,description(d), i, expectations) -> (d, warnings)
     where
-      input := <Test-get-input <+ !FailsParsing()>i
+      (input, selections) := <Test-get-input <+ !(FailsParsing(), [])>i
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
         // TODO: set starting directory to project path using invoke-plugin-strategy
         plugin-strategy-invoke(|<Language>, "editor-init")
@@ -43,9 +43,9 @@ rules
         messages' := ([], [], [])
       end
     ; if !expectations => [] then
-        warnings := <filter(check-expectation(|input, messages'))> [Success()]
+        warnings := <filter(check-expectation(|input, selections, messages'))> [Success()]
       else
-        warnings := <filter(check-expectation(|input, messages'))> expectations
+        warnings := <filter(check-expectation(|input, selections, messages'))> expectations
       end
     ; not([])
 
@@ -60,21 +60,24 @@ rules
   external plugin-strategy-invoke(|language, name)
   
   Test-get-input :
-    file(f) -> <resolve-path(|<current-path>) ; read-text-file ; spt-parse-string>f
+    file(f) -> (<resolve-path(|<current-path>) ; read-text-file ; spt-parse-string>f, [])
     
   Test-get-input :
-    string(_,s,_){a*} -> parsed'
+    Input(_,_,_,_){a*} -> (parsed', selections)
     where
-      !a* => [parsed];
+      !a* => [parsed | selections];
       if !parsed => Error(_) then
         parsed' := FailsParsing()
       else
         parsed' := parsed
       end
     <+
-      parsed' := <spt-parse-string> s
+      // UNDONE: parsing from Stratego is no longer supported atm
+      // parsed' := <spt-parse-string> s
+      warn(|"No ast annotation found")
+    ; parsed' := FailsParsing()
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     <not(Fails + FailsParsing)> -> parse-failed
     where
       if !ast => FailsParsing() + !ast => error(_, _) then
@@ -86,36 +89,36 @@ rules
   extract-parse-error =
     ?error(_, [localized(<id>, _) | _])
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     <not(Fails)> -> $[Observer fails: [details]]
     where
       !messages => Fail(details)
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     _ -> $[Observer error: [details]]
     where
       !messages => Error(details)
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     FailsParsing() -> $[Failure expected]
     where
       not(!ast => FailsParsing());
       not(!ast => error(_, _))
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     pattern(p) -> $[Does not match pattern: [<write-to-string> ast]]
     where
       exploded := <explode-aterm> ast
     ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     file(f) -> $[Does not match pattern: [<write-to-string> ast]]
     where
       exploded := <explode-aterm> ast
     ; p := <resolve-path(|<current-path>); ReadFromFile; explode-aterm> f
     ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     <not(is-semantic-failure-allowed)> -> $[Unexpected message(s): [<grab-messages> messages]]
     where
       not(!messages => ([], [], _))
@@ -124,48 +127,42 @@ rules
     Fails() + ?Errors(_) + ?Error(_) + ?Warning(_) + ?Warnings(_)
   + ?Completes(_) + ?CompletesTo(_, _)
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     Errors(n) -> $[[n] errors expected: [<grab-errors> messages]]
     where
       !messages => (errors, _, _)
     ; not(<eq> (<length> errors, <string-to-int> n))
 
-  check-expectation(|ast, messages) :
-    Error(n) -> <check-expectation(|ast, messages)> Errors(n)
+  check-expectation(|ast, selections, messages) :
+    Error(n) -> <check-expectation(|ast, selections, messages)> Errors(n)
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     Warnings(n) -> $[[n] warning(s) expected: [<grab-warnings> messages]]
     where
       !messages => ([], warnings, _)
     ; not(<eq> (<length> warnings, <string-to-int> n))
 
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     Warnings(n) -> $[No error(s) expected: [<grab-errors> messages]]
     where
       !messages => ([_ | _], _, _)
 
-  check-expectation(|ast, messages) :
-    Warning(n) -> <check-expectation(|ast, messages)> Warnings(n)
+  check-expectation(|ast, selections, messages) :
+    Warning(n) -> <check-expectation(|ast, selections, messages)> Warnings(n)
 
-  check-expectation(|ast, messages) :
-    Builds(x) -> <check-expectation(|ast, messages)> BuildsTo(x, wildcard())
+  check-expectation(|ast, selections, messages) :
+    Builds(_, _) -> $[Not implemented: [<write-to-string>]]
 
-  check-expectation(|ast, messages) :
-    BuildsTo(_, _) -> $[Not implemented: [<write-to-string>]]
+  check-expectation(|ast, selections, messages) :
+    Runs(_, _, _) -> $[Not implemented: [<write-to-string>]]
 
-  check-expectation(|ast, messages) :
-    BuildsToFile(_, _) -> $[Not implemented: [<write-to-string>]]
+  check-expectation(|ast, selections, messages) :
+    Refactors(_, _, _) -> $[Not implemented: [<write-to-string>]]
 
-  check-expectation(|ast, messages) :
-    Runs(x, y) -> <check-expectation(|ast, messages)> RunsTo(x, y, wildcard())
+  check-expectation(|ast, selections, messages) :
+    Stratego(_) -> $[Not implemented: [<write-to-string>]]
 
-  check-expectation(|ast, messages) :
-    RunsTo(_, _, _) -> $[Not implemented: [<write-to-string>]]
-
-  check-expectation(|ast, messages) :
-    RunsToFile(_, _, _) -> $[Not implemented: [<write-to-string>]]
-
-  check-expectation(|ast, messages) :
+  check-expectation(|ast, selections, messages) :
     VarDecl(_, _) -> $[Not implemented: [<write-to-string>]]
     
   is-parse-only-test =

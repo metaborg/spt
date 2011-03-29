@@ -68,8 +68,9 @@ rules
       filename := <guarantee-extension(|"aterm")> path
   
   editor-hover:
-    (string(_,s,_){ast}, _, _, _, _) -> hover
+    (Input(_, _, _, _){a*}, _, _, _, _) -> hover
     where
+      !a* => [ast | _];
       hover := <spt-pp-aterm ; hover-input-string>ast 
   
   hover-input-string =

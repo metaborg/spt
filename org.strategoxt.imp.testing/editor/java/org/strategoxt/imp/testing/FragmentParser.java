@@ -1,5 +1,8 @@
 package org.strategoxt.imp.testing;
 
+import static java.lang.Math.max;
+import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermString;
 import static org.spoofax.interpreter.core.Tools.listAt;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
@@ -54,6 +57,9 @@ public class FragmentParser {
 	private static final IStrategoConstructor SETUP_3 =
 		Environment.getTermFactory().makeConstructor("Setup", 3);
 	
+	private static final IStrategoConstructor QUOTEPART_1 =
+		Environment.getTermFactory().makeConstructor("QuotePart", 1);
+	
 	private static final int EXCLUSIVE = 1;
 	
 	private final WeakValueHashMap<String, IStrategoTerm> failParseCache =
@@ -66,7 +72,7 @@ public class FragmentParser {
 	
 	private JSGLRI parser;
 
-	private List<int[]> setupRegions;
+	private List<OffsetRegion> setupRegions;
 	
 	private boolean isLastSyntaxCorrect;
 
@@ -89,19 +95,19 @@ public class FragmentParser {
 			if (descriptor == null) return null;
 			
 			IParseController controller;
-			controller = descriptor.createService(IParseController.class, null);
+			controller = descriptor.createParseController();
 			if (controller instanceof DynamicParseController)
 				controller = ((DynamicParseController) controller).getWrapped();
 			if (controller instanceof SGLRParseController) {
 				SGLRParseController sglrController = (SGLRParseController) controller;
 				controller.initialize(path, project, null);
-				JSGLRI parser = sglrController.getParser(); 
-				JSGLRI result = new JSGLRI(parser.getParseTable(), parser.getStartSymbol(), (SGLRParseController) controller);
+				JSGLRI result = sglrController.getParser(); 
+				//JSGLRI result = new JSGLRI(parser.getParseTable(), parser.getStartSymbol(), (SGLRParseController) controller);
 				result.setTimeout(FRAGMENT_PARSE_TIMEOUT);
 				result.setUseRecovery(true);
 				return result;
 			} else {
-				throw new IllegalStateException("SGLRParseController expected");
+				throw new IllegalStateException("SGLRParseController expected: " + controller.getClass().getName());
 			}
 		} catch (BadDescriptorException e) {
 			Environment.logWarning("Could not load parser for testing language");
@@ -111,13 +117,13 @@ public class FragmentParser {
 		return null;
 	}
 
-	public IStrategoTerm parse(ITokenizer oldTokenizer, IStrategoTerm fragment)
+	public IStrategoTerm parse(ITokenizer oldTokenizer, IStrategoTerm fragment, boolean ignoreSetup)
 			throws TokenExpectedException, BadTokenException, SGLRException, IOException {
 		
 		// TODO: use context-independent caching key
 		//       (requires offset adjustments for reuse...)
-		// String fragmentInputCompact = createTestFragmentString(oldTokenizer, fragment, true);
-		String fragmentInput = createTestFragmentString(oldTokenizer, fragment, false);
+		// String fragmentInputCompact = createTestFragmentString(oldTokenizer, fragment, ignoreSetup, true);
+		String fragmentInput = createTestFragmentString(oldTokenizer, fragment, ignoreSetup, false);
 		boolean successExpected = isSuccessExpected(fragment);
 		IStrategoTerm parsed = getCache(successExpected).get(fragmentInput/*Compact*/);
 		if (parsed != null) {
@@ -143,78 +149,73 @@ public class FragmentParser {
 		return parsed;
 	}
 
-	private WeakValueHashMap<String, IStrategoTerm> getCache(
-			boolean parseSuccess) {
+	private WeakValueHashMap<String, IStrategoTerm> getCache(boolean parseSuccess) {
 		return parseSuccess ? successParseCache : failParseCache;
 	}
 
 	private String createTestFragmentString(ITokenizer tokenizer, IStrategoTerm term,
-			boolean compactWhitespace) {
+			boolean ignoreSetup, boolean compactWhitespace) {
 		
-		int fragmentStart = getLeftToken(term).getStartOffset();
-		int fragmentEnd = getRightToken(term).getEndOffset();
-		/*
-		int fragmentOffset = getLeftToken(term).getStartOffset();
-		IToken endToken = getRightToken(term);
-		StringBuilder result = new StringBuilder(tokenizer.toString(tokenizer.getTokenAt(0), endToken));
-		for (int i = 0; i < fragmentOffset; i++) {
-			switch (result.charAt(i)) {
-				case ' ': case '\t': case '\r': case '\n':
-					break;
-				default:
-					result.setCharAt(i, ' ');
-			}
-		}
-		*/
+		IStrategoTerm fragmentHead = term.getSubterm(1);
+		IStrategoTerm fragmentTail = term.getSubterm(2);
+		int fragmentStart = getLeftToken(fragmentHead).getStartOffset();
+		int fragmentEnd = getRightToken(fragmentTail).getEndOffset();
 		String input = tokenizer.getInput();
 		StringBuilder result = new StringBuilder(
-			compactWhitespace ? input.length() + 16
-			                  : input.length());
+			compactWhitespace ? input.length() + 16 : input.length());
 		
 		boolean addedFragment = false;
 		int index = 0;
 		
-		for (int[] setupRegion : setupRegions) {
-			int setupStart = setupRegion[0];
-			int setupEnd = setupRegion[1];
-			if (!addedFragment && setupStart >= fragmentStart) {
-				addWhitespace(input, index, fragmentStart - 1, result);
-				result.append(input, fragmentStart, fragmentEnd + EXCLUSIVE);
-				index = fragmentEnd + 1;
-				addedFragment = true;
-			}
-			if (setupStart != fragmentStart) { // fragment is setup region
-				addWhitespace(input, index, setupStart - 1, result);
-				result.append(input, setupStart, setupEnd + EXCLUSIVE);
-				index = setupEnd + 1;
+		if (!ignoreSetup) {
+			for (OffsetRegion setupRegion : setupRegions) {
+				int setupStart = setupRegion.startOffset;
+				int setupEnd = setupRegion.endOffset;
+				if (!addedFragment && setupStart >= fragmentStart) {
+					addWhitespace(input, index, fragmentStart - 1, result);
+					appendFragment(fragmentHead, input, result);
+					appendFragment(fragmentTail, input, result);
+					index = fragmentEnd + 1;
+					addedFragment = true;
+				}
+				if (fragmentStart != setupStart) { // only if fragment != setup region
+					addWhitespace(input, index, setupStart - 1, result);
+					if (setupEnd >= index) {
+						result.append(input, max(setupStart, index), setupEnd + EXCLUSIVE);
+						index = setupEnd + 1;
+					}
+				}
 			}
 		}
 		
 		if (!addedFragment) {
 			addWhitespace(input, index, fragmentStart - 1, result);
-			result.append(input, fragmentStart, fragmentEnd + EXCLUSIVE);
+			appendFragment(fragmentHead, input, result);
+			appendFragment(fragmentTail, input, result);
 			index = fragmentEnd + 1;
 		}
 		
 		addWhitespace(input, index, input.length() - 1, result);
 		
-		/*
-		for (IToken token : tokenizer) {
-			int length = token.getLength();
-			if (length == 0) {
-				// skip
-			} else if (token.getKind() == IToken.TK_STRING
-				&& ((token.getStartOffset() >= fragmentStart && token.getEndOffset() <= fragmentEnd)
-					|| isSetupToken(token))) {
-				result.append(token);
-			} else if (!compactWhitespace) {
-				for (int c = 0; c < length; c++)
-					result.append(token.charAt(c) == '\n' ? '\n' : ' ');
-			}
-		}
-		*/
 		assert result.length() == input.length();
 		return result.toString(); 
+	}
+
+	private void appendFragment(IStrategoTerm term, String input, StringBuilder output) {
+		IToken left = getLeftToken(term);
+		IToken right = getRightToken(term);
+		if (tryGetConstructor(term) == QUOTEPART_1) {
+			output.append(input, left.getStartOffset(), right.getEndOffset() + EXCLUSIVE);
+		} else if (isTermString(term)) {
+			// Brackets: treat as whitespace
+			assert asJavaString(term).length() <= 4 : "Bracket expected: " + term;
+			addWhitespace(input, left.getStartOffset(), right.getEndOffset(), output);
+		} else {
+			// Other: recurse
+			for (int i = 0; i < term.getSubtermCount(); i++) {
+				appendFragment(term.getSubterm(i), input, output);
+			}
+		}
 	}
 
 	private static void addWhitespace(String input, int startOffset, int endOffset, StringBuilder output) {
@@ -222,14 +223,21 @@ public class FragmentParser {
 			output.append(input.charAt(i) == '\n' ? '\n' : ' ');
 	}
 	
-	private List<int[]> getSetupRegions(IStrategoTerm ast) {
-		final List<int[]> results = new ArrayList<int[]>();
+	private List<OffsetRegion> getSetupRegions(IStrategoTerm ast) {
+		final List<OffsetRegion> results = new ArrayList<OffsetRegion>();
 		new TermVisitor() {
 			public void preVisit(IStrategoTerm term) {
 				if (tryGetConstructor(term) == SETUP_3) {
-					IStrategoTerm input = term.getSubterm(2).getSubterm(1);
-					int[] region = { getLeftToken(input).getStartOffset(), getRightToken(input).getEndOffset() };
-					results.add(region);
+					new TermVisitor() {
+						public final void preVisit(IStrategoTerm term) {
+							if (tryGetConstructor(term) == QUOTEPART_1) {
+								term = term.getSubterm(0);
+								results.add(new OffsetRegion(
+									getLeftToken(term).getStartOffset(),
+									getRightToken(term).getEndOffset()));
+							}
+						}
+					}.visit(term);
 				}
 			}
 		}.visit(ast);
@@ -251,7 +259,7 @@ public class FragmentParser {
 	*/
 	
 	private boolean isSuccessExpected(IStrategoTerm fragment) {
-		IStrategoAppl test = (IStrategoAppl) getParent(getParent(fragment));
+		IStrategoAppl test = (IStrategoAppl) getParent(getParent(getParent(fragment)));
 		if (test.getConstructor() == SETUP_3) return true;
 		IStrategoList expectations = listAt(test, test.getSubtermCount() - 1);
 		for (IStrategoTerm expectation : StrategoListIterator.iterable(expectations)) {
@@ -269,6 +277,23 @@ public class FragmentParser {
 	private void clearTokenErrors(ITokenizer tokenizer) {
 		for (IToken token : tokenizer) {
 			((Token) token).setError(null);
+		}
+	}
+	
+	/**
+	 * An (inclusive) offset tuple.
+	 * 
+	 * @author Lennart Kats <lennart add lclnet.nl>
+	 */
+	static class OffsetRegion {
+		int startOffset, endOffset;
+		OffsetRegion(int startOffset, int endOffset) {
+			this.startOffset = startOffset;
+			this.endOffset = endOffset;
+		}
+		@Override
+		public String toString() {
+			return "(" + startOffset + "," + endOffset + ")";
 		}
 	}
 }

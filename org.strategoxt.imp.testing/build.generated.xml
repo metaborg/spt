@@ -376,7 +376,7 @@
             <antcall target="stratego.jar.deletehelper"/>
             <antcall target="stratego.jvm.helper">
                 <param name="build.stratego.outputfile" value="${src-gen}/trans/Main.java"/>
-                <param name="build.stratego.extraargs" value="-la java-front -la org.strategoxt.imp.testing.strategies"/>
+                <param name="build.stratego.extraargs" value="-la java-front ${java.jar.import}"/>
             </antcall>
             <javac classpath="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}" srcdir="${src-gen}" includes="trans/**" destdir="${build}" source="1.5" target="1.5" debug="on"/>
             <!-- copy imported terms -->

@@ -38,8 +38,11 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	
 	private static final int PARSE_TIMEOUT = 20 * 1000;
 	
-	private static final IStrategoConstructor STRING_3 =
-		Environment.getTermFactory().makeConstructor("string", 3);
+	private static final IStrategoConstructor INPUT_4 =
+		Environment.getTermFactory().makeConstructor("Input", 4);
+	
+	private static final IStrategoConstructor OUTPUT_4 =
+		Environment.getTermFactory().makeConstructor("Output", 4);
 	
 	private static final IStrategoConstructor ERROR_1 =
 		Environment.getTermFactory().makeConstructor("Error", 1);
@@ -48,6 +51,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		Environment.getTermFactory().makeConstructor("Language", 1);
 	
 	private final FragmentParser fragmentParser = new FragmentParser();
+	
+	private final SelectionFetcher selections = new SelectionFetcher();
 
 	public SpoofaxTestingJSGLRI(JSGLRI template) {
 		super(template.getParseTable(), template.getStartSymbol(), template.getController());
@@ -77,18 +82,21 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		IStrategoTerm result = new TermTransformer(factory, true) {
 			@Override
 			public IStrategoTerm preTransform(IStrategoTerm term) {
-				if (tryGetConstructor(term) == STRING_3) {
-					IStrategoTerm fragment = termAt(term, 1);
-					retokenizer.copyTokensUpToIndex(getLeftToken(fragment).getIndex() - 1);
+				IStrategoConstructor cons = tryGetConstructor(term);
+				if (cons == INPUT_4 || cons == OUTPUT_4) {
+					IStrategoTerm fragmentHead = termAt(term, 1);
+					IStrategoTerm fragmentTail = termAt(term, 2);
+					retokenizer.copyTokensUpToIndex(getLeftToken(fragmentHead).getIndex() - 1);
 					try {
-						IStrategoTerm parsed = testedParser.parse(oldTokenizer, fragment);
-						int oldFragmentEndIndex = getRightToken(fragment).getIndex();
-						retokenizer.copyTokensFromFragment(fragment, parsed,
-								getLeftToken(fragment).getStartOffset(), getRightToken(fragment).getEndOffset());
+						IStrategoTerm parsed = testedParser.parse(oldTokenizer, term, cons == OUTPUT_4);
+						int oldFragmentEndIndex = getRightToken(fragmentTail).getIndex();
+						retokenizer.copyTokensFromFragment(fragmentHead, fragmentTail, parsed,
+								getLeftToken(fragmentHead).getStartOffset(), getRightToken(fragmentTail).getEndOffset());
 						if (!testedParser.isLastSyntaxCorrect())
 							parsed = factory.makeAppl(ERROR_1, parsed);
 						ImploderAttachment implodement = ImploderAttachment.get(term);
-						term = factory.annotateTerm(term, nonParentFactory.makeList(parsed));
+						IStrategoList selected = selections.fetch(parsed);
+						term = factory.annotateTerm(term, nonParentFactory.makeListCons(parsed, selected));
 						term.putAttachment(implodement.clone());
 						retokenizer.skipTokensUpToIndex(oldFragmentEndIndex);
 					} catch (IOException e) {

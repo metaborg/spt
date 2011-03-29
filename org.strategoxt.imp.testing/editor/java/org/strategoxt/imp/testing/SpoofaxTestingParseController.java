@@ -9,6 +9,7 @@ public class SpoofaxTestingParseController extends
 	
 	@Override
 	public IParseController getWrapped() {
+		getDescriptor().setAttachmentProvider(SpoofaxTestingParseController.class);
 		IParseController result = super.getWrapped();
 		if (result instanceof SGLRParseController) {
 			JSGLRI parser = ((SGLRParseController) result).getParser();

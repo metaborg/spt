@@ -85,30 +85,33 @@ exports
     INT "warning"     -> Result    {cons("Warning")}
     INT "warnings"    -> Result    {cons("Warnings")}
 
-    "resolves" ResolveID                       -> Result {cons("Resolves")}
-    "resolves" ResolveID "to" ResolveID        -> Result {cons("ResolvesTo")}
-    "completes" CompletionID                   -> Result {cons("Completes")}
-    "completes" CompletionID "to" CompletionID -> Result {cons("CompletesTo")}
+    "resolves"                                 -> Result {cons("ResolvesUnnumbered")}
+    "resolves" Numbered                        -> Result {cons("Resolves")}
+    "resolves" Numbered "to" Numbered          -> Result {cons("ResolvesTo")}
+    "completes" OptNumbered                    -> Result {cons("Completes")}
+    "completes" OptNumbered "to" ID            -> Result {cons("CompletesTo")}
     
-    %% TODO: implement the following:
-    TestStratego                               -> Result {cons("Stratego")} 
-    "builds" ID                                -> Result {cons("Builds")}
-    "builds" ID "to" ATerm                     -> Result {cons("BuildsTo")}
-    %%"builds" ID "to" Output                  -> Result {cons("BuildsToTree")}
-    "builds" ID "to" "file" PathName           -> Result {cons("BuildsToFile")}
-    "runs" ID "using" STRING                   -> Result {cons("Runs")}
-    "runs" ID "using" STRING "to" ATerm        -> Result {cons("RunsTo")}
-    %%"runs" ID "using" STRING "to" Output     -> Result {cons("RunsToTree")}
-    "runs" ID "using" STRING "to" "file" PathName -> Result {cons("RunsToFile")}
-    %% TODO: hover help, refactoring, run, builds to with an 'Output' concrete syntax tree
+    TestStratego                          -> Result {cons("Stratego")} 
+    "builds" ID Pattern                   -> Result {cons("Builds")}
+    "runs" ID "(" STRING ")" Pattern      -> Result {cons("Runs")}
+    "refactors" ID "(" STRING ")" Pattern -> Result {cons("Refactors")}
+    
+                         -> Pattern {cons("wildcard")}
+    "to" "file" PathName -> Pattern {cons("File")}
+    "to" Output          -> Pattern {cons("Fragment")}
+    "to" ATerm           -> Pattern {cons("ATerm")}
 
-    RegexExp          -> Constraint
+    RegexExp          -> Result
 
-    ID "#" INT -> ResolveID {cons("Numbered")}
-    ID         -> ResolveID {cons("Unnumbered")}
+    "#" INT  -> Numbered {cons("Numbered")}
+    Numbered -> OptNumbered
+             -> OptNumbered {cons("Unnumbered")}
+    
+    %%ID "#" INT -> ResolveID {cons("Numbered")}
+    %%ID         -> ResolveID {cons("Unnumbered")}
 
-    ID "#" INT -> CompletionID {cons("Numbered")}
-    ID         -> CompletionID {cons("Unchecked")}
+    %%ID "#" INT -> CompletionID {cons("Numbered")}
+    %%ID         -> CompletionID {cons("Unchecked")}
 
     %% Handle a couple of lousy recoveries
     "test"  -> ID    {reject}
@@ -147,73 +150,69 @@ context-free syntax
 
   sorts
   syntax
+      
+    %% magic
 
-  %% Too close to Stratego
-  %%  <DQuote1-LEX> <InputChars1-LEX> <DQuote1-LEX> -> <Input-CF> {cons("string")}
-    <DQuote2-LEX> <InputChars2-LEX> <DQuote2-LEX> -> <Input-CF> {cons("string")}
-    <DQuote3-LEX> <InputChars3-LEX> <DQuote3-LEX> -> <Input-CF> {cons("string")}
-    <DQuote4-LEX> <InputChars4-LEX> <DQuote4-LEX> -> <Input-CF> {cons("string")}
+    <Bracket2-LEX> <StringPart2-CF> <TailParts2-CF> <CBracket2-LEX> -> <Input-CF> {cons("Input")}
+    <Bracket3-LEX> <StringPart3-CF> <TailParts3-CF> <CBracket3-LEX> -> <Input-CF> {cons("Input")}
+    <Bracket4-LEX> <StringPart4-CF> <TailParts4-CF> <CBracket4-LEX> -> <Input-CF> {cons("Input")}
 
-  %% Too close to Stratego
-  %%<Bracket1-LEX> <InputChars21-LEX> <CloseBracket1-LEX> -> <Input-CF> {cons("string")}
-    <Bracket2-LEX> <InputChars22-LEX> <CloseBracket2-LEX> -> <Input-CF> {cons("string")}
-    <Bracket3-LEX> <InputChars23-LEX> <CloseBracket3-LEX> -> <Input-CF> {cons("string")}
-    <Bracket4-LEX> <InputChars24-LEX> <CloseBracket4-LEX> -> <Input-CF> {cons("string")}
+    <Bracket2-LEX> <StringPart2-CF> <TailParts2-CF> <TailParts2-CF> -> <Output-CF> {cons("Output")}
+    <Bracket3-LEX> <StringPart3-CF> <TailParts3-CF> <TailParts3-CF> -> <Output-CF> {cons("Output")}
+    <Bracket4-LEX> <StringPart4-CF> <TailParts4-CF> <TailParts4-CF> -> <Output-CF> {cons("Output")}
+    
+                                                      -> <TailParts2-CF> {cons("Done")}
+    <MarkedPart2-CF> <StringPart2-CF> <TailParts2-CF> -> <TailParts2-CF> {cons("More")}
+                                                      -> <TailParts3-CF> {cons("Done")}
+    <MarkedPart3-CF> <StringPart3-CF> <TailParts3-CF> -> <TailParts3-CF> {cons("More")}
+                                                      -> <TailParts4-CF> {cons("Done")}
+    <MarkedPart4-CF> <StringPart4-CF> <TailParts4-CF> -> <TailParts4-CF> {cons("More")}
+    
+    <NFBracket2-LEX> <StringPart2-CF> <NFCBracket2-LEX> -> <MarkedPart2-CF> {cons("Marked")}
+    <NFBracket3-LEX> <StringPart3-CF> <NFCBracket3-LEX> -> <MarkedPart3-CF> {cons("Marked")}
+    <NFBracket4-LEX> <StringPart4-CF> <NFCBracket4-LEX> -> <MarkedPart4-CF> {cons("Marked")}
+    
+    <InputChars2-LEX> -> <StringPart2-CF> {cons("QuotePart")}
+    <InputChars3-LEX> -> <StringPart3-CF> {cons("QuotePart")}
+    <InputChars4-LEX> -> <StringPart4-CF> {cons("QuotePart")}
 
-  %% Too close to Stratego
-  %%  <DQuote1-LEX> <InputChars1-LEX> <DQuote1-LEX> -> <Output-CF> {cons("string")}
-    <DQuote2-LEX> <InputChars2-LEX> <DQuote2-LEX> -> <Output-CF> {cons("string")}
-    <DQuote3-LEX> <InputChars3-LEX> <DQuote3-LEX> -> <Output-CF> {cons("string")}
-    <DQuote4-LEX> <InputChars4-LEX> <DQuote4-LEX> -> <Output-CF> {cons("string")}
-
-  %% Too close to Stratego
-  %%<Bracket1-LEX> <InputChars21-LEX> <CloseBracket1-LEX> -> <Output-CF> {cons("string")}
-    <Bracket2-LEX> <InputChars22-LEX> <CloseBracket2-LEX> -> <Output-CF> {cons("string")}
-    <Bracket3-LEX> <InputChars23-LEX> <CloseBracket3-LEX> -> <Output-CF> {cons("string")}
-    <Bracket4-LEX> <InputChars24-LEX> <CloseBracket4-LEX> -> <Output-CF> {cons("string")}
-
-  sorts Name Description
   context-free syntax
     EOLString -> Description {cons("description")}
 
-  sorts Sort EOLString
   lexical syntax
 
     (~[\n\[\"]|EOLQuote1|EOLQuote2)* -> EOLString
     [\"]                             -> EOLQuote1
     [\[]                             -> EOLQuote2
 
-  sorts
-    InputChars1 InputChars2 InputChars3 InputChars4
-    DQuote1 DQuote2 DQuote3
-    InputChars21 InputChars22 InputChars23 InputChars24
-    Bracket1 Bracket2 Bracket3
-
   lexical syntax
-    ~[\"]* -> InputChars1
-    (~[\"]  | DQuote1)*                      -> InputChars2
-    (~[\"]  | DQuote1 | DQuote2)*            -> InputChars3
-    (~[\"]  | DQuote1 | DQuote2 | DQuote3 )* -> InputChars4
 
-    "\""       -> DQuote1
-    "\"\""     -> DQuote2
-    "\"\"\""   -> DQuote3
-    "\"\"\"\"" -> DQuote4
-
-    ~[\[]* -> InputChars21
-    (~[\[]  | Bracket1)*                        -> InputChars22
-    (~[\[]  | Bracket1 | Bracket2)*             -> InputChars23
-    (~[\[]  | Bracket1 | Bracket2 | Bracket3 )* -> InputChars24
+    (~[\[\]]  | Bracket1 | CBracket1)*                         -> InputChars2
+    (~[\[\]]  | Bracket1 | Bracket2 | CBracket1 | CBracket2)*  -> InputChars3
+    (~[\[\]]  | Bracket1 | Bracket2 | Bracket3 
+              | CBracket1 | CBracket2 | CBracket3)*            -> InputChars4
 
     "["    -> Bracket1
     "[["   -> Bracket2
     "[[["  -> Bracket3
     "[[[[" -> Bracket4
 
-    "]"    -> CloseBracket1
-    "]]"   -> CloseBracket2
-    "]]]"  -> CloseBracket3
-    "]]]]" -> CloseBracket4
+    "]"    -> CBracket1
+    "]]"   -> CBracket2
+    "]]]"  -> CBracket3
+    "]]]]" -> CBracket4
+
+    %% non-follow-restricted:
+
+    "["    -> NFBracket1
+    "[["   -> NFBracket2
+    "[[["  -> NFBracket3
+    "[[[[" -> NFBracket4
+    
+    "]"    -> NFCBracket1
+    "]]"   -> NFCBracket2
+    "]]]"  -> NFCBracket3
+    "]]]]" -> NFCBracket4
 
   sorts PathName
   lexical syntax
@@ -223,14 +222,16 @@ context-free syntax
     EOLString -/- ~[\n\[\"]
     EOLQuote1 -/- [\"]
     EOLQuote2 -/- [\[]
+    
+    %% InputChars2 -/- ~[\[\]]
 
-    DQuote1   -/- [\"]
-    DQuote2   -/- [\"]
-    DQuote3   -/- [\"]
+    Bracket1   -/- [\[].~[\[]
+    Bracket2   -/- [\[].~[\[] %% allow [[[[x]]  ]]
+    Bracket3   -/- [\[].~[\[]
 
-    Bracket1   -/- [\[]
-    Bracket2   -/- [\[]
-    Bracket3   -/- [\[]
+    CBracket1   -/- [\]]
+    CBracket2   -/- [\]]
+    CBracket3   -/- [\]]
 
   sorts ShortCom LongCom CommChar Asterisk Eof
   lexical syntax

@@ -82,14 +82,17 @@ rules
           stmt* := <test-to-java-stmts>tst
 
   to-java-test-decl :
-    Test(_, description(d), string(_,s,_), _) -> 
+    Test(_, description(d), Input(_,s,_,_), _) -> 
       $[  String input = "[s']"; 
           String description = "[d']";
           IStrategoTerm ast = parser.parse(input, description);
       ]
       with 
         d' := <escape-string>d
-      ; s' := <escape-string>s    
+      ; s' := <escape-string> <input-to-string> s    
+
+  input-to-string =
+    with(fail|"Not implemented!")
 
   to-java-test-decl :
     Test(_, description(d), file(f), _) -> 
@@ -161,8 +164,8 @@ strategies
     if ?(file(f), position, ast, path, project-path) then
       abs := <resolve-path(|path)>f
     ; if not(file-exists) then
-        if <oncetd(?Test(_, _, _, _) ; oncetd(?file(f)); ?Test(_, _, string(_,s,_), _))>ast then
-          result := <spt-parse-string>s 
+        if <oncetd(?Test(_, _, _, _) ; oncetd(?file(f)); ?Test(_, _, Input(_,s,_,_), _))>ast then
+          result := <spt-parse-string> <input-to-string> s 
         else
           fatal-err-msg(|$[Could not find a string input for generating AST.])  
         end 
