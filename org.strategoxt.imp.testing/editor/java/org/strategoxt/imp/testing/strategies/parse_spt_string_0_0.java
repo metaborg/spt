@@ -43,9 +43,9 @@ public class parse_spt_string_0_0 extends Strategy {
 				ip = ((DynamicParseController) ip).getWrapped();
 			if (ip instanceof SGLRParseController) {
 				SGLRParseController sglrController = (SGLRParseController) ip;
-				JSGLRI res = sglrController.getParser(); 
-				res.setUseRecovery(true);
-			    result = res.parse(input, "string");
+				JSGLRI parser = sglrController.getParser(); 
+				parser.setUseRecovery(false);
+			    result = parser.parse(input, "string");
 			}
 		} catch (BadDescriptorException e) {
 			// TODO Auto-generated catch block
