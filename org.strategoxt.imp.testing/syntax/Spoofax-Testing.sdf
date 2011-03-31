@@ -69,13 +69,20 @@ exports
     "->" "file" PathName -> Result {cons("file"),    deprecated("Use => instead of ->")}
     "->" ATerm           -> Result {cons("pattern"), deprecated("Use => instead of ->")}
 
-    "=>" "file" PathName -> Result {cons("file")}
-    "=>" ATerm           -> Result {cons("pattern")}
+    "=>" "file" PathName -> Result {cons("file"), deprecated("Use 'parse to file' instead")}
+    "=>" ATerm           -> Result {cons("pattern"), deprecated("Use 'parse to' instead")}
+
+    "parse" "to" "file" PathName -> Result {cons("file")}
+    "parse" "to" ATerm   -> Result {cons("pattern")}
+
+    "fails" "parsing"    -> Result {cons("FailsParsing"), deprecated("Use 'parse fails' instead")}
+    "succeeds" "parsing" -> Result {cons("SuccessParsing"), deprecated("Use 'parse succeeds' instead")}
 
     "fails"              -> Result {cons("Fails")}
-    "fails" "parsing"    -> Result {cons("FailsParsing")}
+    "parse" "fails"      -> Result {cons("FailsParsing")}
     "succeeds"           -> Result {cons("Success")}
-    "succeeds" "parsing" -> Result {cons("SuccessParsing")}
+    "parse" "succeeds"   -> Result {cons("SuccessParsing")}
+    "parse"              -> Result {cons("SuccessParsing")}
 
     "file" PathName -> Input {cons("file")}
 
@@ -85,21 +92,22 @@ exports
     INT "warning"     -> Result    {cons("Warning")}
     INT "warnings"    -> Result    {cons("Warnings")}
 
-    "resolves"                                 -> Result {cons("ResolvesUnnumbered")}
-    "resolves" Numbered                        -> Result {cons("Resolves")}
-    "resolves" Numbered "to" Numbered          -> Result {cons("ResolvesTo")}
-    "completes" OptNumbered                    -> Result {cons("Completes")}
-    "completes" OptNumbered "to" ID            -> Result {cons("CompletesTo")}
+    "resolve"                                 -> Result {cons("ResolvesUnnumbered")}
+    "resolve" Numbered                        -> Result {cons("Resolves")}
+    "resolve" Numbered "to" Numbered          -> Result {cons("ResolvesTo")}
+    "complete" OptNumbered                    -> Result {cons("Completes")}
+    "complete" OptNumbered "to" STRING        -> Result {cons("CompletesTo")}
     
     TestStratego                          -> Result {cons("Stratego")} 
-    "builds" ID Pattern                   -> Result {cons("Builds")}
-    "runs" ID "(" STRING ")" Pattern      -> Result {cons("Runs")}
-    "refactors" ID "(" STRING ")" Pattern -> Result {cons("Refactors")}
+    "build" ID Pattern                   -> Result {cons("Builds")}
+    "run" ID "(" STRING ")" Pattern      -> Result {cons("Runs")}
+    "refactor" ID "(" STRING ")" Pattern -> Result {cons("Refactors")}
     
                          -> Pattern {cons("wildcard")}
     "to" "file" PathName -> Pattern {cons("File")}
     "to" Output          -> Pattern {cons("Fragment")}
     "to" ATerm           -> Pattern {cons("ATerm")}
+    "fails"              -> Pattern {cons("Fails")}
 
     RegexExp          -> Result
 
