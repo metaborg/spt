@@ -106,7 +106,6 @@ public class TestRunViewPart extends ViewPart {
 					offset = tcr.getOffset();
 				} else if(selectObject instanceof TestsuiteRun) {
 					file = ((TestsuiteRun)selectObject).getName();
-					offset = 1;
 				}
 
 				if(file != null) {
