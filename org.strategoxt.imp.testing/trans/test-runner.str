@@ -1,0 +1,72 @@
+module test-runner
+
+imports
+  libstratego-lib
+  libstratego-aterm
+  include/Spoofax-Testing
+  editor-common.generated
+  spoofax_testing
+  check
+  
+signature constructors 
+  True  : Boolean  
+  False : Boolean
+
+strategies
+  find(s) =
+  	abspath => base
+  ; readdir
+  ; filter(
+      !$[[base]/[<id>]]
+    ; if <isdir> <filemode> then
+        find(s)
+      else
+        s
+      end
+    )
+  ; flatten-list
+  
+  test-runner =
+    testview-init 
+  ; find-all-testsuites-in-project 
+  ; map(testview-add-testsuite)
+  ; map(try(run-testsuite))
+  ; !None()
+  
+  find-all-testsuites-in-project =
+    <find(has-extension(|"spt"))> "." 
+  ; string-sort
+
+  origin-offset =
+    prim("SSL_EXT_origin_offset", <id>) => (<id>, _)
+    
+  run-testsuite :
+    file -> (ast, [])
+    where
+      ast  := <read-text-file; parse-spt-string> file
+    ; testcases := <collect-all(testview-add-testcase(|file, <test-to-description>,<origin-offset>))>ast
+    ; <map(run-testcase(|file))>testcases
+    
+  run-testcase(|file) = 
+    ?tst
+  ; test-to-description => name
+  ; testview-start-testcase(|file, name)
+  ; if errors := <check-warning>tst ; not((id,[])) then
+      testview-finish-testcase(|file, name, False())
+    else
+      testview-finish-testcase(|file, name, True()) 
+    end
+    
+  test-to-description = 
+    ?Test(_, description(<id>), _, _)  
+  + ?TestStratego(_, description(<id>), _, _)  
+  + ?TestEmpty(_, description(<id>))
+
+  external testview-init(|)
+  external testview-add-testsuite(|)
+  external testview-add-testcase(|testsuite, description, linenr)
+  external testview-start-testcase(|testsuite, description)
+  external testview-finish-testcase(|testsuite, description, result)
+  external parse-spt-string(|)
+    
+  

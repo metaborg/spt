@@ -11,7 +11,7 @@ imports
   check
   generate
   file-resolving
-
+  test-runner
 rules
     
   editor-analyze:
