@@ -108,6 +108,15 @@ strategies
     (Language(t), _, _, _, _) -> [<spt-get-default-language>]
 
   editor-complete = debug; fail
+  
+  editor-complete:
+    (construct, position, ast, path, project-path) -> proposals
+    where
+      ?input-tuple;
+      not(<origin-line> ast => 1);
+      resolvers := <spt-get-content-proposers>;
+      results   := <map(execute-service(|input-tuple))> resolvers;
+      proposals := <getfirst(?Some(<id>))> results
 
 strategies
   
