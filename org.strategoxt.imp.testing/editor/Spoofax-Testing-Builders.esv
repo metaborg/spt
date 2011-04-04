@@ -16,7 +16,7 @@ builders
                                                                                                                                
   observer : editor-analyze                                                                                   
                                                                                                                                
-  builder  : "Show abstract syntax (for selection)"          = generate-aterm (openeditor) (realtime) (meta) (source)  
+  builder  : "Show abstract syntax (for selection)"          = generate-aterm (openeditor) (realtime) (source) // (meta) 
   builder  : "Generate missing output file with current AST" = generate-ast-file (cursor)              
   builder  : "Run testsuites" = test-runner
                                                                                                                                

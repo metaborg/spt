@@ -14,6 +14,7 @@ imports
 signature constructors
   error : Term * Term -> Term
   localized : Term * Term -> Term
+  amb : List(Term) -> Term
   
 rules
   check-note = fail
@@ -104,6 +105,11 @@ rules
     where
       not(!ast => FailsParsing());
       not(!ast => error(_, _))
+
+  check-expectation(|ast, selections, messages) :
+    <not(?pattern(_))> -> $[Syntax is ambiguous: [<write-to-string> ast]]
+    where
+      <oncetd(?amb(_))> ast
 
   check-expectation(|ast, selections, messages) :
     pattern(p) -> $[Does not match pattern: [<write-to-string> ast]]
@@ -233,4 +239,4 @@ rules
     ; not(<aterm-eq> (result'', <aterm-appl0-to-fun> p))
     
   aterm-appl0-to-fun =
-  	topdown(try(\appl(s, []) -> fun(s)\))
+    topdown(try(\appl(s, []) -> fun(s)\))
