@@ -11,7 +11,6 @@ import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.dynamicloading.Descriptor;
 import org.strategoxt.imp.runtime.services.StrategoObserver;
 import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
-import org.strategoxt.lang.Context;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -20,6 +19,8 @@ public class ObserverCache {
 	
 	private static final ObserverCache instance = new ObserverCache();
 	
+	// We need to maintain a reference here to each observer as long as the descriptor lives,
+	// as there may not be another reference betweens calls to this class.
 	private static final Map<Descriptor, StrategoObserver> asyncCache =
 		new WeakHashMap<Descriptor, StrategoObserver>();
 
@@ -29,10 +30,10 @@ public class ObserverCache {
 		return instance;
 	}
 
-	public StrategoObserver getObserver(Context context, String languageName) throws BadDescriptorException {
+	public StrategoObserver getObserver(String languageName, String projectPath) throws BadDescriptorException {
 		Descriptor descriptor = getDescriptor(languageName);
 		
-		return getObserver(context, descriptor);
+		return getObserver(descriptor, projectPath);
 	}
 
 	public Descriptor getDescriptor(String languageName) throws BadDescriptorException {
@@ -43,19 +44,24 @@ public class ObserverCache {
 		return descriptor;
 	}
 
-	private synchronized StrategoObserver getObserver(Context context, Descriptor descriptor) throws BadDescriptorException {
+	private synchronized StrategoObserver getObserver(Descriptor descriptor, String projectPath) throws BadDescriptorException {
 		StrategoObserver result = asyncCache.get(descriptor);
 
 		if (result == null)
 			result = descriptor.createService(StrategoObserver.class, null);
 		
-		IOAgent ioAgent = context.getIOAgent();
-		if (ioAgent instanceof EditorIOAgent) {
-			// Make the console visible to users
-			((EditorIOAgent) ioAgent).getDescriptor().setDynamicallyLoaded(true);
+		result.getLock().lock();
+		try {
+			IOAgent ioAgent = result.getRuntime().getIOAgent();
+			if (ioAgent instanceof EditorIOAgent) { 
+				// Make the console visible to users
+				((EditorIOAgent) ioAgent).getDescriptor().setDynamicallyLoaded(true);
+			}
+			result.configureRuntime(null, projectPath);
 			asyncCache.put(descriptor, result);
+		} finally {
+			result.getLock().unlock();
 		}
-		result.getRuntime().setIOAgent(ioAgent);
 		return result;
 	}
 }

@@ -10,6 +10,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.services.StrategoObserver;
+import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -30,7 +31,8 @@ public class plugin_strategy_evaluate_1_2 extends Strategy {
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, Strategy printTrace, IStrategoTerm languageName, IStrategoTerm strategy) {
 		ITermFactory factory = context.getFactory();
 		try {
-			StrategoObserver observer = ObserverCache.getInstance().getObserver(context, asJavaString(languageName));
+			String dir = ((EditorIOAgent) context.getIOAgent()).getProjectPath();
+			StrategoObserver observer = ObserverCache.getInstance().getObserver(asJavaString(languageName), dir);
 			observer.getRuntime().setCurrent(current);
 			if (observer.getRuntime().evaluate((IStrategoAppl) strategy, true)) {
 				current = observer.getRuntime().current();

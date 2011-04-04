@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.services.StrategoObserver;
+import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.MissingStrategyException;
 import org.strategoxt.lang.Strategy;
@@ -33,7 +34,8 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName, IStrategoTerm strategy) {
 		ITermFactory factory = context.getFactory();
 		try {
-			StrategoObserver observer = ObserverCache.getInstance().getObserver(context, asJavaString(languageName));
+			String dir = ((EditorIOAgent) context.getIOAgent()).getProjectPath();
+			StrategoObserver observer = ObserverCache.getInstance().getObserver(asJavaString(languageName), dir);
 			observer.getRuntime().setCurrent(current);
 			if (isTermAppl(strategy) && ((IStrategoAppl) strategy).getName().equals("Strategy"))
 				strategy = termAt(strategy, 0);
