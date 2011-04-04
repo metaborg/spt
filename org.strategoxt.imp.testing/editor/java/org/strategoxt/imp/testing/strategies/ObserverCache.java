@@ -5,12 +5,10 @@ import java.util.WeakHashMap;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
-import org.spoofax.interpreter.library.IOAgent;
 import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.dynamicloading.Descriptor;
 import org.strategoxt.imp.runtime.services.StrategoObserver;
-import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -41,6 +39,7 @@ public class ObserverCache {
 		if (language == null) throw new BadDescriptorException("No language known with the name " + languageName);
 		Descriptor descriptor = Environment.getDescriptor(language);
 		if (descriptor == null) throw new BadDescriptorException("No language known with the name " + languageName);
+		descriptor.setDynamicallyLoaded(true); // make console visible
 		return descriptor;
 	}
 
@@ -52,13 +51,10 @@ public class ObserverCache {
 		
 		result.getLock().lock();
 		try {
-			IOAgent ioAgent = result.getRuntime().getIOAgent();
-			if (ioAgent instanceof EditorIOAgent) { 
-				// Make the console visible to users
-				((EditorIOAgent) ioAgent).getDescriptor().setDynamicallyLoaded(true);
-			}
 			result.configureRuntime(null, projectPath);
 			asyncCache.put(descriptor, result);
+		} catch (NoSuchMethodError e) {
+			Environment.logException("Oops, old Spoofax version installed, cannot properly initialize runtime!", e);
 		} finally {
 			result.getLock().unlock();
 		}
