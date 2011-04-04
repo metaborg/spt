@@ -93,7 +93,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 						retokenizer.copyTokensFromFragment(fragmentHead, fragmentTail, parsed,
 								getLeftToken(fragmentHead).getStartOffset(), getRightToken(fragmentTail).getEndOffset());
 						if (!testedParser.isLastSyntaxCorrect())
-							parsed = factory.makeAppl(ERROR_1, parsed);
+							parsed = nonParentFactory.makeAppl(ERROR_1, parsed);
 						ImploderAttachment implodement = ImploderAttachment.get(term);
 						IStrategoList selected = selections.fetch(parsed);
 						term = factory.annotateTerm(term, nonParentFactory.makeListCons(parsed, selected));
