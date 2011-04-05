@@ -6,17 +6,23 @@ import java.util.HashMap;
 import org.strategoxt.imp.testing.SpoofaxTestingParseController;
 
 public class TestsuiteRun {
+	private String name;
 	private String resource;
 	private TestRun testrun;
 	private HashMap<String,TestcaseRun> testcases = new HashMap<String, TestcaseRun>();
 	
-	public TestsuiteRun(TestRun testrun, String resource) {
+	public TestsuiteRun(TestRun testrun, String name, String resource) {
 		this.testrun = testrun;
 		this.resource = resource;
+		this.name = name;
+	}
+
+	public String getFilename() {
+		return resource;
 	}
 
 	public String getName() {
-		return resource;
+		return name;
 	}
 	
 	public Collection<TestcaseRun> getTestcases() {
@@ -40,5 +46,14 @@ public class TestsuiteRun {
 	public int getNrTests() {
 		return getTestcases().size();
 	}
-	
+
+	public int getNrFailedTests() {
+		int res = 0;
+		for(TestcaseRun tcr : getTestcases()) {
+			if(tcr.isFinished() && !tcr.hasSucceeded())
+				res++;
+		}
+		return res;
+	}
+
 }

@@ -23,7 +23,8 @@ public class TestRunLabelProvider extends LabelProvider implements ITableLabelPr
 	public String getText(Object element) {
 		if(element instanceof TestsuiteRun) {
 			TestsuiteRun tsr = (TestsuiteRun)element;
-			return tsr.getName();
+			int failed = tsr.getNrFailedTests();
+			return failed == 0 ? tsr.getName() : String.format("%s (%d failed)", tsr.getName(), failed);
 		} else if(element instanceof TestcaseRun) {
 			TestcaseRun tcr = (TestcaseRun)element;
 			String lbl = tcr.getDescription();
@@ -43,6 +44,8 @@ public class TestRunLabelProvider extends LabelProvider implements ITableLabelPr
 			TestcaseRun tcr = (TestcaseRun)element;
 			if(tcr.isFinished() && !tcr.hasSucceeded())
 				return new Color(Display.getCurrent(), 159, 63, 63);
+			if(tcr.isFinished() && tcr.hasSucceeded())
+				return new Color(Display.getCurrent(), 10, 100, 10);
 		}
 		return null;
 	}

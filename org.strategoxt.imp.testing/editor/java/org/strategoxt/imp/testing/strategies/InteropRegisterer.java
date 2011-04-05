@@ -18,7 +18,7 @@ package org.strategoxt.imp.testing.strategies;
         		   get_service_input_term_0_1.instance,
         		   open_editor_0_0.instance,
         		   testview_init_0_0.instance,
-        		   testview_add_testsuite_0_0.instance,
+        		   testview_add_testsuite_0_2.instance,
         		   testview_add_testcase_0_3.instance,
         		   testview_start_testcase_0_2.instance,
         		   testview_finish_testcase_0_3.instance,

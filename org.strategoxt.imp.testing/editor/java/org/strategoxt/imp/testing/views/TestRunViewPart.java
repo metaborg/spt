@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
+import org.omg.CORBA.Environment;
 import org.strategoxt.imp.runtime.EditorState;
 import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 import org.strategoxt.imp.testing.model.TestRun;
@@ -102,10 +103,10 @@ public class TestRunViewPart extends ViewPart {
 				
 				if (selectObject instanceof TestcaseRun) {
 					TestcaseRun tcr = (TestcaseRun) selectObject ;
-					file = tcr.getParent().getName();
+					file = tcr.getParent().getFilename();
 					offset = tcr.getOffset();
 				} else if(selectObject instanceof TestsuiteRun) {
-					file = ((TestsuiteRun)selectObject).getName();
+					file = ((TestsuiteRun)selectObject).getFilename();
 				}
 
 				if(file != null) {
@@ -186,8 +187,8 @@ public class TestRunViewPart extends ViewPart {
     	treeViewer.expandAll();
     }
     
-    public void addTestsuite(String name) {
-    	testrun.addTestsuite(name);
+    public void addTestsuite(String name, String filename) {    	
+    	testrun.addTestsuite(name, filename);
     	refresh();
     }
 

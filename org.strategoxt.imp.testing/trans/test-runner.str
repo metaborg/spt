@@ -14,7 +14,8 @@ signature constructors
 
 strategies
   find(s) =
-  	abspath => base
+  	abspath 
+  ; string-replace(|"/./", "/") => base
   ; readdir
   ; filter(
       !$[[base]/[<id>]]
@@ -29,7 +30,7 @@ strategies
   test-runner =
     testview-init 
   ; find-all-testsuites-in-project 
-  ; map(testview-add-testsuite)
+  ; map(testview-add-testsuite(|<get-testsuite-name-from-file>,<id>))
   ; map(try(run-testsuite))
   ; !None()
   
@@ -42,19 +43,29 @@ strategies
     
   run-testsuite :
     file -> (ast, [])
-    where
-      ast  := <read-text-file; parse-spt-string> file
+    where 
+      ast  := <parse-spt-file> file 
     ; testcases := <collect-all(testview-add-testcase(|file, <test-to-description>,<origin-offset>))>ast
     ; <map(run-testcase(|file))>testcases
+  
+  parse-spt-file = 
+    read-text-file; parse-spt-string
+      
+  get-testsuite-name :
+    testsuite(hds, _) -> name
+    where name := <fetch-elem(?Name(<id>))>hds
+  
+  get-testsuite-name-from-file =
+    parse-spt-file ; get-testsuite-name <+ id
     
-  run-testcase(|file) = 
+  run-testcase(|testsuite) = 
     ?tst
   ; test-to-description => name
-  ; testview-start-testcase(|file, name)
+  ; testview-start-testcase(|testsuite, name)
   ; if errors := <check-warning>tst ; not((id,[])) then
-      testview-finish-testcase(|file, name, False())
+      testview-finish-testcase(|testsuite, name, False())
     else
-      testview-finish-testcase(|file, name, True()) 
+      testview-finish-testcase(|testsuite, name, True()) 
     end
     
   test-to-description = 
@@ -63,7 +74,7 @@ strategies
   + ?TestEmpty(_, description(<id>))
 
   external testview-init(|)
-  external testview-add-testsuite(|)
+  external testview-add-testsuite(|testsuite, filename)
   external testview-add-testcase(|testsuite, description, linenr)
   external testview-start-testcase(|testsuite, description)
   external testview-finish-testcase(|testsuite, description, result)
