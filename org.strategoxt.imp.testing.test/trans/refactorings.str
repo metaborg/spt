@@ -19,3 +19,6 @@ rules
 
   rename-type(|old-name, new-name):
     Type(old-name) -> Type(new-name)
+  
+  extract-entity: // TODO
+    x -> x
