@@ -88,7 +88,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 					IStrategoTerm fragmentTail = termAt(term, 2);
 					retokenizer.copyTokensUpToIndex(getLeftToken(fragmentHead).getIndex() - 1);
 					try {
-						IStrategoTerm parsed = testedParser.parse(oldTokenizer, term, cons == OUTPUT_4);
+						IStrategoTerm parsed = testedParser.parse(oldTokenizer, term, /*cons == OUTPUT_4*/ false);
 						int oldFragmentEndIndex = getRightToken(fragmentTail).getIndex();
 						retokenizer.copyTokensFromFragment(fragmentHead, fragmentTail, parsed,
 								getLeftToken(fragmentHead).getStartOffset(), getRightToken(fragmentTail).getEndOffset());

@@ -2,11 +2,34 @@ module test5
 
 language Spoofax-Testing
 
-test Testing TestingTesting testing
+test Basic
   [[[ module x
      language TestingTesting
      test Testing TestingTesting [[
        module x
      ]]
   ]]]
+
+test Builder
+  [[[ module x
+      language TestingTesting
+      test builder
+      [[ module x
+         entity Y {
+           
+         }
+      ]] build generate-java fails
+  ]]] 1 warning
+  
+
+test Refactoring
+  [[[ module x
+      language TestingTesting
+      test builder
+      [[ module x
+         entity Y {
+           
+         }
+      ]] build generate-java fails
+  ]]] 1 warning
   

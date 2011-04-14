@@ -11,8 +11,8 @@ language
   // Fences (used for matching,            
   // inserting, indenting brackets):       
   fences                                 : [ ]
-                                           [[ ]]
-                                           [[[ ]]]
+                                           // [[ ]]
+                                           // [[[ ]]]
                                            { }
                                            ( )
                                            

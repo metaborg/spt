@@ -10,6 +10,7 @@ imports
   file-resolving
   check-resolve
   check-complete
+  check-builders
 
 signature constructors
   error : Term * Term -> Term
@@ -126,14 +127,14 @@ rules
     pattern(p) -> $[Does not match pattern: [<write-to-string> ast]]
     where
       exploded := <explode-aterm> ast
-    ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
+    ; not(<aterm-eq> (exploded, p))
 
   check-expectation(|ast, selections, messages) :
     file(f) -> $[Does not match pattern: [<write-to-string> ast]]
     where
       exploded := <explode-aterm> ast
     ; p := <resolve-path(|<current-path>); ReadFromFile; explode-aterm> f
-    ; not(<aterm-eq> (exploded, <aterm-appl0-to-fun> p))
+    ; not(<aterm-eq> (exploded, p))
 
   check-expectation(|ast, selections, messages) :
     <not(is-semantic-failure-allowed)> -> $[Unexpected message(s): [<grab-messages> messages]]
@@ -231,7 +232,4 @@ rules
     where
       !result => Some(result')
     ; result'' := <explode-aterm> result'
-    ; not(<aterm-eq> (result'', <aterm-appl0-to-fun> p))
-    
-  aterm-appl0-to-fun =
-    topdown(try(\appl(s, []) -> fun(s)\))
+    ; not(<aterm-eq> (result'', p))

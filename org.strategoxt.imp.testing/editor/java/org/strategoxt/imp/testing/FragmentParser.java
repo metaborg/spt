@@ -57,6 +57,9 @@ public class FragmentParser {
 	private static final IStrategoConstructor SETUP_3 =
 		Environment.getTermFactory().makeConstructor("Setup", 3);
 	
+	private static final IStrategoConstructor OUTPUT_4 =
+		Environment.getTermFactory().makeConstructor("Output", 4);
+	
 	private static final IStrategoConstructor QUOTEPART_1 =
 		Environment.getTermFactory().makeConstructor("QuotePart", 1);
 	
@@ -259,6 +262,7 @@ public class FragmentParser {
 	*/
 	
 	private boolean isSuccessExpected(IStrategoTerm fragment) {
+		if (tryGetConstructor(fragment) == OUTPUT_4) return true;
 		IStrategoAppl test = (IStrategoAppl) getParent(getParent(getParent(fragment)));
 		if (test.getConstructor() == SETUP_3) return true;
 		IStrategoList expectations = listAt(test, test.getSubtermCount() - 1);

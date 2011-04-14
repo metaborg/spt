@@ -79,11 +79,11 @@ exports
 
   context-free syntax
 
-    "->" "file" PathName -> Result {cons("file"),    deprecated("Use => instead of ->")}
-    "->" ATerm           -> Result {cons("pattern"), deprecated("Use => instead of ->")}
+    %%"->" "file" PathName -> Result {cons("file"),    deprecated("Use 'parse to file' instead")}
+    %%"->" ATerm           -> Result {cons("pattern"), deprecated("Use 'parse to' instead")}
 
-    "=>" "file" PathName -> Result {cons("file"), deprecated("Use 'parse to file' instead")}
-    "=>" ATerm           -> Result {cons("pattern"), deprecated("Use 'parse to' instead")}
+    %%"=>" "file" PathName -> Result {cons("file"), deprecated("Use 'parse to file' instead")}
+    %%"=>" ATerm           -> Result {cons("pattern"), deprecated("Use 'parse to' instead")}
 
     "parse" "to" "file" PathName -> Result {cons("file")}
     "parse" "to" ATerm   -> Result {cons("pattern")}
@@ -167,9 +167,6 @@ context-free syntax
     "_"                  -> ATerm  {cons("wildcard")}
     "..."                -> { ATerm ","}+ {cons("wildcardvar")}
 
-  context-free syntax
-    StringQuotation -> Input
-
   sorts
   syntax
       
@@ -179,9 +176,9 @@ context-free syntax
     <Bracket3-LEX> <StringPart3-CF> <TailParts3-CF> <CBracket3-LEX> -> <Input-CF> {cons("Input")}
     <Bracket4-LEX> <StringPart4-CF> <TailParts4-CF> <CBracket4-LEX> -> <Input-CF> {cons("Input")}
 
-    <Bracket2-LEX> <StringPart2-CF> <TailParts2-CF> <TailParts2-CF> -> <Output-CF> {cons("Output")}
-    <Bracket3-LEX> <StringPart3-CF> <TailParts3-CF> <TailParts3-CF> -> <Output-CF> {cons("Output")}
-    <Bracket4-LEX> <StringPart4-CF> <TailParts4-CF> <TailParts4-CF> -> <Output-CF> {cons("Output")}
+    <Bracket2-LEX> <StringPart2-CF> <TailParts2-CF> <CBracket2-CF> -> <Output-CF> {cons("Output")}
+    <Bracket3-LEX> <StringPart3-CF> <TailParts3-CF> <CBracket3-CF> -> <Output-CF> {cons("Output")}
+    <Bracket4-LEX> <StringPart4-CF> <TailParts4-CF> <CBracket4-CF> -> <Output-CF> {cons("Output")}
     
                                                       -> <TailParts2-CF> {cons("Done")}
     <MarkedPart2-CF> <StringPart2-CF> <TailParts2-CF> -> <TailParts2-CF> {cons("More")}

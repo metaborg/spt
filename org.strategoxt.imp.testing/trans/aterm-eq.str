@@ -14,8 +14,9 @@ strategies
   aterm-eq(|p) =
     <aterm-eq>(<explode-aterm>,<read-from-string>p)
 
-  aterm-eq = 
-    rec x(
+  aterm-eq =
+    aterm-appl0-to-fun
+  ; rec x(
         list-term-eq(x)
     +    int-term-eq(x)
     +    fun-term-eq(x)
@@ -25,6 +26,9 @@ strategies
     + wildcardvar-eq(x) 
     +   annotated-eq(x)
     ) 
+    
+  aterm-appl0-to-fun =
+    topdown(try(\appl(s, []) -> fun(s)\))
 
 rules
 

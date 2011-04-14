@@ -171,6 +171,11 @@ strategies
     | <spt-get-parsetable>
     )    
   
+  // Tries to pretty print an AST, or fails
+  spt-pp-string =
+    plugin-strategy-invoke(|<Language>, $[pp-[<lower-case> <Language>]-string]);
+    ?Some(<id>)
+  
   get-service-input-term =
     get-service-input-term(|<LastAnalyzedAst>)
   

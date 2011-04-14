@@ -33,7 +33,12 @@ public class TestingTestingParseControllerGenerated extends DynamicParseControll
     return descriptor;
   }
 
-  private static void createDescriptor()
+  protected static synchronized void setDescriptor(Descriptor descriptor)
+  { 
+    TestingTestingParseControllerGenerated.descriptor = descriptor;
+  }
+
+  protected static void createDescriptor()
   { 
     try
     { 

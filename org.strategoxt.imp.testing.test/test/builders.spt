@@ -1,0 +1,25 @@
+module test5 
+
+language TestingTesting
+
+setup [[
+  module X
+]]
+
+test Builder
+  [[ entity Y {
+       
+     }
+  ]] build generate-java
+
+test Refactoring
+  [[ entity [[X]] {
+       X : X
+     }
+  ]] refactor rename-entity("Y") to [[
+     entity Y {
+       X : Y
+     }
+  ]]
+
+ 

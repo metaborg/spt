@@ -8,14 +8,89 @@ imports
   aterm-eq
   spoofax_testing
   check
+  check-resolve
+
+overlays
+  
+  OVERRIDE_INPUT(s) = Prim("\"SSL_EXT_overrideinput\"", [NoAnnoList(Str(s))])
 
 rules
-  
-  spt-desugar:
-    Refactor(x, arg, p) -> Build(x, arg, p)
   
   spt-desugar:
     Run(x, arg, p) -> Build(x, arg, p)
 
   check-expectation(|ast, selections, messages) :
-    Build(_, _, _) -> $[Not implemented: [<write-to-string>]]
+    c@Build(builder, arg, expected) ->
+    <check-builder(|ast, selections, messages, c)> (builder, arg, expected)
+
+  check-expectation(|ast, selections, messages) :
+    c@Run(builder, arg, expected) ->
+    <check-builder(|ast, selections, messages, c)> (builder, arg, expected)
+
+  check-expectation(|ast, selections, messages) :
+    c@Refactor(builder, arg, expected) ->
+    <check-builder(|ast, selections, messages, c)> (builder, arg, expected)
+  
+  check-builder(|ast, selections, messages, condition):
+    (builder, arg, expected) -> error
+    with
+      selected := <resolve-selection(|selections) <+ !ast> Numbered("1");
+      input    := <get-service-input-term> selected;
+      if !arg => Argument(arg') then
+        plugin-strategy-evaluate(id |<Language>, OVERRIDE_INPUT(arg'))
+      end;
+      output := <execute-service(|input)> builder
+    where
+      switch !output
+        case ?Some(output'):
+          with(result := <fetch-builder-result(|input, output')> condition);
+          error       := <check-builder-expectation(|result)> expected
+        case ?Error(m):
+          if not(!condition => Fails()) then
+            error := $[Unexpected error: [m]]
+          end
+        case ?Fail(m):
+          error  := $[Unexpected error: [m]]
+        otherwise: with(fail)
+      end
+  
+  fetch-builder-result(|input, output):
+    Run(_, _, _) -> output
+  
+  fetch-builder-result(|input, output):
+    Build(_, _, _) -> result
+    with
+      !output => (<is-string>, result)
+    <+
+      !output => result
+  
+  fetch-builder-result(|input, output):
+    Refactor(_, _, _) -> result
+    with
+      !output => <one(?(input, _); ?(_, result))>
+    <+
+      !output => [(_, result) | _]
+    <+
+      !output => (_, result)
+    <+
+      !output => result
+   
+  check-builder-expectation(|result) :
+    Fails() -> $[Builder was expected to fail, but produced: [result]]
+   
+  check-builder-expectation(|result) :
+    File(_) -> $[Builder comparison to file is not implemented] // TODO
+   
+  check-builder-expectation(|result) :
+    Fragment(_{^[ast | _]}) -> $[Unexpected output: [result']]
+    where
+      not(<eq> (result, ast))
+    with
+      result' := <spt-pp-string> result
+    <+
+      result' := $[[<write-to-string> result] instead of [<write-to-string> ast]]
+   
+  check-builder-expectation(|result) :
+    ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
+    where
+      not(<aterm-eq> (result, p))
