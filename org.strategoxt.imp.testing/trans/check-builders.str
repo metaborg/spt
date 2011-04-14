@@ -1,0 +1,21 @@
+module check-builders
+
+imports
+  libstratego-lib
+  libstratego-aterm
+  include/Spoofax-Testing
+  lib/editor-common.generated
+  aterm-eq
+  spoofax_testing
+  check
+
+rules
+  
+  spt-desugar:
+    Refactor(x, arg, p) -> Build(x, arg, p)
+  
+  spt-desugar:
+    Run(x, arg, p) -> Build(x, arg, p)
+
+  check-expectation(|ast, selections, messages) :
+    Build(_, _, _) -> $[Not implemented: [<write-to-string>]]

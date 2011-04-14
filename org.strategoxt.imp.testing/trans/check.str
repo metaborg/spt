@@ -17,6 +17,13 @@ signature constructors
   amb : List(Term) -> Term
   
 rules
+  
+  spt-desugar:
+    Error(n) -> Errors(n)
+  
+  spt-desugar:
+    Warning(n) -> Warnings(n)
+  
   check-note = fail
   
   check-error:
@@ -29,6 +36,10 @@ rules
     Test(_, d, _, expectations) -> (d, $[No observer defined for [<Language>]])
     where
       not(spt-get-observer)
+  
+  check-error:
+    MarkedPlaceholder(_, _, _) -> (<id>, $[Placeholders are not yet supported; 
+                                           place a 'footer' setup block at the end of the file instead])
   
   check-warning:
     Test(_,description(d), i, expectations) -> (d, warnings)
@@ -130,17 +141,13 @@ rules
       not(!messages => ([], [], _))
   
   is-semantic-failure-allowed =
-    Fails() + ?Errors(_) + ?Error(_) + ?Warning(_) + ?Warnings(_)
-  + ?Completes(_) + ?CompletesTo(_, _)
+    Fails() + ?Errors(_) + ?Warnings(_) + ?CompleteTo(_, _)
 
   check-expectation(|ast, selections, messages) :
     Errors(n) -> $[[n] errors expected: [<grab-errors> messages]]
     where
       !messages => (errors, _, _)
     ; not(<eq> (<length> errors, <string-to-int> n))
-
-  check-expectation(|ast, selections, messages) :
-    Error(n) -> <check-expectation(|ast, selections, messages)> Errors(n)
 
   check-expectation(|ast, selections, messages) :
     Warnings(n) -> $[[n] warning(s) expected: [<grab-warnings> messages]]
@@ -152,18 +159,6 @@ rules
     Warnings(n) -> $[No error(s) expected: [<grab-errors> messages]]
     where
       !messages => ([_ | _], _, _)
-
-  check-expectation(|ast, selections, messages) :
-    Warning(n) -> <check-expectation(|ast, selections, messages)> Warnings(n)
-
-  check-expectation(|ast, selections, messages) :
-    Builds(_, _) -> $[Not implemented: [<write-to-string>]]
-
-  check-expectation(|ast, selections, messages) :
-    Runs(_, _, _) -> $[Not implemented: [<write-to-string>]]
-
-  check-expectation(|ast, selections, messages) :
-    Refactors(_, _, _) -> $[Not implemented: [<write-to-string>]]
 
   check-expectation(|ast, selections, messages) :
     Stratego(_) -> $[Not implemented: [<write-to-string>]]

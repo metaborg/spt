@@ -1,0 +1,12 @@
+module test5 
+
+language Spoofax-Testing
+
+test Testing TestingTesting testing
+  [[[ module x
+     language TestingTesting
+     test Testing TestingTesting [[
+       module x
+     ]]
+  ]]]
+  

@@ -55,6 +55,19 @@ exports
     "[" {Strategy ","}* "]"              -> TestStratego {reject}
     "[" {Strategy ","}* "|" Strategy "]" -> TestStratego {reject}
     Strategy "=>" Term                   -> TestStratego {reject}
+    "build"                              -> TestStratego {reject}
+    "resolve"                            -> TestStratego {reject}
+    "refactor"                           -> TestStratego {reject}
+    "complete"                           -> TestStratego {reject}
+    "parse"                              -> TestStratego {reject}
+    "run"                                -> TestStratego {reject}
+    
+    "build"                              -> Term {reject}
+    "resolve"                            -> Term {reject}
+    "refactor"                           -> Term {reject}
+    "complete"                           -> Term {reject}
+    "parse"                              -> Term {reject}
+    "run"                                -> Term {reject}
     "succeeds"                           -> Term {reject}
     "fails"                              -> Term {reject}
 
@@ -92,22 +105,23 @@ exports
     INT "warning"     -> Result    {cons("Warning")}
     INT "warnings"    -> Result    {cons("Warnings")}
 
-    "resolve"                                 -> Result {cons("ResolvesUnnumbered")}
-    "resolve" Numbered                        -> Result {cons("Resolves")}
-    "resolve" Numbered "to" Numbered          -> Result {cons("ResolvesTo")}
-    "complete" OptNumbered                    -> Result {cons("Completes")}
-    "complete" OptNumbered "to" STRING        -> Result {cons("CompletesTo")}
+    "resolve" OptNumbered                     -> Result {cons("Resolve")}
+    "resolve" Numbered "to" Numbered          -> Result {cons("ResolveTo")}
+    "complete" OptNumbered                    -> Result {cons("Complete")}
+    "complete" OptNumbered "to" STRING        -> Result {cons("CompleteTo")}
     
-    TestStratego                          -> Result {cons("Stratego")} 
-    "build" ID Pattern                   -> Result {cons("Builds")}
-    "run" ID "(" STRING ")" Pattern      -> Result {cons("Runs")}
-    "refactor" ID "(" STRING ")" Pattern -> Result {cons("Refactors")}
+    TestStratego                         -> Result {cons("Stratego")} 
+    "build"    ID OptArgument OptPattern -> Result {cons("Build")}
+    "run"      ID OptArgument OptPattern -> Result {cons("Run")}
+    "refactor" ID OptArgument OptPattern -> Result {cons("Refactor")}
     
-                         -> Pattern {cons("wildcard")}
-    "to" "file" PathName -> Pattern {cons("File")}
-    "to" Output          -> Pattern {cons("Fragment")}
-    "to" ATerm           -> Pattern {cons("ATerm")}
-    "fails"              -> Pattern {cons("Fails")}
+                         -> OptArgument {cons("None")}
+    "(" STRING ")"       -> OptArgument {cons("Argument")}
+                         -> OptPattern {cons("wildcard")}
+    "to" "file" PathName -> OptPattern {cons("File")}
+    "to" Output          -> OptPattern {cons("Fragment")}
+    "to" ATerm           -> OptPattern {cons("ATerm")}
+    "fails"              -> OptPattern {cons("Fails")}
 
     RegexExp          -> Result
 
@@ -180,6 +194,10 @@ context-free syntax
     <NFBracket3-LEX> <StringPart3-CF> <NFCBracket3-LEX> -> <MarkedPart3-CF> {cons("Marked")}
     <NFBracket4-LEX> <StringPart4-CF> <NFCBracket4-LEX> -> <MarkedPart4-CF> {cons("Marked")}
     
+    <NFBracket2-LEX> <ThreeDots-LEX> <NFCBracket2-LEX> -> <MarkedPart2-CF> {cons("MarkedPlaceholder"), prefer}
+    <NFBracket3-LEX> <ThreeDots-LEX> <NFCBracket3-LEX> -> <MarkedPart3-CF> {cons("MarkedPlaceholder"), prefer}
+    <NFBracket4-LEX> <ThreeDots-LEX> <NFCBracket4-LEX> -> <MarkedPart4-CF> {cons("MarkedPlaceholder"), prefer}
+    
     <InputChars2-LEX> -> <StringPart2-CF> {cons("QuotePart")}
     <InputChars3-LEX> -> <StringPart3-CF> {cons("QuotePart")}
     <InputChars4-LEX> -> <StringPart4-CF> {cons("QuotePart")}
@@ -209,6 +227,8 @@ context-free syntax
     "]]"   -> CBracket2
     "]]]"  -> CBracket3
     "]]]]" -> CBracket4
+    
+    "..."  -> ThreeDots
 
     %% non-follow-restricted:
 

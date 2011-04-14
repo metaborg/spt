@@ -17,11 +17,11 @@ signature constructors
 
 rules
 
-  check-expectation(|ast, selections, messages) :
-    Completes(x) -> <check-expectation(|ast, selections, messages)> CompletesTo(x, wildcard())
+  spt-desugar:
+    Complete(x) -> CompleteTo(x, wildcard())
 
   check-expectation(|ast, selections, messages) :
-    CompletesTo(from, to) -> error
+    CompleteTo(from, to) -> error
     where
       from' := <resolve-selection(|selections)> from;
       to'   := <resolve-selection(|selections)> to
@@ -45,18 +45,16 @@ rules
     where
       x-root := <repeat(prim("SSL_EXT_get_parent", <id>))> x;
       if y-root := <alltd(origin-equal(|x); !COMPLETION(<id>))> x-root then
-        y := <oncetd(?COMPLETION(_))> y-root;
-        debug(!"y")
+        y := <oncetd(?COMPLETION(_))> y-root
       else
         y := NOCONTEXT(x)
       end;
-      tuple := <get-service-input-term> y;
-      debug(!"y'")
+      tuple := <get-service-input-term> y
   
   is-successful-completion(|expected):
     Some(result) -> <id>
     where
       !expected => wildcard()
     <+
-      <oncetd(strip-annos; ?expeceted)> result
+      <oncetd(strip-annos; ?expected)> result
       

@@ -10,9 +10,15 @@ imports
   check
 
 rules
+  
+  spt-desugar:
+    Resolve(n) -> ResolveTo(n, wildcard())
+  
+  spt-desugar:
+    Unnumbered() -> Numbered("1")
 
   check-expectation(|ast, selections, messages) :
-    ResolvesTo(_, _) -> $[No reference resolving defined for [<Language>]]
+    ResolveTo(_, _) -> $[No reference resolving defined for [<Language>]]
     where
       spt-get-reference-resolvers => []
   
@@ -24,7 +30,7 @@ rules
       error*     := <filter(check-selection(|selections))> reference*
   
   check-selection(|selections):
-    Numbered(n) -> (n, $[Identifier not found in input])
+    Numbered(n) -> (<id>, $[No identifier selection #[n] found in input])
     where
       not(resolve-selection(|selections))
   
@@ -33,15 +39,9 @@ rules
     where
       n'        := <string-to-int> n;
       selection := <index(|n')> selections
-  
-  resolve-selection(|selections):
-    Unnumbered() -> <resolve-selection(|selections)> Numbered("1")
-  
-  check-expectation(|ast, selections, messages) :
-    Resolves(x) -> <check-expectation(|ast, selections, messages)> ResolvesTo(x, wildcard())
 
   check-expectation(|ast, selections, messages) :
-    ResolvesTo(from, to) -> error
+    ResolveTo(from, to) -> error
     where
       from' := <resolve-selection(|selections)> from;
       to'   := <resolve-selection(|selections)> to

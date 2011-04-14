@@ -16,22 +16,23 @@ rules
     
   editor-analyze:
     (ast, path, project-path) ->
-    (ast, errors', warnings', notes')
+    (ast', errors', warnings', notes')
     with
-      editor-init
+      editor-init;
+      ast' := <topdown(repeat(spt-desugar))> ast
     with
-      (errors', warnings', notes') := <report-invalid-language> ast
+      (errors', warnings', notes') := <report-invalid-language> ast'
     <+
       scope-paths(
         <chdir> project-path;
         <record-all-sdfs> ".";
         rules(
           InputFile := path
-          Language  := <get-language> ast
+          Language  := <get-language> ast'
         );
-        errors    := <collect-all(check-error, conc)> ast;
-        warnings  := <collect-all(check-warning, conc)> ast;
-        notes     := <collect-all(check-note, conc)> ast;
+        errors    := <collect-all(check-error, conc)> ast';
+        warnings  := <collect-all(check-warning, conc)> ast';
+        notes     := <collect-all(check-note, conc)> ast';
         errors'   := <flatten-list> [errors, <bagof-GrabbedErrors>];
         warnings' := <flatten-list> [warnings, <bagof-GrabbedWarnings>];
         notes'    := <flatten-list> [notes, <bagof-GrabbedNotes>];
@@ -102,7 +103,8 @@ strategies
        language (<spt-get-default-language>)
        
        test First test
-         [[), " ", "test", " ]]"]]
+         [[), " ", "test", " ]]\n"
+    ]]
 	
   editor-complete:
     (Language(t), _, _, _, _) -> [<spt-get-default-language>]
