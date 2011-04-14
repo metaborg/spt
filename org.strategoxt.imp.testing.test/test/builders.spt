@@ -6,13 +6,14 @@ setup [[
   module X
 ]]
 
+/*
 test Builder
   [[ entity Y {
        
      }
   ]] build generate-java
 
-test Refactoring
+test Rename refactoring
   [[ entity [[X]] {
        X : X
      }
@@ -20,6 +21,16 @@ test Refactoring
      entity Y {
        X : Y
      }
-  ]]
+  ]]*/
+
+test Extract something refactoring
+  [[ entity X {
+       X : X
+       [[X : X
+       X : X]]
+     }
+  ]] refactor extract-entity /* to [[
+     ...
+  ]]*/
 
  

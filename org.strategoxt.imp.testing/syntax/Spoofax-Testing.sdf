@@ -51,7 +51,8 @@ exports
     "->" ATerm -> StrategoResult {cons("StrategoEquals"), deprecated("Use => instead of ->")}
     Strategy   -> TestStratego
 
-    String                               -> TestStratego {reject}
+    STRING                               -> TestStratego {reject}
+    "(" STRING ")"                       -> TestStratego {reject} %% (e.g., refactor ("STRING"))
     "[" {Strategy ","}* "]"              -> TestStratego {reject}
     "[" {Strategy ","}* "|" Strategy "]" -> TestStratego {reject}
     Strategy "=>" Term                   -> TestStratego {reject}
