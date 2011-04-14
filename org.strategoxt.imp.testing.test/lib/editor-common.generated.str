@@ -203,11 +203,6 @@ strategies
 
   subterm-at(|index):
     _#(t*) -> <index(|<inc> index)> t*
-
-strategies
-  
-  input-dialog-override:
-    s -> <prim("SSL_EXT_overrideinput", s)>
   
 signature constructors
 
