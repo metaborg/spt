@@ -16,6 +16,9 @@ signature constructors
   NOCONTEXT  : Term -> Term
 
 rules
+  
+  check-error:
+    CompleteTo(_, _) -> (<id>, $[Content completion testing not is (correctly) implemented at this point])
 
   spt-desugar:
     Complete(x) -> CompleteTo(x, wildcard())
@@ -23,15 +26,14 @@ rules
   check-expectation(|ast, selections, messages) :
     CompleteTo(from, to) -> error
     where
-      from' := <resolve-selection(|selections)> from;
-      to'   := <resolve-selection(|selections)> to
+      from' := <resolve-selection(|selections)> from
     with
       from''    := <get-completion-input-term> from';
       resolvers := <spt-get-content-proposers>;
       results   := <map(execute-service(|from''))> resolvers
     where
       switch !results
-        case one(is-successful-completion(|to')): fail
+        case debug(!1); one(is-successful-completion(|to)); debug(!2): fail
         case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
         case one(?Error(m)): error := $[Unexpected error: [m]]
         case one(?Fail(m)):  error := $[Unexpected error: [m]]
@@ -45,7 +47,7 @@ rules
     where
       x-root := <repeat(prim("SSL_EXT_get_parent", <id>))> x;
       if y-root := <alltd(origin-equal(|x); !COMPLETION(<id>))> x-root then
-        y := <oncetd(?COMPLETION(_))> y-root
+        y := <collect-one(?COMPLETION(_))> y-root
       else
         y := NOCONTEXT(x)
       end;

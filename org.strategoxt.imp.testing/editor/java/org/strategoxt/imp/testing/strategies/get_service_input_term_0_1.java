@@ -1,6 +1,7 @@
 package org.strategoxt.imp.testing.strategies;
 
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
+import static org.spoofax.terms.Term.*;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -22,7 +23,8 @@ public class get_service_input_term_0_1 extends Strategy {
 		// TODO: adapt to latest strategy of StrategoReferenceResolver?
 		if (isTermAppl(analyzedAst) && ((IStrategoAppl) analyzedAst).getName().equals("None"))
 			analyzedAst = null;
-		current = InputTermBuilder.getMatchingAncestor(current, StrategoReferenceResolver.ALLOW_MULTI_CHILD_PARENT);
+		if ("COMPLETION" != tryGetName(current))
+			current = InputTermBuilder.getMatchingAncestor(current, StrategoReferenceResolver.ALLOW_MULTI_CHILD_PARENT);
 		HybridInterpreter runtime = HybridInterpreter.getInterpreter(context);
 		InputTermBuilder inputBuilder = new InputTermBuilder(runtime, analyzedAst);
 		return inputBuilder.makeInputTerm(current, true);

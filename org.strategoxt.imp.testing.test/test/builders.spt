@@ -6,7 +6,6 @@ setup [[
   module X
 ]]
 
-/*
 test Builder
   [[ entity Y {
        
@@ -21,7 +20,7 @@ test Rename refactoring
      entity Y {
        X : Y
      }
-  ]]*/
+  ]]
 
 test Extract something refactoring
   [[ entity X {
