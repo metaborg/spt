@@ -33,7 +33,7 @@ rules
       results   := <map(execute-service(|from''))> resolvers
     where
       switch !results
-        case debug(!1); one(is-successful-completion(|to)); debug(!2): fail
+        case one(is-successful-completion(|to)): fail
         case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
         case one(?Error(m)): error := $[Unexpected error: [m]]
         case one(?Fail(m)):  error := $[Unexpected error: [m]]
