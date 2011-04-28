@@ -491,7 +491,7 @@
 	    		<src path="${src-gen}"/>
 	        	<!-- attribute in javac: classpath="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}"  -->
 	        	<classpath>
-	        		<pathelement path="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}"/> <!-- the path attribute accepts colon- or semicolon-separated lists of locations -->
+	        		<pathelement path="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}:${external_classpath}"/> <!-- the path attribute accepts colon- or semicolon-separated lists of locations -->
 	        		<pathelement location="utils/stratego-debug-runtime.jar"/> <!-- The location attribute specifies a single file or directory relative to the project's base directory (or an absolute filename) -->
 	        		<pathelement location="utils/stratego-debug-runtime-java.jar"/>
 	        	</classpath>
