@@ -7,7 +7,7 @@
         <target name="spoofaximp.default.jar" depends="check-classpath,init,sdf2table,meta-sdf2table,ppgen,pppack,stratego.aster,java.jar,stratego.jar.helper,sdf2imp,refresh"/>
     
         <!-- Initialization -->
-        <available file="${build}/org/strategoxt/imp/testing/strategies/Main.java" property="java.jar.enabled"/>
+        <available file="${src-gen}/org/strategoxt/imp/testing/strategies/Main.java" property="java.jar.enabled"/>
         <condition property="java.jar.import" value="-la org.strategoxt.imp.testing.strategies" else="">
             <isset property="java.jar.enabled"/>
         </condition>
