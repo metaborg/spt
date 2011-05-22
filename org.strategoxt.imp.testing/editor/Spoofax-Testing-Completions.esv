@@ -1,6 +1,6 @@
 module Spoofax-Testing-Completions
 
-imports Spoofax-Testing-Completions.generated
+//imports Spoofax-Testing-Completions.generated
 
 completions
                                                                    

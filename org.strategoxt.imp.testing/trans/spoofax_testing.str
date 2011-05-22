@@ -103,7 +103,7 @@ strategies
        language (<spt-get-default-language>)
        
        test First test
-         [[), " ", "test", " ]]\n"
+         [[), " ", "test", " ]]\n\n"
     ]]
 	
   editor-complete:

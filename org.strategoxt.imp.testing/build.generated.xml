@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <project name="build.generated">
-        <property name="external_classpath" value=""/>        
+
         <target name="spoofaximp.default" depends="spoofaximp.default.ctree"/>
         <target name="spoofaximp.default.ctree" depends="check-classpath,init,sdf2table,meta-sdf2table,ppgen,pppack,stratego.aster,java.jar,stratego.ctree,sdf2imp,refresh"/>
         <target name="spoofaximp.default.jar" depends="check-classpath,init,sdf2table,meta-sdf2table,ppgen,pppack,stratego.aster,java.jar,stratego.jar.helper,sdf2imp,refresh"/>
     
         <!-- Initialization -->
-        <available file="${src-gen}/org/strategoxt/imp/testing/strategies/Main.java" property="java.jar.enabled"/>
+        <available file="${build}/org/strategoxt/imp/testing/strategies/Main.class" property="java.jar.enabled"/>
         <condition property="java.jar.import" value="-la org.strategoxt.imp.testing.strategies" else="">
             <isset property="java.jar.enabled"/>
         </condition>
@@ -19,8 +19,11 @@
         <condition property="externaldefimport" value="-I &quot;${externaldefdir}&quot;" else="">
             <isset property="externaldef"/>
         </condition>
-        <condition property="externaljarimport" value=":${externaljar}" else="">
+        <condition property="externaljarimport1" value=":${externaljar}" else="">
             <isset property="externaljar"/>
+        </condition>
+        <condition property="externaljarimport2" value=":${externaljarx}" else="">
+            <isset property="externaljarx"/>
         </condition>
         <condition property="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter">
             <isset property="eclipse.running"/>
@@ -378,7 +381,7 @@
                 <param name="build.stratego.outputfile" value="${src-gen}/trans/Main.java"/>
                 <param name="build.stratego.extraargs" value="-la java-front ${java.jar.import}"/>
             </antcall>
-            <javac classpath="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}:${external_classpath}" srcdir="${src-gen}" destdir="${build}" source="1.5" target="1.5" debug="on"/>
+            <javac classpath="utils/strategoxt.jar:${src-gen}${externaljarimport1}${externaljarimport2}${java.jar.classpath}" srcdir="${src-gen}" includes="trans/**" destdir="${build}" source="1.5" target="1.5" debug="on"/>
             <!-- copy imported terms -->
             <copy todir="${build}/trans">
                 <fileset dir="${src-gen}/trans" excludes="**/*.java"/>
@@ -489,9 +492,9 @@
 	        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
 	    		<!-- attribute in javac: srcdir="${src-gen}" -->
 	    		<src path="${src-gen}"/>
-	        	<!-- attribute in javac: classpath="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}"  -->
+	        	<!-- attribute in javac: classpath="utils/strategoxt.jar:${src-gen}${externaljarimport1}${externaljarimport2}${java.jar.classpath}"  -->
 	        	<classpath>
-	        		<pathelement path="utils/strategoxt.jar:${src-gen}${externaljarimport}${java.jar.classpath}:${external_classpath}"/> <!-- the path attribute accepts colon- or semicolon-separated lists of locations -->
+	        		<pathelement path="utils/strategoxt.jar:${src-gen}${externaljarimport1}${externaljarimport2}${java.jar.classpath}"/> <!-- the path attribute accepts colon- or semicolon-separated lists of locations -->
 	        		<pathelement location="utils/stratego-debug-runtime.jar"/> <!-- The location attribute specifies a single file or directory relative to the project's base directory (or an absolute filename) -->
 	        		<pathelement location="utils/stratego-debug-runtime-java.jar"/>
 	        	</classpath>
@@ -538,7 +541,7 @@
 	        <delete file="${include}/${strmodule}.rtree" failonerror="false"/>
 	        <java classname="org.strategoxt.strj.Main" failonerror="true">
 	            <arg value="-i"/>
-	            <arg value="${trans-debug}/trans/${strmodule}.{strj.input.file.type}"/>
+	            <arg value="${trans-debug}/trans/${strmodule}.${strj.input.file.type}"/>
 	            <arg value="-o"/>
 	            <arg value="${build.stratego.outputfile}"/>
 	            <arg value="-p"/>
