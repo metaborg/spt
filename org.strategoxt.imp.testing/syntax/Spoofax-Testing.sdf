@@ -52,16 +52,12 @@ exports
     Strategy   -> TestStratego
 
     STRING                               -> TestStratego {reject}
-    "(" STRING ")"                       -> TestStratego {reject} %% (e.g., refactor ("STRING"))
     "[" {Strategy ","}* "]"              -> TestStratego {reject}
     "[" {Strategy ","}* "|" Strategy "]" -> TestStratego {reject}
+    "(" {Strategy ","}* ")"              -> TestStratego {reject}
     Strategy "=>" Term                   -> TestStratego {reject}
-    "build"                              -> TestStratego {reject}
-    "resolve"                            -> TestStratego {reject}
-    "refactor"                           -> TestStratego {reject}
-    "complete"                           -> TestStratego {reject}
-    "parse"                              -> TestStratego {reject}
-    "run"                                -> TestStratego {reject}
+    ID                                   -> TestStratego {reject}
+    INT                                  -> TestStratego {reject}
     
     "build"                              -> Term {reject}
     "resolve"                            -> Term {reject}
