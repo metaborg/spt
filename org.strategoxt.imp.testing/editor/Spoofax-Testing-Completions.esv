@@ -36,11 +36,29 @@ completions
   completion template : TestDecl =
     "test" " " <description> "\n\t" "[[" <  > "]] => " <pattern> (blank)
     
-  completion template : Result = "fails"    
-  completion template : Result = "fails parsing"  
+  completion template : Result = "parse to file " <path>
+  completion template : Result = "parse to " <term>
+  completion template : Result = "parse fails" 
+  completion template : Result = "parse succeeds" 
   completion template : Result = "succeeds"
-  completion template : Result = "=> file " <path>
-  completion template : Result = "resolves " <x>
-  completion template : Result = "resolves " <x> "#2 to " <x> "#1"
-  completion template : Result = "completes " <x> " to " <x>
+  completion template : Result = "fails"    
+  completion template : Result = <n> " errors" 
+  completion template : Result = <n> " warnings" 
+  completion template : Result = "resolve " <x>
+  completion template : Result = "resolve " <#2> " to  " <#1>
+  completion template : Result = "complete " <#1>
+  completion template : Result = "complete " <#1> " to " <\"name\">
+  completion template : Result = "build " <builder> "(" <> /*<OptArgument:>*/ ") to " <OptPattern:output>
+  completion template : Result = "refactor " <refactoring> "(" <> ") to " <OptPattern:output>
+  completion template : Result = "run " <builder> "(" <> ") " <OptPattern:to>
   
+
+  completion template : OptArgument = ""
+  completion template : OptArgument = "\"" <arg> "\""
+
+  completion template : OptPattern = ""
+  completion template : OptPattern = "fails"
+  completion template : OptPattern = "to file " <file>
+  completion template : OptPattern = "to " <term>
+  completion template : OptPattern = "to " <term>
+  completion template : OptPattern = "to [[ " <output> " ]]"
