@@ -93,4 +93,5 @@ rules
   check-builder-expectation(|result) :
     ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
     where
-      not(<aterm-eq> (result, p))
+      result' := <explode-aterm> result;
+      not(<aterm-eq> (result', p))
