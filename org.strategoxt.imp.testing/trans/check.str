@@ -94,7 +94,7 @@ rules
     ; parsed' := FailsParsing()
 
   check-expectation(|ast, selections, messages) :
-    <not(Fails + FailsParsing)> -> parse-failed
+    <not(FailsParsing)> -> parse-failed
     where
       if !ast => FailsParsing() + !ast => error(_, _) then
         parse-failed := <extract-parse-error>

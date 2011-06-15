@@ -6,7 +6,7 @@ colorer
   
   _.RegexPattern : darkgreen
   _.AtomLiteral  : darkgreen   
-  _.pattern      : darkblue   
+  //_.pattern      : darkblue   
   _.description  : 0 128 0 bold
   
   //_.Unnumbered : black

@@ -263,12 +263,12 @@ public class FragmentParser {
 	
 	private boolean isSuccessExpected(IStrategoTerm fragment) {
 		if (tryGetConstructor(fragment) == OUTPUT_4) return true;
-		IStrategoAppl test = (IStrategoAppl) getParent(getParent(getParent(fragment)));
+		IStrategoAppl test = (IStrategoAppl) getParent(fragment);
 		if (test.getConstructor() == SETUP_3) return true;
 		IStrategoList expectations = listAt(test, test.getSubtermCount() - 1);
 		for (IStrategoTerm expectation : StrategoListIterator.iterable(expectations)) {
 			IStrategoConstructor cons = tryGetConstructor(expectation);
-			if (cons == FAILS_0 || cons == FAILS_PARSING_0)
+			if (/*cons == FAILS_0 ||*/ cons == FAILS_PARSING_0)
 				return false;
 		}
 		return true;
