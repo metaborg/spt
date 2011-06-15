@@ -4,14 +4,14 @@ start symbol Start
 language TestingTesting
 
 test parsing with AST matching
-  [[ module x entity Y {} ]] => Module(_, _)
+  [[ module x entity Y {} ]] parse to Module(_, _)
     
 test successful parsing
-  [[ module x entity X { a : B } ]] succeeds parsing
+  [[ module x entity X { a : B } ]] parse succeeds
     
 test failed parsing
-  [[ module x entity X { a : } ]] fails parsing
+  [[ module x entity X { a : } ]] parse fails
 
 test parsing with AST in file
-  [[ module x ]] => file ./empty-module.aterm
+  [[ module x ]] parse to file ./empty-module.aterm
   

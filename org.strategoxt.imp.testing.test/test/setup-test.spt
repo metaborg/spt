@@ -15,10 +15,10 @@ test origin
   [[ entity x { a : x } ]] 1 warnings
 
 test reference resolving
-  [[ entity [[Y]] { y : [[Y]] } ]] resolves #2 to #1
+  [[ entity [[Y]] { y : [[Y]] } ]] resolve #2 to #1
 
 test reference resolving
-  [[ entity Y { y : [[Initial]] } ]] resolves #2
+  [[ entity Y { y : [[Initial]] } ]] resolve #2
 
 setup Footer [[
     entity Z {}
