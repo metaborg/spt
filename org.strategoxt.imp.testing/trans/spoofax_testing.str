@@ -97,7 +97,7 @@ rules
 strategies
   
   editor-complete:
-    (EmptyFile(_), _, _, path, _) ->
+    (CompletionHelper(_), _, _, path, _) ->
     [[$( module (<base-filename; remove-extension> path) 
        
        language (<spt-get-default-language>)

@@ -37,6 +37,9 @@ rules
     TestEmpty(_, d) -> (<id>, "Empty test case")
   
   check-error:
+    CompletionHelper(_) -> (<id>, "Syntax error")
+  
+  check-error:
     Test(_, d, _, expectations) -> (d, $[No observer defined for [<Language>]])
     where
       not(spt-get-observer)

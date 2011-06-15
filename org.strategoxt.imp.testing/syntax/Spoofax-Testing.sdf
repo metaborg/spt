@@ -15,7 +15,7 @@ exports
   sorts TestSuite TopSort Test Input Result
   context-free syntax
     Header* TestDecl*   -> TestSuite {cons("testsuite")}
-    ID                  -> TestSuite {cons("EmptyFile"), recover}
+    "COMPLETION" ID     -> TestSuite {cons("CompletionHelper")}
     "testsuite" ID      -> Header {cons("Name"), deprecated("Use 'module' instead")}
     "module" ID         -> Header {cons("Name")}
     "package" ID        -> Header {cons("Package")}

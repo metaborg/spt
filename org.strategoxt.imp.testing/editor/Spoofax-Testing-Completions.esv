@@ -24,17 +24,8 @@ completions
   completion template : Header =
     "start symbol " <Start>
                                          
-  completion template : TestDecl =
-    "test" " " <description> "\n\t" "[[" <  > "]] succeeds" (blank)
-
-  completion template : TestDecl =
-    "test" " " <description> "\n\t" "[[" <  > "]] fails" (blank)
-    
-  completion template : TestDecl =
-    "test" " " <description> "\n\t" "[[" <  > "]] => file " <path> (blank)
-
-  completion template : TestDecl =
-    "test" " " <description> "\n\t" "[[" <  > "]] => " <pattern> (blank)
+  completion template Header TestDecl Result :
+    "test" " " <description> "\n\t" "[[" <  > "]] " <succeeds:Result> (blank)
     
   completion template : Result = "parse to file " <path>
   completion template : Result = "parse to " <term>
@@ -48,9 +39,9 @@ completions
   completion template : Result = "resolve " <#2> " to  " <#1>
   completion template : Result = "complete " <#1>
   completion template : Result = "complete " <#1> " to " <\"name\">
-  completion template : Result = "build " <builder> "(" <> /*<OptArgument:>*/ ") to " <OptPattern:output>
-  completion template : Result = "refactor " <refactoring> "(" <> ") to " <OptPattern:output>
-  completion template : Result = "run " <builder> "(" <> ") " <OptPattern:to>
+  completion template : Result = "build " <builder> "(" <> /*<OptArgument:>*/ ") to " <output:OptPattern>
+  completion template : Result = "refactor " <refactoring> "(" <> ") to " <output:OptPattern>
+  completion template : Result = "run " <builder> "(" <> ") " <to:OptPattern>
   
 
   completion template : OptArgument = ""
