@@ -39,7 +39,8 @@ rules
       if !arg => Argument(arg') then
         plugin-strategy-evaluate(id |<Language>, OVERRIDE_INPUT(arg'))
       end;
-      output := <execute-service(|input)> builder;
+      output := <execute-service(|input)> builder
+    where
       error := <check-builder> (output, input, expected, condition)
 
   check-refactoring(|ast, selections, messages, condition):
@@ -54,7 +55,8 @@ rules
       	output := <execute-service(|input)> builder
       else 
       	output := Error("Selection is not matched with expected sort/constructor")
-      end;
+      end
+    where
       error := <check-builder> (output, input, expected, condition)
 	
   check-builder:
