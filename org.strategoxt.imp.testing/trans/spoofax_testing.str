@@ -147,6 +147,17 @@ strategies
   spt-get-builders =
     <plugin-get-property-values(|<Language>)> "Builder";
     map(\"Builder"#([_, d, s]) -> (d, s)\)
+
+  spt-get-refactorings =
+    <plugin-get-property-values(|<Language>)> "Refactoring";
+    map(\"Refactoring"#([semnodes, _, strategy, options, _]) -> (semnodes, strategy, options)\)
+    
+  spt-find-refactoring-description:
+  	strategy -> (semnodes, strategy, options)
+  	where
+  	  spt-get-refactorings;
+  	  fetch-elem(?(_, "Strategy"#([strategy]), _)); 
+  	  ?(semnodes, _, options)
   
   spt-exists-language(|language) =
     where(<plugin-get-property-values(|language)> "LanguageName")
@@ -178,8 +189,13 @@ strategies
   
   get-service-input-term =
     get-service-input-term(|<LastAnalyzedAst>)
+
+  get-service-input-term-refactoring =
+    get-service-input-term-refactoring(|<LastAnalyzedAst>)
   
   execute-service(|node):
     resolver -> <plugin-strategy-invoke(|<Language>, resolver)> node
   
   external get-service-input-term(|analyzed-ast)
+
+  external get-service-input-term-refactoring(|analyzed-ast)

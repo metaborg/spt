@@ -29,7 +29,7 @@ rules
 
   check-expectation(|ast, selections, messages) :
     c@Refactor(builder, arg, expected) ->
-    <check-builder(|ast, selections, messages, c)> (builder, arg, expected)
+    <check-refactoring(|ast, selections, messages, c)> (builder, arg, expected)
   
   check-builder(|ast, selections, messages, condition):
     (builder, arg, expected) -> error
@@ -39,7 +39,26 @@ rules
       if !arg => Argument(arg') then
         plugin-strategy-evaluate(id |<Language>, OVERRIDE_INPUT(arg'))
       end;
-      output := <execute-service(|input)> builder
+      output := <execute-service(|input)> builder;
+      error := <check-builder> (output, input, expected, condition)
+
+  check-refactoring(|ast, selections, messages, condition):
+    (builder, arg, expected) -> error
+    with 
+      (semnodes, _, options) := <spt-find-refactoring-description> builder;
+      selected := <resolve-selection(|selections) <+ !ast> Numbered("1"); 
+      user-input := <try(?Argument(<id>))> arg;
+      if  
+        input    := <get-service-input-term-refactoring> (selected, semnodes, options, user-input)
+      then
+      	output := <execute-service(|input)> builder
+      else 
+      	output := Error("Selection is not matched with expected sort/constructor")
+      end;
+      error := <check-builder> (output, input, expected, condition)
+	
+  check-builder:
+	(output, input, expected, condition) -> error
     where
       switch !output
         case ?Some(output'):
@@ -67,11 +86,7 @@ rules
   fetch-builder-result(|input, output):
     Refactor(_, _, _) -> result
     with
-      !output => <one(?(input, _); ?(_, result))>
-    <+
-      !output => [(_, result) | _]
-    <+
-      !output => (_, result)
+      <?([(_,result)], _, _, _)> output
     <+
       !output => result
    
