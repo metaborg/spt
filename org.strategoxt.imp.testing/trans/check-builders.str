@@ -9,7 +9,7 @@ imports
   spoofax_testing
   check
   check-resolve
-  //ast-compare
+  ast-compare
 
 overlays
   
@@ -114,7 +114,7 @@ rules
   	where
       input-observer := (ast, <InputFile>, <project-path>);
       ast-desugared := <plugin-strategy-invoke(|<Language>, <spt-get-observer>); try(?Some(<Fst>))> input-observer;
-      <eq> (<strip-annos> ast-desugared, <strip-annos> result) //TODO compare-ast with sugar aware diff function
+      <compare-desugared-asts> (ast-desugared, result) //TODO compare-ast with sugar aware diff function
   		
   check-builder-expectation(|result) :
     ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
