@@ -25,10 +25,16 @@ rules
   spt-desugar:
     Warning(n) -> Warnings(n)
 
-  spt-desugar:
-  	Test(t1, t2, t3, expectations) -> Test(t1, t2, t3, expectations')
+  spt-desugar-refactoring-conditions =
+    at-suffix-rev(spt-desugar-refactor-expectations)
+
+  spt-desugar-refactor-expectations:
+  	[Refactor(strategy, arg, expected-ast)|expectations] -> 
+  	[Refactor(strategy, arg, (expected-ast, refactor-expectations))]
   	where
-  	  expectations' := <at-suffix-rev(process-refactor-expectations)> expectations
+  		zeros := [Errors("0"), Warnings("0")]; //TODO Fatals(0)
+  		refactor-expectations := 
+  			<union(?(Errors(_), Errors(_)) <+ ?(Warnings(_), Warnings(_)))> (zeros, expectations)
 
   check-note = fail
   
@@ -72,12 +78,6 @@ rules
         warnings := <filter(check-expectation(|input, selections, messages'))> expectations
       end
     ; not([]) 
-
-  process-refactor-expectations:
-  	[Refactor(strategy, arg, expected-ast)|expectations] -> 
-  	[Refactor(strategy, arg, (expected-ast, expectations))]
-  	where
-  		<not(?(_, <is-list>))> expected-ast //already done
    
   strip-and-record-analyzed-ast:
     (t, e, w, n) -> (e, w, n)

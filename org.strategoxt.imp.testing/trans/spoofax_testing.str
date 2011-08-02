@@ -19,7 +19,7 @@ rules
     (ast', errors', warnings', notes')
     with
       editor-init;
-      ast' := <topdown(repeat(spt-desugar))> ast
+      ast' := <topdown(repeat(spt-desugar)); alltd(spt-desugar-refactoring-conditions)> ast
     with
       (errors', warnings', notes') := <report-invalid-language> ast'
     <+
