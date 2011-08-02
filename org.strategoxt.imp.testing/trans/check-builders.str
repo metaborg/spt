@@ -88,11 +88,12 @@ rules
       !output => result
   
   fetch-builder-result(|input, output):
-    Refactor(_, _, _) -> result
+    Refactor(_, _, _) -> refactor-result
     with
-      <?([(_,result)], _, _, _)> output
+      <?([(_,result)], fatals, errors, warnings)> output;
+      refactor-result := (result, fatals, errors, warnings)
     <+
-      !output => result
+      !output => refactor-result
    
   check-builder-expectation(|result) :
     Fails() -> $[Builder was expected to fail, but produced: [result]]
@@ -121,3 +122,35 @@ rules
     where
       result' := <explode-aterm> result;
       not(<aterm-eq> (result', p))
+
+  check-builder-expectation(|result) :
+  	(expected-ast, expected-problems) -> <separate-by(|"; "); concat-strings> refactor-errors
+  	where
+  	  <?(result-ast, fatals, errors, warnings)> result;
+  	  refactor-errors := <filter(check-refactor-expectation(|result))> [expected-ast|expected-problems];
+  	  <not(?[])> refactor-errors
+  		
+  check-refactor-expectation(|result) :
+    expected-ast -> <check-builder-expectation(|result-ast)> expected-ast
+    where
+      <?(result-ast, _, _, _)> result
+ 
+  check-refactor-expectation(|result) :
+    Warnings(n) -> $[[n] refactor warning(s) expected: [<write-to-string> warnings]]
+    where
+      <?(_, _, _, warnings)> result
+    ; not(<eq> (<length> warnings, <string-to-int> n))
+
+  check-refactor-expectation(|result) :
+    Errors(n) -> $[[n] refactor error(s) expected: [<write-to-string> errors]]
+    where
+      <?(_, _, errors, _)> result
+    ; not(<eq> (<length> errors, <string-to-int> n))
+
+  /* //TODO
+  check-refactor-issues-expectation(|result) :
+    Fatals(n) -> $[[n] refactor fatal-error(s) expected: [<write-to-string> fatals]]
+    where
+      <?(_, fatals, _, _)> result
+    ; not(<eq> (<length> fatals, <string-to-int> n))
+  */
