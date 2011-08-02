@@ -9,13 +9,14 @@ imports
   spoofax_testing
   check
   check-resolve
+  //ast-compare
 
 overlays
   
   OVERRIDE_INPUT(s) = Prim("\"SSL_EXT_overrideinput\"", [NoAnnoList(Str(s))])
 
 rules
-  
+ 
   spt-desugar:
     Run(x, arg, p) -> Build(x, arg, p)
 
@@ -48,10 +49,11 @@ rules
     with 
       (semnodes, _, options) := <spt-find-refactoring-description> builder;
       selected := <resolve-selection(|selections) <+ !ast> Numbered("1"); 
-      user-input := <try(?Argument(<id>))> arg;
+      selected' := <repeat(\_#([arg]) -> arg\)> selected; //Var(Id(x)) start looking for matching nodes from x
+      user-input := <try(?Argument(<id>)); try(trim-chars(?'"'))> arg;
       if  
-        input    := <get-service-input-term-refactoring> (selected, semnodes, options, user-input)
-      then
+        input    := <get-service-input-term-refactoring> (selected', semnodes, options, user-input)
+      then 
       	output := <execute-service(|input)> builder
       else 
       	output := Error("Selection is not matched with expected sort/constructor")
@@ -101,12 +103,19 @@ rules
   check-builder-expectation(|result) :
     Fragment(_{^[ast | _]}) -> $[Unexpected output: [result']]
     where
-      not(<eq> (result, ast))
+      not(<eq> (ast, result) <+ <equal-in-desugared-form> (ast, result)) //TODO compare-ast
     with
       result' := <spt-pp-string> result
     <+
       result' := $[[<write-to-string> result] instead of [<write-to-string> ast]]
-   
+  
+  equal-in-desugared-form:
+  	(ast, result) -> (ast, result)
+  	where
+      input-observer := (ast, <InputFile>, <project-path>);
+      ast-desugared := <plugin-strategy-invoke(|<Language>, <spt-get-observer>); try(?Some(<Fst>))> input-observer;
+      <eq> (<strip-annos> ast-desugared, <strip-annos> result) //TODO compare-ast with sugar aware diff function
+  		
   check-builder-expectation(|result) :
     ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
     where
