@@ -44,8 +44,10 @@ strategies
   run-testsuite :
     file -> (ast, [])
     where 
-      ast  := <parse-spt-file> file 
-    ; testcases := <collect-all(testview-add-testcase(|file, <test-to-description>,<origin-offset>))>ast
+      ast  := <parse-spt-file> file
+    ; editor-init
+    ; ast' := <topdown(repeat(spt-desugar)); alltd(spt-desugar-refactoring-conditions)> ast 
+    ; testcases := <collect-all(testview-add-testcase(|file, <test-to-description>,<origin-offset>))>ast'
     ; <map(run-testcase(|file))>testcases
   
   parse-spt-file = 
