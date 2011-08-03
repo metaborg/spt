@@ -56,14 +56,15 @@ rules
       then 
       	output := <execute-service(|input)> builder
       else 
-      	output := Error("Selection is not matched with expected sort/constructor")
+      	input := None();
+      	output := Error("Selection is not matched with expected sort or constructor")
       end
     where
       error := <check-builder> (output, input, expected, condition)
 	
   check-builder:
 	(output, input, expected, condition) -> error
-    where
+    where 
       switch !output
         case ?Some(output'):
           with(result := <fetch-builder-result(|input, output')> condition);
