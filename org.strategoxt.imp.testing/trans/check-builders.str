@@ -104,7 +104,7 @@ rules
   check-builder-expectation(|result) :
     Fragment(_{^[ast | _]}) -> $[Unexpected output: [result']]
     where
-      not(<eq> (ast, result) <+ <equal-in-desugared-form> (ast, result)) //TODO compare-ast
+      not(<eq> (ast, result) <+ <equal-in-desugared-form> (ast, result)) 
     with
       result' := <spt-pp-string> result
     <+
@@ -115,7 +115,7 @@ rules
   	where
       input-observer := (ast, <InputFile>, <project-path>);
       ast-desugared := <plugin-strategy-invoke(|<Language>, <spt-get-observer>); try(?Some(<Fst>))> input-observer;
-      <compare-desugared-asts> (ast-desugared, result) //TODO compare-ast with sugar aware diff function
+      <compare-desugared-asts> (ast-desugared, result) 
   		
   check-builder-expectation(|result) :
     ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
