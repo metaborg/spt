@@ -95,11 +95,14 @@ exports
 
     "file" PathName -> Input {cons("file")}
 
-    INT "error"       -> Result    {cons("Error")}
-    INT "errors"      -> Result    {cons("Errors")}
+    INT "error"         -> Result    {cons("Error")}
+    INT "errors"        -> Result    {cons("Errors")}
 
-    INT "warning"     -> Result    {cons("Warning")}
-    INT "warnings"    -> Result    {cons("Warnings")}
+    INT "warning"       -> Result    {cons("Warning")}
+    INT "warnings"      -> Result    {cons("Warnings")}
+
+    INT "fatal" "error" -> Result    {cons("Fatal")}
+    INT "fatal" "errors"-> Result    {cons("Fatals")}
 
     "resolve" OptNumbered                     -> Result {cons("Resolve")}
     "resolve" Numbered "to" Numbered          -> Result {cons("ResolveTo")}

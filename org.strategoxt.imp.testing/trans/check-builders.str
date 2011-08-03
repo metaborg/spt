@@ -147,10 +147,8 @@ rules
       <?(_, _, errors, _)> result
     ; not(<eq> (<length> errors, <string-to-int> n))
 
-  /* //TODO
-  check-refactor-issues-expectation(|result) :
+  check-refactor-expectation(|result) :
     Fatals(n) -> $[[n] refactor fatal-error(s) expected: [<write-to-string> fatals]]
     where
       <?(_, fatals, _, _)> result
     ; not(<eq> (<length> fatals, <string-to-int> n))
-  */
