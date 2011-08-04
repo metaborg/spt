@@ -69,14 +69,21 @@ rules
         case ?Some(output'):
           with(result := <fetch-builder-result(|input, output')> condition);
           error       := <check-builder-expectation(|result)> expected
-        case ?Error(m):
-          if not(!condition => Fails()) then
+        case ?Error(m): 
+          if <not(is-expected-failure)> (condition, expected) then
             error := $[Unexpected error: [m]]
           end
-        case ?Fail(m):
+        case ?Fail(m): 
           error  := $[Unexpected error: [m]]
         otherwise: with(fail)
       end
+  
+  is-expected-failure:
+  	(condition, expected) -> (condition, expected)
+  	where
+  	  !condition => Fails() <+ 
+  	  !expected => Fails() <+
+  	  <?(Fails(),_)> expected
   
   fetch-builder-result(|input, output):
     Run(_, _, _) -> output
@@ -97,7 +104,7 @@ rules
       !output => refactor-result
    
   check-builder-expectation(|result) :
-    Fails() -> $[Builder was expected to fail, but produced: [result]]
+    Fails() -> $[Builder was expected to fail, but produced: [<write-to-string> result]]
    
   check-builder-expectation(|result) :
     File(_) -> $[Builder comparison to file is not implemented] // TODO
