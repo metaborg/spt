@@ -29,10 +29,18 @@ strategies
   
   test-runner =
     testview-init 
-  ; find-all-testsuites-in-project 
-  ; map(testview-add-testsuite(|<get-testsuite-name-from-file>,<id>))
-  ; map(try(run-testsuite))
+  ; find-all-testsuites-in-project ;debug(!"1: ")
+  ; map(testview-add-testsuite(|<get-testsuite-name-from-file>,<id>)) ;debug(!"2: ")
+  ; map(try(run-testsuite)) ;debug(!"3: ")
   ; !None()
+
+  test-runner-file:
+    (selected, position, ast, path, project-path) -> None()
+    with
+      testview-init 
+    ; !path
+    ; testview-add-testsuite(|<get-testsuite-name-from-file>,<id>)
+    ; try(run-testsuite)
   
   find-all-testsuites-in-project =
     <find(has-extension(|"spt"))> "." 
