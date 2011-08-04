@@ -120,7 +120,7 @@ exports
     "to" "file" PathName -> OptPattern {cons("File")}
     "to" Output          -> OptPattern {cons("Fragment")}
     "to" ATerm           -> OptPattern {cons("ATerm")}
-    "fails"              -> OptPattern {cons("Fails")}
+    %%"fails"              -> OptPattern {cons("Fails")}
 
     RegexExp          -> Result
 
@@ -274,4 +274,3 @@ context-free syntax
   lexical syntax
     ShortCom    -> LAYOUT
     LongCom     -> LAYOUT
-
