@@ -88,7 +88,7 @@ exports
     "fails" "parsing"    -> Result {cons("FailsParsing"), deprecated("Use 'parse fails' instead")}
     "succeeds" "parsing" -> Result {cons("SuccessParsing"), deprecated("Use 'parse succeeds' instead")}
 
-    "fails"              -> Result {cons("Fails")}
+    %%"fails"              -> Result {cons("Fails")}
     "parse" "fails"      -> Result {cons("FailsParsing")}
     "succeeds"           -> Result {cons("Success")}
     "parse" "succeeds"   -> Result {cons("SuccessParsing")}
@@ -120,7 +120,7 @@ exports
     "to" "file" PathName -> OptPattern {cons("File")}
     "to" Output          -> OptPattern {cons("Fragment")}
     "to" ATerm           -> OptPattern {cons("ATerm")}
-    %%"fails"              -> OptPattern {cons("Fails")}
+    "fails"              -> OptPattern {cons("Fails"), prefer}
 
     RegexExp          -> Result
 
