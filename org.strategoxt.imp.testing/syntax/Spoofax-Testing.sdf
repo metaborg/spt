@@ -119,7 +119,7 @@ exports
                          -> OptPattern {cons("wildcard")}
     "to" "file" PathName -> OptPattern {cons("File")}
     "to" Output          -> OptPattern {cons("Fragment")}
-    "to" ATerm           -> OptPattern {cons("ATerm")}
+    "to" ATerm           -> OptPattern {cons("ATerm"), avoid}
     "fails"              -> OptPattern {cons("Fails"), prefer}
 
     RegexExp          -> Result
