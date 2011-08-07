@@ -37,7 +37,7 @@ rules
   	where
   		zeros := [Fatals("0"), Errors("0"), Warnings("0")]; //TODO Fatals(0)
   		refactor-expectations := 
-  			<union(?(Errors(_), Errors(_)) <+ ?(Warnings(_), Warnings(_)))> (zeros, expectations)
+  			<union(?(Errors(_), Errors(_)) <+ ?(Warnings(_), Warnings(_)) <+ ?(Fatals(_), Fatals(_)))> (zeros, expectations)
 
   check-note = fail
   
