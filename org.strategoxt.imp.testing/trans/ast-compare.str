@@ -31,16 +31,16 @@ compare-ast-resugar-expected:
   	<not(is-origin-term)> expected;
   	<not(same-signature)> (expected, result);
   	sugared-c#(sugared-args) := <origin-term> expected;
-  	desugared-args := <get-arguments> expected;
-  	mixed-args := <map(try(lookup-desugared(|desugared-args)))> sugared-args;
+  	mixed-args := <map(try(lookup-desugared(|expected)))> sugared-args; 
   	<compare-ast> (sugared-c#(mixed-args), result) 
   	//TODO: we assume that 'expected' is a desugared origin. 
 
-lookup-desugared(|desugared*):
-	elem -> desugared-elem
+lookup-desugared(|desugared-term):
+	subtrm -> desugared-subtrm
 	where
-		desugared-elem := 
-		  <fetch-elem(where(origin-term; equal(|elem)))> desugared*
+		  <oncetd(
+		  	desugared-subtrm := <where(origin-term; equal(|subtrm))>
+		  )> desugared-term
 		
 
 same-signature:
