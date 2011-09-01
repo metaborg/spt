@@ -147,6 +147,15 @@ rules
     ; not(<aterm-eq> (exploded, p))
 
   check-expectation(|ast, selections, messages) :
+    ParseOutput(_{^[output | _]}) -> $[Does not match pattern: [result]]
+    where
+      not(<eq> (ast, output))
+    with
+      result := <spt-pp-string> ast
+    <+
+      result := $[[<write-to-string> ast] instead of [<write-to-string> ast]]
+
+  check-expectation(|ast, selections, messages) :
     file(f) -> $[Does not match pattern: [<write-to-string> ast]]
     where
       exploded := <explode-aterm> ast

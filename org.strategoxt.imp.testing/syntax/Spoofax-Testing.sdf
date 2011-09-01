@@ -84,6 +84,7 @@ exports
 
     "parse" "to" "file" PathName -> Result {cons("file")}
     "parse" "to" ATerm   -> Result {cons("pattern")}
+    "parse" "to" Output   -> Result {cons("ParseOutput")}
 
     "fails" "parsing"    -> Result {cons("FailsParsing"), deprecated("Use 'parse fails' instead")}
     "succeeds" "parsing" -> Result {cons("SuccessParsing"), deprecated("Use 'parse succeeds' instead")}
@@ -103,6 +104,7 @@ exports
 
     INT "fatal" "error" -> Result    {cons("Fatal")}
     INT "fatal" "errors"-> Result    {cons("Fatals")}
+
 
     "resolve" OptNumbered                     -> Result {cons("Resolve")}
     "resolve" Numbered "to" Numbered          -> Result {cons("ResolveTo")}
@@ -142,6 +144,7 @@ exports
             -> "resolves" {recover, reject}
             -> "=>" {recover, reject}
             -> "->" {recover, reject}
+            -> "/" {recover, reject}
 
   %% test Primitive refactoring test
   %% [[ module x entity X {} ]] refactoring rename at X input Y =>
