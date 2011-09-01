@@ -86,9 +86,9 @@ public class FragmentParser {
 			parser = getParser(descriptor, path, project);
 			failParseCache.clear();
 			successParseCache.clear();
-			IStrategoTerm start = findTerm(ast, TOPSORT_1.getName());
-			parser.setStartSymbol(start == null ? null : asJavaString(start));
 		}
+		IStrategoTerm start = findTerm(ast, TOPSORT_1.getName());
+		parser.setStartSymbol(start == null ? null : asJavaString(start.getSubterm(0)));
 		setupRegions = getSetupRegions(ast);
 	}
 	

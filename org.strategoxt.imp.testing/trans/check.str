@@ -41,9 +41,6 @@ rules
 
   check-note = fail
   
-  check-warning:
-    TopSort(s) -> (s, $[Start symbol filter not implemented; use a setup block instead])
-  
   check-error:
     Test(_, d, _, [_, _ | _]) -> (d, "Specify only one success condition)") // maybe in the future...
   
