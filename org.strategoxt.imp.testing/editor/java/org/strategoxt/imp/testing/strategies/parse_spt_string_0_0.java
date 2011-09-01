@@ -48,20 +48,15 @@ public class parse_spt_string_0_0 extends Strategy {
 			    result = parser.parse(input, "string");
 			}
 		} catch (BadDescriptorException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Environment.logException("Could not parse testing string", e);
 		} catch (TokenExpectedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Environment.logException("Could not parse testing string", e);
 		} catch (BadTokenException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Environment.logException("Could not parse testing string", e);
 		} catch (SGLRException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Environment.logException("Could not parse testing string", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Environment.logException("Could not parse testing string", e);
 		}
 		
 		return result;

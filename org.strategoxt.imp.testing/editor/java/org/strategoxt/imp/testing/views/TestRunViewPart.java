@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
-import org.omg.CORBA.Environment;
 import org.strategoxt.imp.runtime.EditorState;
 import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 import org.strategoxt.imp.testing.model.TestRun;
@@ -116,8 +115,7 @@ public class TestRunViewPart extends ViewPart {
 						res = EditorIOAgent.getResource(f);
 						EditorState.asyncOpenEditor(Display.getDefault(), (IFile)res, offset, true);
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						org.strategoxt.imp.runtime.Environment.logException("File not found", e);
 					}
 				}
 			}
@@ -146,6 +144,7 @@ public class TestRunViewPart extends ViewPart {
         pb.setMaximum(nrTests);
     }
     
+	@Override
 	public void dispose() {
         toolkit.dispose();
         super.dispose();

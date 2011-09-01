@@ -9,6 +9,7 @@ import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 import static org.spoofax.terms.Term.tryGetConstructor;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
+import static org.strategoxt.imp.runtime.dynamicloading.TermReader.findTerm;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,9 +49,6 @@ public class FragmentParser {
 	
 	private static final int FRAGMENT_PARSE_TIMEOUT = 3000;
 	
-	private static final IStrategoConstructor FAILS_0 =
-		Environment.getTermFactory().makeConstructor("Fails", 0);
-	
 	private static final IStrategoConstructor FAILS_PARSING_0 =
 		Environment.getTermFactory().makeConstructor("FailsParsing", 0);
 	
@@ -62,6 +60,9 @@ public class FragmentParser {
 	
 	private static final IStrategoConstructor QUOTEPART_1 =
 		Environment.getTermFactory().makeConstructor("QuotePart", 1);
+	
+	private static final IStrategoConstructor TOPSORT_1 =
+		Environment.getTermFactory().makeConstructor("TopSort", 1);
 	
 	private static final int EXCLUSIVE = 1;
 	
@@ -85,6 +86,8 @@ public class FragmentParser {
 			parser = getParser(descriptor, path, project);
 			failParseCache.clear();
 			successParseCache.clear();
+			IStrategoTerm start = findTerm(ast, TOPSORT_1.getName());
+			parser.setStartSymbol(start == null ? null : asJavaString(start));
 		}
 		setupRegions = getSetupRegions(ast);
 	}

@@ -2,15 +2,14 @@ package org.strategoxt.imp.testing.strategies;
 
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.termAt;
-import static org.spoofax.terms.Term.*;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;
+import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.dynamicloading.TermReader;
 import org.strategoxt.imp.runtime.services.InputTermBuilder;
-import org.strategoxt.imp.runtime.services.StrategoReferenceResolver;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -33,8 +32,7 @@ public class get_service_input_term_refactoring_0_1 extends Strategy {
 			current = InputTermBuilder.getMatchingNode(semNodes, current, false);
 			if(current == null) return null;
 		} catch (BadDescriptorException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Environment.logException("Refactoring test failed", e);
 		}
 		HybridInterpreter runtime = HybridInterpreter.getInterpreter(context);
 		InputTermBuilder inputBuilder = new InputTermBuilder(runtime, analyzedAst);

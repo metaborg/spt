@@ -3,8 +3,6 @@ package org.strategoxt.imp.testing.model;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.strategoxt.imp.testing.SpoofaxTestingParseController;
-
 public class TestsuiteRun {
 	private String name;
 	private String resource;
