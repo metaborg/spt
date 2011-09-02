@@ -1,7 +1,6 @@
 package org.strategoxt.imp.testing;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
-import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
@@ -13,7 +12,6 @@ import java.util.Iterator;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -49,9 +47,26 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	
 	private static final IStrategoConstructor LANGUAGE_1 =
 		Environment.getTermFactory().makeConstructor("Language", 1);
+
+	private static final IStrategoConstructor TARGET_LANGUAGE_1 =
+		Environment.getTermFactory().makeConstructor("TargetLanguage", 1);
+
+	private static final IStrategoConstructor SETUP_3 =
+		Environment.getTermFactory().makeConstructor("Setup", 3);
+
+	private static final IStrategoConstructor TARGET_SETUP_3 =
+		Environment.getTermFactory().makeConstructor("TargetSetup", 3);
+
+	private static final IStrategoConstructor TOPSORT_1 =
+		Environment.getTermFactory().makeConstructor("TopSort", 1);
+
+	private static final IStrategoConstructor TARGET_TOPSORT_1 =
+		Environment.getTermFactory().makeConstructor("TargetTopSort", 1);
 	
-	private final FragmentParser fragmentParser = new FragmentParser();
+	private final FragmentParser fragmentParser = new FragmentParser(SETUP_3, TOPSORT_1);
 	
+	private final FragmentParser outputFragmentParser = new FragmentParser(TARGET_SETUP_3, TARGET_TOPSORT_1);
+
 	private final SelectionFetcher selections = new SelectionFetcher();
 
 	public SpoofaxTestingJSGLRI(JSGLRI template) {
@@ -74,25 +89,36 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		final Retokenizer retokenizer = new Retokenizer(oldTokenizer);
 		final ITermFactory nonParentFactory = Environment.getTermFactory();
 		final ITermFactory factory = new ParentTermFactory(nonParentFactory);
-		final FragmentParser testedParser = getFragmentParser(root);
+		final FragmentParser testedParser = configureFragmentParser(root, getLanguage(root), fragmentParser);
+		final FragmentParser outputParser = configureFragmentParser(root, getTargetLanguage(root), outputFragmentParser);
 		assert !(nonParentFactory instanceof ParentTermFactory);
-		if (testedParser == null || !testedParser.isInitialized())
+
+		if (testedParser == null || !testedParser.isInitialized()
+				|| outputParser == null || !outputParser.isInitialized()) {
 			return root;
-		
+		}
+
 		IStrategoTerm result = new TermTransformer(factory, true) {
 			@Override
 			public IStrategoTerm preTransform(IStrategoTerm term) {
 				IStrategoConstructor cons = tryGetConstructor(term);
-				if (cons == INPUT_4 || cons == OUTPUT_4) {
+				FragmentParser parser = null;
+				if (cons == INPUT_4) {
+					parser = testedParser;
+				}
+				else if (cons == OUTPUT_4) {
+					parser = outputParser;
+				}
+				if (parser != null) {
 					IStrategoTerm fragmentHead = termAt(term, 1);
 					IStrategoTerm fragmentTail = termAt(term, 2);
 					retokenizer.copyTokensUpToIndex(getLeftToken(fragmentHead).getIndex() - 1);
 					try {
-						IStrategoTerm parsed = testedParser.parse(oldTokenizer, term, /*cons == OUTPUT_4*/ false);
+						IStrategoTerm parsed = parser.parse(oldTokenizer, term, /*cons == OUTPUT_4*/ false);
 						int oldFragmentEndIndex = getRightToken(fragmentTail).getIndex();
 						retokenizer.copyTokensFromFragment(fragmentHead, fragmentTail, parsed,
 								getLeftToken(fragmentHead).getStartOffset(), getRightToken(fragmentTail).getEndOffset());
-						if (!testedParser.isLastSyntaxCorrect())
+						if (!parser.isLastSyntaxCorrect())
 							parsed = nonParentFactory.makeAppl(ERROR_1, parsed);
 						ImploderAttachment implodement = ImploderAttachment.get(term);
 						IStrategoList selected = selections.fetch(parsed);
@@ -127,26 +153,37 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		retokenizer.getTokenizer().initAstNodeBinding();
 		return result;
 	}
-	
-	private FragmentParser getFragmentParser(IStrategoTerm root) {
-		Language language = getLanguage(root);
+
+	private FragmentParser configureFragmentParser(IStrategoTerm root, Language language, FragmentParser fragmentParser) {
 		if (language == null) return null;
 		Descriptor descriptor = Environment.getDescriptor(language);
 		fragmentParser.configure(descriptor, getController().getRelativePath(), getController().getProject(), root);
 		return fragmentParser;
 	}
 
-	private Language getLanguage(IStrategoTerm root) {
-		if (isTermAppl(root) && "EmptyFile".equals(((IStrategoAppl) root).getName()))
-			return null;
+	private String getLanguageName(IStrategoTerm root, IStrategoConstructor which) {
 		IStrategoList headers = termAt(root, 0);
 		for (IStrategoTerm header : StrategoListIterator.iterable(headers)) {
-			if (tryGetConstructor(header) == LANGUAGE_1) {
+			if (tryGetConstructor(header) == which) {
 				IStrategoString name = termAt(header, 0);
-				return LanguageRegistry.findLanguage(asJavaString(name));
+				return asJavaString(name);
 			}
 		}
 		return null;
 	}
 
+	private Language getLanguage(IStrategoTerm root) {
+		final String languageName = getLanguageName(root, LANGUAGE_1);
+		if (languageName == null) return null;
+		return LanguageRegistry.findLanguage(languageName);
+	}
+
+	private Language getTargetLanguage(IStrategoTerm root) {
+		String languageName = getLanguageName(root, TARGET_LANGUAGE_1);
+		if (languageName == null) languageName = getLanguageName(root, LANGUAGE_1);
+		if (languageName == null) return null;
+		// TODO: fix this so it is capable of loading & registering languages
+		// (E.g., now you need to open a file in target language at least once before this works...)
+		return LanguageRegistry.findLanguage(languageName);
+	}
 }

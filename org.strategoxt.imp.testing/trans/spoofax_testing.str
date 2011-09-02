@@ -23,6 +23,8 @@ rules
     with
       (errors', warnings', notes') := <report-invalid-language> ast'
     <+
+      (errors', warnings', notes') := <report-invalid-target-language> ast'
+    <+
       scope-paths(
         <chdir> project-path;
         <record-all-sdfs> ".";
@@ -41,7 +43,7 @@ rules
         end
       | path, project-path
       )
-  
+
   report-invalid-language:
     testsuite(h*, _) -> ([error], [], [])
     where
@@ -52,12 +54,24 @@ rules
       language := <get-language>;
       not(spt-exists-language(|language));
       error := (language, $[Language [language] not defined or not loaded])
-  
+
+  report-invalid-target-language:
+    testsuite(h*, _) -> ([error], [], [])
+    where
+      language := <get-target-language>;
+      not(spt-exists-language(|language));
+      error := (language, $[Language [language] not defined or not loaded])
+
   get-language:
     testsuite(header*, _) -> language
     where
       <one(?Language(language))> header*
-  
+
+  get-target-language:
+    testsuite(header*, _) -> language
+    where
+      <one(?TargetLanguage(language))> header*
+
   generate-java:
     (selected, position, ast, path, project-path) -> result
     with

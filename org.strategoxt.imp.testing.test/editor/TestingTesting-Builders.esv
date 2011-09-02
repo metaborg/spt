@@ -17,6 +17,7 @@ builders
   observer                  : editor-analyze                                                                                   
                                                                                                                                
   builder                   : "Generate Java code (for selection)"   = generate-java (openeditor) (realtime)                   
-  builder                   : "Show abstract syntax (for selection)" = generate-aterm (openeditor) (realtime) (meta) (source)  
+  builder                   : "Show abstract syntax (for selection)" = generate-aterm (openeditor) (realtime) (meta) (source)
+  builder                   : "Reverse entity names (for selection)" = reverse-entity-names (openeditor) (realtime) (source)
                                                                                                                                
   // on save: generate-java                                                                                                    

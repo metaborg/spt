@@ -54,18 +54,22 @@ public class FragmentParser {
 	
 	private static final IStrategoConstructor SETUP_3 =
 		Environment.getTermFactory().makeConstructor("Setup", 3);
-	
+
+	private static final IStrategoConstructor TARGET_SETUP_3 =
+		Environment.getTermFactory().makeConstructor("TargetSetup", 3);
+
 	private static final IStrategoConstructor OUTPUT_4 =
 		Environment.getTermFactory().makeConstructor("Output", 4);
 	
 	private static final IStrategoConstructor QUOTEPART_1 =
 		Environment.getTermFactory().makeConstructor("QuotePart", 1);
 	
-	private static final IStrategoConstructor TOPSORT_1 =
-		Environment.getTermFactory().makeConstructor("TopSort", 1);
-	
 	private static final int EXCLUSIVE = 1;
-	
+
+	private final IStrategoConstructor setup_3;
+
+	private final IStrategoConstructor topsort_1;
+
 	private final WeakValueHashMap<String, IStrategoTerm> failParseCache =
 		new WeakValueHashMap<String, IStrategoTerm>();
 	
@@ -80,6 +84,13 @@ public class FragmentParser {
 	
 	private boolean isLastSyntaxCorrect;
 
+	public FragmentParser(IStrategoConstructor setup_3, IStrategoConstructor topsort_1) {
+		assert setup_3.getArity() == 3;
+		assert topsort_1.getArity() == 1;
+		this.setup_3 = setup_3;
+		this.topsort_1 = topsort_1;
+	}
+
 	public void configure(Descriptor descriptor, IPath path, ISourceProject project, IStrategoTerm ast) {
 		if (parseCacheDescriptor != descriptor) {
 			parseCacheDescriptor = descriptor;
@@ -87,8 +98,11 @@ public class FragmentParser {
 			failParseCache.clear();
 			successParseCache.clear();
 		}
-		IStrategoTerm start = findTerm(ast, TOPSORT_1.getName());
-		parser.setStartSymbol(start == null ? null : asJavaString(start.getSubterm(0)));
+		if (parser != null) {
+			// parser may be null if language could not be loaded, see getParser
+			IStrategoTerm start = findTerm(ast, topsort_1.getName());
+			parser.setStartSymbol(start == null ? null : asJavaString(start.getSubterm(0)));
+		}
 		setupRegions = getSetupRegions(ast);
 	}
 	
@@ -233,7 +247,7 @@ public class FragmentParser {
 		final List<OffsetRegion> results = new ArrayList<OffsetRegion>();
 		new TermVisitor() {
 			public void preVisit(IStrategoTerm term) {
-				if (tryGetConstructor(term) == SETUP_3) {
+				if (tryGetConstructor(term) == setup_3) {
 					new TermVisitor() {
 						public final void preVisit(IStrategoTerm term) {
 							if (tryGetConstructor(term) == QUOTEPART_1) {
@@ -265,9 +279,11 @@ public class FragmentParser {
 	*/
 	
 	private boolean isSuccessExpected(IStrategoTerm fragment) {
-		if (tryGetConstructor(fragment) == OUTPUT_4) return true;
+		if (tryGetConstructor(fragment) == OUTPUT_4)
+			return true;
 		IStrategoAppl test = (IStrategoAppl) getParent(fragment);
-		if (test.getConstructor() == SETUP_3) return true;
+		if (test.getConstructor() == SETUP_3 || test.getConstructor() == TARGET_SETUP_3)
+			return true;
 		IStrategoList expectations = listAt(test, test.getSubtermCount() - 1);
 		for (IStrategoTerm expectation : StrategoListIterator.iterable(expectations)) {
 			IStrategoConstructor cons = tryGetConstructor(expectation);

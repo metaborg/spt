@@ -1,0 +1,24 @@
+module source-to-source-tests
+
+language TestingTesting
+start symbol Start
+
+target language TestingTesting
+target start symbol Start
+
+setup is prepended to test input [[
+  module x
+  entity ABC {}
+]]
+
+target setup is prepended to test output [[
+  module x
+  entity CBA {}
+]]
+
+test reverse-entity-names [[
+  entity XYZ {}
+]]
+build reverse-entity-names to [[
+  entity ZYX {}
+]]

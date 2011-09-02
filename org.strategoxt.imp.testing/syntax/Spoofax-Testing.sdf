@@ -24,6 +24,10 @@ exports
     "start" "symbol" ID -> Header {cons("TopSort")}
     "language" ID       -> Header {cons("Language")}
 
+	%% For testing source-to-source transformations
+    "target" "start" "symbol" ID -> Header {cons("TargetTopSort")}
+    "target" "language" ID       -> Header {cons("TargetLanguage")}
+
     Test         -> TestDecl
     StrategoTest -> TestDecl
     VarDecl      -> TestDecl
@@ -34,6 +38,12 @@ exports
     
     "setup" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> -> <Test-CF> {cons("Setup")}
     "setup" <Space-LEX> <Description-CF>                         -> <Test-CF> {cons("SetupEmpty")}
+
+    %% target setup uses Output while setup uses Input so that all Input terms
+    %% can be parsed with the source language, and all Output terms can be
+    %% parsed with the target language. (i.e., simplifies Java code)
+    "target" <LAYOUT?-CF> "setup" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Output-CF> -> <Test-CF> {cons("TargetSetup")}
+    "target" <LAYOUT?-CF> "setup" <Space-LEX> <Description-CF>                          -> <Test-CF> {cons("TargetSetupEmpty")}
 
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <Input-CF> <LAYOUT?-CF> <Result*-CF> -> <Test-CF> {cons("Test")}
     "test" <Space-LEX> <Description-CF> <LAYOUT?-CF> <TestStratego-CF> <LAYOUT?-CF> <StrategoResult-CF>

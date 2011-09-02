@@ -60,3 +60,9 @@ rules // Main editor interface (defined by editor/TestingTesting-Builders and -R
       if !node => Type(COMPLETION(prefix)) then
         proposals := <all-keys-GetEntity>
       end
+
+  reverse-entity-names:
+    (selected, position, ast, path, project-path) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"generated.spt-test")> path;
+      result := <topdown(try(\Entity(name, props) -> Entity(<string-as-chars(reverse)> name, props)\))> selected
