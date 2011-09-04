@@ -90,7 +90,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 		final ITermFactory nonParentFactory = Environment.getTermFactory();
 		final ITermFactory factory = new ParentTermFactory(nonParentFactory);
 		final FragmentParser testedParser = configureFragmentParser(root, getLanguage(root), fragmentParser);
-		final FragmentParser outputParser = configureFragmentParser(root, getTargetLanguage(root), outputFragmentParser);
+		final FragmentParser outputParser = getTargetLanguage(root) == null
+				? testedParser : configureFragmentParser(root, getTargetLanguage(root), outputFragmentParser);
 		assert !(nonParentFactory instanceof ParentTermFactory);
 
 		if (testedParser == null || !testedParser.isInitialized()
@@ -180,7 +181,6 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
 	private Language getTargetLanguage(IStrategoTerm root) {
 		String languageName = getLanguageName(root, TARGET_LANGUAGE_1);
-		if (languageName == null) languageName = getLanguageName(root, LANGUAGE_1);
 		if (languageName == null) return null;
 		// TODO: fix this so it is capable of loading & registering languages
 		// (E.g., now you need to open a file in target language at least once before this works...)

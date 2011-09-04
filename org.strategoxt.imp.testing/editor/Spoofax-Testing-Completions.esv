@@ -1,17 +1,8 @@
 module Spoofax-Testing-Completions
 
-//imports Spoofax-Testing-Completions.generated
+//imports Spoofax-Testing-Completions.generated                       
 
 completions
-                                                                   
-  // This file is used to define content completion.               
-  //                                                               
-  // See the imported file for a brief introduction and examples.  
-                                                                   
-
-completions
-                                                                 
-  // Semantic (identifier) completion:   
                                          
   completion proposer                  : editor-complete
   
@@ -22,15 +13,21 @@ completions
     "language " <Language>
   
   completion template : Header =
+    "target language " <Language>
+  
+  completion template : Header =
     "start symbol " <Start>
                                          
   completion template Header TestDecl Result :
-    "test" " " <description> "\n\t" "[[" <  > "]] " <succeeds:Result> (blank)
+    "test" " " <description> " [[\n\t" <> "\n]]" <succeeds:Result> (blank)
+                                         
+  completion template Header TestDecl Result :
+    "setup" " [[\n\t" <> "\n]]" (blank)
+                                         
+  completion template Header TestDecl Result :
+    "target setup" " [[\n\t" <> "\n]]" (blank)
     
-  completion template : Result = "parse to file " <path>
-  completion template : Result = "parse to " <term>
-  completion template : Result = "parse fails" 
-  completion template : Result = "parse succeeds" 
+  completion template : Result = "parse " <:OptPattern> 
   completion template : Result = "succeeds"
   completion template : Result = "fails"    
   completion template : Result = <n> " errors" 
