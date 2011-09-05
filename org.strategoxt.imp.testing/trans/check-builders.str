@@ -114,7 +114,7 @@ rules
     where
       not(<eq> (ast, result) <+ <equal-in-desugared-form> (ast, result)) 
     with
-      result' := <spt-pp-string> result
+      result' := <spt-pp-target-string> result
     <+
       result' := $[[<write-to-string> result] instead of [<write-to-string> ast]]
   

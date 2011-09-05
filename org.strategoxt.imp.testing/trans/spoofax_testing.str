@@ -31,6 +31,7 @@ rules
         rules(
           InputFile := path
           Language  := <get-language> ast'
+          TargetLanguage := <get-target-language <+ get-language> ast'
         );
         errors    := <collect-all(check-error, conc)> ast';
         warnings  := <collect-all(check-warning, conc)> ast';
@@ -82,6 +83,11 @@ rules
     with
       filename := <guarantee-extension(|"aterm")> path
   
+  // FIXME: this doesn't work as far as I can see (TVO 20110905)
+  // 1) editor-hover is passed QuotePart when hovering over input
+  // 2) only Input, not Output, is in the pattern
+  // 3) a* == ast, not a* == [ast | _], and the Input/Output node is
+  //    not available because the QuotePart is passed... 
   editor-hover:
     (Input(_, _, _, _){a*}, _, _, _, _) -> hover
     where
@@ -197,10 +203,16 @@ strategies
     )    
   
   // Tries to pretty print an AST, or fails
-  spt-pp-string =
-    plugin-strategy-invoke(|<Language>, $[pp-[<lower-case> <Language>]-string]);
+  spt-pp-string(|language) =
+    plugin-strategy-invoke(|language, $[pp-[<lower-case> language]-string]);
     ?Some(<id>)
-  
+
+  spt-pp-string =
+    spt-pp-string(|<Language>)
+
+  spt-pp-target-string =
+    spt-pp-string(|<TargetLanguage>)
+
   get-service-input-term =
     get-service-input-term(|<LastAnalyzedAst>)
 
