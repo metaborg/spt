@@ -136,9 +136,16 @@ strategies
     where
       ?input-tuple;
       not(<origin-line> ast => 1);
-      resolvers := <spt-get-content-proposers>;
-      results   := <map(execute-service(|input-tuple))> resolvers;
-      proposals := <getfirst(?Some(<id>))> results
+      language := <origin-language> ast;
+      {|Language:
+        rules( Language := language );
+        resolvers := <spt-get-content-proposers>;
+        results   := <map(execute-service(|input-tuple))> resolvers;
+        proposals := <getfirst(?Some(<id>))> results
+      |}
+
+  origin-language =
+  	prim("SSL_EXT_origin_language", <id>)
 
 strategies
   
