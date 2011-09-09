@@ -154,6 +154,7 @@ exports
     "setup" -> ID    {reject}
     "test"  -> ATerm {reject}
     "setup" -> ATerm {reject}
+            -> "fails" {recover, reject}
             -> "resolves" {recover, reject}
             -> "=>" {recover, reject}
             -> "->" {recover, reject}

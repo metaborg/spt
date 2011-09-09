@@ -1,6 +1,7 @@
 package org.strategoxt.imp.testing;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermList;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
@@ -163,6 +164,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	}
 
 	private String getLanguageName(IStrategoTerm root, IStrategoConstructor which) {
+		if (root.getSubtermCount() < 1 || !isTermList(termAt(root, 0)))
+			return null;
 		IStrategoList headers = termAt(root, 0);
 		for (IStrategoTerm header : StrategoListIterator.iterable(headers)) {
 			if (tryGetConstructor(header) == which) {
