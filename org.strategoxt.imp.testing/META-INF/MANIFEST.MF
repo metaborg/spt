@@ -21,7 +21,7 @@ Require-Bundle: org.strategoxt.imp.runtime,
  org.spoofax.terms,
  org.strategoxt.strj,
  org.eclipse.ui.forms,
- org.eclipse.core.resources;bundle-version="3.6.1"
+ org.eclipse.core.resources;bundle-version="3.6.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: org.strategoxt.imp.testing,
