@@ -2,14 +2,7 @@
 <?eclipse version="3.0"?>
 
 <plugin>
-   <extension
-         point="org.eclipse.ui.views">
-      <view
-            name="Spoofax Test Runner"
-            class="org.strategoxt.imp.testing.views.TestRunViewPart"
-            id="org.strategoxt.imp.testing.views.testrunviewpart">
-      </view>
-   </extension>
+   <extension-point id="testlistener" name="Spoofax Test Listener" schema="schema/testlistener.exsd"/>
 
        <extension point="org.eclipse.imp.runtime.languageDescription">
           <language extensions="spt" description="Spoofax-Testing" language="Spoofax-Testing" derivedFrom="DynamicRoot" validator="org.strategoxt.imp.testing.SpoofaxTestingValidator" validatorClass="org.strategoxt.imp.testing.SpoofaxTestingValidator"></language>

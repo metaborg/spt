@@ -28,18 +28,18 @@ strategies
   ; flatten-list
   
   test-runner =
-    testview-init 
+    testlistener-init 
   ; find-all-testsuites-in-project ;debug(!"1: ")
-  ; map(testview-add-testsuite(|<get-testsuite-name-from-file>,<id>)) ;debug(!"2: ")
+  ; map(testlistener-add-testsuite(|<get-testsuite-name-from-file>,<id>)) ;debug(!"2: ")
   ; map(try(run-testsuite)) ;debug(!"3: ")
   ; !None()
 
   test-runner-file:
     (selected, position, ast, path, project-path) -> None()
     with
-      testview-init 
+      testlistener-init 
     ; !path
-    ; testview-add-testsuite(|<get-testsuite-name-from-file>,<id>)
+    ; testlistener-add-testsuite(|<get-testsuite-name-from-file>,<id>)
     ; try(run-testsuite)
   
   find-all-testsuites-in-project =
@@ -54,7 +54,7 @@ strategies
     where 
       ast  := <parse-spt-file> file
     ; ast' := <topdown(repeat(spt-desugar)); alltd(spt-desugar-refactoring-conditions)> ast 
-    ; testcases := <collect-all(testview-add-testcase(|file, <test-to-description>,<origin-offset>))>ast'
+    ; testcases := <collect-all(testlistener-add-testcase(|file, <test-to-description>,<origin-offset>))>ast'
     ; <map(run-testcase(|file))>testcases
   
   parse-spt-file = 
@@ -70,11 +70,11 @@ strategies
   run-testcase(|testsuite) = 
     ?tst
   ; test-to-description => name
-  ; testview-start-testcase(|testsuite, name)
+  ; testlistener-start-testcase(|testsuite, name)
   ; if errors := <check-warning>tst ; not((id,[])) then
-      testview-finish-testcase(|testsuite, name, False())
+      testlistener-finish-testcase(|testsuite, name, False())
     else
-      testview-finish-testcase(|testsuite, name, True()) 
+      testlistener-finish-testcase(|testsuite, name, True()) 
     end
     
   test-to-description = 
@@ -82,11 +82,11 @@ strategies
   + ?TestStratego(_, description(<id>), _, _)  
   + ?TestEmpty(_, description(<id>))
 
-  external testview-init(|)
-  external testview-add-testsuite(|testsuite, filename)
-  external testview-add-testcase(|testsuite, description, linenr)
-  external testview-start-testcase(|testsuite, description)
-  external testview-finish-testcase(|testsuite, description, result)
+  external testlistener-init(|)
+  external testlistener-add-testsuite(|testsuite, filename)
+  external testlistener-add-testcase(|testsuite, description, linenr)
+  external testlistener-start-testcase(|testsuite, description)
+  external testlistener-finish-testcase(|testsuite, description, result)
   external parse-spt-string(|)
     
   

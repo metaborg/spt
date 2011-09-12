@@ -18,11 +18,11 @@ package org.strategoxt.imp.testing.strategies;
         		   get_service_input_term_0_1.instance,
         		   get_service_input_term_refactoring_0_1.instance,
         		   open_editor_0_0.instance,
-        		   testview_init_0_0.instance,
-        		   testview_add_testsuite_0_2.instance,
-        		   testview_add_testcase_0_3.instance,
-        		   testview_start_testcase_0_2.instance,
-        		   testview_finish_testcase_0_3.instance,
+        		   testlistener_init_0_0.instance,
+        		   testlistener_add_testsuite_0_2.instance,
+        		   testlistener_add_testcase_0_3.instance,
+        		   testlistener_start_testcase_0_2.instance,
+        		   testlistener_finish_testcase_0_3.instance,
         		   parse_spt_string_0_0.instance,
         		   get_completion_input_term_0_1.instance });
          }
