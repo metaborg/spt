@@ -49,9 +49,16 @@ public class parse_spt_file_0_0 extends Strategy {
 				ip = ((DynamicParseController) ip).getWrapped();
 			if (ip instanceof SGLRParseController) {
 				SGLRParseController sglrController = (SGLRParseController) ip;
-				JSGLRI parser = sglrController.getParser(); 
-				parser.setUseRecovery(false);
-				result = parser.parse(new FileInputStream(file), file.getAbsolutePath());
+				// Must lock the parse lock of this controller
+				// or hit the assertion in AbstractSGLRI.parse
+				sglrController.getParseLock().lock();
+				try {
+					JSGLRI parser = sglrController.getParser(); 
+					parser.setUseRecovery(false);
+					result = parser.parse(new FileInputStream(file), file.getAbsolutePath());
+				} finally {
+					sglrController.getParseLock().unlock();
+				}
 			}
 		} catch (BadDescriptorException e) {
 			Environment.logException("Could not parse testing string", e);
