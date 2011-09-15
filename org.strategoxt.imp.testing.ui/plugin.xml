@@ -12,7 +12,8 @@
    <extension
          point="org.strategoxt.imp.testing.testlistener">
       <client
-            class="org.strategoxt.imp.testing.ui.model.TestListener">
+            class="org.strategoxt.imp.testing.ui.model.TestListener"
+            priority="11">
       </client>
    </extension>
 

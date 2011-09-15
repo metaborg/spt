@@ -39,16 +39,31 @@ public class testlistener_init_0_0 extends Strategy {
 				ITestListener.EXTENSION_ID);
 
 		try {
+			Object candidateListener = null;
+			int maxPrio = 0;
+			// determine the listener with the highest priority
 			for (IConfigurationElement e : config) {
-				final Object o = e.createExecutableExtension("class");
+				int prio = 0;
+				try {
+					prio = Integer.parseInt(e.getAttribute("priority"));
+				} catch (NumberFormatException fex) {
+				}
+				if (prio > maxPrio) {
+					maxPrio = prio;
+					candidateListener = e.createExecutableExtension("class");
+				}
+			}
+			if (candidateListener != null) {
+				final Object listener = candidateListener;
+
 				ISafeRunnable runner = new ISafeRunnable() {
 
 					public void run() throws Exception {
 						// Using reflection, because if I use a cast, I get a ClassCastException
 						// cannot cast type <x> to <x>. Probably because of some different classloader issue.
-						Method m = o.getClass().getMethod("reset", new Class[] {});
+						Method m = listener.getClass().getMethod("reset", new Class[] {});
 						if (!Modifier.isAbstract(m.getModifiers())) {
-							m.invoke(o);
+							m.invoke(listener);
 						}
 					}
 
@@ -57,12 +72,19 @@ public class testlistener_init_0_0 extends Strategy {
 					}
 				};
 				SafeRunner.run(runner);
-			}
-			if(config.length == 0){
-				Activator.getInstance().getLog().log(new Status(IStatus.INFO, Activator.kPluginID, "No TestListeners available to listen for test status"));
+			} else {
+				Activator
+						.getInstance()
+						.getLog()
+						.log(new Status(IStatus.INFO, Activator.kPluginID,
+								"No TestListeners available to listen for test status"));
 			}
 		} catch (Exception cex) {
-			Activator.getInstance().getLog().log(new Status(IStatus.ERROR, Activator.kPluginID, "Failed to notify listeners of updated test status. Maybe no listeners?", cex));
+			Activator
+					.getInstance()
+					.getLog()
+					.log(new Status(IStatus.ERROR, Activator.kPluginID,
+							"Failed to notify listeners of updated test status. Maybe no listeners?", cex));
 		}
 
 		return current;

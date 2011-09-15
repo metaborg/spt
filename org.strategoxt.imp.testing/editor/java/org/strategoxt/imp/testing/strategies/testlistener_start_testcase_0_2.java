@@ -5,7 +5,6 @@ import static org.spoofax.interpreter.core.Tools.isTermString;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
@@ -48,16 +47,31 @@ public class testlistener_start_testcase_0_2 extends Strategy {
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				ITestListener.EXTENSION_ID);
 		try {
+			Object candidateListener = null;
+			int maxPrio = 0;
+			// determine the listener with the highest priority
 			for (IConfigurationElement e : config) {
-				final Object o = e.createExecutableExtension("class");
+				int prio = 0;
+				try {
+					prio = Integer.parseInt(e.getAttribute("priority"));
+				} catch (NumberFormatException fex) {
+				}
+				if (prio > maxPrio) {
+					maxPrio = prio;
+					candidateListener = e.createExecutableExtension("class");
+				}
+			}
+			if (candidateListener != null) {
+				final Object listener = candidateListener;
+
 				ISafeRunnable runner = new ISafeRunnable() {
 
 					public void run() throws Exception {
 						// Using reflection, because if I use a cast, I get a ClassCastException
 						// cannot cast type <x> to <x>. Probably because of some different classloader issue.
-						Method m = o.getClass().getMethod("startTestcase", new Class[] { String.class, String.class });
+						Method m = listener.getClass().getMethod("startTestcase", new Class[] { String.class, String.class });
 						if (!Modifier.isAbstract(m.getModifiers())) {
-							m.invoke(o, ts, desc);
+							m.invoke(listener, ts, desc);
 						}
 					}
 
@@ -66,13 +80,19 @@ public class testlistener_start_testcase_0_2 extends Strategy {
 					}
 				};
 				SafeRunner.run(runner);
-
+			} else {
+				Activator
+						.getInstance()
+						.getLog()
+						.log(new Status(IStatus.INFO, Activator.kPluginID,
+								"No TestListeners available to listen for test status"));
 			}
-			if(config.length == 0){
-				Activator.getInstance().getLog().log(new Status(IStatus.INFO, Activator.kPluginID, "No TestListeners available to listen for test status"));
-			}
-		} catch (CoreException cex) {
-			Activator.getInstance().getLog().log(new Status(IStatus.ERROR, Activator.kPluginID, "Failed to notify listeners of updated test status. Maybe no listeners?", cex));
+		} catch (Exception cex) {
+			Activator
+					.getInstance()
+					.getLog()
+					.log(new Status(IStatus.ERROR, Activator.kPluginID,
+							"Failed to notify listeners of updated test status. Maybe no listeners?", cex));
 		}
 		return current;
 	}
