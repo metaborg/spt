@@ -38,7 +38,7 @@ strategies
     (selected, position, ast, path, project-path) -> None()
     with
       testlistener-init 
-    ; !path
+    ; !$[[project-path]/[path]]
     ; testlistener-add-testsuite(|<get-testsuite-name-from-file>,<id>)
     ; try(run-testsuite)
   
@@ -57,9 +57,6 @@ strategies
     ; testcases := <collect-all(testlistener-add-testcase(|file, <test-to-description>,<origin-offset>))>ast'
     ; <map(run-testcase(|file))>testcases
   
-  parse-spt-file = 
-    read-text-file; parse-spt-string
-      
   get-testsuite-name :
     testsuite(hds, _) -> name
     where name := <fetch-elem(?Name(<id>))>hds
@@ -87,6 +84,6 @@ strategies
   external testlistener-add-testcase(|testsuite, description, linenr)
   external testlistener-start-testcase(|testsuite, description)
   external testlistener-finish-testcase(|testsuite, description, result)
-  external parse-spt-string(|)
+  external parse-spt-file(|)
     
   

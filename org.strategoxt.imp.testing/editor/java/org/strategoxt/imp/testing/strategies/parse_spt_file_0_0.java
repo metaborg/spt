@@ -2,6 +2,8 @@ package org.strategoxt.imp.testing.strategies;
 
 import static org.spoofax.interpreter.core.Tools.isTermString;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.eclipse.imp.language.Language;
@@ -24,20 +26,24 @@ import org.strategoxt.lang.Strategy;
 /**
  * parse-spt-string strategy to get AST of Spoofax-Testing testsuite, 
  * where the input fragments have been annotated with the AST of the input.
+ * 
+ * The current term is the string to parse and the sole term argument is an
+ * absolute path to the file this string is coming from.
  */
-public class parse_spt_string_0_0 extends Strategy {
+public class parse_spt_file_0_0 extends Strategy {
 
-	public static parse_spt_string_0_0 instance = new parse_spt_string_0_0();
+	public static parse_spt_file_0_0 instance = new parse_spt_file_0_0();
 	
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm current) {
 		if (!isTermString(current)) return null;
-		String input = ((IStrategoString)current ).stringValue();
-		
+		String filename = ((IStrategoString)current ).stringValue();
+		File file = new File(filename);
+
 		Language l = LanguageRegistry.findLanguage("Spoofax-Testing");
 		Descriptor d = Environment.getDescriptor(l);
 		IStrategoTerm result = null;
-		try {				
+		try {
 			IParseController ip = d.createParseController();
 			if (ip instanceof DynamicParseController)
 				ip = ((DynamicParseController) ip).getWrapped();
@@ -45,7 +51,7 @@ public class parse_spt_string_0_0 extends Strategy {
 				SGLRParseController sglrController = (SGLRParseController) ip;
 				JSGLRI parser = sglrController.getParser(); 
 				parser.setUseRecovery(false);
-			    result = parser.parse(input, "string");
+				result = parser.parse(new FileInputStream(file), file.getAbsolutePath());
 			}
 		} catch (BadDescriptorException e) {
 			Environment.logException("Could not parse testing string", e);

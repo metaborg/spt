@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
@@ -159,8 +158,7 @@ public class FragmentParser {
 				controller.getParseLock().unlock();
 			}
 			isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
-			IResource resource = controller.getResource();
-			SourceAttachment.putSource(parsed, resource, controller);
+			SourceAttachment.putSource(parsed, SourceAttachment.getResource(fragment), controller);
 			if (!successExpected)
 				clearTokenErrors(getTokenizer(parsed));
 			if (isLastSyntaxCorrect == successExpected)
