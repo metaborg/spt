@@ -130,6 +130,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 					} catch (IOException e) {
 						Debug.log("Could not parse tested code fragment", e);
 					} catch (SGLRException e) {
+						// TODO: attach ErrorMessage(_) term with error?
 						Debug.log("Could not parse tested code fragment", e);
 					} catch (CloneNotSupportedException e) {
 						Environment.logException("Could not parse tested code fragment", e);
