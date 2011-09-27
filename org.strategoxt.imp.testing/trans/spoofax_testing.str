@@ -82,18 +82,13 @@ rules
     (selected, position, ast, path, project-path) -> (filename, selected)
     with
       filename := <guarantee-extension(|"aterm")> path
-  
-  // FIXME: this doesn't work as far as I can see (TVO 20110905)
-  // 1) editor-hover is passed QuotePart when hovering over input
-  // 2) only Input, not Output, is in the pattern
-  // 3) a* == ast, not a* == [ast | _], and the Input/Output node is
-  //    not available because the QuotePart is passed... 
+
   editor-hover:
-    (Input(_, _, _, _){a*}, _, _, _, _) -> hover
+    (QuotePart(_), position, ast, _, _) -> hover
     where
-      !a* => [ast | _];
-      hover := <spt-pp-aterm ; hover-input-string>ast 
-  
+      _{ast2} := <parent-at-position(|position)> ast;
+      hover := <spt-pp-aterm ; hover-input-string>ast2
+
   hover-input-string =
   	if ?error(_, _) then
       extract-parse-error
@@ -107,7 +102,6 @@ rules
          </b>
         ]
     end 
-
 
   spt-pp-aterm =
     pp-aterm-box ; box2text-string(|80)
