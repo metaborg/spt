@@ -20,6 +20,7 @@ public class TestListener implements ITestListener {
 			Activator.logError("Could not open view", e);
 			return null;
 		}
+		
 	}
 
 	public void reset() {
@@ -76,6 +77,20 @@ public class TestListener implements ITestListener {
 				}
 			}
 		});
+	}
+
+	public void disableRefresh() {
+		TestRunViewPart vp = getViewPart();
+		if(vp!=null)
+			vp.disableRefresh(true);
+		
+	}
+
+	public void enableRefresh() {
+		TestRunViewPart vp = getViewPart();
+		if(vp!=null)
+			vp.disableRefresh(false);
+		
 	}
 
 }

@@ -33,7 +33,7 @@ import org.strategoxt.imp.testing.ui.model.TestsuiteRun;
 public class TestRunViewPart extends ViewPart {
 
 	public final static String VIEW_ID = "org.strategoxt.imp.testing.ui.views.testrunviewpart";
-	
+
 	private final FormToolkit toolkit = new FormToolkit(Display.getCurrent());
 	private TestRun testrun = null;
 	private Label lblRatio;
@@ -100,8 +100,7 @@ public class TestRunViewPart extends ViewPart {
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 
 			public void doubleClick(DoubleClickEvent event) {
-				Object selectObject = ((IStructuredSelection) treeViewer
-						.getSelection()).getFirstElement();
+				Object selectObject = ((IStructuredSelection) treeViewer.getSelection()).getFirstElement();
 
 				String file = null;
 				int offset = 0;
@@ -119,11 +118,9 @@ public class TestRunViewPart extends ViewPart {
 					IResource res;
 					try {
 						res = EditorIOAgent.getResource(f);
-						EditorState.asyncOpenEditor(Display.getDefault(),
-								(IFile) res, offset, true);
+						EditorState.asyncOpenEditor(Display.getDefault(), (IFile) res, offset, true);
 					} catch (FileNotFoundException e) {
-						org.strategoxt.imp.runtime.Environment.logException(
-								"File not found", e);
+						org.strategoxt.imp.runtime.Environment.logException("File not found", e);
 					}
 				}
 			}
@@ -149,8 +146,7 @@ public class TestRunViewPart extends ViewPart {
 		if (testrun == null) {
 			lblRatio.setText("0 / 0");
 		} else {
-			lblRatio.setText(String.format("%d / %d    ",
-					(nrTests - nrFailedTests), nrTests));
+			lblRatio.setText(String.format("%d / %d    ", (nrTests - nrFailedTests), nrTests));
 		}
 		pb.setMaximum(nrTests);
 	}
@@ -165,7 +161,7 @@ public class TestRunViewPart extends ViewPart {
 	 * Create the actions.
 	 */
 	private void createActions() {
-		onlyFailedTestsAction = new Action("Show only failed tests",Action.AS_CHECK_BOX) {
+		onlyFailedTestsAction = new Action("Show only failed tests", Action.AS_CHECK_BOX) {
 			public void run() {
 				if (onlyFailedTestsAction.isChecked()) {
 					treeViewer.addFilter(failedTestsFilter);
@@ -178,10 +174,10 @@ public class TestRunViewPart extends ViewPart {
 
 	}
 
-	private void createFilters(){
+	private void createFilters() {
 		failedTestsFilter = new FailedTestsFilter();
 	}
-	
+
 	/**
 	 * Initialize the toolbar.
 	 */
@@ -193,7 +189,7 @@ public class TestRunViewPart extends ViewPart {
 	 */
 	private void initializeMenu() {
 		IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
-        mgr.add(onlyFailedTestsAction);
+		mgr.add(onlyFailedTestsAction);
 	}
 
 	@Override
@@ -224,29 +220,37 @@ public class TestRunViewPart extends ViewPart {
 
 	public void addTestsuite(String name, String filename) {
 		testrun.addTestsuite(name, filename);
-		refresh();
+		if(!refreshDisabled)
+			refresh();
 	}
 
 	public void addTestcase(String testsuite, String description, int offset) {
 		TestsuiteRun ts = testrun.getTestsuite(testsuite);
 		ts.addTestCase(description, offset);
-		refresh();
+		if(!refreshDisabled)
+			refresh();
 	}
 
 	public void startTestcase(String testsuite, String description) {
-		TestcaseRun tcr = testrun.getTestsuite(testsuite).getTestcase(
-				description);
+		TestcaseRun tcr = testrun.getTestsuite(testsuite).getTestcase(description);
 		tcr.start();
 	}
 
-	public void finishTestcase(String testsuite, String description,
-			boolean succeeded) {
-		TestcaseRun tcr = testrun.getTestsuite(testsuite).getTestcase(
-				description);
+	public void finishTestcase(String testsuite, String description, boolean succeeded) {
+		TestcaseRun tcr = testrun.getTestsuite(testsuite).getTestcase(description);
 		tcr.finished(succeeded);
 		if (!succeeded)
 			nrFailedTests++;
 		pb.step(nrFailedTests);
-		refresh();
+		if(!refreshDisabled)
+			refresh();
+	}
+
+	private boolean refreshDisabled = false;
+
+	public void disableRefresh(boolean b) {
+		refreshDisabled = b;
+		if(!b)
+			refresh();
 	}
 }

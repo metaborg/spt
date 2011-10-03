@@ -10,5 +10,19 @@
        <extension id="org.strategoxt.imp.testing.parser" name="Spoofax-Testing Parser" point="org.eclipse.imp.runtime.parser">
           <parser class="org.strategoxt.imp.testing.SpoofaxTestingParseController" language="Spoofax-Testing">
           </parser>
+       </extension>
+       <extension
+             point="org.eclipse.ui.preferencePages">
+          <page
+                class="org.strategoxt.imp.testing.preferences.SpoofaxTestingPreferencePage"
+                id="org.strategoxt.imp.testing.preferences.SpoofaxTestingPreferencePage"
+                name="Spoofax Testing">
+          </page>
+       </extension>
+       <extension
+             point="org.eclipse.core.runtime.preferences">
+          <initializer
+                class="org.strategoxt.imp.testing.preferences.PreferenceInitializer">
+          </initializer>
        </extension>    
     </plugin>

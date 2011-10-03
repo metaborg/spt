@@ -104,8 +104,8 @@ rules
     <+
       // UNDONE: parsing from Stratego is no longer supported atm
       // parsed' := <spt-parse-string> s
-      warn(|"No ast annotation found")
-    ; parsed' := FailsParsing()
+      // warn(|"No ast annotation found")
+    parsed' := FailsParsing()
 
   check-expectation(|ast, selections, messages) :
     <not(FailsParsing)> -> parse-failed

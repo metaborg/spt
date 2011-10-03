@@ -2,20 +2,13 @@ package org.strategoxt.imp.testing.strategies;
 
 import static org.spoofax.interpreter.core.Tools.isTermString;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.ISafeRunnable;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.core.runtime.Status;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.imp.testing.Activator;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.testing.listener.ITestListener;
+import org.strategoxt.imp.testing.listener.helper.ListenerWrapper;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -29,75 +22,20 @@ public class testlistener_add_testcase_0_3 extends Strategy {
 		if (!isTermString(arg0) || !isTermString(arg1))
 			return null;
 
-		final String ts = ((IStrategoString) arg0).stringValue();
-		final String desc = ((IStrategoString) arg1).stringValue();
-		final int offset = ((IStrategoInt) arg2).intValue();
+		String ts = ((IStrategoString) arg0).stringValue();
+		String desc = ((IStrategoString) arg1).stringValue();
+		int offset = ((IStrategoInt) arg2).intValue();
 
-		// Display.getDefault().syncExec(new Runnable() {
-		// public void run() {
-		// try {
-		// IViewPart a =
-		// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("org.strategoxt.imp.testing.views.testrunviewpart");
-		// // Using reflection, because if I use a cast, I get a ClassCastException
-		// // cannot cast type <x> to <x>. Probably because of some different classloader issue.
-		// Method m = a.getClass().getMethod("addTestcase", new Class[] {String.class, String.class, int.class}) ;
-		// m.invoke(a, ts, desc, offset);
-		// } catch(Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// });
-		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
-				ITestListener.EXTENSION_ID);
-		try {
-			Object candidateListener = null;
-			int maxPrio = 0;
-			// determine the listener with the highest priority
-			for (IConfigurationElement e : config) {
-				int prio = 0;
-				try {
-					prio = Integer.parseInt(e.getAttribute("priority"));
-				} catch (NumberFormatException fex) {
-				}
-				if (prio > maxPrio) {
-					maxPrio = prio;
-					candidateListener = e.createExecutableExtension("class");
-				}
-			}
-			if (candidateListener != null) {
-				final Object listener = candidateListener;
-
-				ISafeRunnable runner = new ISafeRunnable() {
-
-					public void run() throws Exception {
-						// Using reflection, because if I use a cast, I get a ClassCastException
-						// cannot cast type <x> to <x>. Probably because of some different classloader issue.
-						Method m = listener.getClass().getMethod("addTestcase",
-								new Class[] { String.class, String.class, int.class });
-						if (!Modifier.isAbstract(m.getModifiers())) {
-							m.invoke(listener, ts, desc, offset);
-						}
-					}
-
-					public void handleException(Throwable exception) {
-						//
-					}
-				};
-				SafeRunner.run(runner);
-			} else {
-				Activator
-						.getInstance()
-						.getLog()
-						.log(new Status(IStatus.INFO, Activator.kPluginID,
-								"No TestListeners available to listen for test status"));
-			}
-		} catch (Exception cex) {
-			Activator
-					.getInstance()
-					.getLog()
-					.log(new Status(IStatus.ERROR, Activator.kPluginID,
-							"Failed to notify listeners of updated test status. Maybe no listeners?", cex));
+		try{
+			ITestListener listener = ListenerWrapper.instance();
+			listener.addTestcase(ts, desc, offset);
+		} catch (Exception e) {
+			ITermFactory factory = context.getFactory();
+			Environment.logException("Failed to add test case to listener. Maybe no listeners?", e);
+			return factory.makeAppl(factory.makeConstructor("Error", 1), factory
+					.makeString("Failed to add test case to listener. Maybe no listeners?: " + e.getLocalizedMessage()));
 		}
+		
 		return current;
 	}
 
