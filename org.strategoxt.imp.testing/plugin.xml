@@ -14,6 +14,7 @@
        <extension
              point="org.eclipse.ui.preferencePages">
           <page
+                category="org.strategoxt.imp.runtime.SpoofaxPreferencePage"
                 class="org.strategoxt.imp.testing.preferences.SpoofaxTestingPreferencePage"
                 id="org.strategoxt.imp.testing.preferences.SpoofaxTestingPreferencePage"
                 name="Spoofax Testing">
