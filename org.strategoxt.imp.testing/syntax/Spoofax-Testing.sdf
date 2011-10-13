@@ -69,14 +69,19 @@ exports
     ID                                   -> TestStratego {reject}
     INT                                  -> TestStratego {reject}
     
-    "build"                              -> Term {reject}
-    "resolve"                            -> Term {reject}
-    "refactor"                           -> Term {reject}
-    "complete"                           -> Term {reject}
-    "parse"                              -> Term {reject}
-    "run"                                -> Term {reject}
-    "succeeds"                           -> Term {reject}
-    "fails"                              -> Term {reject}
+    "parse"                              -> TestKeyword
+    "fails"                              -> TestKeyword
+    "succeeds"                           -> TestKeyword
+    "file"                               -> TestKeyword
+    "build"                              -> TestKeyword
+    "resolve"                            -> TestKeyword
+    "refactor"                           -> TestKeyword
+    "complete"                           -> TestKeyword
+    "run"                                -> TestKeyword
+    "to"                                 -> TestKeyword
+    
+    TestKeyword -> Term         {reject}
+    TestKeyword -> TestStratego {reject}
 
   lexical syntax
     [\ ]+   -> OptSpace
@@ -159,6 +164,7 @@ exports
             -> "=>" {recover, reject}
             -> "->" {recover, reject}
             -> "/" {recover, reject}
+            -> "file" {recover, reject}
 
   %% test Primitive refactoring test
   %% [[ module x entity X {} ]] refactoring rename at X input Y =>

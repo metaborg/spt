@@ -56,8 +56,8 @@ rules
       not(spt-get-observer)
   
   check-error:
-    MarkedPlaceholder(_, _, _) -> (<id>, $[Placeholders are not yet supported; 
-                                           place a 'footer' setup block at the end of the file instead])
+    MarkedPlaceholder(_, _, _) -> (<id>, ${Placeholders of the form [[...]] are not yet supported; 
+                                           place a 'footer' setup block at the end of the file instead})
   
   check-warning:
     Test(_,description(d), i, expectations) -> (d, warnings)
