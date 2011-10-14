@@ -122,8 +122,6 @@ strategies
 	
   editor-complete:
     (Language(t), _, _, _, _) -> [<spt-get-default-language>]
-
-  editor-complete = debug; fail
   
   editor-complete:
     (construct, position, ast, path, project-path) -> proposals
