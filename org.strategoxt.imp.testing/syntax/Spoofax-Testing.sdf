@@ -165,6 +165,7 @@ exports
             -> "->" {recover, reject}
             -> "/" {recover, reject}
             -> "file" {recover, reject}
+    "COMPLETION" ID     -> Result {cons("CompletionHelper")}
 
   %% test Primitive refactoring test
   %% [[ module x entity X {} ]] refactoring rename at X input Y =>
