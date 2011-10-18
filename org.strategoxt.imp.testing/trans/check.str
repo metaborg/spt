@@ -227,7 +227,7 @@ rules
     SingleAtom(AtomCharacter(Quoted(s))) -> s
   
   is-parse-only-test =
-    SuccessParsing + FailsParsing
+    SuccessParsing + FailsParsing + ?pattern(_)
 
   grab-messages:
     (errors, warnings, notes) -> <write-to-string> // TODO: make nice string?

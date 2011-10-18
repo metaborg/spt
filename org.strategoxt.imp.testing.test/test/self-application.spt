@@ -47,3 +47,20 @@ test Square brackets not allowed in test description [[[
   test the [] is bad!!
 ]]] parse fails
 
+test Simple parse test [[[
+  module x
+  language TestingTesting
+  test parse [[
+    module x
+  ]] parse succeeds
+]]]
+
+test Simple parse test [[[
+  module x
+  language TestingTesting
+  test parse [[
+    no module
+  ]] parse to Module(_, _)
+]]] 1 warning
+
+

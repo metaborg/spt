@@ -104,13 +104,13 @@ exports
     "parse" "to" ATerm   -> Result {cons("pattern")}
     "parse" "to" Output   -> Result {cons("ParseOutput")}
 
-    "fails" "parsing"    -> Result {cons("FailsParsing"), deprecated("Use 'parse fails' instead")}
-    "succeeds" "parsing" -> Result {cons("SuccessParsing"), deprecated("Use 'parse succeeds' instead")}
+    %%"fails" "parsing"    -> Result {cons("FailsParsing"), deprecated("Use 'parse fails' instead")}
+    %%"succeeds" "parsing" -> Result {cons("SuccessParsing"), deprecated("Use 'parse succeeds' instead")}
 
     %%"fails"              -> Result {cons("Fails")}
     "parse" "fails"      -> Result {cons("FailsParsing")}
-    "succeeds"           -> Result {cons("Success")}
-    "parse" "succeeds"   -> Result {cons("SuccessParsing")}
+    "succeeds"           -> Result {cons("Success"), deprecated("Use an empty condition instead")}
+    "parse" "succeeds"   -> Result {cons("SuccessParsing"), prefer}
     "parse"              -> Result {cons("SuccessParsing")}
 
     "file" PathName -> Input {cons("file")}
