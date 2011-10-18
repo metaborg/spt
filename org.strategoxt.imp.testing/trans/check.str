@@ -42,7 +42,10 @@ rules
   check-note = fail
   
   check-error:
-    Test(_, d, _, [_, _ | _]) -> (d, "Specify only one success condition)") // maybe in the future...
+    Test(_, d, _, c*) -> (d, "Can only combine success conditions with /regular expression/ conditions")
+    where
+      c'* := <filter(not(?RegexPattern(_)))> c*;
+      <gt> (<length> c'*, 1) 
   
   check-error:
     TestEmpty(_, d) -> (<id>, "Empty test case")
@@ -168,7 +171,7 @@ rules
       not(!messages => ([], [], _))
   
   is-semantic-failure-allowed =
-    Fails() + ?Errors(_) + ?Warnings(_) + ?CompleteTo(_, _)
+    Fails() + ?Errors(_) + ?Warnings(_) + ?CompleteTo(_, _) + ?RegexPattern(_)
 
   check-expectation(|ast, selections, messages) :
     Errors(n) -> $[[n] errors expected: [<grab-errors> messages]]
@@ -187,12 +190,45 @@ rules
     where
       !messages => ([_ | _], _, _)
 
-  check-expectation(|ast, selections, messages) :
-    Stratego(_) -> $[Not implemented: [<write-to-string>]]
+  check-error :
+    Stratego(_) -> (<id>, $[Not implemented: [<write-to-string>]])
 
-  check-expectation(|ast, selections, messages) :
-    VarDecl(_, _) -> $[Not implemented: [<write-to-string>]]
-    
+  check-error :
+    VarDecl(_, _) -> (<id>, $[Not implemented: [<write-to-string>]])
+  
+  check-error :
+    RegexPattern(r) -> (r, $[Full regular expression support not implemented])
+    where
+      not(simple-regex-to-string)
+  
+  check-expectation(|ast, selection, messages) :
+    RegexPattern(r) -> $[Messages do not match "[r']": [<grab-messages> messages]]
+    where
+      r' := <simple-regex-to-string>;
+      not(<oncetd(match-message(|r'))> messages)
+  
+  match-message(|r):
+    (term, message) -> <id>
+    where
+      debug(!0);
+      message' := <try(concat-strings)> message;
+      debug(!1);
+      <debug(!2)> r;
+      <is-substring(!r)> message';
+      debug(!3)
+  
+  simple-regex-to-string:
+    RegexPattern(SingleBranch(Pieces(p*))) -> string
+    where
+      p'*    := <map(simple-regex-atom-to-string)> p*;
+      string := <concat-strings> p'*
+  
+  simple-regex-atom-to-string:
+    SingleAtom(AtomLiteral(s)) -> s
+  
+  simple-regex-atom-to-string:
+    SingleAtom(AtomCharacter(Quoted(s))) -> s
+  
   is-parse-only-test =
     SuccessParsing + FailsParsing
 
