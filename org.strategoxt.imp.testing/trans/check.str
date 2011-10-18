@@ -210,12 +210,8 @@ rules
   match-message(|r):
     (term, message) -> <id>
     where
-      debug(!0);
       message' := <try(concat-strings)> message;
-      debug(!1);
-      <debug(!2)> r;
-      <is-substring(!r)> message';
-      debug(!3)
+      <is-substring(!r)> message'
   
   simple-regex-to-string:
     RegexPattern(SingleBranch(Pieces(p*))) -> string
