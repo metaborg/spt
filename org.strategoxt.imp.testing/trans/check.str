@@ -204,13 +204,14 @@ rules
   check-expectation(|ast, selection, messages) :
     RegexPattern(r) -> $[Messages do not match "[r']": [<grab-messages> messages]]
     where
-      r' := <simple-regex-to-string>;
-      not(<oncetd(match-message(|r'))> messages)
+      r'  := <simple-regex-to-string>;
+      r'' := <lower-case> r';
+      not(<oncetd(match-message(|r''))> messages)
   
   match-message(|r):
     (term, message) -> <id>
     where
-      message' := <try(concat-strings)> message;
+      message' := <lower-case> <try(concat-strings)> message;
       <is-substring(!r)> message'
   
   simple-regex-to-string:

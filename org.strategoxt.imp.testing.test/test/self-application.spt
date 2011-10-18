@@ -19,7 +19,7 @@ test Builder
            
          }
       ]] build generate-java fails
-  ]]] 1 warning /expected/
+  ]]] 1 warning /eXpected/
   
 
 test Refactoring
