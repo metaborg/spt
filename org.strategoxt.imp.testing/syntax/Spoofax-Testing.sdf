@@ -111,6 +111,7 @@ exports
     "parse" "fails"      -> Result {cons("FailsParsing")}
     "succeeds"           -> Result {cons("Success")}
     "parse" "succeeds"   -> Result {cons("SuccessParsing")}
+    "parse"              -> Result {cons("SuccessParsing")}
 
     "file" PathName -> Input {cons("file")}
 

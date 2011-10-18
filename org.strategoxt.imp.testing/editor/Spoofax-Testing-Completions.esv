@@ -6,9 +6,6 @@ completions
                                          
   completion proposer                  : editor-complete
   
-  completion template : TestSuite =
-    "module" <tests> "\n\nlanguage " <Language> "\n\ntest [[ " <test> " ]]" (blank)
-  
   completion template : Header =
     "language " <Language>
   

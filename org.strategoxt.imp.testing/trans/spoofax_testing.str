@@ -112,12 +112,14 @@ strategies
   
   editor-complete:
     (CompletionHelper(_), _, _, path, _) ->
-    [[$( module (<base-filename; remove-extension> path) 
+    [[$(module (<base-filename; remove-extension> path) 
        
-       language (<spt-get-default-language>)
+        language (<spt-get-default-language <+ !"Language">)
        
-       test First test
-         [[), " ", "test", " ]]\n\n"
+        test First test [[
+        ), "  ", "test", $(
+       ]]
+       )
     ]]
 	
   editor-complete:
