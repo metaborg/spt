@@ -133,7 +133,7 @@ rules
       !messages => Error(details)
 
   check-expectation(|ast, selections, messages) :
-    FailsParsing() -> $[Failure expected]
+    FailsParsing() -> $[Parse failure expected: [<write-to-string> ast]]
     where
       not(!ast => FailsParsing());
       not(!ast => error(_, _))

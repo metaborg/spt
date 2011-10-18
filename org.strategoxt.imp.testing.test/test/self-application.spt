@@ -32,4 +32,18 @@ test Refactoring
          }
       ]] build generate-java fails
   ]]] 1 warning
-  
+
+test Simple runner [[[
+  module x
+  language TestingTesting
+  test runner [[
+    module y
+  ]] run debug to Module("y", [])
+]]]
+
+test Square brackets not allowed in test description [[[
+  module x
+  language TestingTesting
+  test the [] is bad!!
+]]] parse fails
+

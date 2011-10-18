@@ -227,10 +227,9 @@ context-free syntax
 
   lexical syntax
 
-    (~[\n\[\"]|EOLQuote1|EOLQuote2)* -> EOLString
-    [\"]                             -> EOLQuote1
-    [\[]                             -> EOLQuote2
-
+    (~[\n\[\"]|EOLQuote1)* -> EOLString
+    [\"]                   -> EOLQuote1
+    
   lexical syntax
 
     (~[\[\]]  | Bracket1 | CBracket1)*                         -> InputChars2
@@ -269,7 +268,6 @@ context-free syntax
   lexical restrictions
     EOLString -/- ~[\n\[\"]
     EOLQuote1 -/- [\"]
-    EOLQuote2 -/- [\[]
     
     %% InputChars2 -/- ~[\[\]]
 

@@ -16,9 +16,6 @@ overlays
   OVERRIDE_INPUT(s) = Prim("\"SSL_EXT_overrideinput\"", [NoAnnoList(Str(s))])
 
 rules
- 
-  spt-desugar:
-    Run(x, arg, p) -> Build(x, arg, p)
 
   check-expectation(|ast, selections, messages) :
     c@Build(builder, arg, expected) ->
@@ -38,9 +35,16 @@ rules
       selected := <resolve-selection(|selections) <+ !ast> Numbered("1");
       input    := <get-service-input-term> selected;
       if !arg => Argument(arg') then
+        // Store builder argument
         plugin-strategy-evaluate(id |<Language>, OVERRIDE_INPUT(arg'))
       end;
-      output := <execute-service(|input)> builder
+      if !condition => Run(_, _, _) then
+        output := <execute-service(|selected); not(Fails())> builder
+      <+
+        output := <execute-service(|input)> builder
+      else
+        output := <execute-service(|input)> builder
+      end
     where
       error := <check-builder> (output, input, expected, condition)
 
@@ -91,7 +95,7 @@ rules
   fetch-builder-result(|input, output):
     Build(_, _, _) -> result
     with
-      !output => (<is-string>, result)
+      !output => (<is-string>, result) // remove filename
     <+
       !output => result
   

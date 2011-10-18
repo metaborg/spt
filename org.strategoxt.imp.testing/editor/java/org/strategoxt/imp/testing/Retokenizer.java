@@ -40,6 +40,7 @@ public class Retokenizer {
 	public Retokenizer(Tokenizer oldTokenizer) {
 		this.oldTokenizer = oldTokenizer;
 		newTokenizer = new Tokenizer(oldTokenizer.getInput(), oldTokenizer.getFilename(), null);
+		newTokenizer.setSyntaxCorrect(oldTokenizer.isSyntaxCorrect());
 	}
 	
 	/*
