@@ -11,6 +11,7 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -29,9 +30,12 @@ import org.spoofax.terms.TermVisitor;
 import org.spoofax.terms.attachments.ParentAttachment;
 import org.spoofax.terms.attachments.ParentTermFactory;
 import org.strategoxt.imp.runtime.Debug;
+import org.strategoxt.imp.runtime.EditorState;
 import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.dynamicloading.Descriptor;
+import org.strategoxt.imp.runtime.dynamicloading.IDynamicLanguageService;
 import org.strategoxt.imp.runtime.parser.JSGLRI;
+import org.strategoxt.imp.runtime.parser.SGLRParseController;
 
 public class SpoofaxTestingJSGLRI extends JSGLRI {
 	
@@ -160,7 +164,9 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	private FragmentParser configureFragmentParser(IStrategoTerm root, Language language, FragmentParser fragmentParser) {
 		if (language == null) return null;
 		Descriptor descriptor = Environment.getDescriptor(language);
+		if (descriptor == null) return null;
 		fragmentParser.configure(descriptor, getController().getRelativePath(), getController().getProject(), root);
+		attachToLanguage(language);
 		return fragmentParser;
 	}
 
@@ -186,8 +192,24 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	private Language getTargetLanguage(IStrategoTerm root) {
 		String languageName = getLanguageName(root, TARGET_LANGUAGE_1);
 		if (languageName == null) return null;
-		// TODO: fix this so it is capable of loading & registering languages
-		// (E.g., now you need to open a file in target language at least once before this works...)
 		return LanguageRegistry.findLanguage(languageName);
+	}
+	
+	/**
+	 * Add our language service to the descriptor of a fragment language,
+	 * so our service gets reinitialized once the fragment language changes.
+	 */
+	private void attachToLanguage(Language theirLanguage) {
+		SGLRParseController myController = getController();
+		EditorState myEditor = myController.getEditor();
+		if (myEditor == null)
+			return;
+		ILanguageService myWrapper = myEditor.getEditor().getParseController();
+		if (myWrapper instanceof IDynamicLanguageService) {
+			Descriptor theirDescriptor = Environment.getDescriptor(theirLanguage);
+			theirDescriptor.addActiveService((IDynamicLanguageService) myWrapper);
+		} else {
+			Environment.logException("SpoofaxTestingParseController wrapper is not IDynamicLanguageService");
+		}
 	}
 }

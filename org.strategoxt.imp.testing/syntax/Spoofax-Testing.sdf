@@ -104,8 +104,8 @@ exports
     "parse" "to" ATerm   -> Result {cons("pattern")}
     "parse" "to" Output   -> Result {cons("ParseOutput")}
 
-    %%"fails" "parsing"    -> Result {cons("FailsParsing"), deprecated("Use 'parse fails' instead")}
-    %%"succeeds" "parsing" -> Result {cons("SuccessParsing"), deprecated("Use 'parse succeeds' instead")}
+    "fails" "parsing"    -> Result {cons("FailsParsing"), deprecated("Use 'parse fails' instead")}
+    "succeeds" "parsing" -> Result {cons("SuccessParsing"), deprecated("Use 'parse succeeds' instead")}
 
     %%"fails"              -> Result {cons("Fails")}
     "parse" "fails"      -> Result {cons("FailsParsing")}
