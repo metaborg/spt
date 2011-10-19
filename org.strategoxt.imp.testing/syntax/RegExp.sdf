@@ -126,7 +126,7 @@ sorts ClassKeyword
     [\&\]\-]                                      -> BracketLiteral {reject}
     [a-zA-Z0-9\!\#\%\'\,\:\;\<\=\>\@\_\`\~\&\]\-]
                                                   -> AtomLiteral
-    "/"                                           -> AtomLiteral 
+    %% "/"                                           -> AtomLiteral 
     [\}\)\|\[]                                    -> AtomLiteral {reject}
     
     [\\\|\$\*\+\?\.\{\}\(\)\&\]\-\[\^\!\#\%\'\,\:\;\<\=\>\@\_\`\~a-zA-Z0-9\t\n\r]*              

@@ -175,7 +175,7 @@ rules
     Fails() + ?Errors(_) + ?Warnings(_) + ?CompleteTo(_, _) + ?RegexPattern(_)
 
   check-expectation(|ast, selections, messages) :
-    Errors(n) -> $[[n] errors expected: [<grab-errors> messages]]
+    Errors(n) -> $[[n] error(s) expected: [<grab-errors> messages]]
     where
       !messages => (errors, _, _)
     ; not(<eq> (<length> errors, <string-to-int> n))
@@ -219,7 +219,8 @@ rules
     RegexPattern(SingleBranch(Pieces(p*))) -> string
     where
       p'*    := <map(simple-regex-atom-to-string)> p*;
-      string := <concat-strings> p'*
+      // string := <concat-strings> p'*
+      string := <origin-text> p*
   
   simple-regex-atom-to-string:
     SingleAtom(AtomLiteral(s)) -> s
