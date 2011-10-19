@@ -39,6 +39,9 @@ rules
     where
       n'        := <string-to-int> n;
       selection := <index(|n')> selections
+  
+  resolve-selection(|selections):
+    wildcard() -> wildcard()
 
   check-expectation(|ast, selections, messages) :
     ResolveTo(from, to) -> error
