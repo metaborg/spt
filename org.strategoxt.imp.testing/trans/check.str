@@ -65,12 +65,12 @@ rules
   check-warning:
     Test(_,description(d), i, expectations) -> (d, warnings)
     where
-      (input, selections) := <Test-get-input <+ !(FailsParsing(), [])>i
+      (input, selections) := <Test-get-input <+ !(FailsParsing(), [])> i
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
         // TODO: set starting directory to project path using invoke-plugin-strategy
         plugin-strategy-invoke(|<Language>, "editor-init")
       ; input'    := (input, <InputFile>, <project-path>)
-      ; messages  := <plugin-strategy-invoke(|<Language>, <spt-get-observer>)> input'
+      ; messages  := <plugin-strategy-invoke(|<Language>, <spt-get-observer>) <+ !([], [], [])> input'
       ; messages' := <strip-and-record-analyzed-ast <+ reset-analyzed-ast> <try(?Some(<id>))> messages
       else
         messages' := ([], [], [])
@@ -139,9 +139,10 @@ rules
       not(!ast => error(_, _))
 
   check-expectation(|ast, selections, messages) :
-    <not(?pattern(_))> -> $[Syntax is ambiguous: [<write-to-string> ast]]
+    c -> $[Syntax is ambiguous: [<write-to-string> ast]]
     where
-      <oncetd(?amb(_))> ast
+      <oncetd(?amb(_))> ast;
+      not(!c => pattern(_); oncetd(?unquoted("amb")))
 
   check-expectation(|ast, selections, messages) :
     pattern(p) -> $[Does not match pattern: [<write-to-string> ast]]
