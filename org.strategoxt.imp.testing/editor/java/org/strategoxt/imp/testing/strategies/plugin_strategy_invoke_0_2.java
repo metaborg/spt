@@ -33,7 +33,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName, IStrategoTerm strategy) {
 		ITermFactory factory = context.getFactory();
-		try {
+		try { 
 			String dir = ((EditorIOAgent) context.getIOAgent()).getProjectPath();
 			StrategoObserver observer = ObserverCache.getInstance().getObserver(asJavaString(languageName), dir);
 			observer.getRuntime().setCurrent(current);
@@ -45,12 +45,10 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 				return current;
 			} else {
 				Context foreignContext = observer.getRuntime().getCompiledContext();
-				// TODO: show only foreign part of stack trace (without using setTrace(), won't work here)
-				IStrategoString trace = factory.makeString("rewriting failed\n" + context.getTraceString()
-						+ (foreignContext != null ? foreignContext.getTraceString() : ""));
-				//if (printTrace.invoke(context, trace) != null)
-				//	observer.reportRewritingFailed();
-				return factory.makeAppl(factory.makeConstructor("Fail", 1), trace);
+				String trace = "rewriting failed\n"
+						+ (foreignContext != null ? foreignContext.getTraceString() : "");
+				observer.getRuntime().getIOAgent().printError(trace);
+				return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
 			}
 		} catch (MissingStrategyException e) {
 			return factory.makeAppl(factory.makeConstructor("Error", 1),
