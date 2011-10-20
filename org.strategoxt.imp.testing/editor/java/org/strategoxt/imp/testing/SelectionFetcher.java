@@ -12,6 +12,7 @@ import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
+import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.terms.TermVisitor;
 import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.stratego.StrategoTermPath;
@@ -28,14 +29,21 @@ public class SelectionFetcher {
 		final List<IStrategoTerm> results = new ArrayList<IStrategoTerm>();
 		new TermVisitor() {
 			IStrategoTerm unclosedChild;
+			IToken unclosedLeft;
+			IToken lastCloseQuote;
+			
 			public void preVisit(IStrategoTerm term) {
 				IToken left = getTokenBefore(getLeftToken(term));
 				IToken right = getTokenAfter(getRightToken(term));
-				if (isOpenQuote(left)) {
-					if (isCloseQuote(right)) {
-						results.add(term);
-					} else {
+				if (isOpenQuote(left) && isNoQuoteBetween(left, right)) {
+					if (isCloseQuote(right) && isNoQuoteBetween(left, right)) {
+						if (right != lastCloseQuote) {
+							lastCloseQuote = right;
+							results.add(term);
+						}
+					} else if (unclosedChild == null) {
 						unclosedChild = term;
+						unclosedLeft = left;
 					}
 				}
 			}
@@ -43,9 +51,9 @@ public class SelectionFetcher {
 			@Override
 			public void postVisit(IStrategoTerm term) {
 				IToken right = getTokenAfter(getRightToken(term));
-				if (isCloseQuote(right)) {
-					if (unclosedChild != null)
-						results.add(StrategoTermPath.findCommonAncestor(unclosedChild, term));
+				if (unclosedChild != null && isCloseQuote(right)
+						&& isNoQuoteBetween(unclosedLeft, right)) {
+					results.add(StrategoTermPath.findCommonAncestor(unclosedChild, term));
 					unclosedChild = null;
 				}
 			}
@@ -59,6 +67,17 @@ public class SelectionFetcher {
 
 	protected boolean isCloseQuote(IToken right) {
 		return right != null && right.getKind() == TK_ESCAPE_OPERATOR && !isQuoteOpenText(right.toString());
+	}
+	
+	protected boolean isNoQuoteBetween(IToken left, IToken right) {
+		ITokenizer tokenizer = left.getTokenizer();
+		for (int i = left.getIndex() + 1, end = right.getIndex(); i < end; i++) {
+			IToken token = tokenizer.getTokenAt(i);
+			if (token.getKind() == TK_ESCAPE_OPERATOR) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	protected boolean isQuoteOpenText(String contents) {

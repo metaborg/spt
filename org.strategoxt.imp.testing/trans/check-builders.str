@@ -90,7 +90,11 @@ rules
   	  <?(Fails(),_)> expected
   
   fetch-builder-result(|input, output):
-    Run(_, _, _) -> output
+    Run(_, _, _) -> result
+    with
+      !output => (<is-string>, result) // remove filename
+    <+
+      !output => result
   
   fetch-builder-result(|input, output):
     Build(_, _, _) -> result

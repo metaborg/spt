@@ -71,3 +71,13 @@ test Simple reference resolving [[[
     [[ entity y {} ]]
   ]] resolve
 ]]] 1 warning
+
+
+test More reference resolving [[[
+  module x
+  language TestingTesting
+  test resolve me not [[
+    module x
+    [[entity x {}]] [[entity y {}]]
+  ]] resolve #3
+]]] 1 error /selection/
