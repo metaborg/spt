@@ -27,7 +27,8 @@ rules
     where
       !a* => [ast | selections];
       reference* := <collect-all(?Numbered(_) + ?Unnumbered(), conc)> expectations;
-      error*     := <filter(check-selection(|selections))> reference*
+      error*     := <filter(check-selection(|selections))> reference*;
+      not([])
   
   check-selection(|selections):
     Numbered(n) -> (<id>, $[No identifier selection #[n] found in input])

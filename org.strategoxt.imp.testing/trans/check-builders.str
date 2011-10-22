@@ -50,8 +50,9 @@ rules
 
   check-refactoring(|ast, selections, messages, condition):
     (builder, arg, expected) -> error
-    with 
-      (semnodes, _, options) := <spt-find-refactoring-description> builder;
+    where
+      (semnodes, _, options) := <spt-find-refactoring-description> builder
+    with
       selected := <resolve-selection(|selections) <+ !ast> Numbered("1"); 
       selected' := <repeat(\_#([arg]) -> arg\)> selected; //Var(Id(x)) start looking for matching nodes from x
       user-input := <try(?Argument(<id>)); try(trim-chars(?'"'))> arg;
@@ -65,6 +66,11 @@ rules
       end
     where
       error := <check-builder> (output, input, expected, condition)
+  
+  check-refactoring(|ast, selections, messages, condition):
+    (builder, arg, expected) -> $[Undeclared refactoring: [builder]]
+    where
+      not(<spt-find-refactoring-description> builder)
 	
   check-builder:
 	(output, input, expected, condition) -> error

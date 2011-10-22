@@ -16,7 +16,7 @@ completions
     "start symbol " <Start>
                                          
   completion template Header TestDecl Result :
-    "test" " " <description> " [[\n\t" <> "\n]]" <succeeds:Result> (blank)
+    "test" " " <description> " [[\n\t" <> "\n]] " <succeeds:Result> (blank)
                                          
   completion template Header TestDecl Result :
     "setup" " [[\n\t" <> "\n]]" (blank)

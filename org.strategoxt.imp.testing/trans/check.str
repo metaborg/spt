@@ -38,14 +38,31 @@ rules
   		zeros := [Fatals("0"), Errors("0"), Warnings("0")]; //TODO Fatals(0)
   		refactor-expectations := 
   			<union(?(Errors(_), Errors(_)) <+ ?(Warnings(_), Warnings(_)) <+ ?(Fatals(_), Fatals(_)))> (zeros, expectations)
-
+  
   check-note = fail
   
   check-error:
-    Test(_, d, _, c*) -> (d, "Can only combine success conditions with /regular expression/ conditions")
+    Test(_, d, _, c*) -> (d, "Combination of test conditions is not supported")
+    with
+      c'* := <filter(not(is-composable-semantic-condition))> c*
     where
-      c'* := <filter(not(?RegexPattern(_)))> c*;
-      <gt> (<length> c'*, 1) 
+      <gt> (<length> c'*, 1)
+    <+
+      <gt> (<length> c'*, 0);
+      <all(is-parse-only-test)> c'*
+    where
+      // Exception: we allow conditions like '1 error refactor ... 2 errors'
+      not(one(?Refactor(_, _, _)));
+      all(not(is-parse-only-test))
+
+  is-composable-semantic-condition =
+    ?RegexPattern(_) + ?Refactor(_, _, _) + ?Build(_, _, _) + ?Run(_, _, _)
+  + ?Resolve(_) + ?Complete(_) + ?ResolveTo(_, _) + ?CompleteTo(_, _)
+
+  check-warning:
+    Test(_, d, _, [r @ Refactor(_,_,(wildcard(), [_ | _]))]) ->
+    (r, "Specify a pattern 'to _' for this refactoring")
+    // (avoid confusion: conditions after refactoring apply to output pattern)
   
   check-error:
     TestEmpty(_, d) -> (<id>, "Empty test case")
