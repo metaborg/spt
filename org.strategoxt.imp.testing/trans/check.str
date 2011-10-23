@@ -46,10 +46,8 @@ rules
     with
       c'* := <filter(not(is-composable-semantic-condition))> c*
     where
+      <all(not(is-parse-only-test))> c*;
       <gt> (<length> c'*, 1)
-    <+
-      <gt> (<length> c'*, 0);
-      <all(is-parse-only-test)> c'*
     where
       // Exception: we allow conditions like '1 error refactor ... 2 errors'
       not(one(?Refactor(_, _, _)));
