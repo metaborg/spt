@@ -23,11 +23,11 @@ public class get_service_input_term_0_1 extends Strategy {
 		// TODO: adapt to latest strategy of StrategoReferenceResolver?
 		if (isTermAppl(analyzedAst) && ((IStrategoAppl) analyzedAst).getName().equals("None"))
 			analyzedAst = null;
-		if ("COMPLETION" != tryGetName(current))
+		if (!"COMPLETION".equals(tryGetName(current)) && !"NOCONTEXT".equals(tryGetName(current)))
 			current = InputTermBuilder.getMatchingAncestor(current, StrategoReferenceResolver.ALLOW_MULTI_CHILD_PARENT);
 		HybridInterpreter runtime = HybridInterpreter.getInterpreter(context);
 		InputTermBuilder inputBuilder = new InputTermBuilder(runtime, analyzedAst);
-		return inputBuilder.makeInputTerm(current, true);
+		return inputBuilder.makeInputTerm(current, true, false);
 	}
 
 }

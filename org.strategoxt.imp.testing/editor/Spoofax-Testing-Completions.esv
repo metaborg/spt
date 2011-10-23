@@ -31,8 +31,9 @@ completions
   completion template : Result = <n> " warnings" 
   completion template : Result = "resolve " <x>
   completion template : Result = "resolve " <#2> " to  " <#1>
-  completion template : Result = "complete " <#1>
-  completion template : Result = "complete " <#1> " to " <\"name\">
+  // completion template : Result = "complete " <#1>
+  // completion template : Result = "complete " <#1> " to " <\"name\">
+  completion template : Result = "complete to \"" <name> "\""
   completion template : Result = "build " <builder> "(" <> /*<OptArgument:>*/ ") to " <output:OptPattern>
   completion template : Result = "refactor " <refactoring> "(" <> ") to " <output:OptPattern>
   completion template : Result = "run " <builder> "(" <> ") " <to:OptPattern>

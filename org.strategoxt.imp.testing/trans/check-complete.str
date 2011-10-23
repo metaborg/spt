@@ -17,46 +17,53 @@ signature constructors
 
 rules
   
-  check-error:
-    CompleteTo(_, _) -> (<id>, $[Content completion testing not is (correctly) implemented at this point])
+  //check-error:
+  //  CompleteTo(_, _) -> (<id>, $[Content completion testing not is (correctly) implemented at this point])
 
   spt-desugar:
     Complete(x) -> CompleteTo(x, wildcard())
 
   check-expectation(|ast, selections, messages) :
-    CompleteTo(from, to) -> error
+    CompleteTo(from, to) -> $[[error][tip]]
     where
       from' := <resolve-selection(|selections)> from
     with
+      to'       := <un-double-quote> to;
       from''    := <get-completion-input-term> from';
       resolvers := <spt-get-content-proposers>;
       results   := <map(execute-service(|from''))> resolvers
     where
       switch !results
-        case one(is-successful-completion(|to)): fail
-        case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
+        case one(is-successful-completion(|to')): fail
+        case filter(?Some(<id>)) => t: 
+                             error := $[Unexpected result: [<try(flatten-list); write-to-string> t]]
         case one(?Error(m)): error := $[Unexpected error: [m]]
         case one(?Fail(m)):  error := $[Unexpected error: [m]]
         otherwise: with(fail)
       end;
       // On failure, report any inline errors
-      <grab-messages> messages
+      if <grab-errors> messages => [] then
+        tip := ""
+      else
+        tip := " (showing test errors while it fails)"
+      end
   
   get-completion-input-term:
     x -> tuple
     where
       x-root := <repeat(prim("SSL_EXT_get_parent", <id>))> x;
-      if y-root := <alltd(origin-equal(|x); !COMPLETION(<id>))> x-root then
-        y := <collect-one(?COMPLETION(_))> y-root
+      if y-root := <oncetd(origin-equal(|x); one(!COMPLETION(<id>)); ?x')> x-root then
+        y-root' := <prim("SSL_EXT_clone_and_set_parents", y-root)>;
+        y       := <collect-one(?x')> y-root'
       else
         y := NOCONTEXT(x)
       end;
       tuple := <get-service-input-term> y
   
   is-successful-completion(|expected):
-    Some(result) -> <id>
+    Some(results) -> <id>
     where
       !expected => wildcard()
     <+
-      <oncetd(strip-annos; ?expected)> result
+      <oncetd(strip-annos; ?expected)> results
       

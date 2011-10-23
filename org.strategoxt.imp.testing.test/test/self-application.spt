@@ -81,3 +81,23 @@ test More reference resolving [[[
     [[entity x {}]] [[entity y {}]]
   ]] resolve #3
 ]]] 1 error /selection/
+
+test [[[
+  module x
+  language TestingTesting
+  test y [[
+    module [[z]]
+  ]] complete to "z" 1 error
+]]] /combination of test conditions is not supported/
+
+
+test Content completion [[[
+  module x
+  language TestingTesting
+  test [[
+    module x
+    entity Alpha {
+      a : [[A]]
+    }
+  ]] complete to "Alpha"
+]]]

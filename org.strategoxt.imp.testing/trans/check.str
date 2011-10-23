@@ -57,7 +57,7 @@ rules
 
   is-composable-semantic-condition =
     ?RegexPattern(_) + ?Refactor(_, _, _) + ?Build(_, _, _) + ?Run(_, _, _)
-  + ?Resolve(_) + ?Complete(_) + ?ResolveTo(_, _) + ?CompleteTo(_, _)
+  + ?Resolve(_) + ?Complete(_) + ?ResolveTo(_, _)
 
   check-warning:
     Test(_, d, _, [r @ Refactor(_,_,(wildcard(), [_ | _]))]) ->
