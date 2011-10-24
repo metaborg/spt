@@ -142,8 +142,26 @@ rules
   check-builder-expectation(|result) :
     ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
     where
-      result' := <explode-aterm> result;
-      not(<aterm-eq> (result', p))
+      if <is-string> result; !p => fun(quoted(p')) then
+        not(<is-string-equal-modulo-whitespace> (result, <un-double-quote> p'))
+      else
+        result' := <explode-aterm> result;
+        not(<aterm-eq> (result', p))
+      end
+  
+  is-string-equal-modulo-whitespace:
+    (a, b) -> (a, b)
+    with
+      a' := <strip-whitespace> a;
+      b' := <strip-whitespace> b
+    where
+      <eq> (a', b')
+  
+  strip-whitespace =
+    string-replace(|" ", "");
+    string-replace(|"\n", "");
+    string-replace(|"\r", "");
+    string-replace(|"\t", "")
 
   check-builder-expectation(|result) :
   	(expected-ast, expected-problems) -> <separate-by(|"; "); concat-strings> refactor-errors
