@@ -116,10 +116,9 @@ strategies
        
         language (<spt-get-default-language <+ !"Language">)
        
-        test First test [[
+        test ), " ", "description", " ", $([[
         ), "  ", "test", $(
-       ]]
-       )
+       ]]), " "
     ]]
 	
   editor-complete:
