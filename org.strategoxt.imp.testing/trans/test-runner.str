@@ -46,15 +46,12 @@ strategies
     <find(has-extension(|"spt"))> "." 
   ; string-sort
 
-  origin-offset =
-    prim("SSL_EXT_origin_offset", <id>) => (<id>, _)
-    
   run-testsuite :
     file -> (ast, [])
     where 
       ast  := <parse-spt-file> file
     ; ast' := <topdown(repeat(spt-desugar)); alltd(spt-desugar-refactoring-conditions)> ast 
-    ; testcases := <collect-all(testlistener-add-testcase(|file, <test-to-description>,<origin-offset>))>ast'
+    ; testcases := <collect-all(testlistener-add-testcase(|file, <test-to-description>,<origin-offset;Fst>))>ast'
     ; <map(run-testcase(|file))>testcases
   
   get-testsuite-name :
