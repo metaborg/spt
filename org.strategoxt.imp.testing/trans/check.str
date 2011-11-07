@@ -84,16 +84,17 @@ rules
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
         // TODO: set starting directory to project path using invoke-plugin-strategy
         plugin-strategy-invoke(|<Language>, "editor-init")
-      ; input'    := (input, <InputFile>, <project-path>)
-      ; messages  := <plugin-strategy-invoke(|<Language>, <spt-get-observer>) <+ !([], [], [])> input'
-      ; messages' := <strip-and-record-analyzed-ast <+ reset-analyzed-ast> <try(?Some(<id>))> messages
+      ; input'     := (input, <InputFile>, <project-path>)
+      ; messages   := <plugin-strategy-invoke(|<Language>, <spt-get-observer>) <+ !([], [], [])> input'
+      ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast> <try(?Some(<id>))> messages
+      ; messages'' := <try((flatten-list, flatten-list, flatten-list))> messages'
       else
-        messages' := ([], [], [])
+        messages'' := ([], [], [])
       end
     ; if !expectations => [] then
-        warnings := <filter(check-expectation(|input, selections, messages'))> [Success()]
+        warnings := <filter(check-expectation(|input, selections, messages''))> [Success()]
       else
-        warnings := <filter(check-expectation(|input, selections, messages'))> expectations
+        warnings := <filter(check-expectation(|input, selections, messages''))> expectations
       end
     ; not([]) 
    
