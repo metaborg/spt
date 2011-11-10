@@ -19,7 +19,7 @@
         
         <!-- Imports -->
         <property name="build.sdf.imports" value="
-        	              -Idef &quot;${basedir}/../org.strategoxt.imp.editors.stratego/include/Stratego-Sugar.def&quot;
+        	              -Idef &quot;${basedir}/../org.strategoxt.imp.editors.stratego/syntax/Stratego-Sugar.def&quot;
         	              -Idef &quot;${basedir}/../org.strategoxt.imp.editors.aterm/include/ATerm.def&quot;"/>
         <property name="build.stratego.args" value="
                         --library
