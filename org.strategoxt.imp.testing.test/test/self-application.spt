@@ -101,3 +101,12 @@ test Content completion [[[
     }
   ]] complete to "Alpha"
 ]]]
+
+test Two-digit errors [[[
+  module x
+  test [[
+    module y
+  ]] 10 errors
+]]] parse succeeds
+
+

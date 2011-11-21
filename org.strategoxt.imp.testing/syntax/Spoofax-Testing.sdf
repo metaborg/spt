@@ -67,7 +67,7 @@ exports
     "(" {Strategy ","}* ")"              -> TestStratego {reject}
     Strategy "=>" Term                   -> TestStratego {reject}
     ID                                   -> TestStratego {reject}
-    INT                                  -> TestStratego {reject}
+    Int                                  -> TestStratego {reject}
     
     "parse"                              -> TestKeyword
     "fails"                              -> TestKeyword
