@@ -121,6 +121,9 @@ exports
     INT "warning"       -> Result    {cons("Warning")}
     INT "warnings"      -> Result    {cons("Warnings")}
 
+    INT "note"          -> Result    {cons("Note")}
+    INT "notes"         -> Result    {cons("Notes")}
+
     INT "fatal" "error" -> Result    {cons("Fatal")}
     INT "fatal" "errors"-> Result    {cons("Fatals")}
 
