@@ -20,7 +20,7 @@ test Builder [[[
     entity Y {
     }
    ]] build generate-java fails
-]]] 1 warning /eXpected to/ /fail/
+]]] 1 error /eXpected to/ /fail/
   
 
 test Refactoring [[[
@@ -29,7 +29,7 @@ test Refactoring [[[
     entity Y {
     }
   ]] build generate-java fails
-]]] 1 warning
+]]] 1 error
 
 test Simple runner [[[
   test runner [[
@@ -51,14 +51,14 @@ test Simple parse test [[[
   test parse [[
     no module
   ]] parse to Module(_, _)
-]]] 1 warning
+]]] 1 error
 
 test Simple reference resolving [[[
   test resolve me not [[
     module x
     [[ entity y {} ]]
   ]] resolve
-]]] 1 warning
+]]] 1 error
 
 
 test More reference resolving [[[

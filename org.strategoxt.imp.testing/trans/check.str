@@ -104,7 +104,7 @@ rules
     MarkedPlaceholder(_, _, _) -> (<id>, ${Placeholders of the form [[...]] are not yet supported; 
                                            place a 'footer' setup block at the end of the file instead})
   
-  check-warning:
+  check-error:
     Test(_,description(d), i, expectations) -> (d, warnings)
     where
       (input, selections) := <Test-get-input <+ !(FailsParsing(), [])> i
@@ -301,7 +301,7 @@ rules
 
   external plugin-strategy-evaluate(print-trace |language, strategy)
 
-  check-warning:
+  check-error:
     TestStratego(_, description(d), s, expectation) -> (d, warning)
     where
       plugin-strategy-invoke(|<Language>, "editor-init")
