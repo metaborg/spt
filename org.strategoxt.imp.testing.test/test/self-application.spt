@@ -2,70 +2,58 @@ module test5
 
 language Spoofax-Testing
 
-test Basic
-  [[[ module x
-     language TestingTesting
-     test Testing TestingTesting [[
-       module x
-     ]]
-  ]]]
+setup [[
+	module x
+  language TestingTesting
+     
+]]
 
-test Builder
-  [[[ module x
-      language TestingTesting
-      test builder
-      [[ module x
-         entity Y {
-           
-         }
-      ]] build generate-java fails
-  ]]] 1 warning /eXpected to/ /fail/
+test Basic [[[
+	test Testing TestingTesting [[
+    module x
+  ]]
+]]]
+
+test Builder [[[
+	test builder [[
+		module x
+    entity Y {
+    }
+   ]] build generate-java fails
+]]] 1 warning /eXpected to/ /fail/
   
 
-test Refactoring
-  [[[ module x
-      language TestingTesting
-      test builder
-      [[ module x
-         entity Y {
-           
-         }
-      ]] build generate-java fails
-  ]]] 1 warning
+test Refactoring [[[
+	test builder [[
+		module x
+    entity Y {
+    }
+  ]] build generate-java fails
+]]] 1 warning
 
 test Simple runner [[[
-  module x
-  language TestingTesting
   test runner [[
     module y
   ]] run debug to Module("y", [])
 ]]]
 
 test Square brackets not allowed in test description [[[
-  module x
-  language TestingTesting
   test the [] is bad!!
 ]]] parse fails
 
 test Simple parse test [[[
-  module x
-  language TestingTesting
   test parse [[
     module x
   ]] parse succeeds
 ]]]
 
 test Simple parse test [[[
-  module x
-  language TestingTesting
   test parse [[
     no module
   ]] parse to Module(_, _)
 ]]] 1 warning
 
 test Simple reference resolving [[[
-  module x
-  language TestingTesting
   test resolve me not [[
     module x
     [[ entity y {} ]]
@@ -74,8 +62,6 @@ test Simple reference resolving [[[
 
 
 test More reference resolving [[[
-  module x
-  language TestingTesting
   test resolve me not [[
     module x
     [[entity x {}]] [[entity y {}]]
@@ -83,8 +69,6 @@ test More reference resolving [[[
 ]]] 1 error /selection/
 
 test [[[
-  module x
-  language TestingTesting
   test y [[
     module [[z]]
   ]] complete to "z" 1 error
@@ -92,8 +76,6 @@ test [[[
 
 
 test Content completion [[[
-  module x
-  language TestingTesting
   test [[
     module x
     entity Alpha {
@@ -103,10 +85,52 @@ test Content completion [[[
 ]]]
 
 test Two-digit errors [[[
-  module x
   test [[
     module y
   ]] 10 errors
 ]]] parse succeeds
 
+test Errors and parsing doesn't work together (1) [[[
+  test [[
+    module y
+    entity Z { z : Q }
+  ]] 1 errors parse to _
+]]] /Combination of test conditions is not supported/
 
+test Errors and parsing doesn't work together (2) [[[
+  test [[
+    module y
+    entity Z { z : Q }
+  ]] 1 errors 2 errors parse to _
+]]] /Combination of test conditions is not supported/
+
+test Errors and errors work together [[[
+  test [[
+    module y
+    entity Z { z : Q }
+  ]] 1 error 1 error
+]]]
+
+test Errors and warnings don't work together ... yet [[[
+  test [[
+    module y
+    entity Z { z : Q }
+  ]] 1 error 1 warning
+]]] /Combination of test conditions is not supported/
+
+test Reference resolving and completion don't work together (hides errors) [[[
+  test [[
+    module y
+    entity [[Z]] { z : [[Z]] }
+  ]] complete #2 to "Z"
+     resolve #2 to #1
+]]] /Combination of test conditions is not supported/
+
+test Multiple completion conditions [[[
+  test [[
+    module y
+    entity z { z : [[z]] }
+  ]] complete to "z"
+     complete to "String"
+     complete to "Int"
+]]] 0 warnings
