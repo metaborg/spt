@@ -2,11 +2,10 @@ module test5
 
 language Spoofax-Testing
 
-setup [[
+setup [[[
 	module x
   language TestingTesting
-     
-]]
+]]]
 
 test Basic [[[
 	test Testing TestingTesting [[
@@ -134,3 +133,30 @@ test Multiple completion conditions [[[
      complete to "String"
      complete to "Int"
 ]]] 0 warnings
+
+test Test error at location [[[
+  test Test [[
+    module x
+    entity A {
+      a : [[B]]
+    }
+  ]] 1 error
+]]]
+
+test Test error at other location [[[
+  test Test [[
+    module x
+    entity [[A]] {
+      a : B
+    }
+  ]] 1 error
+]]] 2 errors /marker expected at selection/
+
+test Test error at only one location [[[
+  test Test [[
+    module x
+    entity [[A]] {
+      a : [[B]]
+    }
+  ]] 1 error
+]]] /marker expected at selection/

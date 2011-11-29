@@ -76,7 +76,7 @@ rules
   is-composable-semantic-condition =
     ?RegexPattern(_) + ?Refactor(_, _, _) + ?Build(_, _, _) + ?Run(_, _, _)
   + ?Resolve(_) + ?ResolveTo(_, _)
-  + ?Errors(_) + ?Warnings(_) + ?Notes(_) 
+  + ?Errors(_) + ?Warnings(_) + ?Notes(_) + ?Fails() + ?Success()
 
   is-completion-test =
     ?Complete(_) + ?CompleteTo(_, _)
@@ -233,6 +233,19 @@ rules
     Warnings(n) -> $[No error(s) expected: [<grab-errors> messages]]
     where
       !messages => ([_ | _], _, _)
+  
+  check-expectation(|ast, selections, messages) :
+    <?Errors(_) + ?Warnings(_) + ?Notes(_) + ?RegexPattern(_)> -> $[Error/warning/note marker expected at selection(s)]
+    with
+      !messages => (errors, warnings, notes);
+      all-messages := <conc> (errors, warnings, notes)
+    where
+      bad-selections := <filter(not(is-grabbed-message(|all-messages)))> selections;
+      not(!bad-selections => [])
+    with
+      bad-selections' := <map(!(<id>, $[No error/warning/note marker]))> bad-selections;
+      <grab-messages> messages; // show messages in editor
+      rules(GrabbedNotes :+= bad-selections')
 
   check-error :
     Stratego(_) -> (<id>, $[Not implemented: [<write-to-string>]])
@@ -290,6 +303,14 @@ rules
     (_, warnings, _) -> <write-to-string> warnings // TODO: make nice string?
     where
       rules(GrabbedWarnings :+= warnings)
+
+  is-grabbed-message(|grabbed):
+    selection -> selection
+    where
+      <oncetd(origin-equal(|selection))> grabbed
+    <+
+      grabbed-terms := <map(try(Fst))> grabbed; 
+      <one(\g -> <oncetd(origin-equal(|g))> selection\)> grabbed-terms
 
 signature constructors
   
