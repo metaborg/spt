@@ -65,7 +65,7 @@ strategies
     ?tst
   ; test-to-description => name
   ; testlistener-start-testcase(|testsuite, name)
-  ; if errors := <check-warning>tst ; not((id,[])) then
+  ; if errors := <check-error>tst ; not((id,[])) then
       testlistener-finish-testcase(|testsuite, name, False())
     else
       testlistener-finish-testcase(|testsuite, name, True()) 
