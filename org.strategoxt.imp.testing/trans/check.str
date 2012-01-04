@@ -337,7 +337,8 @@ rules
       end
 
   check-expectation(|result) :
-    StrategoFails() -> $[Failure expected: <pre>[<write-to-string> result']</pre>]
+    StrategoFails() -> $[Failure expected:
+                         <pre>[<write-to-string> result']</pre>]
     where
       !result => Some(result')
 
@@ -348,12 +349,13 @@ rules
     ; rules(GrabbedNotes :+= (d, $[Result: [<write-to-string> result'] (no => expectation specified)]))
 
   check-expectation(|result) :
-    <not(StrategoFails)> -> $[Failure unexpected: <pre>[trace]</pre>]
+    <not(StrategoFails)> -> $[Failure unexpected:
+                              <pre>[trace]</pre>]
     where
       !result => Fail(trace)
 
   check-expectation(|result) :
-    StrategoEquals(p) -> $[Unexpected result: [<write-to-string> result']]
+    StrategoEquals(p) -> $[Unexpected output: [<write-to-string> result']]
     where
       !result => Some(result')
     ; result'' := <explode-aterm> result'

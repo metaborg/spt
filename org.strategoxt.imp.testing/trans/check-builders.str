@@ -3,6 +3,7 @@ module check-builders
 imports
   libstratego-lib
   libstratego-aterm
+  libstratego-gpp
   include/Spoofax-Testing
   lib/editor-common.generated
   aterm-eq
@@ -124,7 +125,8 @@ rules
     File(_) -> $[Builder comparison to file is not implemented] // TODO
    
   check-builder-expectation(|result) :
-    Fragment(_{^[ast | _]}) -> $[Unexpected output: [result']]
+    Fragment(_{^[ast | _]}) -> $[Unexpected output:
+                                <b><pre>[result']</pre></b>]
     where
       not(<eq> (ast, result) <+ <equal-in-desugared-form> (ast, result)) 
     with
@@ -140,13 +142,16 @@ rules
       <compare-desugared-asts> (ast-desugared, result) 
   		
   check-builder-expectation(|result) :
-    ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
+    ATerm(p) -> $[Unexpected output:
+                  <b><pre>[result-string]</pre></b>]
     where
       if <is-string> result; !p => fun(quoted(p')) then
-        not(<is-string-equal-modulo-whitespace> (result, <un-double-quote> p'))
+        not(<is-string-equal-modulo-whitespace> (result, <un-double-quote> p'));
+        result-string := <is-string <+ write-to-string> result
       else
         result' := <explode-aterm> result;
-        not(<aterm-eq> (result', p))
+        not(<aterm-eq> (result', p));
+        result-string := <pp-aterm-box; box2text-string(|60)> result
       end
   
   is-string-equal-modulo-whitespace:
