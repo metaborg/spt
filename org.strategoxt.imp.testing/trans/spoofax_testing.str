@@ -216,6 +216,11 @@ strategies
   get-service-input-term =
     get-service-input-term(|<LastAnalyzedAst>)
 
+  get-service-input-term-without-ancestor:
+    term -> (term, position, ast, path, project-path)
+    where
+      (_, position, ast, path, project-path) := <get-service-input-term>
+
   get-service-input-term-refactoring =
     get-service-input-term-refactoring(|<LastAnalyzedAst>)
   
