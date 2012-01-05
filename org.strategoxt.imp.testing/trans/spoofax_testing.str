@@ -136,6 +136,18 @@ strategies
         results   := <map(execute-service(|input-tuple))> resolvers;
         proposals := <getfirst(?Some(<id>))> results
       |}
+  
+  editor-resolve:
+    (construct, position, ast, path, project-path) -> proposals
+    where
+      ?input-tuple;
+      language := <origin-language> ast;
+      {|Language:
+        rules( Language := language );
+        resolvers := <spt-get-reference-resolvers>;
+        results   := <map(execute-service(|input-tuple))> resolvers;
+        proposals := <getfirst(?Some(<id>))> results
+      |}
 
   origin-language =
   	prim("SSL_EXT_origin_language", <id>)

@@ -29,9 +29,9 @@ strategies
   
   test-runner =
     testlistener-init 
-  ; find-all-testsuites-in-project //;debug(!"1: ")
-  ; map(testlistener-add-testsuite(|<get-testsuite-name-from-file>,<id>)) //;debug(!"2: ")
-  ; map(try(run-testsuite)) //;debug(!"3: ")
+  ; find-all-testsuites-in-project
+  ; map(testlistener-add-testsuite(|<get-testsuite-name-from-file>,<id>))
+  ; map(try(run-testsuite))
   ; !None()
 
   test-runner-file:
