@@ -130,10 +130,11 @@ strategies
       ?input-tuple;
       not(<origin-line> ast => 1);
       language := <origin-language> ast;
+      not("Spoofax-Testing");
       {|Language:
         rules( Language := language );
-        resolvers := <spt-get-content-proposers>;
-        results   := <map(execute-service(|input-tuple))> resolvers;
+        completers := <spt-get-content-proposers>;
+        results   := <map(execute-service(|input-tuple))> completers;
         proposals := <getfirst(?Some(<id>))> results
       |}
   
@@ -142,6 +143,7 @@ strategies
     where
       ?input-tuple;
       language := <origin-language> ast;
+      not("Spoofax-Testing");
       {|Language:
         rules( Language := language );
         resolvers := <spt-get-reference-resolvers>;
