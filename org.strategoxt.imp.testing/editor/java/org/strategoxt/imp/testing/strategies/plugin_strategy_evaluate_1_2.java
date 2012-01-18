@@ -2,6 +2,7 @@ package org.strategoxt.imp.testing.strategies;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
+import org.eclipse.core.resources.IProject;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -31,8 +32,9 @@ public class plugin_strategy_evaluate_1_2 extends Strategy {
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, Strategy printTrace, IStrategoTerm languageName, IStrategoTerm strategy) {
 		ITermFactory factory = context.getFactory();
 		try {
-			String dir = ((EditorIOAgent) context.getIOAgent()).getProjectPath();
-			StrategoObserver observer = ObserverCache.getInstance().getObserver(asJavaString(languageName), dir);
+			String projectPath = ((EditorIOAgent) context.getIOAgent()).getProjectPath();
+			IProject project = ((EditorIOAgent) context.getIOAgent()).getProject();
+			StrategoObserver observer = ObserverCache.getInstance().getObserver(asJavaString(languageName), project, projectPath);
 			observer.getRuntime().setCurrent(current);
 			if (observer.getRuntime().evaluate((IStrategoAppl) strategy, true)) {
 				current = observer.getRuntime().current();

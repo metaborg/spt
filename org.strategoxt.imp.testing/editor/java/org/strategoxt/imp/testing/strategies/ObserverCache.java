@@ -3,6 +3,7 @@ package org.strategoxt.imp.testing.strategies;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.strategoxt.imp.runtime.Environment;
@@ -28,10 +29,10 @@ public class ObserverCache {
 		return instance;
 	}
 
-	public StrategoObserver getObserver(String languageName, String projectPath) throws BadDescriptorException {
+	public StrategoObserver getObserver(String languageName, IProject project, String projectPath) throws BadDescriptorException {
 		Descriptor descriptor = getDescriptor(languageName);
 		
-		return getObserver(descriptor, projectPath);
+		return getObserver(descriptor, project, projectPath);
 	}
 
 	public Descriptor getDescriptor(String languageName) throws BadDescriptorException {
@@ -43,7 +44,8 @@ public class ObserverCache {
 		return descriptor;
 	}
 
-	private synchronized StrategoObserver getObserver(Descriptor descriptor, String projectPath) throws BadDescriptorException {
+	private synchronized StrategoObserver getObserver(Descriptor descriptor, IProject project, String projectPath) throws BadDescriptorException {
+		assert project != null;
 		StrategoObserver result = asyncCache.get(descriptor);
 
 		if (result == null)
@@ -51,7 +53,7 @@ public class ObserverCache {
 		
 		result.getLock().lock();
 		try {
-			result.configureRuntime(null, projectPath);
+			result.configureRuntime(project, projectPath);
 			asyncCache.put(descriptor, result);
 		} catch (NoSuchMethodError e) {
 			Environment.logException("Oops, old Spoofax version installed, cannot properly initialize runtime!", e);
