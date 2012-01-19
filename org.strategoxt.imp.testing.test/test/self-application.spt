@@ -128,9 +128,8 @@ test Reference resolving and completion don't work together (hides errors) [[[
 test Multiple completion conditions [[[
   test [[
     module y
-    entity z { z : [[z]] }
-  ]] complete to "z"
-     complete to "String"
+    entity It { z : [[I]] }
+  ]] complete to "It"
      complete to "Int"
 ]]] 0 warnings
 
