@@ -31,6 +31,7 @@ public class SpoofaxTestingPreferencePage extends FieldEditorPreferencePage impl
 	 * Creates the field editors. Field editors are abstractions of the common GUI blocks needed to manipulate various
 	 * types of preferences. Each field editor knows how to save and restore itself.
 	 */
+	@Override
 	public void createFieldEditors() {
 
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(

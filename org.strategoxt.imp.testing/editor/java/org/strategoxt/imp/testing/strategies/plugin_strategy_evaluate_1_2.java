@@ -52,8 +52,11 @@ public class plugin_strategy_evaluate_1_2 extends Strategy {
 					factory.makeString("Problem loading descriptor for testing: " + e.getLocalizedMessage()));
 		} catch (InterpreterException e) {
 			Environment.logWarning("Problem evaluating strategy for testing", e);
+			String message = e.getLocalizedMessage();
+			if (e.getCause() != null)
+				message += "; " + e.getCause().getMessage();
 			return factory.makeAppl(factory.makeConstructor("Error", 1),
-					factory.makeString(e.getLocalizedMessage()));
+					factory.makeString(message));
 		} catch (RuntimeException e) {
 			Environment.logException("Problem evaluating strategy for testing", e);
 			return factory.makeAppl(factory.makeConstructor("Error", 1),
