@@ -58,7 +58,8 @@ rules
     where
       switch !results
         case one(is-successful-resolver(|to')): fail
-        case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
+        case one(?Some(t)):  error := $[Unexpected result:
+                                        <pre>[<write-to-string> t]</pre>]
         case one(?Error(m)): error := $[Unexpected error resolving:
                                         <pre>[m]</pre>]
         case one(?Fail(m)):  error := $[Unexpected error resolving:

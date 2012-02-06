@@ -41,7 +41,8 @@ rules
         notes'    := <flatten-list> [notes, <bagof-GrabbedNotes>];
         if not([] := errors) then
             rules ( HasErrors := () )
-        end
+        end;
+        spt-index-clear-file
       | path, project-path
       )
 
@@ -137,6 +138,8 @@ strategies
         results   := <map(execute-service(|input-tuple))> completers;
         proposals := <getfirst(?Some(<id>))> results
       |}
+    with
+      spt-index-clear-file
   
   editor-resolve:
     (construct, position, ast, path, project-path) -> proposals
@@ -162,6 +165,9 @@ strategies
     property -> value
     where
       plugin-get-property-values(|<Language>) => [property#([value]) | _]
+      
+  spt-index-clear-file =
+    try(<plugin-strategy-invoke(|<Language>, "index-clear-file")> <InputFile>)
 	
   spt-get-observer =
     <plugin-get-string-property> "SemanticObserver"
