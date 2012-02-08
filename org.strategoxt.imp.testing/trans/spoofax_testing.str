@@ -110,6 +110,14 @@ rules
   external input-dialog(|title, message, initial)
 
 strategies
+
+  write-to-html-string =
+    write-to-string;
+    string-replace(|"&", "&amp;");
+    string-replace(|"<", "&lt;");
+    string-replace(|">", "&gt;")
+
+strategies
   
   editor-complete:
     (CompletionHelper(_), _, _, path, _) ->

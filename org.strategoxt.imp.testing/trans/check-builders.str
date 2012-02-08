@@ -119,7 +119,7 @@ rules
       !output => refactor-result
    
   check-builder-expectation(|result) :
-    Fails() -> $[Builder was expected to fail, but produced: [<write-to-string> result]]
+    Fails() -> $[Builder was expected to fail, but produced: [<write-to-html-string> result]]
    
   check-builder-expectation(|result) :
     File(_) -> $[Builder comparison to file is not implemented] // TODO
@@ -132,7 +132,7 @@ rules
     with
       result' := <spt-pp-target-string> result
     <+
-      result' := $[[<write-to-string> result] instead of [<write-to-string> ast]]
+      result' := $[[<write-to-html-string> result] instead of [<write-to-html-string> ast]]
   
   equal-in-desugared-form:
   	(ast, result) -> (ast, result)
@@ -147,7 +147,7 @@ rules
     where
       if <is-string> result; !p => fun(quoted(p')) then
         not(<is-string-equal-modulo-whitespace> (result, <un-double-quote> p'));
-        result-string := <is-string <+ write-to-string> result
+        result-string := <is-string <+ write-to-html-string> result
       else
         result' := <explode-aterm> result;
         not(<aterm-eq> (result', p));
@@ -181,19 +181,19 @@ rules
       <?(result-ast, _, _, _)> result
  
   check-refactor-expectation(|result) :
-    Warnings(n) -> $[[n] refactor warning(s) expected: [<write-to-string> warnings]]
+    Warnings(n) -> $[[n] refactor warning(s) expected: [<write-to-html-string> warnings]]
     where
       <?(_, _, _, warnings)> result
     ; not(<eq> (<length> warnings, <string-to-int> n))
 
   check-refactor-expectation(|result) :
-    Errors(n) -> $[[n] refactor error(s) expected: [<write-to-string> errors]]
+    Errors(n) -> $[[n] refactor error(s) expected: [<write-to-html-string> errors]]
     where
       <?(_, _, errors, _)> result
     ; not(<eq> (<length> errors, <string-to-int> n))
 
   check-refactor-expectation(|result) :
-    Fatals(n) -> $[[n] refactor fatal-error(s) expected: [<write-to-string> fatals]]
+    Fatals(n) -> $[[n] refactor fatal-error(s) expected: [<write-to-html-string> fatals]]
     where
       <?(_, fatals, _, _)> result
     ; not(<eq> (<length> fatals, <string-to-int> n))

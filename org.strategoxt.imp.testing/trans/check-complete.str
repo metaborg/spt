@@ -36,7 +36,7 @@ rules
       switch !results
         case one(is-successful-completion(|from', to')): fail
         case filter(?Some(<id>)) => t: 
-                             error := $[Unexpected result: [<try(flatten-list); write-to-string> t]]
+                             error := $[Unexpected result: [<try(flatten-list); write-to-html-string> t]]
         case one(?Error(m)): error := $[Unexpected error: [m]]
         case one(?Fail(m)):  error := $[Unexpected error: [m]]
         otherwise: with(fail)

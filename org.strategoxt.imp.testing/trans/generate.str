@@ -156,7 +156,7 @@ rules
           
           assertNotNull(description, aterm_eq_0_1.instance.invoke(context, ast, context.getFactory().makeString("[p']")));
        ]  
-      with p' := <write-to-string ; escape-string>p
+      with p' := <write-to-html-string ; escape-string>p
         
 strategies
   
