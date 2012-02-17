@@ -245,9 +245,11 @@ strategies
     get-service-input-term(|<LastAnalyzedAst>)
 
   get-service-input-term-without-ancestor:
-    term -> (term, position, ast, path, project-path)
+    term -> (term', position, ast, path, project-path)
     where
-      (_, position, ast, path, project-path) := <get-service-input-term>
+      (term-with-ancestor, position, ast, path, project-path) := <get-service-input-term>;
+      (term' := <collect-one(origin-equal(|term))> term-with-ancestor
+       <+ term' := term-with-ancestor)
 
   get-service-input-term-refactoring =
     get-service-input-term-refactoring(|<LastAnalyzedAst>)

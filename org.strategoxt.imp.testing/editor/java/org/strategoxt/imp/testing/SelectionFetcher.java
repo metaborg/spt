@@ -1,5 +1,6 @@
 package org.strategoxt.imp.testing;
 
+import static org.spoofax.interpreter.core.Tools.termAt;
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenAfter;
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenBefore;
 import static org.spoofax.jsglr.client.imploder.IToken.TK_ESCAPE_OPERATOR;
@@ -27,6 +28,27 @@ public class SelectionFetcher {
 	
 	public IStrategoList fetch(IStrategoTerm parsedFragment) {
 		final List<IStrategoTerm> results = new ArrayList<IStrategoTerm>();
+		/*
+		if (getTokenizer(parsedFragment) == null && "Error".equals(Term.tryGetName(parsedFragment))) {
+			parsedFragment = termAt(parsedFragment, 0);
+		}
+		AstNodeLocator locator = new AstNodeLocator();
+		IToken left = getLeftToken(parsedFragment);
+		IToken right = getRightToken(parsedFragment);
+		IToken quoteOpenToken = null;
+		if (left == null) // parse error
+			return Environment.getTermFactory().makeList();
+		for (IToken token = left; token != right; token = getTokenAfter(token)) {
+			if (isOpenQuote(token)) {
+				quoteOpenToken = token;
+			} else if (isCloseQuote(token)) {
+				IStrategoTerm result = locator.findNode(parsedFragment, quoteOpenToken.getEndOffset() + 1, token.getStartOffset() - 1);
+				results.add(result == null ? parsedFragment : result);
+			}
+		}
+		return Environment.getTermFactory().makeList(results);
+		*/
+
 		new TermVisitor() {
 			IStrategoTerm unclosedChild;
 			IToken unclosedLeft;
@@ -39,7 +61,7 @@ public class SelectionFetcher {
 					if (isCloseQuote(right) && isNoQuoteBetween(left, right)) {
 						if (right != lastCloseQuote) {
 							lastCloseQuote = right;
-							results.add(term);
+							results.add(getMatchingDescendant(term));
 						}
 					} else if (unclosedChild == null) {
 						unclosedChild = term;
@@ -59,6 +81,17 @@ public class SelectionFetcher {
 			}
 		}.visit(parsedFragment);
 		return Environment.getTermFactory().makeList(results);
+	}
+	
+	private static IStrategoTerm getMatchingDescendant(IStrategoTerm term) {
+		IToken left = getLeftToken(term);
+		IToken right = getRightToken(term);
+		for (int i = 0; i < term.getSubtermCount(); i++) {
+			IStrategoTerm child = termAt(term, i);
+			if (getLeftToken(child) == left && getRightToken(child) == right)
+				return getMatchingDescendant(child);
+		}
+		return term;
 	}
 
 	protected boolean isOpenQuote(IToken left) {
