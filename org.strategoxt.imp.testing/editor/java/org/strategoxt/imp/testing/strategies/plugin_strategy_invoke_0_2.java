@@ -6,6 +6,7 @@ import static org.spoofax.interpreter.core.Tools.termAt;
 
 import org.eclipse.core.resources.IProject;
 import org.spoofax.interpreter.core.InterpreterException;
+import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -51,7 +52,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 				observer.getRuntime().getIOAgent().printError(trace);
 				return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
 			}
-		} catch (MissingStrategyException e) {
+		} catch (UndefinedStrategyException e) {
 			return factory.makeAppl(factory.makeConstructor("Error", 1),
 					factory.makeString("Problem loading descriptor for testing: " + e.getLocalizedMessage()));
 		} catch (BadDescriptorException e) {
