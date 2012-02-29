@@ -113,7 +113,7 @@ rules
         plugin-strategy-invoke(|<Language>, "editor-init")
       ; input'     := (input, <InputFile>, <project-path>)
       ; messages   := <plugin-strategy-invoke(|<Language>, <spt-get-observer>) <+ !([], [], [])> input'
-      ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast> <try(?Some(<id>))> messages
+      ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast(|input)> <try(?Some(<id>))> messages
       ; messages'' := <try((flatten-list, flatten-list, flatten-list))> messages'
       else
         messages'' := ([], [], [])
@@ -126,12 +126,12 @@ rules
     ; not([]) 
    
   strip-and-record-analyzed-ast:
-    (t, e, w, n) -> (e, w, n)
+    (ast, e, w, n) -> (e, w, n)
     where
-      rules(LastAnalyzedAst := t)
+      rules(LastAnalyzedAst := ast)
 
-  reset-analyzed-ast =
-      rules(LastAnalyzedAst := None())
+  reset-analyzed-ast(|default) =
+    rules(LastAnalyzedAst := default)
 
   external plugin-strategy-invoke(|language, name)
   
@@ -168,12 +168,14 @@ rules
   check-expectation(|ast, selections, messages) :
     <not(Fails)> -> $[Observer fails: [details]]
     where
-      !messages => Fail(details)
+      !messages => Fail(details);
+      say(!details)
 
   check-expectation(|ast, selections, messages) :
     _ -> $[Observer error: [details]]
     where
-      !messages => Error(details)
+      !messages => Error(details);
+      say(!details)
 
   check-expectation(|ast, selections, messages) :
     FailsParsing() -> $[Parse failure expected: [<write-to-html-string> ast]]
@@ -331,7 +333,8 @@ rules
                                           |<Language>, s')> ()
     ; try(<grab-strategy-success-result(|d, result)> expectation)
     ; if !result => Error(error) then
-        warning := error
+        warning := error;
+        say(!error)
       else
         warning := <check-expectation(|result)> expectation
       end

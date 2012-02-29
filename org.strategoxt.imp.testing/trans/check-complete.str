@@ -37,8 +37,8 @@ rules
         case one(is-successful-completion(|from', to')): fail
         case filter(?Some(<id>)) => t: 
                              error := $[Unexpected result: [<try(flatten-list); write-to-html-string> t]]
-        case one(?Error(m)): error := $[Unexpected error: [m]]
-        case one(?Fail(m)):  error := $[Unexpected error: [m]]
+        case one(?Error(m)): error := $[Unexpected error: [m]]; say(!m)
+        case one(?Fail(m)):  error := $[Unexpected error: [m]]; say(!m)
         otherwise: with(fail)
       end;
       // On failure, report any inline errors

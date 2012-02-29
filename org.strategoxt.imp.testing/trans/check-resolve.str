@@ -61,9 +61,9 @@ rules
         case one(?Some(t)):  error := $[Unexpected result:
                                         <pre>[<write-to-html-string> t]</pre>]
         case one(?Error(m)): error := $[Unexpected error resolving:
-                                        <pre>[m]</pre>]
+                                        <pre>[m]</pre>]; say(!m)
         case one(?Fail(m)):  error := $[Unexpected error resolving:
-                                        <pre>[m]</pre>]
+                                        <pre>[m]</pre>]; say(!m)
         otherwise: with(fail)
       end
   

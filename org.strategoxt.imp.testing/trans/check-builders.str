@@ -82,10 +82,10 @@ rules
           error       := <check-builder-expectation(|result)> expected
         case ?Error(m): 
           if <not(is-expected-failure)> (condition, expected) then
-            error := $[Unexpected error: [m]]
+            error := $[Unexpected error: [m]]; say(!m)
           end
         case ?Fail(m): 
-          error  := $[Unexpected error: [m]]
+          error  := $[Unexpected error: [m]]; say(!m)
         otherwise: with(fail)
       end
   

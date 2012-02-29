@@ -15,7 +15,6 @@ import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.services.StrategoObserver;
 import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 import org.strategoxt.lang.Context;
-import org.strategoxt.lang.MissingStrategyException;
 import org.strategoxt.lang.Strategy;
 
 /**
@@ -49,7 +48,6 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 				Context foreignContext = observer.getRuntime().getCompiledContext();
 				String trace = "rewriting failed\n"
 						+ (foreignContext != null ? foreignContext.getTraceString() : "");
-				observer.getRuntime().getIOAgent().printError(trace);
 				return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
 			}
 		} catch (UndefinedStrategyException e) {
