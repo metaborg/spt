@@ -172,7 +172,7 @@ strategies
   plugin-get-string-property:
     property -> value
     where
-      plugin-get-property-values(|<Language>) => [property#([value]) | _]
+      plugin-get-property-values(|<Language>) => [property#([value|_]) | _]
       
   spt-index-clear-file =
     try(<plugin-strategy-invoke(|<Language>, "index-clear-file")> <InputFile>)
