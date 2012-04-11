@@ -41,8 +41,7 @@ rules
         notes'    := <flatten-list> [notes, <bagof-GrabbedNotes>];
         if not([] := errors) then
             rules ( HasErrors := () )
-        end;
-        spt-index-clear-file
+        end
       | path, project-path
       )
 
@@ -141,7 +140,10 @@ strategies
       language := <origin-language> ast;
       not("Spoofax-Testing");
       {|Language:
-        rules( Language := language );
+        rules(
+          InputFile := path
+          Language := language 
+        );
         completers := <spt-get-content-proposers>;
         results   := <map(execute-service(|input-tuple))> completers;
         proposals := <getfirst(?Some(<id>))> results
@@ -156,12 +158,17 @@ strategies
       language := <origin-language> ast;
       not("Spoofax-Testing");
       {|Language:
-        rules( Language := language );
+        rules(
+          InputFile := path
+          Language := language 
+        );
         resolvers := <spt-get-reference-resolvers>;
         results   := <map(execute-service(|input-tuple))> resolvers;
         proposals := <getfirst(?Some(<id>))> results
       |}
-
+    with
+      spt-index-clear-file
+      
   origin-language =
   	prim("SSL_EXT_origin_language", <id>)
 

@@ -123,6 +123,7 @@ rules
       else
         warnings := <filter(check-expectation(|input, selections, messages''))> expectations
       end
+    ; where(spt-index-clear-file)
     ; not([]) 
    
   strip-and-record-analyzed-ast:
