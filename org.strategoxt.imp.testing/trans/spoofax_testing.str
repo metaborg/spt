@@ -193,7 +193,7 @@ strategies
 
   spt-get-content-proposers =
     <plugin-get-property-values(|<Language>)> "CompletionProposer";
-    map(?"CompletionProposer"#([<id>]))
+    map(?"CompletionProposer"#([_, <id>])) //TODO: first term (semantic nodes) can be relevant
 
   spt-get-hover-helpers =
     <plugin-get-property-values(|<Language>)> "HoverRule";
