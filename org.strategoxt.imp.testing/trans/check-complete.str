@@ -31,7 +31,7 @@ rules
       to'       := <un-double-quote> to;
       from''    := <get-completion-input-term> from';
       resolvers := <spt-get-content-proposers>;
-      results   := <map(execute-service(|from''))> resolvers
+      results   := <map(execute-service(|from'')); try(filter-on-prefix(|from))> resolvers
     where
       switch !results
         case one(is-successful-completion(|from', to')): fail
@@ -63,18 +63,21 @@ rules
       	oncetd(preserve-annos(!COMPLETION(<origin-equal(|cstring); !"">)))
       > y
   
-  is-successful-completion(|from, expected):
-    Some(results) -> <id>
+  filter-on-prefix(|from):
+    Some(results) -> Some(results')
     where
       if <is-string> from then
         results' := <filter(string-starts-with(|from))> results 
       else
         results' := results
       end
+  
+  is-successful-completion(|from, expected):
+    Some(results) -> <id>
     where
       if !expected => wildcard() then
-        <not([])> results'
+        <not([])> results
       else
-        <oncetd(strip-annos; ?expected)> results'
+        <oncetd(strip-annos; ?expected)> results
       end
       
