@@ -56,7 +56,7 @@ rules
         y-root' := <prim("SSL_EXT_clone_and_set_parents", y-root)>;
         y       := <collect-one(?x')> y-root'
       else
-        y := NOCONTEXT(x)
+        y := NOCONTEXT(x) 
       end;
       tuple := <
       	get-service-input-term; 
