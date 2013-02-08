@@ -62,7 +62,7 @@ rules
       	get-service-input-term; 
       	alltd(
       	  preserve-annos(!COMPLETION(<origin-equal(|cstring); !"">));
-      	  \s{a*} -> s{<map(try(?cstring; !""))> a*}\
+      	  \s{a*} -> s{<map(try(?cstring; !"completion123"))> a*}\
       	)
       > y
   
