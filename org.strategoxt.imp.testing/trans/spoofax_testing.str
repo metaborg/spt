@@ -109,6 +109,14 @@ rules
   external input-dialog(|title, message, initial)
 
 strategies
+
+  write-to-html-string =
+    write-to-string;
+    string-replace(|"&", "&amp;");
+    string-replace(|"<", "&lt;");
+    string-replace(|">", "&gt;")
+
+strategies
   
   editor-complete:
     (CompletionHelper(_), _, _, path, _) ->
@@ -130,13 +138,37 @@ strategies
       ?input-tuple;
       not(<origin-line> ast => 1);
       language := <origin-language> ast;
+      not("Spoofax-Testing");
       {|Language:
-        rules( Language := language );
-        resolvers := <spt-get-content-proposers>;
+        rules(
+          InputFile := path
+          Language := language 
+        );
+        completers := <spt-get-content-proposers>;
+        results   := <map(execute-service(|input-tuple))> completers;
+        proposals := <getfirst(?Some(<id>))> results
+      |}
+    with
+      spt-index-clear-file
+  
+  editor-resolve:
+    (construct, position, ast, path, project-path) -> proposals
+    where
+      ?input-tuple;
+      language := <origin-language> ast;
+      not("Spoofax-Testing");
+      {|Language:
+        rules(
+          InputFile := path
+          Language := language 
+        );
+        resolvers := <spt-get-reference-resolvers>;
         results   := <map(execute-service(|input-tuple))> resolvers;
         proposals := <getfirst(?Some(<id>))> results
       |}
-
+    with
+      spt-index-clear-file
+      
   origin-language =
   	prim("SSL_EXT_origin_language", <id>)
 
@@ -147,7 +179,10 @@ strategies
   plugin-get-string-property:
     property -> value
     where
-      plugin-get-property-values(|<Language>) => [property#([value]) | _]
+      plugin-get-property-values(|<Language>) => [property#([value|_]) | _]
+      
+  spt-index-clear-file =
+    try(<plugin-strategy-invoke(|<Language>, "index-clear-file")> <InputFile>)
 	
   spt-get-observer =
     <plugin-get-string-property> "SemanticObserver"
@@ -158,7 +193,7 @@ strategies
 
   spt-get-content-proposers =
     <plugin-get-property-values(|<Language>)> "CompletionProposer";
-    map(?"CompletionProposer"#([<id>]))
+    map(?"CompletionProposer"#([_, <id>])) //TODO: first term (semantic nodes) can be relevant
 
   spt-get-hover-helpers =
     <plugin-get-property-values(|<Language>)> "HoverRule";
@@ -215,6 +250,13 @@ strategies
 
   get-service-input-term =
     get-service-input-term(|<LastAnalyzedAst>)
+
+  get-service-input-term-without-ancestor:
+    term -> (term', position, ast, path, project-path)
+    where
+      (term-with-ancestor, position, ast, path, project-path) := <get-service-input-term>;
+      (term' := <collect-one(origin-equal(|term))> term-with-ancestor
+       <+ term' := term-with-ancestor)
 
   get-service-input-term-refactoring =
     get-service-input-term-refactoring(|<LastAnalyzedAst>)

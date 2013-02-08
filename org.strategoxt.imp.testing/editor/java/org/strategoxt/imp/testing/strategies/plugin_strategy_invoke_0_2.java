@@ -4,7 +4,9 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.termAt;
 
+import org.eclipse.core.resources.IProject;
 import org.spoofax.interpreter.core.InterpreterException;
+import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -13,7 +15,6 @@ import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.services.StrategoObserver;
 import org.strategoxt.imp.runtime.stratego.EditorIOAgent;
 import org.strategoxt.lang.Context;
-import org.strategoxt.lang.MissingStrategyException;
 import org.strategoxt.lang.Strategy;
 
 /**
@@ -33,8 +34,9 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName, IStrategoTerm strategy) {
 		ITermFactory factory = context.getFactory();
 		try { 
-			String dir = ((EditorIOAgent) context.getIOAgent()).getProjectPath();
-			StrategoObserver observer = ObserverCache.getInstance().getObserver(asJavaString(languageName), dir);
+			String projectPath = ((EditorIOAgent) context.getIOAgent()).getProjectPath();
+            IProject project = ((EditorIOAgent) context.getIOAgent()).getProject();
+			StrategoObserver observer = ObserverCache.getInstance().getObserver(asJavaString(languageName), project, projectPath);
 			observer.getRuntime().setCurrent(current);
 			if (isTermAppl(strategy) && ((IStrategoAppl) strategy).getName().equals("Strategy"))
 				strategy = termAt(strategy, 0);
@@ -46,10 +48,9 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 				Context foreignContext = observer.getRuntime().getCompiledContext();
 				String trace = "rewriting failed\n"
 						+ (foreignContext != null ? foreignContext.getTraceString() : "");
-				observer.getRuntime().getIOAgent().printError(trace);
 				return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
 			}
-		} catch (MissingStrategyException e) {
+		} catch (UndefinedStrategyException e) {
 			return factory.makeAppl(factory.makeConstructor("Error", 1),
 					factory.makeString("Problem loading descriptor for testing: " + e.getLocalizedMessage()));
 		} catch (BadDescriptorException e) {

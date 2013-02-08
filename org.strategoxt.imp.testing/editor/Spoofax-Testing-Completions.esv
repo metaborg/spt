@@ -47,4 +47,4 @@ completions
   completion template : OptPattern = "to file " <file>
   completion template : OptPattern = "to " <term>
   completion template : OptPattern = "to " <term>
-  completion template : OptPattern = "to [[ " <output> " ]]"
+  completion template : OptPattern = "to [[ " (cursor) " ]]" 

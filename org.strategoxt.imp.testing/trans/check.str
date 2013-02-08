@@ -113,7 +113,7 @@ rules
         plugin-strategy-invoke(|<Language>, "editor-init")
       ; input'     := (input, <InputFile>, <project-path>)
       ; messages   := <plugin-strategy-invoke(|<Language>, <spt-get-observer>) <+ !([], [], [])> input'
-      ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast> <try(?Some(<id>))> messages
+      ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast(|input)> <try(?Some(<id>))> messages
       ; messages'' := <try((flatten-list, flatten-list, flatten-list))> messages'
       else
         messages'' := ([], [], [])
@@ -123,15 +123,16 @@ rules
       else
         warnings := <filter(check-expectation(|input, selections, messages''))> expectations
       end
+    ; where(spt-index-clear-file)
     ; not([]) 
    
   strip-and-record-analyzed-ast:
-    (t, e, w, n) -> (e, w, n)
+    (ast, e, w, n) -> (e, w, n)
     where
-      rules(LastAnalyzedAst := t)
+      rules(LastAnalyzedAst := ast)
 
-  reset-analyzed-ast =
-      rules(LastAnalyzedAst := None())
+  reset-analyzed-ast(|default) =
+    rules(LastAnalyzedAst := default)
 
   external plugin-strategy-invoke(|language, name)
   
@@ -168,27 +169,29 @@ rules
   check-expectation(|ast, selections, messages) :
     <not(Fails)> -> $[Observer fails: [details]]
     where
-      !messages => Fail(details)
+      !messages => Fail(details);
+      say(!details)
 
   check-expectation(|ast, selections, messages) :
     _ -> $[Observer error: [details]]
     where
-      !messages => Error(details)
+      !messages => Error(details);
+      say(!details)
 
   check-expectation(|ast, selections, messages) :
-    FailsParsing() -> $[Parse failure expected: [<write-to-string> ast]]
+    FailsParsing() -> $[Parse failure expected: [<write-to-html-string> ast]]
     where
       not(!ast => FailsParsing());
       not(!ast => error(_, _))
 
   check-expectation(|ast, selections, messages) :
-    c -> $[Syntax is ambiguous: [<write-to-string> ast]]
+    c -> $[Syntax is ambiguous: [<write-to-html-string> ast]]
     where
       <oncetd(?amb(_))> ast;
       not(!c => pattern(_); oncetd(?unquoted("amb")))
 
   check-expectation(|ast, selections, messages) :
-    pattern(p) -> $[Does not match pattern: [<write-to-string> ast]]
+    pattern(p) -> $[Does not match pattern: [<write-to-html-string> ast]]
     where
       exploded := <explode-aterm> ast
     ; not(<aterm-eq> (exploded, p))
@@ -200,10 +203,10 @@ rules
     with
       result := <spt-pp-string> ast
     <+
-      result := $[[<write-to-string> ast] instead of [<write-to-string> ast]]
+      result := $[[<write-to-html-string> ast] instead of [<write-to-html-string> ast]]
 
   check-expectation(|ast, selections, messages) :
-    file(f) -> $[Does not match pattern: [<write-to-string> ast]]
+    file(f) -> $[Does not match pattern: [<write-to-html-string> ast]]
     where
       exploded := <explode-aterm> ast
     ; p := <resolve-path(|<current-path>); ReadFromFile; explode-aterm> f
@@ -248,10 +251,10 @@ rules
       rules(GrabbedNotes :+= bad-selections')
 
   check-error :
-    Stratego(_) -> (<id>, $[Not implemented: [<write-to-string>]])
+    Stratego(_) -> (<id>, $[Not implemented: [<write-to-html-string>]])
 
   check-error :
-    VarDecl(_, _) -> (<id>, $[Not implemented: [<write-to-string>]])
+    VarDecl(_, _) -> (<id>, $[Not implemented: [<write-to-html-string>]])
   
   check-error :
     RegexPattern(r) -> (r, $[Full regular expression support not implemented])
@@ -288,19 +291,19 @@ rules
     SuccessParsing + FailsParsing + ?pattern(_) + ?ParseOutput(_)
 
   grab-messages:
-    (errors, warnings, notes) -> <write-to-string> // TODO: make nice string?
+    (errors, warnings, notes) -> <write-to-html-string> // TODO: make nice string?
     where
       rules(GrabbedErrors   :+= errors);
       rules(GrabbedWarnings :+= warnings);
       rules(GrabbedNotes    :+= notes)
 
   grab-errors:
-    (errors, _, _) -> <write-to-string> errors // TODO: make nice string?
+    (errors, _, _) -> <write-to-html-string> errors // TODO: make nice string?
     where
       rules(GrabbedErrors :+= errors)
 
   grab-warnings:
-    (_, warnings, _) -> <write-to-string> warnings // TODO: make nice string?
+    (_, warnings, _) -> <write-to-html-string> warnings // TODO: make nice string?
     where
       rules(GrabbedWarnings :+= warnings)
 
@@ -331,13 +334,15 @@ rules
                                           |<Language>, s')> ()
     ; try(<grab-strategy-success-result(|d, result)> expectation)
     ; if !result => Error(error) then
-        warning := error
+        warning := error;
+        say(!error)
       else
         warning := <check-expectation(|result)> expectation
       end
 
   check-expectation(|result) :
-    StrategoFails() -> $[Failure expected: <pre>[<write-to-string> result']</pre>]
+    StrategoFails() -> $[Failure expected:
+                         <pre>[<write-to-html-string> result']</pre>]
     where
       !result => Some(result')
 
@@ -345,15 +350,16 @@ rules
     StrategoSuccess() -> StrategoSuccess()
     where
       !result => Some(result')
-    ; rules(GrabbedNotes :+= (d, $[Result: [<write-to-string> result'] (no => expectation specified)]))
+    ; rules(GrabbedNotes :+= (d, $[Result: [<write-to-html-string> result'] (no => expectation specified)]))
 
   check-expectation(|result) :
-    <not(StrategoFails)> -> $[Failure unexpected: <pre>[trace]</pre>]
+    <not(StrategoFails)> -> $[Failure unexpected:
+                              <pre>[trace]</pre>]
     where
       !result => Fail(trace)
 
   check-expectation(|result) :
-    StrategoEquals(p) -> $[Unexpected result: [<write-to-string> result']]
+    StrategoEquals(p) -> $[Unexpected output: [<write-to-html-string> result']]
     where
       !result => Some(result')
     ; result'' := <explode-aterm> result'

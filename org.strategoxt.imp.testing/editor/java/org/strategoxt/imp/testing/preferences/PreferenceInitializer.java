@@ -16,6 +16,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 * 
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
+	@Override
 	public void initializeDefaultPreferences() {
 		System.out.println("CALLING DEFAULTS....");
 		IPreferenceStore store = PlatformUI.getPreferenceStore();

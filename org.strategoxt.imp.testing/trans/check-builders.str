@@ -3,6 +3,7 @@ module check-builders
 imports
   libstratego-lib
   libstratego-aterm
+  libstratego-gpp
   include/Spoofax-Testing
   lib/editor-common.generated
   aterm-eq
@@ -32,7 +33,7 @@ rules
   check-builder(|ast, selections, messages, condition):
     (builder, arg, expected) -> error
     with
-      selected := <resolve-selection(|selections) <+ !ast> Numbered("1");
+      selected := <resolve-selection(|selections) <+ LastAnalyzedAst> Numbered("1");
       input    := <get-service-input-term> selected;
       if !arg => Argument(arg') then
         // Store builder argument
@@ -81,10 +82,10 @@ rules
           error       := <check-builder-expectation(|result)> expected
         case ?Error(m): 
           if <not(is-expected-failure)> (condition, expected) then
-            error := $[Unexpected error: [m]]
+            error := $[Unexpected error: [m]]; say(!m)
           end
         case ?Fail(m): 
-          error  := $[Unexpected error: [m]]
+          error  := $[Unexpected error: [m]]; say(!m)
         otherwise: with(fail)
       end
   
@@ -118,19 +119,20 @@ rules
       !output => refactor-result
    
   check-builder-expectation(|result) :
-    Fails() -> $[Builder was expected to fail, but produced: [<write-to-string> result]]
+    Fails() -> $[Builder was expected to fail, but produced: [<write-to-html-string> result]]
    
   check-builder-expectation(|result) :
     File(_) -> $[Builder comparison to file is not implemented] // TODO
    
   check-builder-expectation(|result) :
-    Fragment(_{^[ast | _]}) -> $[Unexpected output: [result']]
+    Fragment(_{^[ast | _]}) -> $[Unexpected output:
+                                <b><pre>[result']</pre></b>]
     where
       not(<eq> (ast, result) <+ <equal-in-desugared-form> (ast, result)) 
     with
       result' := <spt-pp-target-string> result
     <+
-      result' := $[[<write-to-string> result] instead of [<write-to-string> ast]]
+      result' := $[[<write-to-html-string> result] instead of [<write-to-html-string> ast]]
   
   equal-in-desugared-form:
   	(ast, result) -> (ast, result)
@@ -140,13 +142,16 @@ rules
       <compare-desugared-asts> (ast-desugared, result) 
   		
   check-builder-expectation(|result) :
-    ATerm(p) -> $[Unexpected output: [<write-to-string> result]]
+    ATerm(p) -> $[Unexpected output:
+                  <b><pre>[result-string]</pre></b>]
     where
       if <is-string> result; !p => fun(quoted(p')) then
-        not(<is-string-equal-modulo-whitespace> (result, <un-double-quote> p'))
+        not(<is-string-equal-modulo-whitespace> (result, <un-double-quote> p'));
+        result-string := <is-string <+ write-to-html-string> result
       else
         result' := <explode-aterm> result;
-        not(<aterm-eq> (result', p))
+        not(<aterm-eq> (result', p));
+        result-string := <pp-aterm-box; box2text-string(|60)> result
       end
   
   is-string-equal-modulo-whitespace:
@@ -176,19 +181,19 @@ rules
       <?(result-ast, _, _, _)> result
  
   check-refactor-expectation(|result) :
-    Warnings(n) -> $[[n] refactor warning(s) expected: [<write-to-string> warnings]]
+    Warnings(n) -> $[[n] refactor warning(s) expected: [<write-to-html-string> warnings]]
     where
       <?(_, _, _, warnings)> result
     ; not(<eq> (<length> warnings, <string-to-int> n))
 
   check-refactor-expectation(|result) :
-    Errors(n) -> $[[n] refactor error(s) expected: [<write-to-string> errors]]
+    Errors(n) -> $[[n] refactor error(s) expected: [<write-to-html-string> errors]]
     where
       <?(_, _, errors, _)> result
     ; not(<eq> (<length> errors, <string-to-int> n))
 
   check-refactor-expectation(|result) :
-    Fatals(n) -> $[[n] refactor fatal-error(s) expected: [<write-to-string> fatals]]
+    Fatals(n) -> $[[n] refactor fatal-error(s) expected: [<write-to-html-string> fatals]]
     where
       <?(_, fatals, _, _)> result
     ; not(<eq> (<length> fatals, <string-to-int> n))

@@ -50,15 +50,20 @@ rules
       from' := <resolve-selection(|selections)> from;
       to'   := <resolve-selection(|selections)> to
     with
-      from''    := <get-service-input-term> from';
+      input1    := <get-service-input-term> from';
+      input2    := <get-service-input-term-without-ancestor> from';
       resolvers := <spt-get-reference-resolvers>;
-      results   := <map(execute-service(|from''))> resolvers
+      results   := <map(execute-service(|input1); ?Some(_) <+
+                       execute-service(|input2))> resolvers
     where
       switch !results
         case one(is-successful-resolver(|to')): fail
-        case one(?Some(t)):  error := $[Unexpected result: [<write-to-string> t]]
-        case one(?Error(m)): error := $[Unexpected error resolving: [m]]
-        case one(?Fail(m)):  error := $[Unexpected error resolving: [m]]
+        case one(?Some(t)):  error := $[Unexpected result:
+                                        <pre>[<write-to-html-string> t]</pre>]
+        case one(?Error(m)): error := $[Unexpected error resolving:
+                                        <pre>[m]</pre>]; say(!m)
+        case one(?Fail(m)):  error := $[Unexpected error resolving:
+                                        <pre>[m]</pre>]; say(!m)
         otherwise: with(fail)
       end
   
@@ -68,3 +73,6 @@ rules
       !expected => wildcard()
     <+
       oncetd(origin-equal(|expected))
+    <+
+      expected-offset := <origin-offset> expected;
+      <oncetd(origin-offset => expected-offset)> result

@@ -126,7 +126,8 @@ public class FragmentParser {
 				result.setUseRecovery(true);
 				return result;
 			} else {
-				throw new IllegalStateException("SGLRParseController expected: " + controller.getClass().getName());
+				throw new IllegalStateException(
+					new BadDescriptorException("SGLRParseController expected: " + controller.getClass().getName()));
 			}
 		} catch (BadDescriptorException e) {
 			Environment.logWarning("Could not load parser for testing language");
