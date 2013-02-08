@@ -60,7 +60,10 @@ rules
       end;
       tuple := <
       	get-service-input-term; 
-      	oncetd(preserve-annos(!COMPLETION(<origin-equal(|cstring); !"">)))
+      	alltd(
+      	  preserve-annos(!COMPLETION(<origin-equal(|cstring); !"">));
+      	  \s{a*} -> s{<map(try(?cstring; !""))> a*}\
+      	)
       > y
   
   filter-on-prefix(|from):
