@@ -23,6 +23,9 @@ exports
     "topsort" ID        -> Header {cons("TopSort"), deprecated("Use 'start symbol' instead")}
     "start" "symbol" ID -> Header {cons("TopSort")}
     "language" ID       -> Header {cons("Language")}
+    
+    %% Switch to disable completion tests per file (Spoofax/544)
+    "disable" "completion" "tests" -> Header {cons("CompletionDisable")}
 
 	%% For testing source-to-source transformations
     "target" "start" "symbol" ID -> Header {cons("TargetTopSort")}
