@@ -83,7 +83,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	@Override
 	protected IStrategoTerm doParse(String input, String filename)
 			throws TokenExpectedException, BadTokenException, SGLRException,
-			IOException {
+			IOException, InterruptedException {
 
 		IStrategoTerm ast = super.doParse(input, filename);
 		return parseTestedFragments(ast);
@@ -140,6 +140,9 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 						Environment.logException("Could not parse tested code fragment", e);
 					} catch (RuntimeException e) {
 						Environment.logException("Could not parse tested code fragment", e);
+					} catch (InterruptedException e) {
+						// TODO: attach ErrorMessage(_) term with error?
+						Debug.log("Could not parse tested code fragment", e);
 					}
 				}
 				return term;

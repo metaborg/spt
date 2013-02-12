@@ -138,7 +138,7 @@ public class FragmentParser {
 	}
 
 	public IStrategoTerm parse(ITokenizer oldTokenizer, IStrategoTerm fragment, boolean ignoreSetup)
-			throws TokenExpectedException, BadTokenException, SGLRException, IOException {
+			throws TokenExpectedException, BadTokenException, SGLRException, IOException, InterruptedException {
 		
 		// TODO: use context-independent caching key
 		//       (requires offset adjustments for reuse...)
