@@ -182,7 +182,10 @@ strategies
       plugin-get-property-values(|<Language>) => [property#([value|_]) | _]
       
   spt-index-clear-file =
-    try(<plugin-strategy-invoke(|<Language>, "index-clear-file")> <InputFile>)
+    try(<plugin-strategy-invoke(|<Language>, "index-clear-partition")> <InputFile>)
+    
+  spt-task-clear-file =
+    try(<plugin-strategy-invoke(|<Language>, "task-clear-partition")> <InputFile>)
 	
   spt-get-observer =
     <plugin-get-string-property> "SemanticObserver"

@@ -124,6 +124,7 @@ rules
         warnings := <filter(check-expectation(|input, selections, messages''))> expectations
       end
     ; where(spt-index-clear-file)
+    ; where(spt-task-clear-file)
     ; not([]) 
    
   strip-and-record-analyzed-ast:
