@@ -12,6 +12,8 @@ imports
   generate
   file-resolving
   test-runner
+  index-taskengine-isolation
+  
 rules
     
   editor-analyze:
@@ -33,6 +35,7 @@ rules
           Language  := <get-language> ast'
           TargetLanguage := <get-target-language <+ get-language> ast'
         );
+        where(spt-setup-isolate);
         errors    := <collect-all(check-error, conc)> ast';
         warnings  := <collect-all(check-warning, conc)> ast';
         notes     := <collect-all(check-note, conc)> ast';
@@ -41,7 +44,8 @@ rules
         notes'    := <flatten-list> [notes, <bagof-GrabbedNotes>];
         if not([] := errors) then
             rules ( HasErrors := () )
-        end
+        end;
+        where(spt-isolate)
       | path, project-path
       )
 
@@ -144,12 +148,12 @@ strategies
           InputFile := path
           Language := language 
         );
+        where(spt-setup-isolate);
         completers := <spt-get-content-proposers>;
         results   := <map(execute-service(|input-tuple))> completers;
-        proposals := <getfirst(?Some(<id>))> results
+        proposals := <getfirst(?Some(<id>))> results;
+        where(spt-isolate)
       |}
-    with
-      spt-index-clear-file
   
   editor-resolve:
     (construct, position, ast, path, project-path) -> proposals
@@ -162,12 +166,12 @@ strategies
           InputFile := path
           Language := language 
         );
+        where(spt-setup-isolate);
         resolvers := <spt-get-reference-resolvers>;
         results   := <map(execute-service(|input-tuple))> resolvers;
-        proposals := <getfirst(?Some(<id>))> results
+        proposals := <getfirst(?Some(<id>))> results;
+        where(spt-isolate)
       |}
-    with
-      spt-index-clear-file
       
   origin-language =
   	prim("SSL_EXT_origin_language", <id>)
@@ -180,12 +184,6 @@ strategies
     property -> value
     where
       plugin-get-property-values(|<Language>) => [property#([value|_]) | _]
-      
-  spt-index-clear-file =
-    try(<plugin-strategy-invoke(|<Language>, "index-clear-partition")> <InputFile>)
-    
-  spt-task-clear-file =
-    try(<plugin-strategy-invoke(|<Language>, "task-clear-partition")> <InputFile>)
 	
   spt-get-observer =
     <plugin-get-string-property> "SemanticObserver"

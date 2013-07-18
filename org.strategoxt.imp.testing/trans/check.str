@@ -11,6 +11,7 @@ imports
   check-resolve
   check-complete
   check-builders
+  index-taskengine-isolation
 
 signature constructors
   error : Term * Term -> Term
@@ -111,6 +112,7 @@ rules
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
         // TODO: set starting directory to project path using invoke-plugin-strategy
         plugin-strategy-invoke(|<Language>, "editor-init")
+      ; where(spt-setup-isolate)
       ; input'     := (input, <InputFile>, <project-path>)
       ; messages   := <plugin-strategy-invoke(|<Language>, <spt-get-observer>) <+ !([], [], [])> input'
       ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast(|input)> <try(?Some(<id>))> messages
@@ -123,8 +125,7 @@ rules
       else
         warnings := <filter(check-expectation(|input, selections, messages''))> expectations
       end
-    ; where(spt-index-clear-file)
-    ; where(spt-task-clear-file)
+    ; where(spt-isolate)
     ; not([]) 
    
   strip-and-record-analyzed-ast:
