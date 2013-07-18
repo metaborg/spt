@@ -11,19 +11,19 @@ rules // Index
 	spt-index-setup =
 	  try(<plugin-strategy-invoke(|<Language>, "index-setup")> (<Language>, <project-path>))
 	  
-  spt-index-clear-file =
-    try(<plugin-strategy-invoke(|<Language>, "index-clear-partition")> <InputFile>)
+  spt-index-reset =
+    try(plugin-strategy-invoke(|<Language>, "index-reset"))
     
 rules // Task engine
     
 	spt-task-setup =
 	  try(<plugin-strategy-invoke(|<Language>, "task-setup")> <project-path>)
     
-  spt-task-clear-file =
-    try(<plugin-strategy-invoke(|<Language>, "task-clear-partition")> <InputFile>)
+  spt-task-reset =
+    try(plugin-strategy-invoke(|<Language>, "task-reset"))
     
 rules
 
-	spt-setup-isolate = spt-index-setup; spt-index-clear-file; spt-task-setup; spt-task-clear-file
-	spt-isolate = spt-index-clear-file; spt-task-clear-file
+	spt-setup-isolate = spt-index-setup; spt-index-reset; spt-task-setup; spt-task-reset
+	spt-isolate = spt-index-reset; spt-task-reset
 	
