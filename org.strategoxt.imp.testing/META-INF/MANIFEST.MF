@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SpoofaxTesting Plug-in
 Bundle-SymbolicName: org.strategoxt.imp.testing; singleton:=true
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: org.strategoxt.imp.testing.Activator
 Import-Package: org.osgi.framework
 Require-Bundle: org.strategoxt.imp.runtime,
@@ -22,7 +22,7 @@ Require-Bundle: org.strategoxt.imp.runtime,
  org.strategoxt.strj,
  org.eclipse.ui.forms,
  org.eclipse.core.resources
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: org.strategoxt.imp.testing,
  org.strategoxt.imp.testing.listener
