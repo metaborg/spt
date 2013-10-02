@@ -47,6 +47,7 @@ public class FragmentParser {
 	private static final boolean ALLOW_CACHING = false; // currently useless; plus it breaks setup sections at end of file
 	
 	private static final int FRAGMENT_PARSE_TIMEOUT = 3000;
+	private static final int FRAGMENT_DISAMBIGUATE_TIMEOUT = 1000;
 	
 	private static final IStrategoConstructor FAILS_PARSING_0 =
 		Environment.getTermFactory().makeConstructor("FailsParsing", 0);
@@ -122,7 +123,7 @@ public class FragmentParser {
 				controller.initialize(path, project, null);
 				JSGLRI result = sglrController.getParser(); 
 				//JSGLRI result = new JSGLRI(parser.getParseTable(), parser.getStartSymbol(), (SGLRParseController) controller);
-				result.setTimeout(FRAGMENT_PARSE_TIMEOUT);
+				result.setTimeout(FRAGMENT_PARSE_TIMEOUT, FRAGMENT_DISAMBIGUATE_TIMEOUT);
 				result.setUseRecovery(true);
 				return result;
 			} else {

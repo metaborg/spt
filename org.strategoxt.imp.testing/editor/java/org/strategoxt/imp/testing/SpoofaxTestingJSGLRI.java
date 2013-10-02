@@ -41,6 +41,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 	
 	private static final int PARSE_TIMEOUT = 20 * 1000;
 	
+	private static final long DISAMBIGUATE_TIMEOUT = 10 * 1000;
+	
 	private static final IStrategoConstructor INPUT_4 =
 		Environment.getTermFactory().makeConstructor("Input", 4);
 	
@@ -76,7 +78,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
 	public SpoofaxTestingJSGLRI(JSGLRI template) {
 		super(template.getParseTable(), template.getStartSymbol(), template.getController());
-		setTimeout(PARSE_TIMEOUT);
+		setTimeout(PARSE_TIMEOUT, DISAMBIGUATE_TIMEOUT);
 		setUseRecovery(true);
 	}
 	
