@@ -58,11 +58,11 @@ rules
     where
       switch !results
         case one(is-successful-resolver(|to')): fail
-        case one(?Some(t)):  error := $[Unexpected result:
-                                        <pre>[<write-to-html-string> t]</pre>]
+        case one(?Some(t)):  error := $[Fails to resolve:
+        	                              reference <pre>[from']</pre> on line [<(origin-line; inc) <+ !"??"> from'] does not resolve to definition <pre>[to']</pre> on line [<(origin-line; inc) <+ !"??"> to']]
+        case one(?Fail(m)):  error := $[Fails to resolve:
+        	                              reference <pre>[from']</pre> on line [<(origin-line; inc) <+ !"??"> from'] does not resolve to definition <pre>[to']</pre> on line [<(origin-line; inc) <+ !"??"> to']]
         case one(?Error(m)): error := $[Unexpected error resolving:
-                                        <pre>[m]</pre>]; say(!m)
-        case one(?Fail(m)):  error := $[Unexpected error resolving:
                                         <pre>[m]</pre>]; say(!m)
         otherwise: with(fail)
       end
