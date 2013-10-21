@@ -3,8 +3,6 @@
  */
 package org.strategoxt.imp.testing.listener;
 
-import java.util.Map;
-
 /**
  * @author vladvergu
  * 
