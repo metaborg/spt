@@ -72,7 +72,7 @@ rules
     where
       !expected => wildcard()
     <+
-      oncetd(origin-equal(|expected))
+      <origin-equal(|expected)> result
     <+
       expected-offset := <origin-offset> expected;
-      <oncetd(origin-offset => expected-offset)> result
+      <origin-offset; ?expected-offset> result
