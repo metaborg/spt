@@ -59,9 +59,9 @@ rules
       switch !results
         case one(is-successful-resolver(|to')): fail
         case one(?Some(t)):  error := $[Fails to resolve:
-        	                              reference <pre>[from']</pre> on line [<(origin-line; inc) <+ !"??"> from'] does not resolve to definition <pre>[to']</pre> on line [<(origin-line; inc) <+ !"??"> to']]
+        	                              reference <pre>[<write-to-string> from']</pre> on line [<(origin-line; inc) <+ !"??"> from'] does not resolve to definition <pre>[<write-to-string> to']</pre> on line [<(origin-line; inc) <+ !"??"> to']]
         case one(?Fail(m)):  error := $[Fails to resolve:
-        	                              reference <pre>[from']</pre> on line [<(origin-line; inc) <+ !"??"> from'] does not resolve to definition <pre>[to']</pre> on line [<(origin-line; inc) <+ !"??"> to']]
+        	                              reference <pre>[<write-to-string> from']</pre> on line [<(origin-line; inc) <+ !"??"> from'] does not resolve to definition <pre>[<write-to-string> to']</pre> on line [<(origin-line; inc) <+ !"??"> to']]
         case one(?Error(m)): error := $[Unexpected error resolving:
                                         <pre>[m]</pre>]; say(!m)
         otherwise: with(fail)
