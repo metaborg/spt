@@ -40,7 +40,10 @@ rules
         plugin-strategy-evaluate(id |<Language>, OVERRIDE_INPUT(arg'))
       end;
       if !condition => Run(_, _, _) then
-        output := <execute-service(|selected); not(Fails())> builder
+      	(
+      		run-input := <Fst> input;
+        	output    := <execute-service(|run-input); not(Fails())> builder
+        )
       <+
         output := <execute-service(|input)> builder
       else
