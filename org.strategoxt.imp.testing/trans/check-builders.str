@@ -50,7 +50,7 @@ rules
         output := <execute-service(|input)> builder
       end
     where
-      error := <check-builder> (output, input, expected, condition)
+      error := <check-builder> (output, input, expected, condition, builder)
 
   check-refactoring(|ast, selections, messages, condition):
     (builder, arg, expected) -> error
