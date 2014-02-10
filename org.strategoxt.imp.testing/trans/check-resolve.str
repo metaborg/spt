@@ -10,6 +10,17 @@ imports
   check
 
 rules
+	
+	origin-location-eq(|t1):
+		t2 -> <eq> (l1, l2)
+		where
+			l1 := <origin-location> t1;
+			l2 := <origin-location> t2
+	
+	find-origin-term(|ast):
+		t -> <bottomup(try(where(origin-location-eq(|t)); ?analysed-term)); !analysed-term> ast
+		
+rules
   
   spt-desugar:
     Resolve(n) -> ResolveTo(n, wildcard())
@@ -47,8 +58,9 @@ rules
   check-expectation(|ast, selections, messages) :
     ResolveTo(from, to) -> error
     where
-      from' := <resolve-selection(|selections)> from;
-      to'   := <resolve-selection(|selections)> to
+    	a-ast := <LastAnalyzedAst>;
+      from' := <resolve-selection(|selections); find-origin-term(|a-ast)> from;
+      to'   := <resolve-selection(|selections); find-origin-term(|a-ast)> to
     with
       input1    := <get-service-input-term> from';
       input2    := <get-service-input-term-without-ancestor> from';
