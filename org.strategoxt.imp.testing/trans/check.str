@@ -313,7 +313,7 @@ rules
   is-grabbed-message(|grabbed):
     selection -> selection
     where
-      <map(try(Fst); origin-location-eq(|selection))> grabbed
+      <one(try(Fst); origin-location-eq(|selection))> grabbed
 
 signature constructors
   
