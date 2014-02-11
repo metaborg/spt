@@ -8,17 +8,7 @@ imports
   aterm-eq
   spoofax_testing
   check
-
-rules
-	
-	origin-location-eq(|t1):
-		t2 -> <eq> (l1, l2)
-		where
-			l1 := <origin-location> t1;
-			l2 := <origin-location> t2
-	
-	find-origin-term(|ast):
-		t -> <bottomup(try(where(origin-location-eq(|t)); ?analysed-term)); !analysed-term> ast
+  origin
 		
 rules
   

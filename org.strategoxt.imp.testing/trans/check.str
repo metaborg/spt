@@ -12,7 +12,8 @@ imports
   check-complete
   check-builders
   index-taskengine-isolation
-
+	origin
+	
 signature constructors
   error : Term * Term -> Term
   localized : Term * Term -> Term
@@ -312,10 +313,10 @@ rules
   is-grabbed-message(|grabbed):
     selection -> selection
     where
-      <oncetd(origin-equal(|selection))> grabbed
+      <oncetd(origin-location-eq(|selection))> grabbed
     <+
       grabbed-terms := <map(try(Fst))> grabbed; 
-      <one(\g -> <oncetd(origin-equal(|g))> selection\)> grabbed-terms
+      <one(\g -> <oncetd(origin-location-eq(|g))> selection\)> grabbed-terms
 
 signature constructors
   
