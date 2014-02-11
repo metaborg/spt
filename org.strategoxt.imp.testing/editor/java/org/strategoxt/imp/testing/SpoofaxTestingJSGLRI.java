@@ -83,8 +83,6 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
 	private final FragmentParser outputFragmentParser = new FragmentParser(TARGET_SETUP_3, TARGET_TOPSORT_1);
 
-	private final SelectionFetcher selections = new SelectionFetcher();
-
 	public SpoofaxTestingJSGLRI(JSGLRI template) {
 		super(template.getParseTable(), template.getStartSymbol(), template.getController());
 		setTimeout(PARSE_TIMEOUT, DISAMBIGUATE_TIMEOUT);
@@ -188,7 +186,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 					IStrategoAppl quotepart = (IStrategoAppl) term.getSubterm(1);
 					if(quotepart.getConstructor().equals(QUOTEPART_1)) {
 						IStrategoTerm marked = quotepart.getSubterm(0);
-						
+
 						// Cloning term because (origin) attachments of this term are changed by parseTestedFragments.
 						results.add(cloneTerm(factory, marked));
 					}
