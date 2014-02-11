@@ -313,10 +313,7 @@ rules
   is-grabbed-message(|grabbed):
     selection -> selection
     where
-      <oncetd(origin-location-eq(|selection))> grabbed
-    <+
-      grabbed-terms := <map(try(Fst))> grabbed; 
-      <one(\g -> <oncetd(origin-location-eq(|g))> selection\)> grabbed-terms
+      <map(try(Fst); origin-location-eq(|selection))> grabbed
 
 signature constructors
   
