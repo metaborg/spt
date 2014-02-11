@@ -49,8 +49,8 @@ rules
     ResolveTo(from, to) -> error
     where
     	a-ast := <LastAnalyzedAst>;
-      from' := <resolve-selection(|selections); find-origin-term(|a-ast)> from;
-      to'   := <resolve-selection(|selections); find-origin-term(|a-ast)> to
+      from' := <resolve-selection(|selections); find-innermost-origin-term(|a-ast)> from;
+      to'   := <resolve-selection(|selections); find-innermost-origin-term(|a-ast)> to
     with
       input1    := <get-service-input-term> from';
       input2    := <get-service-input-term-without-ancestor> from';

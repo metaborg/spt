@@ -29,5 +29,8 @@ rules
 		; expected-origin := <origin-location> expected
 		; <?actual-origin> expected-origin
 	
-	find-origin-term(|ast):
+	find-innermost-origin-term(|ast):
 		t -> <oncebu(origin-location-eq-exact(|t); ?original-term); !original-term> ast
+
+	find-outermost-origin-term(|ast):
+		t -> <oncetd(origin-location-eq-exact(|t); ?original-term); !original-term> ast
