@@ -7,7 +7,12 @@ imports
 
 rules
 	
-	origin-location-eq(|expected):
+	// HACK: offset right colum of the expected origin location by 2 to avoid problems with markers (which become 
+	// trailing whitespace in the actual program) being part of the error message.
+	// TODO: retrieve the length of the markers and add that length, instead of always 2.
+	origin-location-eq(|expected) = origin-location-eq(|expected, 2)
+	
+	origin-location-eq(|expected, right-col-offset):
 		actual -> actual
 		where
 		  (a-left-line, a-left-col, a-right-line, a-right-col) := <origin-location> actual
@@ -15,10 +20,14 @@ rules
 		; <geq> (a-left-line,  e-left-line           )
 		; <geq> (a-left-col,   e-left-col            )
 		; <leq> (a-right-line, e-right-line          )
-		; <leq> (a-right-col,  <add> (e-right-col, 2)) 
-		// HACK: add 2 to avoid problems with markers (which become whitespace in the actual program) being part of the 
-		// error message.
-		// TODO: retrieve the length of the markers and add that length, instead of always 2.
+		; <leq> (a-right-col,  <add> (e-right-col, right-col-offset))
+		  
+	origin-location-eq-exact(|expected):
+		actual -> actual
+		where
+		  actual-origin   := <origin-location> actual
+		; expected-origin := <origin-location> expected
+		; <?actual-origin> expected-origin
 	
 	find-origin-term(|ast):
-		t -> <bottomup(try(where(origin-location-eq(|t)); ?analysed-term)); !analysed-term> ast
+		t -> <oncebu(origin-location-eq-exact(|t); ?original-term); !original-term> ast
