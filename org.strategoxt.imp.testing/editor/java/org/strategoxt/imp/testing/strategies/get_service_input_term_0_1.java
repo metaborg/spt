@@ -5,7 +5,6 @@ import static org.spoofax.terms.Term.*;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.HybridInterpreter;
 import org.strategoxt.imp.runtime.services.InputTermBuilder;
 import org.strategoxt.imp.runtime.services.StrategoReferenceResolver;
 import org.strategoxt.lang.Context;
@@ -25,9 +24,7 @@ public class get_service_input_term_0_1 extends Strategy {
 			analyzedAst = null;
 		if (!"COMPLETION".equals(tryGetName(current)) && !"NOCONTEXT".equals(tryGetName(current)))
 			current = InputTermBuilder.getMatchingAncestor(current, StrategoReferenceResolver.ALLOW_MULTI_CHILD_PARENT);
-		HybridInterpreter runtime = HybridInterpreter.getInterpreter(context);
-		InputTermBuilder inputBuilder = new InputTermBuilder(runtime, analyzedAst);
-		return inputBuilder.makeInputTerm(current, true, false);
+		return new InputTermBuilder(context).makeInputTerm(analyzedAst, current, true, false);
 	}
 
 }
