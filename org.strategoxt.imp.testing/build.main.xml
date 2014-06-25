@@ -19,8 +19,8 @@
         
         <!-- Imports -->
         <property name="build.sdf.imports" value="
-        	              -Idef &quot;${basedir}/../org.strategoxt.imp.editors.stratego/syntax/Stratego-Sugar.def&quot;
-        	              -Idef &quot;${basedir}/../org.strategoxt.imp.editors.aterm/include/ATerm.def&quot;"/>
+        	              -Idef &quot;${basedir}/../../stratego/org.strategoxt.imp.editors.stratego/syntax/Stratego-Sugar.def&quot;
+        	              -Idef &quot;${basedir}/../../mb-rep/org.strategoxt.imp.editors.aterm/include/ATerm.def&quot;"/>
         <property name="build.stratego.args" value="
                         --library
                         -I &quot;${trans}&quot;
