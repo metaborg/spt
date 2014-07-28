@@ -5,7 +5,6 @@ import static org.spoofax.interpreter.core.Tools.termAt;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.HybridInterpreter;
 import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.imp.runtime.dynamicloading.BadDescriptorException;
 import org.strategoxt.imp.runtime.dynamicloading.TermReader;
@@ -34,8 +33,6 @@ public class get_service_input_term_refactoring_0_1 extends Strategy {
 		} catch (BadDescriptorException e) {
 			Environment.logException("Refactoring test failed", e);
 		}
-		HybridInterpreter runtime = HybridInterpreter.getInterpreter(context);
-		InputTermBuilder inputBuilder = new InputTermBuilder(runtime, analyzedAst);
-		return inputBuilder.makeInputTermRefactoring(termAt(info, 3), current, true, onSource);
+		return new InputTermBuilder(context).makeInputTermRefactoring(analyzedAst, termAt(info, 3), current, true, onSource);
 	}
 }

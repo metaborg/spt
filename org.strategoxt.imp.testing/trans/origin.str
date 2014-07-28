@@ -1,0 +1,36 @@
+module origin
+
+imports
+	
+	libstratego-lib
+	lib/editor-common.generated
+
+rules
+	
+	// HACK: offset right colum of the expected origin location by 2 to avoid problems with markers (which become 
+	// trailing whitespace in the actual program) being part of the error message.
+	// TODO: retrieve the length of the markers and add that length, instead of always 2.
+	origin-location-eq(|expected) = origin-location-eq(|expected, 2)
+	
+	origin-location-eq(|expected, right-col-offset):
+		actual -> actual
+		where
+		  (a-left-line, a-left-col, a-right-line, a-right-col) := <origin-location> actual
+		; (e-left-line, e-left-col, e-right-line, e-right-col) := <origin-location> expected
+		; <geq> (a-left-line,  e-left-line           )
+		; <geq> (a-left-col,   e-left-col            )
+		; <leq> (a-right-line, e-right-line          )
+		; <leq> (a-right-col,  <add> (e-right-col, right-col-offset))
+		  
+	origin-location-eq-exact(|expected):
+		actual -> actual
+		where
+		  actual-origin   := <origin-location> actual
+		; expected-origin := <origin-location> expected
+		; <?actual-origin> expected-origin
+	
+	find-innermost-origin-term(|ast):
+		t -> <oncebu(origin-location-eq-exact(|t); ?original-term); !original-term> ast
+
+	find-outermost-origin-term(|ast):
+		t -> <oncetd(origin-location-eq-exact(|t); ?original-term); !original-term> ast

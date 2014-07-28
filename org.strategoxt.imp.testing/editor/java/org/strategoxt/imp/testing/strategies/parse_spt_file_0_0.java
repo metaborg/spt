@@ -68,6 +68,8 @@ public class parse_spt_file_0_0 extends Strategy {
 			Environment.logException("Could not parse testing string", e);
 		} catch (SGLRException e) {
 			Environment.logException("Could not parse testing string", e);
+		} catch (InterruptedException e) {
+			Environment.logException("Could not parse testing string", e);
 		} catch (IOException e) {
 			Environment.logException("Could not parse testing string", e);
 		}
