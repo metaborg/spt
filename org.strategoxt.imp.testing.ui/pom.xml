@@ -4,6 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.strategoxt.imp.testing.ui</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	<description>UI integration for SPT</description>
+	<url>https://github.com/metaborg/spt</url>
 
 	<parent>
 		<groupId>org.metaborg</groupId>
@@ -11,4 +13,19 @@
 		<version>1.2.0-SNAPSHOT</version>
 		<relativePath>../../spoofax-deploy/org.metaborg.maven.parent.plugin</relativePath>
 	</parent>
+
+	<developers>
+		<developer>
+			<name>Gabriël Konat</name>
+			<email>g.d.p.konat@tudelft.nl</email>
+			<organization>Delft University of Technology</organization>
+			<organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:metaborg/spt.git</connection>
+		<developerConnection>scm:git:git@github.com:metaborg/spt.git</developerConnection>
+		<url>https://github.com/metaborg/spt</url>
+	</scm>
 </project>
