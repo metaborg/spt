@@ -3,7 +3,7 @@ package org.strategoxt.imp.testing.ui.model;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.strategoxt.imp.testing.listener.ITestListener;
+import org.strategoxt.imp.testing.strategies.ITestListener;
 import org.strategoxt.imp.testing.ui.Activator;
 import org.strategoxt.imp.testing.ui.views.TestRunViewPart;
 

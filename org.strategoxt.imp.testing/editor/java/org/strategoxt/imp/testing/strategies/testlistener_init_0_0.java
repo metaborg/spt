@@ -3,8 +3,6 @@ package org.strategoxt.imp.testing.strategies;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.imp.runtime.Environment;
-import org.strategoxt.imp.testing.listener.ITestListener;
-import org.strategoxt.imp.testing.listener.helper.ListenerWrapper;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 

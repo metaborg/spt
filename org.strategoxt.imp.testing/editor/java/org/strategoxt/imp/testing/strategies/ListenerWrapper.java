@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.strategoxt.imp.testing.listener.helper;
+package org.strategoxt.imp.testing.strategies;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.spi.RegistryContributor;
 import org.eclipse.ui.PlatformUI;
-import org.strategoxt.imp.testing.listener.ITestListener;
 import org.strategoxt.imp.testing.preferences.PreferenceConstants;
 import org.strategoxt.imp.testing.preferences.PreferenceInitializer;
 
