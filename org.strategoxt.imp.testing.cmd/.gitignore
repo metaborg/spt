@@ -1,0 +1,8 @@
+/.cache
+/include
+/utils
+/editor/java/trans
+/editor/*generated*
+/syntax/*generated*
+/target
+/src-gen
