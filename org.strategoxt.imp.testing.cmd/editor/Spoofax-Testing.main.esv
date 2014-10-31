@@ -1,0 +1,22 @@
+
+module Spoofax-Testing.main
+
+imports Spoofax-Testing-Menus Spoofax-Testing-Colorer Spoofax-Testing-Completions Spoofax-Testing-Folding Spoofax-Testing-Outliner Spoofax-Testing-References Spoofax-Testing-Syntax
+
+language General properties
+                  
+  name          : Spoofax-Testing
+  id            : org.strategoxt.imp.testing.cmd
+  extends       : Root
+                  
+  description   : "Spoofax/IMP-generated editor for the Spoofax-Testing language"
+  url           : http://strategoxt.org
+                  
+  extensions    : spt
+  table         : include/Spoofax-Testing.tbl
+  start symbols : TestSuite
+  
+  provider : include/spoofax_testing-java.jar                                                                 
+  provider : include/spoofax_testing.jar                                                                    
+                                                                                                                               
+  observer : editor-analyze 

@@ -1,0 +1,29 @@
+module index-taskengine-isolation
+
+imports
+	
+	lib/editor-common.generated
+	spoofax_testing
+	check
+	
+rules // Index
+	
+	spt-index-setup =
+	  try(<plugin-strategy-invoke(|<Language>, "index-setup")> (<Language>, <project-path>))
+	  
+  spt-index-reset =
+    try(plugin-strategy-invoke(|<Language>, "index-reset"))
+    
+rules // Task engine
+    
+	spt-task-setup =
+	  try(<plugin-strategy-invoke(|<Language>, "task-setup")> <project-path>)
+    
+  spt-task-reset =
+    try(plugin-strategy-invoke(|<Language>, "task-reset"))
+    
+rules
+
+	spt-setup-isolate = spt-index-setup; spt-index-reset; spt-task-setup; spt-task-reset
+	spt-isolate = spt-index-reset; spt-task-reset
+	
