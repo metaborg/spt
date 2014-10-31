@@ -18,11 +18,11 @@
 			<artifactId>org.metaborg.sunshine</artifactId>
 			<version>${metaborg-version}</version>
 		</dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.spoofax.core</artifactId>
-      <version>${metaborg-version}</version>
-    </dependency>
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.metaborg.spoofax.core</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.metaborg.spt.listener</artifactId>
@@ -85,6 +85,35 @@
 				<configuration>
 					<compilerId>eclipse</compilerId>
 				</configuration>
+			</plugin>
+
+			<!-- Include JARs, parse table, and packed ESV as resources. -->
+			<!-- Have to specify resources, because this is a regular jar build, not an eclipse-plugin build where Tycho
+				looks at the build.properties file for resources to include. -->
+			<!-- Cannot use regular resources here since the dist folder is created after the compile phase, whereas resources
+				are processed before the compile phase. -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-include-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/include</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/include</directory>
+									<include>*.jar</include>
+									<include>*.tbl</include>
+									<include>*.packed.esv</include>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
