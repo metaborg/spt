@@ -49,7 +49,7 @@
 							<excludeDefaultDirectories>true</excludeDefaultDirectories>
 							<filesets>
 								<fileset>
-									<directory>${basedir}/editor/java/org/strategoxt/imp/testing</directory>
+									<directory>${basedir}/editor/java/org/strategoxt/imp/testing/cmd</directory>
 									<includes>
 										<include>*.java</include>
 									</includes>

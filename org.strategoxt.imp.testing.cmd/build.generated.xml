@@ -50,9 +50,9 @@
     <target name="package-ctree" depends="java.jar" />
 
 	<!-- Initialization -->
-	<available file="${src-gen}/org/strategoxt/imp/testing/strategies/Main.java" property="java.jar.enabled" />
+	<available file="${src-gen}/org/strategoxt/imp/testing/cmd/strategies/Main.java" property="java.jar.enabled" />
 	<available file="${pp}/${ppmodule}.str" property="pp.module.enabled" />
-	<condition property="java.jar.import" value="-la org.strategoxt.imp.testing.strategies" else="">
+	<condition property="java.jar.import" value="-la org.strategoxt.imp.testing.cmd.strategies" else="">
 		<isset property="java.jar.enabled" />
 	</condition>
 	<condition property="java.jar.classpath" value=":${include}/${strmodule}-java.jar" else="">
@@ -484,7 +484,7 @@
 
 	<target name="java.jar" if="java.jar.enabled">
 	    <delete file="${include}/${strmodule}-java.jar" failonerror="false" />
-		<jar basedir="${build}" includes="org/strategoxt/imp/testing/strategies/" update="true" destfile="${include}/${strmodule}-java.jar" />
+		<jar basedir="${build}" includes="org/strategoxt/imp/testing/cmd/strategies/" update="true" destfile="${include}/${strmodule}-java.jar" />
 	</target>
 
 	<!-- Stratego to Java interpreter -->

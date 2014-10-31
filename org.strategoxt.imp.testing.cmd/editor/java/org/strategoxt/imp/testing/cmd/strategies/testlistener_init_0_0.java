@@ -1,4 +1,4 @@
-package org.strategoxt.imp.testing.strategies;
+package org.strategoxt.imp.testing.cmd.strategies;
 
 import java.util.Iterator;
 

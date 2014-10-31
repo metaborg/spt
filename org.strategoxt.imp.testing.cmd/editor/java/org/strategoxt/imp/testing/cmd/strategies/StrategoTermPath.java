@@ -1,4 +1,4 @@
-package org.strategoxt.imp.testing.strategies;
+package org.strategoxt.imp.testing.cmd.strategies;
 
 import static org.spoofax.jsglr.client.imploder.ImploderAttachment.hasImploderOrigin;
 import static org.spoofax.terms.Term.isTermList;

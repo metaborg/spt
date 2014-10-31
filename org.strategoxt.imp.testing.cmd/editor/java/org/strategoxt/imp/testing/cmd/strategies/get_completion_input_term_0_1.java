@@ -1,4 +1,4 @@
-package org.strategoxt.imp.testing.strategies;
+package org.strategoxt.imp.testing.cmd.strategies;
 
 import org.spoofax.terms.util.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoTerm;

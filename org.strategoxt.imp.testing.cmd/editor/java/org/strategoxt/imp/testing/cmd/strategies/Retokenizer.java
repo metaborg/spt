@@ -1,4 +1,4 @@
-package org.strategoxt.imp.testing.strategies;
+package org.strategoxt.imp.testing.cmd.strategies;
 
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostLayoutToken;
 import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.getTokenAfter;

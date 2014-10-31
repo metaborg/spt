@@ -1,4 +1,4 @@
-package org.strategoxt.imp.testing.strategies;
+package org.strategoxt.imp.testing.cmd.strategies;
 
 import static java.lang.Math.max;
 import static org.spoofax.interpreter.core.Tools.*;
