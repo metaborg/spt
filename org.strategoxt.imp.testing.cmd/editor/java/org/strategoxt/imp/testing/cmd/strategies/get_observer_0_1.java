@@ -23,16 +23,14 @@ import org.strategoxt.lang.Strategy;
  *
  */
 public class get_observer_0_1 extends Strategy {
+    private static final Logger logger = LogManager.getLogger(get_observer_0_1.class);
+	public static final get_observer_0_1 instance = new get_observer_0_1();
 
-	public static get_observer_0_1 instance = new get_observer_0_1();
-
-	private static Logger LOG = LogManager.getLogger(get_observer_0_1.class); 
 	
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm unused, IStrategoTerm language) {
-		LOG.info("Getting observer for language {}", language);
-		ILanguage lang = ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(Tools.asJavaString(language));
+		logger.info("Getting observer for language {}", language);
+		final ILanguage lang = ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(Tools.asJavaString(language));
 		return context.getFactory().makeString(lang.facet(StrategoFacet.class).analysisStrategy());
 	}
-
 }
