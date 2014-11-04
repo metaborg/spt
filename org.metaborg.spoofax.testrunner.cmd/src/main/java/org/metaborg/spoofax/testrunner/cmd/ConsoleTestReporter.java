@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.testrunner.core;
+package org.metaborg.spoofax.testrunner.cmd;
 
 import java.util.Collection;
 
@@ -7,8 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.metaborg.spt.listener.ITestReporter;
 
-public class TestReporter implements ITestReporter {
-    private static final Logger logger = LogManager.getLogger(TestReporter.class);
+public class ConsoleTestReporter implements ITestReporter {
+    private static final Logger logger = LogManager.getLogger(ConsoleTestReporter.class);
 
 
     @Override public void addTestcase(String testsuiteFile, String description) throws Exception {
