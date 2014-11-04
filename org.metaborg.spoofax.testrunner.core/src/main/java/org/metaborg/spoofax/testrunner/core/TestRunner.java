@@ -2,7 +2,6 @@ package org.metaborg.spoofax.testrunner.core;
 
 import java.io.IOException;
 
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.sunshine.drivers.SunshineMainDriver;
@@ -11,6 +10,9 @@ import org.metaborg.sunshine.environment.SunshineMainArguments;
 
 public class TestRunner {
     public final ServiceRegistry services;
+
+    private final ILanguageDiscoveryService discovery;
+    private final IResourceService resources;
 
 
     public TestRunner(String testsLocation, String sptBuilder) {
@@ -24,14 +26,17 @@ public class TestRunner {
         org.metaborg.sunshine.drivers.Main.initEnvironment(params);
 
         this.services = ServiceRegistry.INSTANCE();
+        this.discovery = services.getService(ILanguageDiscoveryService.class);
+        this.resources = services.getService(IResourceService.class);
     }
 
 
-    public void registerLanguage(FileObject targetLangLocation) throws Exception {
-        final ILanguageDiscoveryService discovery = services.getService(ILanguageDiscoveryService.class);
-        final IResourceService resources = services.getService(IResourceService.class);
-        discovery.discover(targetLangLocation);
+    public void registerSPT() throws Exception {
         discovery.discover(resources.resolve("res:spt"));
+    }
+
+    public void registerLanguage(String targetLangLocation) throws Exception {
+        discovery.discover(resources.resolve(targetLangLocation));
     }
 
     public int run() throws IOException {

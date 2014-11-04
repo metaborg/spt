@@ -1,9 +1,7 @@
 package org.metaborg.spoofax.testrunner.cmd;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.spoofax.testrunner.core.TestRunner;
 
 import com.beust.jcommander.JCommander;
@@ -12,7 +10,7 @@ import com.beust.jcommander.ParameterException;
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
-    
+
     public static void main(String[] args) {
         final Arguments arguments = new Arguments();
         final JCommander jc = new JCommander(arguments);
@@ -32,10 +30,9 @@ public class Main {
 
         try {
             final TestRunner runner = new TestRunner(arguments.testsLocation, "testrunnerfile");
-            final FileObject targetLanguage =
-                runner.services.getService(IResourceService.class).resolve(arguments.targetLanguageLocation);
-            runner.registerLanguage(targetLanguage);
-            
+            runner.registerSPT();
+            runner.registerLanguage(arguments.targetLanguageLocation);
+
             final int exit = runner.run();
             if(exit == 0) {
                 logger.info("Testing completed normally");
