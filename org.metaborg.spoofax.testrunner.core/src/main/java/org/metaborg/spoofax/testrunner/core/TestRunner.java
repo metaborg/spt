@@ -2,6 +2,8 @@ package org.metaborg.spoofax.testrunner.core;
 
 import java.io.IOException;
 
+import org.apache.commons.vfs2.AllFileSelector;
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
 import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.sunshine.drivers.SunshineMainDriver;
@@ -32,7 +34,11 @@ public class TestRunner {
 
 
     public void registerSPT() throws Exception {
-        discovery.discover(resources.resolve("res:spt"));
+        final FileObject sptLocation = resources.resolve("res:spt");
+        final FileObject tmpSPTLocation = resources.resolve(System.getProperty("java.io.tmpdir") + "/spt");
+        tmpSPTLocation.delete(new AllFileSelector());
+        tmpSPTLocation.copyFrom(sptLocation, new AllFileSelector());
+        discovery.discover(tmpSPTLocation);
     }
 
     public void registerLanguage(String targetLangLocation) throws Exception {
