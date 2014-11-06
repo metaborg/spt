@@ -11,10 +11,11 @@ import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.metaborg.sunshine.environment.SunshineMainArguments;
 
 public class TestRunner {
-    public final ServiceRegistry services;
-
+    private final ServiceRegistry services;
     private final ILanguageDiscoveryService discovery;
     private final IResourceService resources;
+
+    private FileObject tmpSPTLocation;
 
 
     public TestRunner(String testsLocation, String sptBuilder) {
@@ -34,8 +35,8 @@ public class TestRunner {
 
 
     public void registerSPT() throws Exception {
+        tmpSPTLocation = resources.resolve(System.getProperty("java.io.tmpdir") + "/spt");
         final FileObject sptLocation = resources.resolve("res:spt");
-        final FileObject tmpSPTLocation = resources.resolve(System.getProperty("java.io.tmpdir") + "/spt");
         tmpSPTLocation.delete(new AllFileSelector());
         tmpSPTLocation.copyFrom(sptLocation, new AllFileSelector());
         discovery.discover(tmpSPTLocation);
@@ -46,7 +47,13 @@ public class TestRunner {
     }
 
     public int run() throws IOException {
+        if(tmpSPTLocation == null) {
+            throw new IllegalStateException(
+                "SPT has not been registered, call registerSPT() before calling run()");
+        }
         final SunshineMainDriver driver = services.getService(SunshineMainDriver.class);
-        return driver.run();
+        final int result = driver.run();
+        tmpSPTLocation.delete();
+        return result;
     }
 }
