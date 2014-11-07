@@ -1,0 +1,12 @@
+/.cache
+/include
+/utils
+/editor/java/trans
+/editor/*generated*
+/syntax/*generated*
+/target
+/src-gen
+/META-INF
+/build.properties
+/editor/java/org/strategoxt/imp/testing/cmd/*
+/plugin.xml

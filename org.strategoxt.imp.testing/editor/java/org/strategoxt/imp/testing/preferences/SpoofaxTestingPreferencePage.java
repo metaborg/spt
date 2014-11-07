@@ -8,7 +8,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
-import org.strategoxt.imp.testing.listener.ITestListener;
+import org.strategoxt.imp.testing.strategies.ITestListener;
 
 /**
  * This class represents a preference page that is contributed to the Preferences dialog. By subclassing

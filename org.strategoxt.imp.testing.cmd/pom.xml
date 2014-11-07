@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.strategoxt.imp.testing.cmd</artifactId>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.metaborg</groupId>
+		<artifactId>org.metaborg.maven.parent.language</artifactId>
+		<version>1.3.0-SNAPSHOT</version>
+		<relativePath>../../spoofax-deploy/org.metaborg.maven.parent.language</relativePath>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.metaborg.sunshine</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.metaborg.spoofax.core</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.metaborg.spt.listener</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Delete generated Spoofax plugin files, because this version of SPT
+				is a pure Java project, not an Eclipse plugin project. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>spt-clean-generated-plugin-classes</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+						<configuration>
+							<skip>${skip-language-build}</skip>
+							<excludeDefaultDirectories>true</excludeDefaultDirectories>
+							<filesets>
+								<fileset>
+									<directory>${basedir}/editor/java/org/strategoxt/imp/testing/cmd</directory>
+									<includes>
+										<include>*.java</include>
+									</includes>
+								</fileset>
+								<fileset>
+									<directory>${basedir}</directory>
+									<includes>
+										<include>plugin.xml</include>
+										<include>build.properties</include>
+									</includes>
+								</fileset>
+								<fileset>
+									<directory>${basedir}/META-INf</directory>
+								</fileset>
+							</filesets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Use Eclipse JDT compiler, regular compiler cannot handle this number
+				of classes. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-eclipse</artifactId>
+						<version>${maven-eclipse-compiler-version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<compilerId>eclipse</compilerId>
+				</configuration>
+			</plugin>
+
+			<!-- Include JARs, parse table, and packed ESV as resources. -->
+			<!-- Have to specify resources, because this is a regular jar build, not an eclipse-plugin build where Tycho
+				looks at the build.properties file for resources to include. -->
+			<!-- Cannot use regular resources here since the dist folder is created after the compile phase, whereas resources
+				are processed before the compile phase. -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-include-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/include</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/include</directory>
+									<include>*.jar</include>
+									<include>*.tbl</include>
+									<include>*.packed.esv</include>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

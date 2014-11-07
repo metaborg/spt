@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.strategoxt.imp.testing.listener;
+package org.strategoxt.imp.testing.strategies;
 
 /**
  * @author vladvergu

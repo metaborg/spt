@@ -1,7 +1,7 @@
 package org.strategoxt.imp.testing.strategies;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.NotImplementedException;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 

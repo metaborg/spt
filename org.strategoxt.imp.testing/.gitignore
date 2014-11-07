@@ -1,4 +1,5 @@
 bin
+target
 .cache
 include
 .settings
@@ -8,4 +9,4 @@ lib-refactoring
 editor/java/trans
 editor/*generated*
 syntax/*generated*
-
+src-gen
