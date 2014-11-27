@@ -221,7 +221,7 @@ rules
       not(!messages => ([], [], _))
   
   is-semantic-failure-allowed =
-    Fails() + ?Errors(_) + ?Warnings(_) + ?CompleteTo(_, _) + ?RegexPattern(_)
+    Fails() + ?Errors(_) + ?Warnings(_) + ?CompleteTo(_, _) + ?RegexPattern(_) + ?ResolveTo(_, _)
 
   check-expectation(|ast, selections, messages) :
     Errors(n) -> $[[n] error(s) expected: [<grab-errors> messages]]
