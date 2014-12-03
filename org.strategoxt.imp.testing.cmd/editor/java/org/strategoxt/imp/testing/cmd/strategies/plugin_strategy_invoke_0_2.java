@@ -4,8 +4,8 @@ import static org.spoofax.interpreter.core.Tools.*;
 
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
+import org.metaborg.spoofax.core.stratego.StrategoRuntimeService;
 import org.metaborg.sunshine.environment.ServiceRegistry;
-import org.metaborg.sunshine.services.RuntimeService;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -32,7 +32,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 
         ServiceRegistry env = ServiceRegistry.INSTANCE();
         ILanguage lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
-        HybridInterpreter runtime = env.getService(RuntimeService.class).getRuntime(lang);
+        HybridInterpreter runtime = env.getService(StrategoRuntimeService.class).getRuntime(lang);
 
         // strategy should be a String
         if(isTermAppl(strategy) && ((IStrategoAppl) strategy).getName().equals("Strategy"))
