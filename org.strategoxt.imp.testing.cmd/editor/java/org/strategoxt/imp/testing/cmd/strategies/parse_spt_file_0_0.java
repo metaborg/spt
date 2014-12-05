@@ -21,6 +21,8 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
+import com.google.inject.TypeLiteral;
+
 /**
  * parse-spt-string strategy to get AST of Spoofax-Testing testsuite, where the input fragments have been
  * annotated with the AST of the input.
@@ -40,7 +42,8 @@ public class parse_spt_file_0_0 extends Strategy {
 
         ILanguage l = ServiceRegistry.INSTANCE().getService(ILanguageService.class).get("Spoofax-Testing");
         JSGLRParseService parseService =
-            (JSGLRParseService) ServiceRegistry.INSTANCE().getService(IParseService.class);
+            (JSGLRParseService) ServiceRegistry.INSTANCE().getService(
+                new TypeLiteral<IParseService<IStrategoTerm>>() {});
         IParserConfig existingConfig = parseService.getParserConfig(l);
 
         IParserConfig c =

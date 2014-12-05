@@ -37,6 +37,8 @@ import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.TermVisitor;
 import org.strategoxt.lang.WeakValueHashMap;
 
+import com.google.inject.TypeLiteral;
+
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
@@ -123,7 +125,8 @@ public class FragmentParser {
         // TODO: can't we just use lang.getStartSymbol?
         String startSymbol = start == null ? null : asJavaString(start.getSubterm(0));
         JSGLRParseService parseService =
-            (JSGLRParseService) ServiceRegistry.INSTANCE().getService(IParseService.class);
+            (JSGLRParseService) ServiceRegistry.INSTANCE().getService(
+                new TypeLiteral<IParseService<IStrategoTerm>>() {});
         IParserConfig existingConfig = parseService.getParserConfig(lang);
         IParserConfig config =
             new ParserConfig(startSymbol, existingConfig.getParseTableProvider(), FRAGMENT_PARSE_TIMEOUT);
