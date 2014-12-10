@@ -64,7 +64,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     public SpoofaxTestingJSGLRI(JSGLRI template) {
         super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig()
-            .getParseTableProvider(), PARSE_TIMEOUT), factory, template.getFile());
+            .getParseTableProvider(), PARSE_TIMEOUT), factory, template.getLanguage() ,template.getFile());
         setUseRecovery(true);
     }
 

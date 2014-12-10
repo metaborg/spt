@@ -130,7 +130,7 @@ public class FragmentParser {
         IParserConfig existingConfig = parseService.getParserConfig(lang);
         IParserConfig config =
             new ParserConfig(startSymbol, existingConfig.getParseTableProvider(), FRAGMENT_PARSE_TIMEOUT);
-        JSGLRI result = new JSGLRI(config, factory, file);
+        JSGLRI result = new JSGLRI(config, factory, lang, file);
         result.setUseRecovery(true);
         return result;
     }

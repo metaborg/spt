@@ -49,7 +49,7 @@ public class parse_spt_file_0_0 extends Strategy {
         IParserConfig c =
             new ParserConfig(existingConfig.getStartSymbol(), existingConfig.getParseTableProvider(),
                 24 * 1000);
-        JSGLRI p = new JSGLRI(c, context.getFactory(), file);
+        JSGLRI p = new JSGLRI(c, context.getFactory(), l, file);
         SpoofaxTestingJSGLRI parser = new SpoofaxTestingJSGLRI(p);
         parser.setUseRecovery(false);
 
