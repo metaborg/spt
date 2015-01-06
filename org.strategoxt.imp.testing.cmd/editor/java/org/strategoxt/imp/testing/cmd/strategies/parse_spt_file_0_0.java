@@ -8,12 +8,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
-import org.metaborg.spoofax.core.parser.IParseService;
-import org.metaborg.spoofax.core.parser.jsglr.IParserConfig;
-import org.metaborg.spoofax.core.parser.jsglr.JSGLRI;
-import org.metaborg.spoofax.core.parser.jsglr.JSGLRParseService;
-import org.metaborg.spoofax.core.parser.jsglr.ParserConfig;
 import org.metaborg.spoofax.core.resource.IResourceService;
+import org.metaborg.spoofax.core.syntax.ISyntaxService;
+import org.metaborg.spoofax.core.syntax.jsglr.IParserConfig;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParseService;
+import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -43,7 +43,7 @@ public class parse_spt_file_0_0 extends Strategy {
         ILanguage l = ServiceRegistry.INSTANCE().getService(ILanguageService.class).get("Spoofax-Testing");
         JSGLRParseService parseService =
             (JSGLRParseService) ServiceRegistry.INSTANCE().getService(
-                new TypeLiteral<IParseService<IStrategoTerm>>() {});
+                new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
         IParserConfig existingConfig = parseService.getParserConfig(l);
 
         IParserConfig c =

@@ -12,13 +12,13 @@ import java.util.List;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.spoofax.core.language.ILanguage;
-import org.metaborg.spoofax.core.parser.IParseService;
-import org.metaborg.spoofax.core.parser.jsglr.IParserConfig;
-import org.metaborg.spoofax.core.parser.jsglr.JSGLRI;
-import org.metaborg.spoofax.core.parser.jsglr.JSGLRParseService;
-import org.metaborg.spoofax.core.parser.jsglr.ParserConfig;
-import org.metaborg.spoofax.core.parser.jsglr.SourceAttachment;
 import org.metaborg.spoofax.core.resource.IResourceService;
+import org.metaborg.spoofax.core.syntax.ISyntaxService;
+import org.metaborg.spoofax.core.syntax.jsglr.IParserConfig;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParseService;
+import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
+import org.metaborg.spoofax.core.syntax.jsglr.SourceAttachment;
 import org.metaborg.sunshine.environment.LaunchConfiguration;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.metaborg.sunshine.esvutil.ESVReader;
@@ -126,7 +126,7 @@ public class FragmentParser {
         String startSymbol = start == null ? null : asJavaString(start.getSubterm(0));
         JSGLRParseService parseService =
             (JSGLRParseService) ServiceRegistry.INSTANCE().getService(
-                new TypeLiteral<IParseService<IStrategoTerm>>() {});
+                new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
         IParserConfig existingConfig = parseService.getParserConfig(lang);
         IParserConfig config =
             new ParserConfig(startSymbol, existingConfig.getParseTableProvider(), FRAGMENT_PARSE_TIMEOUT);
