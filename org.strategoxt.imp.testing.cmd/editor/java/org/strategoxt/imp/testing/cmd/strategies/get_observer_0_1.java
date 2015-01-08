@@ -2,9 +2,9 @@ package org.strategoxt.imp.testing.cmd.strategies;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.metaborg.spoofax.core.analysis.stratego.StrategoFacet;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
-import org.metaborg.spoofax.core.service.stratego.StrategoFacet;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
