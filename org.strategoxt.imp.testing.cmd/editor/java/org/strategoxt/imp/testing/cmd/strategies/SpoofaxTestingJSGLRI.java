@@ -1,7 +1,11 @@
 package org.strategoxt.imp.testing.cmd.strategies;
 
-import static org.spoofax.interpreter.core.Tools.*;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
+import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermList;
+import static org.spoofax.interpreter.core.Tools.termAt;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
@@ -64,17 +68,22 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     public SpoofaxTestingJSGLRI(JSGLRI template) {
         super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig()
-            .getParseTableProvider(), PARSE_TIMEOUT), factory, template.getLanguage() ,template.getFile());
+            .getParseTableProvider(), PARSE_TIMEOUT), factory, template.getLanguage(),
+            template.getResource(), template.getInput());
         setUseRecovery(true);
     }
 
     @Override public IStrategoTerm actuallyParse(String input, String filename) throws InterruptedException,
         SGLRException {
         IStrategoTerm ast = super.actuallyParse(input, filename);
-        return parseTestedFragments(ast);
+        try {
+            return parseTestedFragments(ast);
+        } catch(IOException e) {
+            throw new SGLRException(getParser(), "Cannot parse", e);
+        }
     }
 
-    private IStrategoTerm parseTestedFragments(final IStrategoTerm root) {
+    private IStrategoTerm parseTestedFragments(final IStrategoTerm root) throws IOException {
         final Tokenizer oldTokenizer = (Tokenizer) getTokenizer(root);
         final Retokenizer retokenizer = new Retokenizer(oldTokenizer);
         final ITermFactory nonParentFactory = factory;
@@ -154,10 +163,10 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
     }
 
     private FragmentParser configureFragmentParser(IStrategoTerm root, ILanguage language,
-        FragmentParser fragmentParser) {
+        FragmentParser fragmentParser) throws IOException {
         if(language == null)
             return null;
-        fragmentParser.configure(language, super.getFile(), root);
+        fragmentParser.configure(language, super.getResource(), root);
         // FIXME: I have no clue how commenting this will affect SPT
         // it's probably only editor related, so no worries for the Sunshine version I think
         // attachToLanguage(language);

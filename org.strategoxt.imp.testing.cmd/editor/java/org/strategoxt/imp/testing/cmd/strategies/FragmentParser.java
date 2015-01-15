@@ -1,8 +1,12 @@
 package org.strategoxt.imp.testing.cmd.strategies;
 
 import static java.lang.Math.max;
-import static org.spoofax.interpreter.core.Tools.*;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
+import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermString;
+import static org.spoofax.interpreter.core.Tools.listAt;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 import static org.spoofax.terms.Term.tryGetConstructor;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
@@ -19,6 +23,7 @@ import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParseService;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
 import org.metaborg.spoofax.core.syntax.jsglr.SourceAttachment;
+import org.metaborg.spoofax.core.text.ISourceTextService;
 import org.metaborg.sunshine.environment.LaunchConfiguration;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.metaborg.sunshine.esvutil.ESVReader;
@@ -91,7 +96,7 @@ public class FragmentParser {
         parseCacheLanguage = null;
     }
 
-    public void configure(ILanguage lang, FileObject sptFile, IStrategoTerm ast) {
+    public void configure(ILanguage lang, FileObject sptFile, IStrategoTerm ast) throws IOException {
         if(parseCacheLanguage != lang) {
             parseCacheLanguage = lang;
             parser = getParser(lang, sptFile, ast);
@@ -116,21 +121,24 @@ public class FragmentParser {
      *            TODO I don't know what it should represent, but it is used to determine the start symbol for
      *            the parser.
      * @return the parser, or null if lang was null.
+     * @throws IOException
      */
-    private JSGLRI getParser(ILanguage lang, FileObject file, IStrategoTerm ast) {
+    private JSGLRI getParser(ILanguage lang, FileObject file, IStrategoTerm ast) throws IOException {
         if(lang == null)
             return null;
         IStrategoTerm start = ESVReader.findTerm(ast, topsort_1.getName());
         // start symbol creation is copied from the previous configure method
         // TODO: can't we just use lang.getStartSymbol?
         String startSymbol = start == null ? null : asJavaString(start.getSubterm(0));
-        JSGLRParseService parseService =
-            (JSGLRParseService) ServiceRegistry.INSTANCE().getService(
-                new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
-        IParserConfig existingConfig = parseService.getParserConfig(lang);
-        IParserConfig config =
+        final ServiceRegistry services = ServiceRegistry.INSTANCE();
+        final ISourceTextService sourceTextService = services.getService(ISourceTextService.class);
+        final JSGLRParseService syntaxService =
+            (JSGLRParseService) services.getService(new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
+        final IParserConfig existingConfig = syntaxService.getParserConfig(lang);
+        final IParserConfig config =
             new ParserConfig(startSymbol, existingConfig.getParseTableProvider(), FRAGMENT_PARSE_TIMEOUT);
-        JSGLRI result = new JSGLRI(config, factory, lang, file);
+        final String inputText = sourceTextService.text(file);
+        JSGLRI result = new JSGLRI(config, factory, lang, file, inputText);
         result.setUseRecovery(true);
         return result;
     }
