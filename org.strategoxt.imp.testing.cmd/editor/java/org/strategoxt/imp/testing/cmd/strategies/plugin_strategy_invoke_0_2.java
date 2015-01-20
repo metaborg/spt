@@ -1,9 +1,14 @@
 package org.strategoxt.imp.testing.cmd.strategies;
 
-import static org.spoofax.interpreter.core.Tools.*;
+import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermAppl;
+import static org.spoofax.interpreter.core.Tools.termAt;
 
+import org.apache.commons.vfs2.FileObject;
+import org.metaborg.spoofax.core.context.SpoofaxContext;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
+import org.metaborg.spoofax.core.resource.ResourceService;
 import org.metaborg.spoofax.core.stratego.StrategoRuntimeService;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -28,11 +33,13 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
      */
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName,
         IStrategoTerm strategy) {
-        ITermFactory factory = context.getFactory();
-
-        ServiceRegistry env = ServiceRegistry.INSTANCE();
-        ILanguage lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
-        HybridInterpreter runtime = env.getService(StrategoRuntimeService.class).getRuntime(lang);
+        final ITermFactory factory = context.getFactory();
+        final ServiceRegistry env = ServiceRegistry.INSTANCE();
+        final ILanguage lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
+        final FileObject location =
+            env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
+        final HybridInterpreter runtime =
+            env.getService(StrategoRuntimeService.class).runtime(new SpoofaxContext(lang, location));
 
         // strategy should be a String
         if(isTermAppl(strategy) && ((IStrategoAppl) strategy).getName().equals("Strategy"))
