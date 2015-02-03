@@ -11,14 +11,14 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
 import org.metaborg.sunshine.environment.LaunchConfiguration;
 import org.metaborg.sunshine.environment.ServiceRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -37,8 +37,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     private static final int PARSE_TIMEOUT = 20 * 1000;
 
-    private static ITermFactory factory =
-        ServiceRegistry.INSTANCE().getService(LaunchConfiguration.class).termFactory;
+    private static ITermFactory factory = ServiceRegistry.INSTANCE().getService(LaunchConfiguration.class).termFactory;
     private static final IStrategoConstructor INPUT_4 = factory.makeConstructor("Input", 4);
 
     private static final IStrategoConstructor OUTPUT_4 = factory.makeConstructor("Output", 4);
@@ -47,8 +46,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     private static final IStrategoConstructor LANGUAGE_1 = factory.makeConstructor("Language", 1);
 
-    private static final IStrategoConstructor TARGET_LANGUAGE_1 = factory
-        .makeConstructor("TargetLanguage", 1);
+    private static final IStrategoConstructor TARGET_LANGUAGE_1 = factory.makeConstructor("TargetLanguage", 1);
 
     private static final IStrategoConstructor SETUP_3 = factory.makeConstructor("Setup", 3);
 
@@ -58,7 +56,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     private static final IStrategoConstructor TARGET_TOPSORT_1 = factory.makeConstructor("TargetTopSort", 1);
 
-    private static final Logger LOG = LogManager.getLogger(SpoofaxTestingJSGLRI.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SpoofaxTestingJSGLRI.class);
 
     private final FragmentParser fragmentParser = new FragmentParser(SETUP_3, TOPSORT_1);
 
@@ -67,9 +65,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
     private final SelectionFetcher selections = new SelectionFetcher();
 
     public SpoofaxTestingJSGLRI(JSGLRI template) {
-        super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig()
-            .getParseTableProvider(), PARSE_TIMEOUT), factory, template.getLanguage(),
-            template.getResource(), template.getInput());
+        super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig().getParseTableProvider(),
+            PARSE_TIMEOUT), factory, template.getLanguage(), template.getResource(), template.getInput());
         setUseRecovery(true);
     }
 
@@ -90,8 +87,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
         final ITermFactory factory = new ParentTermFactory(nonParentFactory);
         final FragmentParser testedParser = configureFragmentParser(root, getLanguage(root), fragmentParser);
         final FragmentParser outputParser =
-            getTargetLanguage(root) == null ? testedParser : configureFragmentParser(root,
-                getTargetLanguage(root), outputFragmentParser);
+            getTargetLanguage(root) == null ? testedParser : configureFragmentParser(root, getTargetLanguage(root),
+                outputFragmentParser);
         assert !(nonParentFactory instanceof ParentTermFactory);
 
         if(testedParser == null || !testedParser.isInitialized() || outputParser == null
@@ -116,8 +113,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
                         IStrategoTerm parsed = parser.parse(oldTokenizer, term, /* cons == OUTPUT_4 */false);
                         int oldFragmentEndIndex = getRightToken(fragmentTail).getIndex();
                         retokenizer.copyTokensFromFragment(fragmentHead, fragmentTail, parsed,
-                            getLeftToken(fragmentHead).getStartOffset(), getRightToken(fragmentTail)
-                                .getEndOffset());
+                            getLeftToken(fragmentHead).getStartOffset(), getRightToken(fragmentTail).getEndOffset());
                         if(!parser.isLastSyntaxCorrect())
                             parsed = nonParentFactory.makeAppl(ERROR_1, parsed);
                         ImploderAttachment implodement = ImploderAttachment.get(term);
@@ -162,8 +158,9 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
         return result;
     }
 
-    private FragmentParser configureFragmentParser(IStrategoTerm root, ILanguage language,
-        FragmentParser fragmentParser) throws IOException {
+    private FragmentParser
+        configureFragmentParser(IStrategoTerm root, ILanguage language, FragmentParser fragmentParser)
+            throws IOException {
         if(language == null)
             return null;
         fragmentParser.configure(language, super.getResource(), root);
