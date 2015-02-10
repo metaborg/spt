@@ -30,6 +30,12 @@
       <artifactId>org.metaborg.spt.listener</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.strategoxt.imp.testing.cmd</artifactId>
+      <version>${metaborg-version}</version>
+      <scope>provided</scope>
+    </dependency>
 
 
     <dependency>

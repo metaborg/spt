@@ -4,7 +4,8 @@ target
 include
 .settings
 utils
-lib
+/lib/runtime
+/lib/*.generated.str
 lib-refactoring
 editor/java/trans
 editor/*generated*
