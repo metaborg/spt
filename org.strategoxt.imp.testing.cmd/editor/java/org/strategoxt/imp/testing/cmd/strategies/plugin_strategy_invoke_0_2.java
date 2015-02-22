@@ -5,6 +5,7 @@ import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.termAt;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.spoofax.core.context.ContextIdentifier;
 import org.metaborg.spoofax.core.context.SpoofaxContext;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
@@ -28,18 +29,17 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
 
 
     /**
-     * @return Fail(trace) for strategy failure, Error(message) a string for errors, or Some(term) for
-     *         success.
+     * @return Fail(trace) for strategy failure, Error(message) a string for errors, or Some(term) for success.
      */
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName,
         IStrategoTerm strategy) {
         final ITermFactory factory = context.getFactory();
         final ServiceRegistry env = ServiceRegistry.INSTANCE();
         final ILanguage lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
-        final FileObject location =
-            env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
+        final FileObject location = env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
         final HybridInterpreter runtime =
-            env.getService(StrategoRuntimeService.class).runtime(new SpoofaxContext(lang, location));
+            env.getService(StrategoRuntimeService.class).runtime(
+                new SpoofaxContext(new ContextIdentifier(location, lang)));
 
         // strategy should be a String
         if(isTermAppl(strategy) && ((IStrategoAppl) strategy).getName().equals("Strategy"))
@@ -55,23 +55,17 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
                 return current;
             } else {
                 Context foreignContext = runtime.getCompiledContext();
-                String trace =
-                    "rewriting failed\n" + (foreignContext != null ? foreignContext.getTraceString() : "");
+                String trace = "rewriting failed\n" + (foreignContext != null ? foreignContext.getTraceString() : "");
                 return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
             }
         } catch(UndefinedStrategyException e) {
-            return factory.makeAppl(
-                factory.makeConstructor("Error", 1),
-                factory.makeString("Problem executing foreign strategy for testing: "
-                    + e.getLocalizedMessage()));
-        } catch(InterpreterException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1),
-                factory.makeString(e.getLocalizedMessage()));
+                factory.makeString("Problem executing foreign strategy for testing: " + e.getLocalizedMessage()));
+        } catch(InterpreterException e) {
+            return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));
         } catch(RuntimeException e) {
-            return factory.makeAppl(
-                factory.makeConstructor("Error", 1),
-                factory.makeString(e.getClass().getName() + ": " + e.getLocalizedMessage()
-                    + " (see error log)"));
+            return factory.makeAppl(factory.makeConstructor("Error", 1),
+                factory.makeString(e.getClass().getName() + ": " + e.getLocalizedMessage() + " (see error log)"));
         }
     }
 }
