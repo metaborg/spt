@@ -5,6 +5,7 @@ import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.termAt;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.spoofax.core.SpoofaxException;
 import org.metaborg.spoofax.core.context.ContextIdentifier;
 import org.metaborg.spoofax.core.context.SpoofaxContext;
 import org.metaborg.spoofax.core.language.ILanguage;
@@ -37,9 +38,13 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
         final ServiceRegistry env = ServiceRegistry.INSTANCE();
         final ILanguage lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
         final FileObject location = env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
-        final HybridInterpreter runtime =
-            env.getService(StrategoRuntimeService.class).runtime(
+        final HybridInterpreter runtime;
+        try {
+            runtime = env.getService(StrategoRuntimeService.class).runtime(
                 new SpoofaxContext(new ContextIdentifier(location, lang)));
+        } catch(SpoofaxException e) {
+            return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));
+        }
 
         // strategy should be a String
         if(isTermAppl(strategy) && ((IStrategoAppl) strategy).getName().equals("Strategy"))
@@ -53,11 +58,11 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
                 current = runtime.current();
                 current = factory.makeAppl(factory.makeConstructor("Some", 1), current);
                 return current;
-            } else {
-                Context foreignContext = runtime.getCompiledContext();
-                String trace = "rewriting failed\n" + (foreignContext != null ? foreignContext.getTraceString() : "");
-                return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
             }
+            
+            final Context foreignContext = runtime.getCompiledContext();
+            final String trace = "rewriting failed\n" + (foreignContext != null ? foreignContext.getTraceString() : "");
+            return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
         } catch(UndefinedStrategyException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1),
                 factory.makeString("Problem executing foreign strategy for testing: " + e.getLocalizedMessage()));
