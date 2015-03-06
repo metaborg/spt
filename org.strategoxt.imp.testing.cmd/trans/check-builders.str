@@ -40,7 +40,10 @@ rules
         plugin-strategy-evaluate(id |<Language>, OVERRIDE_INPUT(arg'))
       end;
       if !condition => Run(_, _, _) then
-        output := <execute-service(|selected); not(Fails())> builder
+        // HACK: Take first of the input tuple, which contains the analyzed selected node. The selected node 
+        // itself is from the un-analyzed AST, at least in the command-line version, breaking any builders
+        // that rely on annotations in the analyzed AST.
+        output := <execute-service(|<Fst> input); not(Fails())> builder
       <+
         output := <execute-service(|input)> builder
       else

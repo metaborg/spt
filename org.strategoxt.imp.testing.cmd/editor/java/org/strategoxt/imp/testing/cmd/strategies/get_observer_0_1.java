@@ -1,11 +1,11 @@
 package org.strategoxt.imp.testing.cmd.strategies;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.metaborg.spoofax.core.analysis.stratego.StrategoFacet;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
-import org.metaborg.spoofax.core.service.stratego.StrategoFacet;
 import org.metaborg.sunshine.environment.ServiceRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.lang.Context;
@@ -23,7 +23,7 @@ import org.strategoxt.lang.Strategy;
  *
  */
 public class get_observer_0_1 extends Strategy {
-    private static final Logger logger = LogManager.getLogger(get_observer_0_1.class);
+    private static final Logger logger = LoggerFactory.getLogger(get_observer_0_1.class);
 	public static final get_observer_0_1 instance = new get_observer_0_1();
 
 	

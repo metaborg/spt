@@ -2,13 +2,12 @@ package org.metaborg.spoofax.testrunner.cmd;
 
 import java.util.Collection;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.metaborg.spt.listener.ITestReporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsoleTestReporter implements ITestReporter {
-    private static final Logger logger = LogManager.getLogger(ConsoleTestReporter.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConsoleTestReporter.class);
 
 
     @Override public void addTestcase(String testsuiteFile, String description) throws Exception {
@@ -29,15 +28,14 @@ public class ConsoleTestReporter implements ITestReporter {
 
     @Override public void finishTestcase(String testsuiteFile, String description, boolean succeeded,
         Collection<String> messages) throws Exception {
-        final Level level = succeeded ? Level.INFO : Level.ERROR;
         final String prefix = succeeded ? "Success" : "Failure";
         final boolean hasMessages = !messages.isEmpty();
         final String postfix = hasMessages ? ", messages:" : "";
 
-        logger.log(level, prefix + ": " + description + "- " + testsuiteFile + postfix);
+        logger.info(prefix + ": " + description + "- " + testsuiteFile + postfix);
         if(hasMessages) {
             for(String message : messages) {
-                logger.log(level, "  " + message);
+                logger.info("  " + message);
             }
         }
     }
