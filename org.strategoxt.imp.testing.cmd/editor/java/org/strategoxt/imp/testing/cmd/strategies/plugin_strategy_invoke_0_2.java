@@ -40,8 +40,9 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
         final FileObject location = env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
         final HybridInterpreter runtime;
         try {
-            runtime = env.getService(StrategoRuntimeService.class).runtime(
-                new SpoofaxContext(new ContextIdentifier(location, lang)));
+            runtime =
+                env.getService(StrategoRuntimeService.class).runtime(
+                    new SpoofaxContext(env.getService(ResourceService.class), new ContextIdentifier(location, lang)));
         } catch(SpoofaxException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));
         }
@@ -59,7 +60,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
                 current = factory.makeAppl(factory.makeConstructor("Some", 1), current);
                 return current;
             }
-            
+
             final Context foreignContext = runtime.getCompiledContext();
             final String trace = "rewriting failed\n" + (foreignContext != null ? foreignContext.getTraceString() : "");
             return factory.makeAppl(factory.makeConstructor("Fail", 1), factory.makeString(trace));
