@@ -138,7 +138,7 @@ public class FragmentParser {
         final IParserConfig config =
             new ParserConfig(startSymbol, existingConfig.getParseTableProvider(), FRAGMENT_PARSE_TIMEOUT);
         final String inputText = sourceTextService.text(file);
-        JSGLRI result = new JSGLRI(config, factory, lang, file, inputText);
+        JSGLRI result = new JSGLRI(config, factory, lang, null, file, inputText);
         result.setUseRecovery(true);
         return result;
     }
