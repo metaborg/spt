@@ -64,9 +64,10 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     private final SelectionFetcher selections = new SelectionFetcher();
 
-    public SpoofaxTestingJSGLRI(JSGLRI template) {
+    public SpoofaxTestingJSGLRI(JSGLRI template) throws IOException {
         super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig().getParseTableProvider(),
-            PARSE_TIMEOUT), factory, template.getLanguage(), template.getResource(), template.getInput());
+            PARSE_TIMEOUT), factory, template.getLanguage(), template.getDialect(), template.getResource(), template
+            .getInput());
         setUseRecovery(true);
     }
 

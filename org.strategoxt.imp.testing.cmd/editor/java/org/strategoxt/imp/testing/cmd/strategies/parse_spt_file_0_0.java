@@ -56,7 +56,7 @@ public class parse_spt_file_0_0 extends Strategy {
 
         try {
             final String inputText = sourceTextService.text(file);
-            final JSGLRI jsglri = new JSGLRI(newConfig, context.getFactory(), language, file, inputText);
+            final JSGLRI jsglri = new JSGLRI(newConfig, context.getFactory(), language, null, file, inputText);
             final SpoofaxTestingJSGLRI parser = new SpoofaxTestingJSGLRI(jsglri);
             parser.setUseRecovery(false);
             final IStrategoTerm res =
