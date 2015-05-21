@@ -12,7 +12,8 @@ import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.spoofax.core.syntax.ISyntaxService;
 import org.metaborg.spoofax.core.syntax.jsglr.IParserConfig;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
-import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParseService;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParserConfiguration;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRSyntaxService;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
 import org.metaborg.spoofax.core.text.ISourceTextService;
 import org.metaborg.sunshine.environment.ServiceRegistry;
@@ -25,11 +26,11 @@ import org.strategoxt.lang.Strategy;
 import com.google.inject.TypeLiteral;
 
 /**
- * parse-spt-string strategy to get AST of Spoofax-Testing testsuite, where the input fragments have been
- * annotated with the AST of the input.
+ * parse-spt-string strategy to get AST of Spoofax-Testing testsuite, where the input fragments have been annotated with
+ * the AST of the input.
  * 
- * The current term is the string to parse and the sole term argument is an absolute path to the file this
- * string is coming from.
+ * The current term is the string to parse and the sole term argument is an absolute path to the file this string is
+ * coming from.
  */
 public class parse_spt_file_0_0 extends Strategy {
 
@@ -43,24 +44,23 @@ public class parse_spt_file_0_0 extends Strategy {
         final IResourceService resourceService = services.getService(IResourceService.class);
         final ILanguageService languageService = services.getService(ILanguageService.class);
         final ISourceTextService sourceTextService = services.getService(ISourceTextService.class);
-        final JSGLRParseService syntaxService =
-            (JSGLRParseService) services.getService(new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
+        final JSGLRSyntaxService syntaxService =
+            (JSGLRSyntaxService) services.getService(new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
 
         final String filename = ((IStrategoString) current).stringValue();
         final FileObject file = resourceService.resolve(filename);
         final ILanguage language = languageService.get("Spoofax-Testing");
         final IParserConfig existingConfig = syntaxService.getParserConfig(language);
         final IParserConfig newConfig =
-            new ParserConfig(existingConfig.getStartSymbol(), existingConfig.getParseTableProvider(),
-                24 * 1000);
+            new ParserConfig(existingConfig.getStartSymbol(), existingConfig.getParseTableProvider());
 
         try {
             final String inputText = sourceTextService.text(file);
             final JSGLRI jsglri = new JSGLRI(newConfig, context.getFactory(), language, null, file, inputText);
             final SpoofaxTestingJSGLRI parser = new SpoofaxTestingJSGLRI(jsglri);
-            parser.setUseRecovery(false);
             final IStrategoTerm res =
-                parser.actuallyParse(IOUtils.toString(file.getContent().getInputStream()), filename);
+                (IStrategoTerm) parser.actuallyParse(IOUtils.toString(file.getContent().getInputStream()), filename,
+                    new JSGLRParserConfiguration(true, false, false, 24 * 1000)).output;
             return res;
         } catch(SGLRException | InterruptedException | IOException e) {
             // TODO Auto-generated catch block
@@ -68,5 +68,4 @@ public class parse_spt_file_0_0 extends Strategy {
             return null;
         }
     }
-
 }
