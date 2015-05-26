@@ -14,6 +14,7 @@ import java.util.Iterator;
 import org.metaborg.spoofax.core.language.ILanguage;
 import org.metaborg.spoofax.core.language.ILanguageService;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
 import org.metaborg.sunshine.environment.LaunchConfiguration;
 import org.metaborg.sunshine.environment.ServiceRegistry;
@@ -24,6 +25,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.SGLRParseResult;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.jsglr.shared.SGLRException;
@@ -65,17 +67,16 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
     private final SelectionFetcher selections = new SelectionFetcher();
 
     public SpoofaxTestingJSGLRI(JSGLRI template) throws IOException {
-        super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig().getParseTableProvider(),
-            PARSE_TIMEOUT), factory, template.getLanguage(), template.getDialect(), template.getResource(), template
-            .getInput());
-        setUseRecovery(true);
+        super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig().getParseTableProvider()),
+            factory, template.getLanguage(), template.getDialect(), template.getResource(), template.getInput());
     }
 
-    @Override public IStrategoTerm actuallyParse(String input, String filename) throws InterruptedException,
-        SGLRException {
-        IStrategoTerm ast = super.actuallyParse(input, filename);
+    @Override public SGLRParseResult
+        actuallyParse(String input, String filename, JSGLRParserConfiguration parserConfig)
+            throws InterruptedException, SGLRException {
+        IStrategoTerm ast = (IStrategoTerm) super.actuallyParse(input, filename, parserConfig).output;
         try {
-            return parseTestedFragments(ast);
+            return new SGLRParseResult(null, parseTestedFragments(ast));
         } catch(IOException e) {
             throw new SGLRException(getParser(), "Cannot parse", e);
         }

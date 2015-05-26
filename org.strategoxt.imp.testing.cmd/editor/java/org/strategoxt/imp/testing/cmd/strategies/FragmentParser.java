@@ -20,7 +20,7 @@ import org.metaborg.spoofax.core.resource.IResourceService;
 import org.metaborg.spoofax.core.syntax.ISyntaxService;
 import org.metaborg.spoofax.core.syntax.jsglr.IParserConfig;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
-import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParseService;
+import org.metaborg.spoofax.core.syntax.jsglr.JSGLRSyntaxService;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
 import org.metaborg.spoofax.core.syntax.jsglr.SourceAttachment;
 import org.metaborg.spoofax.core.text.ISourceTextService;
@@ -54,8 +54,8 @@ public class FragmentParser {
 
     private static final int FRAGMENT_PARSE_TIMEOUT = 3000;
 
-    private static final ITermFactory factory = ServiceRegistry.INSTANCE().getService(
-        LaunchConfiguration.class).termFactory;
+    private static final ITermFactory factory =
+        ServiceRegistry.INSTANCE().getService(LaunchConfiguration.class).termFactory;
 
     private static final IStrategoConstructor FAILS_PARSING_0 = factory.makeConstructor("FailsParsing", 0);
 
@@ -118,8 +118,8 @@ public class FragmentParser {
      * @param file
      *            the file that this parser should parse.
      * @param ast
-     *            TODO I don't know what it should represent, but it is used to determine the start symbol for
-     *            the parser.
+     *            TODO I don't know what it should represent, but it is used to determine the start symbol for the
+     *            parser.
      * @return the parser, or null if lang was null.
      * @throws IOException
      */
@@ -132,14 +132,12 @@ public class FragmentParser {
         String startSymbol = start == null ? null : asJavaString(start.getSubterm(0));
         final ServiceRegistry services = ServiceRegistry.INSTANCE();
         final ISourceTextService sourceTextService = services.getService(ISourceTextService.class);
-        final JSGLRParseService syntaxService =
-            (JSGLRParseService) services.getService(new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
+        final JSGLRSyntaxService syntaxService =
+            (JSGLRSyntaxService) services.getService(new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
         final IParserConfig existingConfig = syntaxService.getParserConfig(lang);
-        final IParserConfig config =
-            new ParserConfig(startSymbol, existingConfig.getParseTableProvider(), FRAGMENT_PARSE_TIMEOUT);
+        final IParserConfig config = new ParserConfig(startSymbol, existingConfig.getParseTableProvider());
         final String inputText = sourceTextService.text(file);
         JSGLRI result = new JSGLRI(config, factory, lang, null, file, inputText);
-        result.setUseRecovery(true);
         return result;
     }
 
@@ -157,12 +155,11 @@ public class FragmentParser {
         }
         if(parsed == null || !ALLOW_CACHING) {
             // String fragmentInput = createTestFragmentString(oldTokenizer, fragment, false);
-            parsed = parser.actuallyParse(fragmentInput, oldTokenizer.getFilename());
+            parsed = (IStrategoTerm) parser.actuallyParse(fragmentInput, oldTokenizer.getFilename(), null).output;
             isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
-            SourceAttachment.putSource(
-                parsed,
-                SourceAttachment.getResource(fragment,
-                    ServiceRegistry.INSTANCE().getService(IResourceService.class)), parser.getConfig());
+            SourceAttachment.putSource(parsed,
+                SourceAttachment.getResource(fragment, ServiceRegistry.INSTANCE().getService(IResourceService.class)),
+                parser.getConfig());
             if(!successExpected)
                 clearTokenErrors(getTokenizer(parsed));
             if(isLastSyntaxCorrect == successExpected)
@@ -253,8 +250,8 @@ public class FragmentParser {
                         public final void preVisit(IStrategoTerm term) {
                             if(tryGetConstructor(term) == QUOTEPART_1) {
                                 term = term.getSubterm(0);
-                                results.add(new OffsetRegion(getLeftToken(term).getStartOffset(),
-                                    getRightToken(term).getEndOffset()));
+                                results.add(new OffsetRegion(getLeftToken(term).getStartOffset(), getRightToken(term)
+                                    .getEndOffset()));
                             }
                         }
                     }.visit(term);
@@ -265,11 +262,10 @@ public class FragmentParser {
     }
 
     /*
-     * private boolean isSetupToken(IToken token) { // if (token.getKind() != IToken.TK_STRING) return false;
-     * assert token.getKind() == IToken.TK_STRING; IStrategoTerm node = (IStrategoTerm) token.getAstNode(); if
-     * (node != null && "Input".equals(getSort(node))) { IStrategoTerm parent = getParent(node); if (parent !=
-     * null && isTermAppl(parent) && "Setup".equals(((IStrategoAppl) parent).getName())) return true; } return
-     * false; }
+     * private boolean isSetupToken(IToken token) { // if (token.getKind() != IToken.TK_STRING) return false; assert
+     * token.getKind() == IToken.TK_STRING; IStrategoTerm node = (IStrategoTerm) token.getAstNode(); if (node != null &&
+     * "Input".equals(getSort(node))) { IStrategoTerm parent = getParent(node); if (parent != null && isTermAppl(parent)
+     * && "Setup".equals(((IStrategoAppl) parent).getName())) return true; } return false; }
      */
 
     private boolean isSuccessExpected(IStrategoTerm fragment) {
