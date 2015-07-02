@@ -44,7 +44,6 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>editor/java</sourceDirectory>
     <plugins>
       <!-- Delete generated Spoofax plugin files, because this version of SPT is a pure Java project, not an Eclipse 
         plugin project. -->

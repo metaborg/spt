@@ -5,12 +5,12 @@ import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.termAt;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.spoofax.core.SpoofaxException;
-import org.metaborg.spoofax.core.context.ContextIdentifier;
+import org.metaborg.core.SpoofaxException;
+import org.metaborg.core.context.ContextIdentifier;
+import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageService;
+import org.metaborg.core.resource.ResourceService;
 import org.metaborg.spoofax.core.context.SpoofaxContext;
-import org.metaborg.spoofax.core.language.ILanguage;
-import org.metaborg.spoofax.core.language.ILanguageService;
-import org.metaborg.spoofax.core.resource.ResourceService;
 import org.metaborg.spoofax.core.stratego.StrategoRuntimeService;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.core.InterpreterException;

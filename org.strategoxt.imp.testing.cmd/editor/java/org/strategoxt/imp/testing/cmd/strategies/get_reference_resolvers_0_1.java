@@ -1,8 +1,8 @@
 package org.strategoxt.imp.testing.cmd.strategies;
 
+import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageService;
 import org.metaborg.spoofax.core.stratego.StrategoFacet;
-import org.metaborg.spoofax.core.language.ILanguage;
-import org.metaborg.spoofax.core.language.ILanguageService;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;

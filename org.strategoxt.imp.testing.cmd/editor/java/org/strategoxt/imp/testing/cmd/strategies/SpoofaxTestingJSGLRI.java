@@ -11,8 +11,8 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.metaborg.spoofax.core.language.ILanguage;
-import org.metaborg.spoofax.core.language.ILanguageService;
+import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageService;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;

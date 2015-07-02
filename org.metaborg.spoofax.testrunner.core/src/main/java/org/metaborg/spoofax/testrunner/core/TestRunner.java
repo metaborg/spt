@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.spoofax.core.language.ILanguageDiscoveryService;
-import org.metaborg.spoofax.core.resource.IResourceService;
+import org.metaborg.core.language.ILanguageDiscoveryService;
+import org.metaborg.core.resource.IResourceService;
 import org.metaborg.sunshine.drivers.SunshineMainDriver;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.metaborg.sunshine.environment.SunshineMainArguments;
