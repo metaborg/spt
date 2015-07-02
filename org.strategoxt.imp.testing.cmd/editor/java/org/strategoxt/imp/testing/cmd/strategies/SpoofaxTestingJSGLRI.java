@@ -13,9 +13,9 @@ import java.util.Iterator;
 
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageService;
-import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
-import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParserConfiguration;
-import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
+import org.metaborg.spoofax.core.syntax.JSGLRI;
+import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
+import org.metaborg.spoofax.core.syntax.ParserConfig;
 import org.metaborg.sunshine.environment.LaunchConfiguration;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.slf4j.Logger;

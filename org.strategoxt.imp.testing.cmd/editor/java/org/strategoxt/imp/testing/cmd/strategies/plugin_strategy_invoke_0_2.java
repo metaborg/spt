@@ -5,7 +5,7 @@ import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.termAt;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.SpoofaxException;
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextIdentifier;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageService;
@@ -43,7 +43,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
             runtime =
                 env.getService(StrategoRuntimeService.class).runtime(
                     new SpoofaxContext(env.getService(ResourceService.class), new ContextIdentifier(location, lang)));
-        } catch(SpoofaxException e) {
+        } catch(MetaborgException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));
         }
 
