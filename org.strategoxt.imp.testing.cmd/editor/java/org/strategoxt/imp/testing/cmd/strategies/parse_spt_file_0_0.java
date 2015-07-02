@@ -15,7 +15,7 @@ import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRSyntaxService;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
-import org.metaborg.spoofax.core.text.ISourceTextService;
+import org.metaborg.spoofax.core.source.ISourceTextService;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;

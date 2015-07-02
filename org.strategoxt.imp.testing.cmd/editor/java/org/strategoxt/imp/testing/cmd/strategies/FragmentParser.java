@@ -23,7 +23,7 @@ import org.metaborg.spoofax.core.syntax.jsglr.JSGLRI;
 import org.metaborg.spoofax.core.syntax.jsglr.JSGLRSyntaxService;
 import org.metaborg.spoofax.core.syntax.jsglr.ParserConfig;
 import org.metaborg.spoofax.core.syntax.jsglr.SourceAttachment;
-import org.metaborg.spoofax.core.text.ISourceTextService;
+import org.metaborg.spoofax.core.source.ISourceTextService;
 import org.metaborg.sunshine.environment.LaunchConfiguration;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.metaborg.sunshine.esvutil.ESVReader;
@@ -158,8 +158,7 @@ public class FragmentParser {
             parsed = (IStrategoTerm) parser.actuallyParse(fragmentInput, oldTokenizer.getFilename(), null).output;
             isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
             SourceAttachment.putSource(parsed,
-                SourceAttachment.getResource(fragment, ServiceRegistry.INSTANCE().getService(IResourceService.class)),
-                parser.getConfig());
+                SourceAttachment.getResource(fragment, ServiceRegistry.INSTANCE().getService(IResourceService.class)));
             if(!successExpected)
                 clearTokenErrors(getTokenizer(parsed));
             if(isLastSyntaxCorrect == successExpected)
