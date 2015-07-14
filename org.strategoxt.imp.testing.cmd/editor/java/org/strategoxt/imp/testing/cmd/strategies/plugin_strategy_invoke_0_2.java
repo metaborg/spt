@@ -42,7 +42,8 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
         try {
             runtime =
                 env.getService(StrategoRuntimeService.class).runtime(
-                    new SpoofaxContext(env.getService(ResourceService.class), new ContextIdentifier(location, lang)));
+                    new SpoofaxContext(env.getService(ResourceService.class), new ContextIdentifier(location, lang),
+                        env.injector()));
         } catch(MetaborgException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));
         }
