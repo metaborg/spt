@@ -1,18 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration status="warn">
-  <appenders>
-    <console
-      name="stdout"
-      target="SYSTEM_OUT"
-    >
-      <patternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
-    </console>
-  </appenders>
-  <loggers>
-    <root level="trace">
-      <appenderRef
-        ref="stdout"
-        level="info" />
-    </root>
-  </loggers>
+<configuration>
+  <appender
+    name="stdout"
+    class="ch.qos.logback.core.ConsoleAppender"
+  >
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="stdout" />
+  </root>
 </configuration>

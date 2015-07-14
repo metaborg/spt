@@ -47,6 +47,15 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
+        <!-- Required to add a dependency on the Spoofax plugin, otherwise unpacking will fail with a class cast 
+          exception on archivers. Fix from: http://maven.40175.n5.nabble.com/Problems-with-register-new-archive-type-td4574906.html -->
+        <dependencies>
+          <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>spoofax-maven-plugin</artifactId>
+            <version>${metaborg-version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>unpack-spt-language</id>
@@ -60,7 +69,7 @@
                   <groupId>org.metaborg</groupId>
                   <artifactId>org.metaborg.meta.lang.spt</artifactId>
                   <version>${metaborg-version}</version>
-                  <type>jar</type>
+                  <type>spoofax-language</type>
                   <includes>include/*</includes>
                 </artifactItem>
               </artifactItems>
