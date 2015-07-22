@@ -1,6 +1,6 @@
 package org.metaborg.meta.lang.spt.strategies;
 
-import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.spoofax.core.stratego.StrategoFacet;
 import org.metaborg.sunshine.environment.ServiceRegistry;
@@ -15,9 +15,9 @@ public class get_reference_resolvers_0_1 extends Strategy {
 
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm unused, IStrategoTerm language) {
-        final ILanguage lang =
+        final ILanguageImpl lang =
             ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(Tools.asJavaString(language));
-        final String resolver = lang.facet(StrategoFacet.class).resolverStrategy();
+        final String resolver = lang.facets(StrategoFacet.class).resolverStrategy();
         final ITermFactory factory = context.getFactory();
         return factory.makeList(factory.makeString(resolver));
     }

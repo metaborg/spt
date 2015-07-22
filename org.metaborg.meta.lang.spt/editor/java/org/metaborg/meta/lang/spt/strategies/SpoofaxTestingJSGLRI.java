@@ -11,7 +11,7 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.spoofax.core.syntax.JSGLRI;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
@@ -161,7 +161,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
     }
 
     private FragmentParser
-        configureFragmentParser(IStrategoTerm root, ILanguage language, FragmentParser fragmentParser)
+        configureFragmentParser(IStrategoTerm root, ILanguageImpl language, FragmentParser fragmentParser)
             throws IOException {
         if(language == null)
             return null;
@@ -203,14 +203,14 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
         return null;
     }
 
-    private ILanguage getLanguage(IStrategoTerm root) {
+    private ILanguageImpl getLanguage(IStrategoTerm root) {
         final String languageName = getLanguageName(root, LANGUAGE_1);
         if(languageName == null)
             return null;
         return ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(languageName);
     }
 
-    private ILanguage getTargetLanguage(IStrategoTerm root) {
+    private ILanguageImpl getTargetLanguage(IStrategoTerm root) {
         String languageName = getLanguageName(root, TARGET_LANGUAGE_1);
         if(languageName == null)
             return null;

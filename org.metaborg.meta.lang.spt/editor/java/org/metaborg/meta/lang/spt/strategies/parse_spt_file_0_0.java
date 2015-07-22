@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceTextService;
@@ -49,7 +49,7 @@ public class parse_spt_file_0_0 extends Strategy {
 
         final String filename = ((IStrategoString) current).stringValue();
         final FileObject file = resourceService.resolve(filename);
-        final ILanguage language = languageService.get("Spoofax-Testing");
+        final ILanguageImpl language = languageService.get("Spoofax-Testing");
         final IParserConfig existingConfig = syntaxService.getParserConfig(language);
         final IParserConfig newConfig =
             new ParserConfig(existingConfig.getStartSymbol(), existingConfig.getParseTableProvider());

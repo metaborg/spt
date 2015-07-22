@@ -7,7 +7,7 @@ import static org.spoofax.interpreter.core.Tools.termAt;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextIdentifier;
-import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.resource.ResourceService;
 import org.metaborg.spoofax.core.context.SpoofaxContext;
@@ -36,7 +36,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
         IStrategoTerm strategy) {
         final ITermFactory factory = context.getFactory();
         final ServiceRegistry env = ServiceRegistry.INSTANCE();
-        final ILanguage lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
+        final ILanguageImpl lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
         final FileObject location = env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
         final HybridInterpreter runtime;
         try {
