@@ -29,7 +29,7 @@ public class get_observer_0_1 extends Strategy {
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm unused, IStrategoTerm language) {
         logger.info("Getting observer for language {}", language);
         final ILanguageImpl lang =
-            ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(Tools.asJavaString(language));
+            ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(Tools.asJavaString(language));
         return context.getFactory().makeString(lang.facets(StrategoFacet.class).analysisStrategy());
     }
 }

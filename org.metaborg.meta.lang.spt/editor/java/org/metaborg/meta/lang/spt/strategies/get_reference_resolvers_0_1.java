@@ -16,7 +16,7 @@ public class get_reference_resolvers_0_1 extends Strategy {
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm unused, IStrategoTerm language) {
         final ILanguageImpl lang =
-            ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(Tools.asJavaString(language));
+            ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(Tools.asJavaString(language));
         final String resolver = lang.facets(StrategoFacet.class).resolverStrategy();
         final ITermFactory factory = context.getFactory();
         return factory.makeList(factory.makeString(resolver));

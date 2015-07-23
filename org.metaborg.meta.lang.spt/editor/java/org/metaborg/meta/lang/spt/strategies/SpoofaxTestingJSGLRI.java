@@ -207,13 +207,13 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
         final String languageName = getLanguageName(root, LANGUAGE_1);
         if(languageName == null)
             return null;
-        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(languageName);
+        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(languageName);
     }
 
     private ILanguageImpl getTargetLanguage(IStrategoTerm root) {
         String languageName = getLanguageName(root, TARGET_LANGUAGE_1);
         if(languageName == null)
             return null;
-        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).get(languageName);
+        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(languageName);
     }
 }

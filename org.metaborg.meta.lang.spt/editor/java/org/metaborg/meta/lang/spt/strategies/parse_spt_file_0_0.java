@@ -49,7 +49,7 @@ public class parse_spt_file_0_0 extends Strategy {
 
         final String filename = ((IStrategoString) current).stringValue();
         final FileObject file = resourceService.resolve(filename);
-        final ILanguageImpl language = languageService.get("Spoofax-Testing");
+        final ILanguageImpl language = languageService.getLanguage("Spoofax-Testing");
         final IParserConfig existingConfig = syntaxService.getParserConfig(language);
         final IParserConfig newConfig =
             new ParserConfig(existingConfig.getStartSymbol(), existingConfig.getParseTableProvider());

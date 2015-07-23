@@ -36,7 +36,7 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
         IStrategoTerm strategy) {
         final ITermFactory factory = context.getFactory();
         final ServiceRegistry env = ServiceRegistry.INSTANCE();
-        final ILanguageImpl lang = env.getService(ILanguageService.class).get(asJavaString(languageName));
+        final ILanguageImpl lang = env.getService(ILanguageService.class).getLanguage(asJavaString(languageName));
         final FileObject location = env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
         final HybridInterpreter runtime;
         try {
