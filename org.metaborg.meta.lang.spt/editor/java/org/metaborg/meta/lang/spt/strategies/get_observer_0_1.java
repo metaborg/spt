@@ -1,5 +1,6 @@
 package org.metaborg.meta.lang.spt.strategies;
 
+import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.spoofax.core.stratego.StrategoFacet;
@@ -28,8 +29,9 @@ public class get_observer_0_1 extends Strategy {
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm unused, IStrategoTerm language) {
         logger.info("Getting observer for language {}", language);
-        final ILanguageImpl lang =
+        final ILanguage lang =
             ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(Tools.asJavaString(language));
-        return context.getFactory().makeString(lang.facets(StrategoFacet.class).analysisStrategy());
+        final ILanguageImpl impl = lang.activeImpl();
+        return context.getFactory().makeString(impl.facet(StrategoFacet.class).analysisStrategy());
     }
 }

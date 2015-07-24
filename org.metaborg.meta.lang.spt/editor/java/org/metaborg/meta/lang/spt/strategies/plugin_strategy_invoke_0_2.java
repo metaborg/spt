@@ -1,12 +1,11 @@
 package org.metaborg.meta.lang.spt.strategies;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
-import static org.spoofax.interpreter.core.Tools.isTermAppl;
-import static org.spoofax.interpreter.core.Tools.termAt;
+import static org.spoofax.interpreter.core.Tools.*;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextIdentifier;
+import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.resource.ResourceService;
@@ -22,6 +21,8 @@ import org.strategoxt.HybridInterpreter;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
+import com.google.common.collect.Iterables;
+
 /**
  * Evaluate a strategy in a stratego instance belonging to a language plugin.
  */
@@ -36,13 +37,15 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
         IStrategoTerm strategy) {
         final ITermFactory factory = context.getFactory();
         final ServiceRegistry env = ServiceRegistry.INSTANCE();
-        final ILanguageImpl lang = env.getService(ILanguageService.class).getLanguage(asJavaString(languageName));
+        final ILanguage lang = env.getService(ILanguageService.class).getLanguage(asJavaString(languageName));
+        final ILanguageImpl impl = lang.activeImpl();
         final FileObject location = env.getService(ResourceService.class).resolve(context.getIOAgent().getWorkingDir());
         final HybridInterpreter runtime;
         try {
             runtime =
                 env.getService(StrategoRuntimeService.class).runtime(
-                    new SpoofaxContext(env.getService(ResourceService.class), new ContextIdentifier(location, lang),
+                    Iterables.get(impl.components(), 0),
+                    new SpoofaxContext(env.getService(ResourceService.class), new ContextIdentifier(location, impl),
                         env.injector()));
         } catch(MetaborgException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));

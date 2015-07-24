@@ -1,11 +1,7 @@
 package org.metaborg.meta.lang.spt.strategies;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
-import static org.spoofax.interpreter.core.Tools.isTermList;
-import static org.spoofax.interpreter.core.Tools.termAt;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
+import static org.spoofax.interpreter.core.Tools.*;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
@@ -160,9 +156,8 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
         return result;
     }
 
-    private FragmentParser
-        configureFragmentParser(IStrategoTerm root, ILanguageImpl language, FragmentParser fragmentParser)
-            throws IOException {
+    private FragmentParser configureFragmentParser(IStrategoTerm root, ILanguageImpl language,
+        FragmentParser fragmentParser) throws IOException {
         if(language == null)
             return null;
         fragmentParser.configure(language, super.getResource(), root);
@@ -207,13 +202,13 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
         final String languageName = getLanguageName(root, LANGUAGE_1);
         if(languageName == null)
             return null;
-        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(languageName);
+        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(languageName).activeImpl();
     }
 
     private ILanguageImpl getTargetLanguage(IStrategoTerm root) {
         String languageName = getLanguageName(root, TARGET_LANGUAGE_1);
         if(languageName == null)
             return null;
-        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(languageName);
+        return ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(languageName).activeImpl();
     }
 }
