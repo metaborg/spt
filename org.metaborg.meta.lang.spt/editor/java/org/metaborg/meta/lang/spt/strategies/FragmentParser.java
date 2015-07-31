@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceTextService;
 import org.metaborg.core.syntax.ISyntaxService;
@@ -74,7 +74,7 @@ public class FragmentParser {
     private final IStrategoConstructor topsort_1;
 
     // used to check if the FragmentParser was already configured for this ALanguage
-    private ILanguage parseCacheLanguage;
+    private ILanguageImpl parseCacheLanguage;
 
     private final WeakValueHashMap<String, IStrategoTerm> failParseCache =
         new WeakValueHashMap<String, IStrategoTerm>();
@@ -96,7 +96,7 @@ public class FragmentParser {
         parseCacheLanguage = null;
     }
 
-    public void configure(ILanguage lang, FileObject sptFile, IStrategoTerm ast) throws IOException {
+    public void configure(ILanguageImpl lang, FileObject sptFile, IStrategoTerm ast) throws IOException {
         if(parseCacheLanguage != lang) {
             parseCacheLanguage = lang;
             parser = getParser(lang, sptFile, ast);
@@ -123,7 +123,7 @@ public class FragmentParser {
      * @return the parser, or null if lang was null.
      * @throws IOException
      */
-    private JSGLRI getParser(ILanguage lang, FileObject file, IStrategoTerm ast) throws IOException {
+    private JSGLRI getParser(ILanguageImpl lang, FileObject file, IStrategoTerm ast) throws IOException {
         if(lang == null)
             return null;
         IStrategoTerm start = ESVReader.findTerm(ast, topsort_1.getName());

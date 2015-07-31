@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceTextService;
@@ -49,14 +50,15 @@ public class parse_spt_file_0_0 extends Strategy {
 
         final String filename = ((IStrategoString) current).stringValue();
         final FileObject file = resourceService.resolve(filename);
-        final ILanguage language = languageService.get("Spoofax-Testing");
-        final IParserConfig existingConfig = syntaxService.getParserConfig(language);
+        final ILanguage language = languageService.getLanguage("Spoofax-Testing");
+        final ILanguageImpl impl = language.activeImpl();
+        final IParserConfig existingConfig = syntaxService.getParserConfig(impl);
         final IParserConfig newConfig =
             new ParserConfig(existingConfig.getStartSymbol(), existingConfig.getParseTableProvider());
 
         try {
             final String inputText = sourceTextService.text(file);
-            final JSGLRI jsglri = new JSGLRI(newConfig, context.getFactory(), language, null, file, inputText);
+            final JSGLRI jsglri = new JSGLRI(newConfig, context.getFactory(), impl, null, file, inputText);
             final SpoofaxTestingJSGLRI parser = new SpoofaxTestingJSGLRI(jsglri);
             final IStrategoTerm res =
                 (IStrategoTerm) parser.actuallyParse(IOUtils.toString(file.getContent().getInputStream()), filename,
