@@ -3,7 +3,7 @@ package org.metaborg.meta.lang.spt.strategies;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
-import org.metaborg.spoofax.core.stratego.StrategoFacet;
+import org.metaborg.spoofax.core.tracing.ResolverFacet;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -19,7 +19,7 @@ public class get_reference_resolvers_0_1 extends Strategy {
         final ILanguage lang =
             ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(Tools.asJavaString(language));
         final ILanguageImpl impl = lang.activeImpl();
-        final String resolver = impl.facet(StrategoFacet.class).resolverStrategy();
+        final String resolver = impl.facet(ResolverFacet.class).strategyName;
         final ITermFactory factory = context.getFactory();
         return factory.makeList(factory.makeString(resolver));
     }
