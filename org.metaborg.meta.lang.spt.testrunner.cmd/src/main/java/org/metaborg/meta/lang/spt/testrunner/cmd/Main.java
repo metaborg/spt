@@ -1,11 +1,12 @@
 package org.metaborg.meta.lang.spt.testrunner.cmd;
 
-import org.metaborg.spoofax.meta.spt.testrunner.core.TestRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -29,18 +30,11 @@ public class Main {
         }
 
         try {
-            final TestRunner runner = new TestRunner(arguments.testsLocation, "testrunnerfile");
-            runner.registerSPT();
-            runner.registerLanguage(arguments.targetLanguageLocation);
-
-            final int exit = runner.run();
-            if(exit == 0) {
-                logger.info("Testing completed normally");
-                System.exit(0);
-            } else {
-                logger.info("Testing completed with non-zero status " + exit);
-                System.exit(1);
-            }
+            final Module module = new Module();
+            final Injector injector = Guice.createInjector(module);
+            final Runner runner = injector.getInstance(Runner.class);
+            runner.run(arguments.targetLanguageLocation, arguments.testsLocation);
+            System.exit(0);
         } catch(Exception e) {
             logger.error("Error while running tests", e);
             System.exit(1);
