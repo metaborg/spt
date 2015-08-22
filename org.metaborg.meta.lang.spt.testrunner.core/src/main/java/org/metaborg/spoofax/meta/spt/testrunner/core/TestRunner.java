@@ -16,7 +16,6 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageFileSelector;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
-import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.transform.NamedGoal;
 import org.metaborg.spoofax.core.processing.ISpoofaxProcessorRunner;
@@ -34,7 +33,6 @@ public class TestRunner {
     private final IResourceService resourceService;
     private final ILanguageDiscoveryService languageDiscoveryService;
     private final ILanguageIdentifierService languageIdentifierService;
-    private final IProjectService projectService;
     private final IDependencyService dependencyService;
     private final ILanguagePathService languagePathService;
     private final ISpoofaxProcessorRunner runner;
@@ -45,12 +43,11 @@ public class TestRunner {
 
 
     @Inject public TestRunner(IResourceService resourceService, ILanguageDiscoveryService languageDiscoveryService,
-        ILanguageIdentifierService languageIdentifierService, IProjectService projectService,
-        IDependencyService dependencyService, ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner) {
+        ILanguageIdentifierService languageIdentifierService, IDependencyService dependencyService,
+        ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner) {
         this.resourceService = resourceService;
         this.languageDiscoveryService = languageDiscoveryService;
         this.languageIdentifierService = languageIdentifierService;
-        this.projectService = projectService;
         this.dependencyService = dependencyService;
         this.languagePathService = languagePathService;
         this.runner = runner;
@@ -64,16 +61,17 @@ public class TestRunner {
     }
 
 
-    public void run(FileObject location) throws MetaborgException, FileSystemException {
+    public void run(IProject project) throws MetaborgException, FileSystemException {
         final ILanguageImpl sptLanguage = discoverSPT();
+        final FileObject location = project.location();
         final FileObject[] sptFiles =
             location.findFiles(new LanguageFileSelector(languageIdentifierService, sptLanguage));
-        runTests(location, Iterables2.from(sptFiles));
+        runTests(project, Iterables2.from(sptFiles));
     }
 
-    public void run(FileObject location, Iterable<FileObject> tests) throws MetaborgException {
+    public void run(IProject project, Iterable<FileObject> tests) throws MetaborgException {
         discoverSPT();
-        runTests(location, tests);
+        runTests(project, tests);
     }
 
 
@@ -96,20 +94,7 @@ public class TestRunner {
         }
     }
 
-    private void runTests(FileObject location, Iterable<FileObject> tests) throws MetaborgException {
-        try {
-            if(!location.exists()) {
-                throw new MetaborgException("Location does not exist");
-            }
-        } catch(FileSystemException e) {
-            throw new MetaborgException("Checking if location exists failed unexpectedly", e);
-        }
-
-        final IProject project = projectService.get(location);
-        if(project == null) {
-            throw new MetaborgException("Could not retrieve project");
-        }
-
+    private void runTests(IProject project, Iterable<FileObject> tests) throws MetaborgException {
         final BuildInputBuilder builder = new BuildInputBuilder(project);
         // @formatter:off
         final BuildInput input = builder

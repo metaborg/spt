@@ -77,12 +77,17 @@
         <version>${metaborg-version}</version>
         <extensions>true</extensions>
         <configuration>
-          <sdfArgs>
+          <sdfArgs combine.children="append">
             <arg>-Idef</arg>
             <arg>${lib.directory}/ATerm.def</arg>
             <arg>-Idef</arg>
             <arg>${lib.directory}/Stratego-Sugar.def</arg>
           </sdfArgs>
+          <strategoArgs combine.children="append">
+            <arg>-la</arg>
+            <arg>stratego-sdf</arg>
+          </strategoArgs>
+          <format>jar</format>
         </configuration>
       </plugin>
     </plugins>
