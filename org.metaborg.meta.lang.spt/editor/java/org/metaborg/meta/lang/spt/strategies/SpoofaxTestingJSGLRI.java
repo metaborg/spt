@@ -106,18 +106,26 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
                 if(parser != null) {
                     IStrategoTerm fragmentHead = termAt(term, 1);
                     IStrategoTerm fragmentTail = termAt(term, 2);
+                    // copy the tokens up to (not including)
+                    // the Input/Output fragment to the new tokenizer
                     retokenizer.copyTokensUpToIndex(getLeftToken(fragmentHead).getIndex() - 1);
                     try {
+                        // parse the fragment
                         IStrategoTerm parsed = parser.parse(oldTokenizer, term, /* cons == OUTPUT_4 */false);
+                        // copy the tokens of the parsed fragment to the new tokenizer
                         int oldFragmentEndIndex = getRightToken(fragmentTail).getIndex();
                         retokenizer.copyTokensFromFragment(fragmentHead, fragmentTail, parsed,
                             getLeftToken(fragmentHead).getStartOffset(), getRightToken(fragmentTail).getEndOffset());
                         if(!parser.isLastSyntaxCorrect())
                             parsed = nonParentFactory.makeAppl(ERROR_1, parsed);
                         ImploderAttachment implodement = ImploderAttachment.get(term);
+                        // get the marked selections from the parse result
                         IStrategoList selected = selections.fetch(parsed);
+                        // annotate the Input/Output fragment with the parse result and the marked selections
                         term = factory.annotateTerm(term, nonParentFactory.makeListCons(parsed, selected));
                         term.putAttachment(implodement.clone());
+                        // skip the Input/Output fragment's tokens, they won't be part of the new tokenizer
+                        // TODO: what are the results of this?
                         retokenizer.skipTokensUpToIndex(oldFragmentEndIndex);
                     } catch(IOException e) {
                         // e.printStackTrace();

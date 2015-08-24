@@ -24,7 +24,7 @@ import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.terms.TermVisitor;
 
-/** 
+/**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class Retokenizer {
@@ -64,6 +64,9 @@ public class Retokenizer {
 		oldTokenizerCopiedIndex = index + 1;
 	}
 	
+	/**
+	 * Skip tokens up to and including the given index.
+	 */
 	public void skipTokensUpToIndex(int index) {
 		oldTokenizerCopiedIndex = index + 1;
 	}
@@ -76,9 +79,16 @@ public class Retokenizer {
 		Tokenizer fragmentTokenizer = (Tokenizer) ImploderAttachment.getTokenizer(parsedFragment);
 		IToken startToken, endToken;
 		if (fragmentTokenizer.getStartOffset() <= startOffset) {
+			/* if the fragment's tokens don't extend beyond the given startOffset,
+			 * we copy all tokens from the fragment that have the same offset
+			 * as the last token of the fragment.
+			 * TODO: doesn't that mean that if the fragment is strictly
+			 * before the given startOffset we copy anyway?
+			 */
 			endToken = fragmentTokenizer.currentToken();
 			startToken = Tokenizer.getFirstTokenWithSameOffset(endToken);
 		} else {
+			// otherwise we copy every token from the start until the end offset
 			startToken = Tokenizer.getFirstTokenWithSameOffset(
 					fragmentTokenizer.getTokenAtOffset(startOffset));
 			endToken = Tokenizer.getLastTokenWithSameEndOffset(
