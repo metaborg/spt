@@ -22,7 +22,7 @@
     </dependency>
     <dependency>
       <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.sunshine</artifactId>
+      <artifactId>org.metaborg.sunshine.api</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
     <dependency>
