@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 public class ConsoleTestReporter implements ITestReporter {
     private static final Logger logger = LoggerFactory.getLogger(ConsoleTestReporter.class);
 
+    public boolean failed = false;
+    
 
     @Override public void addTestcase(String testsuiteFile, String description) throws Exception {
         logger.debug("Adding test case: " + description + "- " + testsuiteFile);
@@ -28,6 +30,10 @@ public class ConsoleTestReporter implements ITestReporter {
 
     @Override public void finishTestcase(String testsuiteFile, String description, boolean succeeded,
         Collection<String> messages) throws Exception {
+    	if(!succeeded) {
+    		failed = true;
+    	}
+    	
         final String prefix = succeeded ? "Success" : "Failure";
         final boolean hasMessages = !messages.isEmpty();
         final String postfix = hasMessages ? ", messages:" : "";
