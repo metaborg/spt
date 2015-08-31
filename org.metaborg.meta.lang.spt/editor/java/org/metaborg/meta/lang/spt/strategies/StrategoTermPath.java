@@ -19,9 +19,8 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
-import org.strategoxt.imp.generator.generator;
-import org.strategoxt.imp.generator.position_of_term_1_0;
-import org.strategoxt.imp.generator.term_at_position_0_1;
+import trans.position_of_term_1_0;
+import trans.term_at_position_0_1;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -166,7 +165,6 @@ public class StrategoTermPath {
 		TestOrigin testOrigin = new TestOrigin();
 		testOrigin.origin1 = origin;
 
-		generator.init(context);
 		IStrategoTerm perfectMatch = position_of_term_1_0.instance.invoke(
 				context, ast, testOrigin);
 
