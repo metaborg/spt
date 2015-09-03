@@ -22,4 +22,8 @@ public class TestReporterProvider {
 	public Iterator<ITestReporter> getReporters() {
 		return loader.iterator();
 	}
+	
+	public Iterable<ITestReporter> getReportersIterable() {
+		return loader;
+	}
 }
