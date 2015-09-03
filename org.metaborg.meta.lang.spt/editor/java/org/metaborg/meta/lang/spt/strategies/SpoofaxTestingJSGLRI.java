@@ -1,7 +1,11 @@
 package org.metaborg.meta.lang.spt.strategies;
 
-import static org.spoofax.interpreter.core.Tools.*;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
+import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermList;
+import static org.spoofax.interpreter.core.Tools.termAt;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
 import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
@@ -9,6 +13,7 @@ import java.util.Iterator;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
+import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.syntax.JSGLRI;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.syntax.ParserConfig;
@@ -56,11 +61,12 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpoofaxTestingJSGLRI.class);
 
-    private final FragmentParser fragmentParser = new FragmentParser(SETUP_3, TOPSORT_1);
+    // FIXME: the null as injector will break SPT, but this class shouldn't be used anymore anyway
+    private final FragmentParser fragmentParser = new FragmentParser(null, SETUP_3, TOPSORT_1);
+    private final FragmentParser outputFragmentParser = new FragmentParser(null, TARGET_SETUP_3, TARGET_TOPSORT_1);
 
-    private final FragmentParser outputFragmentParser = new FragmentParser(TARGET_SETUP_3, TARGET_TOPSORT_1);
-
-    private final SelectionFetcher selections = new SelectionFetcher();
+    // TODO: passing null as injector will break stuff, but this code should not be executed anyway.
+    private final SelectionFetcher selections = new SelectionFetcher(null);
 
     public SpoofaxTestingJSGLRI(JSGLRI template) throws IOException {
         super(new ParserConfig(template.getConfig().getStartSymbol(), template.getConfig().getParseTableProvider()),
@@ -80,10 +86,12 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
 
     private IStrategoTerm parseTestedFragments(final IStrategoTerm root) throws IOException {
         final Tokenizer oldTokenizer = (Tokenizer) getTokenizer(root);
-        final Retokenizer retokenizer = new Retokenizer(oldTokenizer);
+        // FIXME: null as injector will break stuff, but this code should never be executed anyway
+        final Retokenizer retokenizer = new Retokenizer(null, oldTokenizer);
         final ITermFactory nonParentFactory = factory;
         final ITermFactory factory = new ParentTermFactory(nonParentFactory);
         final FragmentParser testedParser = configureFragmentParser(root, getLanguage(root), fragmentParser);
+        // FIXME: using testedParser as outputParser is incorrect, as it is initialized to use Setup blocks instead of TargetSetup blocks!
         final FragmentParser outputParser =
             getTargetLanguage(root) == null ? testedParser : configureFragmentParser(root, getTargetLanguage(root),
                 outputFragmentParser);
@@ -111,7 +119,7 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
                     retokenizer.copyTokensUpToIndex(getLeftToken(fragmentHead).getIndex() - 1);
                     try {
                         // parse the fragment
-                        IStrategoTerm parsed = parser.parse(oldTokenizer, term, /* cons == OUTPUT_4 */false);
+                        IStrategoTerm parsed = parser.parse(oldTokenizer.getInput(), term, /* cons == OUTPUT_4 */false);
                         // copy the tokens of the parsed fragment to the new tokenizer
                         int oldFragmentEndIndex = getRightToken(fragmentTail).getIndex();
                         retokenizer.copyTokensFromFragment(fragmentHead, fragmentTail, parsed,
@@ -119,31 +127,23 @@ public class SpoofaxTestingJSGLRI extends JSGLRI {
                         if(!parser.isLastSyntaxCorrect())
                             parsed = nonParentFactory.makeAppl(ERROR_1, parsed);
                         ImploderAttachment implodement = ImploderAttachment.get(term);
+                        // TODO: passing null as SPT fragment will break stuff
                         // get the marked selections from the parse result
-                        IStrategoList selected = selections.fetch(parsed);
+                        IStrategoList selected = selections.fetch(null, parsed);
                         // annotate the Input/Output fragment with the parse result and the marked selections
                         term = factory.annotateTerm(term, nonParentFactory.makeListCons(parsed, selected));
                         term.putAttachment(implodement.clone());
                         // skip the Input/Output fragment's tokens, they won't be part of the new tokenizer
                         // TODO: what are the results of this?
                         retokenizer.skipTokensUpToIndex(oldFragmentEndIndex);
-                    } catch(IOException e) {
-                        // e.printStackTrace();
-                        LOG.error("Could not parse tested code fragment (IOE)", e);
-                    } catch(SGLRException e) {
-                        // TODO: attach ErrorMessage(_) term with error?
-                        // e.printStackTrace();
-                        // LOG.error("Could not parse tested code fragment (SGLRE)");//, e);
                     } catch(CloneNotSupportedException e) {
                         // e.printStackTrace();
                         LOG.error("Could not parse tested code fragment(CNSE)", e);
                     } catch(RuntimeException e) {
                         // e.printStackTrace();
                         LOG.error("Could not parse tested code fragment(RE)", e);
-                    } catch(InterruptedException e) {
-                        // TODO: attach ErrorMessage(_) term with error?
-                        // e.printStackTrace();
-                        LOG.error("Could not parse tested code fragment(IE)", e);
+                    } catch (ParseException e) {
+                        LOG.error("Could not parse tested code fragment(PE)", e);
                     }
                 }
                 return term;

@@ -30,27 +30,28 @@ rules
 
   editor-analyze:
     (ast, path, project-path) ->
-    (ast', errors', warnings', notes')
+    (ast'', errors', warnings', notes')
     with
       editor-init;
-      ast' := <topdown(repeat(spt-desugar)); alltd(spt-desugar-refactoring-conditions)> ast
+      ast' := <spt-parse-fragments(|path, <get-language> ast, <get-target-language <+ !None()> ast)> ast;
+      ast'' := <topdown(repeat(spt-desugar)); alltd(spt-desugar-refactoring-conditions)> ast'
     with
-      (errors', warnings', notes') := <report-invalid-language> ast'
+      (errors', warnings', notes') := <report-invalid-language> ast''
     <+
-      (errors', warnings', notes') := <report-invalid-target-language> ast'
+      (errors', warnings', notes') := <report-invalid-target-language> ast''
     <+
       scope-paths(
         <chdir> project-path;
         <record-all-sdfs> ".";
         rules(
           InputFile := path
-          Language  := <get-language> ast'
-          TargetLanguage := <get-target-language <+ get-language> ast'
+          Language  := <get-language> ast''
+          TargetLanguage := <get-target-language <+ get-language> ast''
         );
         where(spt-setup-isolate);
-        errors    := <collect-all(check-error, conc)> ast';
-        warnings  := <collect-all(check-warning, conc)> ast';
-        notes     := <collect-all(check-note, conc)> ast';
+        errors    := <collect-all(check-error, conc;flatten-list)> ast'';
+        warnings  := <collect-all(check-warning, conc)> ast'';
+        notes     := <collect-all(check-note, conc)> ast'';
         errors'   := <flatten-list> [errors, <bagof-GrabbedErrors>];
         warnings' := <flatten-list> [warnings, <bagof-GrabbedWarnings>];
         notes'    := <flatten-list> [notes, <bagof-GrabbedNotes>];
@@ -121,8 +122,6 @@ rules
 
   spt-pp-aterm =
     pp-aterm-box ; box2text-string(|80)
-    
-  external input-dialog(|title, message, initial)
 
 strategies
 
@@ -189,20 +188,16 @@ strategies
   	prim("SSL_EXT_origin_language", <id>)
 
 strategies
-  
-  external plugin-get-property-values(|language)
-  
+
   plugin-get-string-property:
     property -> value
     where
       plugin-get-property-values(|<Language>) => [property#([value|_]) | _]
 	
-  external get-observer(|language)
   
   spt-get-observer =
     get-observer(|<Language>)
 
-  external get-reference-resolvers(|language)
   
   spt-get-reference-resolvers =
     get-reference-resolvers(|<Language>)
@@ -229,9 +224,6 @@ strategies
   	  spt-get-refactorings;
   	  fetch-elem(?(_, "Strategy"#([strategy]), _)); 
   	  ?(semnodes, _, options)
-  
-  spt-exists-language(|language) =
-    where(<plugin-get-property-values(|language)> "LanguageName")
   
   spt-get-default-language =
     <readdir> $[[<project-path>]/include]
@@ -279,7 +271,17 @@ strategies
   
   execute-service(|node):
     resolver -> <plugin-strategy-invoke(|<Language>, resolver)> node
-  
-  external get-service-input-term(|analyzed-ast)
 
+
+  // EXTERNAL STRATEGIES
+  external spt-exists-language(|languageName)
+  external spt-parse-fragments(|filePath, languageName, targetLangName)
+  external spt-resolve-marker(|fragment)
+  external get-observer(|language)
+  external get-reference-resolvers(|language)
+  external get-service-input-term(|analyzed-ast)
   external get-service-input-term-refactoring(|analyzed-ast)
+  // FIXME: isn't working at the moment and shouldn't be used after porting is complete
+  external plugin-get-property-values(|language)
+  // FIXME: I don't think this strategy actually exists...
+  //  external input-dialog(|title, message, initial)

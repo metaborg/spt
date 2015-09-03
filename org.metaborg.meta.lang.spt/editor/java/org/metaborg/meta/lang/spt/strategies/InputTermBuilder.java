@@ -6,10 +6,11 @@ import java.io.File;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.metaborg.core.context.IContext;
+import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.core.syntax.SourceAttachment;
-import org.metaborg.sunshine.environment.LaunchConfiguration;
-import org.metaborg.sunshine.environment.ServiceRegistry;
+import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
@@ -18,25 +19,31 @@ import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.StrategoSubList;
 import org.strategoxt.lang.Context;
 
+import com.google.inject.Injector;
+
 /**
  * Builder of Stratego editor service input tuples.
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class InputTermBuilder {
-    private static final ITermFactory factory = ServiceRegistry.INSTANCE().getService(
-        LaunchConfiguration.class).termFactory;
+    private final ITermFactory factory;
 
     private final Context context;
+    
+    private final Injector injector;
 
     public InputTermBuilder(Context context) {
         this.context = context;
+        this.injector = ((IContext) context.contextObject()).injector();
+        // TODO: should we use context.getFactory() instead? 
+        this.factory = injector.getInstance(ITermFactoryService.class).getGeneric();
     }
 
     public IStrategoTuple makeInputTermSourceAst(IStrategoTerm node, boolean includeSubNode)
         throws FileSystemException {
         IStrategoTerm targetTerm = node;
-        IStrategoList termPath = StrategoTermPath.createPath(node);
+        IStrategoList termPath = StrategoTermPath.createPath(factory, node);
         IStrategoTerm rootTerm = getRoot(node);
         return makeInputTerm(node, includeSubNode, termPath, targetTerm, rootTerm);
     }
@@ -94,9 +101,10 @@ public class InputTermBuilder {
     public IStrategoTuple makeInputTerm(IStrategoTerm node, boolean includeSubNode, IStrategoList termPath,
         IStrategoTerm targetTerm, IStrategoTerm rootTerm) throws FileSystemException {
         assert factory.getDefaultStorageType() == IStrategoTerm.MUTABLE;
-        FileObject file =
-            SourceAttachment.getResource(node, ServiceRegistry.INSTANCE().getService(IResourceService.class));
-        FileObject project = ServiceRegistry.INSTANCE().getService(LaunchConfiguration.class).projectDir;
+        final IResourceService resourceService = injector.getInstance(IResourceService.class);
+        final IProjectService projService = injector.getInstance(IProjectService.class);
+        final FileObject file = SourceAttachment.getResource(node, resourceService);
+        final FileObject project = projService.get(file).location();
         String path, projectPath;
         if(file != null && project != null) {
             projectPath = project.getName().getPath();

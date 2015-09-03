@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.metaborg.sunshine.environment.LaunchConfiguration;
-import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -25,9 +23,6 @@ import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
 public class StrategoTermPath {
-	private static final ITermFactory factory = ServiceRegistry.INSTANCE()
-			.getService(LaunchConfiguration.class).termFactory;
-
 	private static int indexOfIdentical(IStrategoTerm parent, IStrategoTerm node) {
 		int index = 0;
 		for (int size = parent.getSubtermCount(); index < size; index++) {
@@ -37,12 +32,12 @@ public class StrategoTermPath {
 		return index;
 	}
 
-	public static IStrategoList createPath(IStrategoTerm node) {
+	public static IStrategoList createPath(ITermFactory factory, IStrategoTerm node) {
 		List<Integer> pathInts = createPathList(node);
-		return toStrategoPath(pathInts);
+		return toStrategoPath(factory, pathInts);
 	}
 
-	public static IStrategoList toStrategoPath(List<Integer> pathInts) {
+	public static IStrategoList toStrategoPath(ITermFactory factory, List<Integer> pathInts) {
 		LinkedList<IStrategoTerm> results = new LinkedList<IStrategoTerm>();
 		for (int i = 0; i < pathInts.size(); i++) {
 			results.add(factory.makeInt(pathInts.get(i)));

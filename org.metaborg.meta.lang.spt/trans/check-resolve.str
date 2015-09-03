@@ -50,8 +50,11 @@ rules
       from' := <resolve-selection(|selections)> from;
       to'   := <resolve-selection(|selections)> to
     with
+//      <debug(!"resolving from: ")> Some(from');
       input1    := <get-service-input-term> from';
+//      <debug(!"resolving input1: ")> Some(input1);
       input2    := <get-service-input-term-without-ancestor> from';
+//      <debug(!"resolving input2: ")> Some(input2);
       resolvers := <spt-get-reference-resolvers>;
       results   := <map(execute-service(|input1); ?Some(_) <+
                        execute-service(|input2))> resolvers
@@ -62,7 +65,7 @@ rules
                                         <pre>[<write-to-html-string> t]</pre>]
         case one(?Error(m)): error := $[Unexpected error resolving:
                                         <pre>[m]</pre>]; say(!m)
-        case one(?Fail(m)):  error := $[Unexpected error resolving:
+        case one(?Fail(m)):  error := $[Unexpected fail resolving:
                                         <pre>[m]</pre>]; say(!m)
         otherwise: with(fail)
       end

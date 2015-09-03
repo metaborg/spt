@@ -86,7 +86,10 @@ rules
     Test(_, d, _, [r @ Refactor(_,_,(wildcard(), [_ | _]))]) ->
     (r, "Specify a pattern 'to _' for this refactoring")
     // (avoid confusion: conditions after refactoring apply to output pattern)
-  
+
+  check-warning:
+    t@TopSort(_) -> (t, "Start symbols are currently ignored in SPT core. We hope to fix this soon.")
+
   check-error:
     Notes(_) -> (<id>, "Not implemented")
   
@@ -104,6 +107,23 @@ rules
   check-error:
     MarkedPlaceholder(_, _, _) -> (<id>, ${Placeholders of the form [[...]] are not yet supported; 
                                            place a 'footer' setup block at the end of the file instead})
+  
+  check-error:
+    Test(_, _, i@Input(_, head, tail, _), _) -> errors
+    with
+//      debug(!"Checking markers of ");
+      [fragment | selections] := <get-annos> i;
+//      <debug(!"fragment: ")> fragment;
+      markers := <collect-all(?Marked(_,_,_), conc)> tail
+//      ;debug(!"markers: ")
+    where
+      <not(eq)> (<length> markers, <length> selections);
+//      debug(!"there must be unresolved markers... ");
+      unresolved := <filter(not(spt-resolve-marker(|fragment)))> markers;
+//      debug(!"unresolved: ");
+      errors := <map(!(<id>, "Could not resolve this selection."))>
+    where
+      <gt> (<length> errors, 0)
   
   check-error:
     Test(_,description(d), i, expectations) -> (d, warnings)
@@ -325,8 +345,6 @@ signature constructors
 
 rules
 
-  external plugin-strategy-evaluate(print-trace |language, strategy)
-
   check-error:
     TestStratego(_, description(d), s, expectation) -> (d, warning)
     where
@@ -341,6 +359,8 @@ rules
       else
         warning := <check-expectation(|result)> expectation
       end
+
+  external plugin-strategy-evaluate(strat | lang, sdef)
 
   check-expectation(|result) :
     StrategoFails() -> $[Failure expected:
