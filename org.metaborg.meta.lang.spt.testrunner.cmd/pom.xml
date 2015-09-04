@@ -24,7 +24,7 @@
     </dependency>
     <dependency>
       <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.spt.listener</artifactId>
+      <artifactId>org.metaborg.meta.lang.spt.listener</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
 
