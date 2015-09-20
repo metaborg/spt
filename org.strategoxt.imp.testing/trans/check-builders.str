@@ -4,8 +4,8 @@ imports
   libstratego-lib
   libstratego-aterm
   libstratego-gpp
-  include/Spoofax-Testing
-  lib/editor-common.generated
+  Spoofax-Testing
+  editor-common.generated
   aterm-eq
   spoofax_testing
   check

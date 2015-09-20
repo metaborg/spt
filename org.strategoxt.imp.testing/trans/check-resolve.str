@@ -3,8 +3,8 @@ module check-resolve
 imports
   libstratego-lib
   libstratego-aterm
-  include/Spoofax-Testing
-  lib/editor-common.generated
+  Spoofax-Testing
+  editor-common.generated
   aterm-eq
   spoofax_testing
   check

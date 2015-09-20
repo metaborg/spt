@@ -3,7 +3,7 @@ module origin
 imports
 	
 	libstratego-lib
-	lib/editor-common.generated
+	editor-common.generated
 
 rules
 	
