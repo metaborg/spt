@@ -2,7 +2,7 @@ module index-taskengine-isolation
 
 imports
 	
-	lib/editor-common.generated
+	editor-common.generated
 	spoofax_testing
 	check
 	

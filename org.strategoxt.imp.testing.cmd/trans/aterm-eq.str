@@ -6,7 +6,7 @@
 module aterm-eq
 imports
   ATerms
-  include/Spoofax-Testing
+  Spoofax-Testing
   libstratego-aterm
 
 strategies

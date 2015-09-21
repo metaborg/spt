@@ -3,8 +3,8 @@ imports
   libstratego-lib
   libstratego-sglr
   libstratego-sdf
-  include/Spoofax-Testing
-  lib/editor-common.generated
+  Spoofax-Testing
+  editor-common.generated
 
 strategies
 

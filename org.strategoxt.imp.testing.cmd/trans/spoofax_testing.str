@@ -5,8 +5,8 @@ imports
   libstratego-gpp
   libstratego-aterm
   libstratego-sglr
-  include/Spoofax-Testing
-  lib/editor-common.generated
+  Spoofax-Testing
+  editor-common.generated
   analysis
   check
   generate
