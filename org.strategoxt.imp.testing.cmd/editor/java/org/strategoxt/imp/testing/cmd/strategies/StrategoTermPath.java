@@ -65,7 +65,7 @@ public class StrategoTermPath {
 
 	public static IStrategoTerm getTermAtPath(Context context,
 			IStrategoTerm term, IStrategoList path) {
-		return context.getStartegyCollector().getStartegyExecutor("term_at_position_0_1").invoke(context, term, path);
+		return context.getStrategyCollector().getStrategyExecutor("term_at_position_0_1").invoke(context, term, path);
 	}
 
 	/**
