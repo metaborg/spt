@@ -19,9 +19,7 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
-import org.strategoxt.imp.generator.generator;
-import org.strategoxt.imp.generator.position_of_term_1_0;
-import org.strategoxt.imp.generator.term_at_position_0_1;
+import org.strategoxt.imp.generator.sdf2imp.sdf2imp;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -67,7 +65,7 @@ public class StrategoTermPath {
 
 	public static IStrategoTerm getTermAtPath(Context context,
 			IStrategoTerm term, IStrategoList path) {
-		return term_at_position_0_1.instance.invoke(context, term, path);
+		return context.getStartegyCollector().getStartegyExecutor("term_at_position_0_1").invoke(context, term, path);
 	}
 
 	/**
@@ -166,15 +164,16 @@ public class StrategoTermPath {
 		TestOrigin testOrigin = new TestOrigin();
 		testOrigin.origin1 = origin;
 
-		generator.init(context);
-		IStrategoTerm perfectMatch = position_of_term_1_0.instance.invoke(
+		sdf2imp.init(context, true);
+		Strategy position_of_term_1_0 = context.getStrategyCollector().getStrategyExecutor("position_of_term_1_0");
+		IStrategoTerm perfectMatch = position_of_term_1_0.invoke(
 				context, ast, testOrigin);
 
 		if (perfectMatch != null) {
 			return (IStrategoList) perfectMatch;
 		} else if (testOrigin.nextBest != null) {
 			testOrigin.origin1 = testOrigin.nextBest;
-			return (IStrategoList) position_of_term_1_0.instance.invoke(
+			return (IStrategoList) position_of_term_1_0.invoke(
 					context, ast, testOrigin);
 		} else {
 			return null;
