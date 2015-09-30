@@ -6,14 +6,12 @@ import static org.spoofax.interpreter.core.Tools.termAt;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
-import org.metaborg.core.context.ContextIdentifier;
 import org.metaborg.core.context.IContext;
+import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.core.resource.ResourceService;
-import org.metaborg.spoofax.core.context.SpoofaxContext;
 import org.metaborg.spoofax.core.stratego.IStrategoRuntimeService;
 import org.metaborg.spoofax.core.stratego.StrategoRuntimeService;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -49,10 +47,11 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
         final FileObject location = resourceService.resolve(context.getIOAgent().getWorkingDir());
         final HybridInterpreter runtime;
         try {
+        	final IContext metaborgContext = injector.getInstance(IContextService.class).get(location, impl);
             runtime =
                 injector.getInstance(IStrategoRuntimeService.class).runtime(
                     Iterables.get(impl.components(), 0),
-                    new SpoofaxContext(resourceService, new ContextIdentifier(location, impl), injector)
+                    metaborgContext
                 );
         } catch(MetaborgException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));

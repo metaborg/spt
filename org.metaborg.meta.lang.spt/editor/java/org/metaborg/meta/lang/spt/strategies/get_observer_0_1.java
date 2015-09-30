@@ -24,7 +24,7 @@ public class get_observer_0_1 extends Strategy {
 
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm unused, IStrategoTerm language) {
-        logger.info("Getting observer for language {}", language);
+        logger.debug("Getting observer for language {}", language);
         final Injector injector = ((IContext) context.contextObject()).injector();
         final ILanguage lang = injector.getInstance(ILanguageService.class).getLanguage(Tools.asJavaString(language));
         final ILanguageImpl impl = lang.activeImpl();
