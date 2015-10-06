@@ -7,6 +7,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.build.BuildInput;
 import org.metaborg.core.build.BuildInputBuilder;
+import org.metaborg.core.build.ConsoleBuildMessagePrinter;
 import org.metaborg.core.build.dependency.IDependencyService;
 import org.metaborg.core.build.paths.ILanguagePathService;
 import org.metaborg.core.language.ILanguageComponent;
@@ -17,6 +18,7 @@ import org.metaborg.core.language.LanguageFileSelector;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
+import org.metaborg.core.source.ISourceTextService;
 import org.metaborg.core.transform.NamedGoal;
 import org.metaborg.spoofax.core.processing.ISpoofaxProcessorRunner;
 import org.metaborg.util.iterators.Iterables2;
@@ -36,6 +38,7 @@ public class TestRunner {
     private final IDependencyService dependencyService;
     private final ILanguagePathService languagePathService;
     private final ISpoofaxProcessorRunner runner;
+    private final ISourceTextService sourceTextService;
 
     private final Collection<ILanguageComponent> components = Lists.newLinkedList();
 
@@ -44,13 +47,14 @@ public class TestRunner {
 
     @Inject public TestRunner(IResourceService resourceService, ILanguageDiscoveryService languageDiscoveryService,
         ILanguageIdentifierService languageIdentifierService, IDependencyService dependencyService,
-        ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner) {
+        ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner, ISourceTextService sourceTextService) {
         this.resourceService = resourceService;
         this.languageDiscoveryService = languageDiscoveryService;
         this.languageIdentifierService = languageIdentifierService;
         this.dependencyService = dependencyService;
         this.languagePathService = languagePathService;
         this.runner = runner;
+        this.sourceTextService = sourceTextService;
     }
 
 
@@ -103,6 +107,7 @@ public class TestRunner {
             .withSources(tests)
             .withTransformation(false)
             .addTransformGoal(new NamedGoal("testrunnerfile"))
+            .withMessagePrinter(new ConsoleBuildMessagePrinter(sourceTextService, true, true, logger))
             .build(dependencyService, languagePathService)
             ;
         // @formatter:on

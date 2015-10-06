@@ -193,12 +193,7 @@ strategies
     property -> value
     where
       plugin-get-property-values(|<Language>) => [property#([value|_]) | _]
-	
-  
-  spt-get-observer =
-    get-observer(|<Language>)
 
-  
   spt-get-reference-resolvers =
     get-reference-resolvers(|<Language>)
 
@@ -277,7 +272,7 @@ strategies
   external spt-exists-language(|languageName)
   external spt-parse-fragments(|filePath, languageName, targetLangName)
   external spt-resolve-marker(|fragment)
-  external get-observer(|language)
+  external analyze-fragment(|filePath, languageName)
   external get-reference-resolvers(|language)
   external get-service-input-term(|analyzed-ast)
   external get-service-input-term-refactoring(|analyzed-ast)

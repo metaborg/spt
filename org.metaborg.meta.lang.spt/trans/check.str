@@ -98,12 +98,7 @@ rules
   
   check-error:
     CompletionHelper(_) -> (<id>, "Syntax error")
-  
-  check-error:
-    Test(_, d, _, expectations) -> (d, $[No observer defined for [<Language>]])
-    where
-      not(spt-get-observer)
-  
+
   check-error:
     MarkedPlaceholder(_, _, _) -> (<id>, ${Placeholders of the form [[...]] are not yet supported; 
                                            place a 'footer' setup block at the end of the file instead})
@@ -130,11 +125,9 @@ rules
     where
       (input, selections) := <Test-get-input <+ !(FailsParsing(), [])> i
     ; if not(<?[_ | _]; all(is-parse-only-test)> expectations) then
-        // TODO: set starting directory to project path using invoke-plugin-strategy
-        plugin-strategy-invoke(|<Language>, "editor-init")
-      ; where(spt-setup-isolate)
-      ; input'     := (input, <InputFile>, <project-path>)
-      ; messages   := <plugin-strategy-invoke(|<Language>, <spt-get-observer>) <+ !([], [], [])> input'
+        // NOTE: removed call to editor-init
+      where(spt-setup-isolate)
+      ; messages   := <analyze-fragment(|<InputFile>, <Language>)> input
       ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast(|input)> <try(?Some(<id>))> messages
       ; messages'' := <try((flatten-list, flatten-list, flatten-list))> messages'
       else

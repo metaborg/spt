@@ -141,7 +141,7 @@ rules
   	(ast, result) -> (ast, result)
   	where
       input-observer := (ast, <InputFile>, <project-path>);
-      ast-desugared := <plugin-strategy-invoke(|<TargetLanguage>, <spt-get-observer>); try(?Some(<Fst>))> input-observer;
+      ast-desugared := <analyze-fragment(|<InputFile>, <TargetLanguage>); Fst> ast;
       <compare-desugared-asts> (ast-desugared, result) 
   		
   check-builder-expectation(|result) :

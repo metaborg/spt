@@ -12,7 +12,7 @@ public class InteropRegisterer extends JavaInteropRegisterer {
             testlistener_init_0_0.instance, testlistener_add_testsuite_0_2.instance,
             testlistener_add_testcase_0_3.instance, testlistener_start_testcase_0_2.instance,
             testlistener_finish_testcase_0_4.instance, parse_spt_file_0_0.instance,
-            get_completion_input_term_0_1.instance, get_observer_0_1.instance,
+            get_completion_input_term_0_1.instance, analyze_fragment_0_2.instance,
             get_reference_resolvers_0_1.instance,
             spt_exists_language_0_1.instance,
             spt_parse_fragments_0_3.instance,
