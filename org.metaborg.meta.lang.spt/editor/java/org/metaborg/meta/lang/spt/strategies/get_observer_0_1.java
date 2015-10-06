@@ -3,7 +3,7 @@ package org.metaborg.meta.lang.spt.strategies;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
-import org.metaborg.spoofax.core.analysis.SpoofaxAnalysisFacet;
+import org.metaborg.spoofax.core.analysis.AnalysisFacet;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,6 @@ public class get_observer_0_1 extends Strategy {
         final ILanguage lang =
             ServiceRegistry.INSTANCE().getService(ILanguageService.class).getLanguage(Tools.asJavaString(language));
         final ILanguageImpl impl = lang.activeImpl();
-        return context.getFactory().makeString(impl.facet(SpoofaxAnalysisFacet.class).strategyName);
+        return context.getFactory().makeString(impl.facet(AnalysisFacet.class).strategyName);
     }
 }
