@@ -1,7 +1,5 @@
 module Spoofax-Testing-Completions
 
-//imports Spoofax-Testing-Completions.generated                       
-
 completions
                                          
   completion proposer                  : editor-complete

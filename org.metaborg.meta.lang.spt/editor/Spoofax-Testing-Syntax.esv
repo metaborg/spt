@@ -1,7 +1,5 @@
 module Spoofax-Testing-Syntax
 
-// imports Spoofax-Testing-Syntax.generated
-
 language
 
   // Comment constructs:                   

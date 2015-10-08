@@ -1,16 +1,10 @@
-
 module Spoofax-Testing.main
 
-imports Spoofax-Testing-Menus Spoofax-Testing-Colorer Spoofax-Testing-Completions Spoofax-Testing-Folding Spoofax-Testing-Outliner Spoofax-Testing-References Spoofax-Testing-Syntax
+imports Spoofax-Testing-Menus Spoofax-Testing-Colorer Spoofax-Testing-Completions Spoofax-Testing-References Spoofax-Testing-Syntax
 
 language General properties
                   
   name          : Spoofax-Testing
-  id            : org.metaborg.meta.lang.spt
-  extends       : Root
-                  
-  description   : "Spoofax/IMP-generated editor for the Spoofax-Testing language"
-  url           : http://strategoxt.org
                   
   extensions    : spt
   table         : include/Spoofax-Testing.tbl
