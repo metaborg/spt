@@ -88,9 +88,6 @@ rules
     // (avoid confusion: conditions after refactoring apply to output pattern)
   
   check-error:
-    Notes(_) -> (<id>, "Not implemented")
-  
-  check-error:
     TestEmpty(_, d) -> (<id>, "Empty test case")
   
   check-error:
@@ -229,28 +226,34 @@ rules
     ; not(<eq> (<length> errors, <string-to-int> n))
 
   check-expectation(|ast, selections, messages) :
-    Warnings(n) -> $[[n] warning(s) expected: [<grab-warnings> messages]]
+    Warnings(n) -> $[[n] warning(s) (and 0 errors) expected: [<grab-warnings> messages]]
     where
       !messages => ([], warnings, _)
     ; not(<eq> (<length> warnings, <string-to-int> n))
+      
+  check-expectation(|ast, selections, messages) :
+    Notes(n) -> $[[n] notes(s) (and 0 errors) expected: [<grab-warnings> messages]]
+    where
+      !messages => ([], _, notes)
+    ; not(<eq> (<length> notes, <string-to-int> n))
 
-  check-expectation(|ast, selections, messages) :
-    Warnings(n) -> $[No error(s) expected: [<grab-errors> messages]]
-    where
-      !messages => ([_ | _], _, _)
-  
-  check-expectation(|ast, selections, messages) :
-    <?Errors(_) + ?Warnings(_) + ?Notes(_) + ?RegexPattern(_)> -> $[Error/warning/note marker expected at selection(s)]
-    with
-      !messages => (errors, warnings, notes);
-      all-messages := <conc> (errors, warnings, notes)
-    where
-      bad-selections := <filter(not(is-grabbed-message(|all-messages)))> selections;
-      not(!bad-selections => [])
-    with
-      bad-selections' := <map(!(<id>, $[No error/warning/note marker]))> bad-selections;
-      <grab-messages> messages; // show messages in editor
-      rules(GrabbedNotes :+= bad-selections')
+  // check-expectation(|ast, selections, messages) :
+  //   Warnings(n) -> $[No error(s) expected: [<grab-errors> messages]]
+  //   where
+  //     !messages => ([_ | _], _, _)
+  // 
+  // check-expectation(|ast, selections, messages) :
+  //   <?Errors(_) + ?Warnings(_) + ?Notes(_) + ?RegexPattern(_)> -> $[Error/warning/note marker expected at selection(s)]
+  //   with
+  //     !messages => (errors, warnings, notes);
+  //     all-messages := <conc> (errors, warnings, notes)
+  //   where
+  //     bad-selections := <filter(not(is-grabbed-message(|all-messages)))> selections;
+  //     not(!bad-selections => [])
+  //   with
+  //     bad-selections' := <map(!(<id>, $[No error/warning/note marker]))> bad-selections;
+  //     <grab-messages> messages; // show messages in editor
+  //     rules(GrabbedNotes :+= bad-selections')
 
   check-error :
     Stratego(_) -> (<id>, $[Not implemented: [<write-to-html-string>]])
