@@ -49,17 +49,41 @@ public class SelectionFetcher {
 			IStrategoTerm unclosedChild;
 			IToken unclosedLeft;
 			IToken lastCloseQuote;
+			boolean useNext = false;
 
 			public void preVisit(IStrategoTerm term) {
 				IToken left = getTokenBefore(getLeftToken(term));
 				IToken right = getTokenAfter(getRightToken(term));
-				if (isOpenQuote(left) && isNoQuoteBetween(left, right)) {
+
+				/**
+				 * If useNext is true we came across an openQuote followed by an empty list. We skipped
+				 * the empty list, so whatever comes next implicitly has a open quote on its left.
+				 */
+				if ((useNext || isOpenQuote(left)) && isNoQuoteBetween(left, right)) {
 					if (isCloseQuote(right) && isNoQuoteBetween(left, right)) {
 						if (right != lastCloseQuote) {
 							lastCloseQuote = right;
+							useNext = false;
 							results.add(getMatchingDescendant(term));
 						}
 					} else if (unclosedChild == null) {
+						/**
+						 * Spoofax may tokenize an empty list followed by a marker as "<< [[>><<>><<x>><<]]>>" where
+						 * <<>> denotes the empty list. As you can see, the empty list appears *inside* the marker.
+						 * Consequently, the list is part of what is marked, and the common ancestor is used.
+						 *
+						 * This is a quick & dirty fix that prevents empty lists from being matched. I don't see a
+						 * reason one would want to mark an empty list anyway.
+						 *
+						 * See: http://yellowgrass.org/issue/Spoofax/771
+						 */
+						if (term instanceof IStrategoList) {
+							if (((IStrategoList) term).isEmpty()) {
+								useNext = true;
+								return;
+							}
+						}
+
 						unclosedChild = term;
 						unclosedLeft = left;
 					}
@@ -77,6 +101,7 @@ public class SelectionFetcher {
 				}
 			}
 		}.visit(parsedFragment);
+
 		return ServiceRegistry.INSTANCE().getService(LaunchConfiguration.class).termFactory
 				.makeList(results);
 	}
