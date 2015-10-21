@@ -16,6 +16,8 @@ import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.resource.IResourceService;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.source.SourceRegion;
 import org.metaborg.core.syntax.ISyntaxService;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.core.syntax.ParseResult;
@@ -93,7 +95,7 @@ public class FragmentParser {
     private FileObject sptFile;
 
     // The regions (character offsets in the input) representing the Setup blocks
-    private List<OffsetRegion> setupRegions;
+    private List<ISourceRegion> setupRegions;
 
     private boolean isLastSyntaxCorrect;
 
@@ -228,9 +230,9 @@ public class FragmentParser {
         boolean addedFragment = false;
         int index = 0;
         if(!ignoreSetup) {
-            for(OffsetRegion setupRegion : setupRegions) {
-                int setupStart = setupRegion.startOffset;
-                int setupEnd = setupRegion.endOffset;
+            for(ISourceRegion setupRegion : setupRegions) {
+                int setupStart = setupRegion.startOffset();
+                int setupEnd = setupRegion.endOffset();
                 // if the next Setup region is after the current fragment
                 // or the current fragment is this Setup region
                 if(!addedFragment && setupStart >= fragmentStart) {
@@ -321,8 +323,8 @@ public class FragmentParser {
      * @param ast the AST in which to look for setup blocks.
      * @return a list of OffsetRegions, each representing a (part of) a Setup block's contents.
      */
-    private List<OffsetRegion> getSetupRegions(IStrategoTerm ast) {
-        final List<OffsetRegion> results = new ArrayList<OffsetRegion>();
+    private List<ISourceRegion> getSetupRegions(IStrategoTerm ast) {
+        final List<ISourceRegion> results = new ArrayList<ISourceRegion>();
         new TermVisitor() {
             public void preVisit(IStrategoTerm term) {
                 // look for setup blocks
@@ -333,8 +335,7 @@ public class FragmentParser {
                             if(tryGetConstructor(term) == QUOTEPART_1) {
                                 term = term.getSubterm(0);
                                 // record the offsets of the QuotePart's content
-                                results.add(new OffsetRegion(getLeftToken(term).getStartOffset(), getRightToken(term)
-                                    .getEndOffset()));
+                                results.add(new SourceRegion(getLeftToken(term).getStartOffset(), getRightToken(term).getEndOffset()));
                             }
                         }
                     }.visit(term);
@@ -391,24 +392,6 @@ public class FragmentParser {
     private void clearTokenErrors(ITokenizer tokenizer) {
         for(IToken token : tokenizer) {
             ((Token) token).setError(null);
-        }
-    }
-
-    /**
-     * An (inclusive) offset tuple.
-     *
-     * @author Lennart Kats <lennart add lclnet.nl>
-     */
-    static class OffsetRegion {
-        int startOffset, endOffset;
-
-        OffsetRegion(int startOffset, int endOffset) {
-            this.startOffset = startOffset;
-            this.endOffset = endOffset;
-        }
-
-        @Override public String toString() {
-            return "(" + startOffset + "," + endOffset + ")";
         }
     }
 }

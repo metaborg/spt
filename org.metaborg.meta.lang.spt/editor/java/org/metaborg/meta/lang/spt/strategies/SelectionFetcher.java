@@ -3,7 +3,8 @@ package org.metaborg.meta.lang.spt.strategies;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.metaborg.meta.lang.spt.strategies.FragmentParser.OffsetRegion;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.source.SourceRegion;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
@@ -31,35 +33,56 @@ public class SelectionFetcher {
 		MARKED = termFactory.makeConstructor("Marked", 3);
 	}
 	
+	/**
+	 * Return all Marked terms from the SPT AST.
+	 * @return the Marked terms. See {@link SelectionFetcher#MARKED}.
+	 */
 	public List<IStrategoTerm> fetchMarked(IStrategoTerm sptFragment) {
-		// the regions of the marked strings in the SPT fragment
-		final List<IStrategoTerm> selectionRegions = new ArrayList<IStrategoTerm>();
+		// the Marked terms
+		final List<IStrategoTerm> marked = new ArrayList<IStrategoTerm>();
 
-		// collect the offsets of SPT selections (i.e. the strings in marked quoteparts)
+		// collect the terms from the given AST
 		new TermVisitor() {
 			@Override
 			public void preVisit(IStrategoTerm term) {
 				// Look for Marked("[[", QuotePart("selection"), "]]")
 				if (MARKED == Term.tryGetConstructor(term)) {
 					// get the string from the QuotePart
-					selectionRegions.add(term);
+					marked.add(term);
 				}
 			}
 		}.visit(sptFragment);
 		
-		return selectionRegions;
+		return marked;
 	}
-	
-	public OffsetRegion getOffsets(IStrategoTerm marked) {
-		assert MARKED == Term.tryGetConstructor(marked);
+	/**
+	 * Get the start and end offset of the given term.
+	 * @param marked the term of which you want the offsets.
+	 * @return the start and end offset of the term.
+	 */
+	public static ISourceRegion getOffsets(IStrategoTerm marked) {
 		IStrategoTerm sptSelection = Term.termAt(Term.termAt(marked, 1), 0);
-		return new OffsetRegion(
-				ImploderAttachment.getLeftToken(sptSelection).getStartOffset(),
-				ImploderAttachment.getRightToken(sptSelection).getEndOffset());
+		IToken leftToken = ImploderAttachment.getLeftToken(sptSelection);
+		IToken rightToken = ImploderAttachment.getRightToken(sptSelection);
+		return new SourceRegion(
+				leftToken.getStartOffset(),
+				leftToken.getLine(),
+				leftToken.getColumn(),
+				rightToken.getEndOffset(),
+				rightToken.getEndLine(),
+				rightToken.getEndColumn());
 	}
 	
-	public IStrategoTerm fetchOne(IStrategoTerm marked, IStrategoTerm parsedFragment) {
-		final OffsetRegion region = getOffsets(marked);
+	/**
+	 * Get the first term (order determined by how a TermVisitor visits children)
+	 * that has the exact same start and end offsets as the given region.
+	 * @param region the region with the start and end offset you are looking for.
+	 * NOTE: the row and col can be bogus values, we don't look at them.
+	 * @param parsedFragment the AST from which to select the term.
+	 * @return the term with the same offsets as the region.
+	 * Or null if no term had the same offsets.
+	 */
+	public static IStrategoTerm fetchOne(final ISourceRegion region, IStrategoTerm parsedFragment) {
 		final List<IStrategoTerm> resultContainer = new ArrayList<IStrategoTerm>();
 		new TermVisitor() {
 			protected IStrategoTerm result = null;
@@ -75,12 +98,12 @@ public class SelectionFetcher {
 				}
 				// compare start offset
 				int start = ImploderAttachment.getLeftToken(term).getStartOffset();
-				if (start != region.startOffset) {
+				if (start != region.startOffset()) {
 					return;
 				}
 				// start offset matches, now compare end offset
 				int end = ImploderAttachment.getRightToken(term).getEndOffset();
-				if (end != region.endOffset) {
+				if (end != region.endOffset()) {
 					return;
 				}
 				// found a match
@@ -103,7 +126,7 @@ public class SelectionFetcher {
 	public IStrategoList fetch(IStrategoTerm sptFragment, IStrategoTerm parsedFragment) {
 		// get the offset regions
 		final List<IStrategoTerm> sptSelections = fetchMarked(sptFragment);
-		final List<OffsetRegion> selectionRegions = new ArrayList<OffsetRegion>(sptSelections.size());
+		final List<ISourceRegion> selectionRegions = new ArrayList<ISourceRegion>(sptSelections.size());
 		for (IStrategoTerm marked : sptSelections) {
 			selectionRegions.add(getOffsets(marked));
 		}
@@ -126,22 +149,24 @@ public class SelectionFetcher {
 					return;
 				}
 				for (int i = 0; i < selectionRegions.size(); i++) {
-					OffsetRegion current = selectionRegions.get(i);
+					ISourceRegion current = selectionRegions.get(i);
 					// compare start offset
 					int start = ImploderAttachment.getLeftToken(term).getStartOffset();
-					if (start < current.startOffset) {
+					// NOTE: this assumes the regions are ordered by ascending start offset!
+					if (start < current.startOffset()) {
 						// this term is before the ones we're looking for. Off to the next term.
 						return;
-					} else if (start > current.startOffset) {
+					} else if (start > current.startOffset()) {
 						// this term comes after this section. Off to the next section.
 						continue;
 					}
 					// start offset matches, now compare end offset
+					// NOTE: this assumes that ties in the start offset ordering are broken by smallest end offset first!
 					int end = ImploderAttachment.getRightToken(term).getEndOffset();
-					if (end < current.endOffset) {
+					if (end < current.endOffset()) {
 						// this term is before the ones we are looking for. Off to the next term.
 						return;
-					} else if (end > current.endOffset) {
+					} else if (end > current.endOffset()) {
 						// this term comes after this section. Off to the next section.
 						continue;
 					}
@@ -151,85 +176,12 @@ public class SelectionFetcher {
 			}
 		}.visit(parsedFragment);
 
+		// if a selection couldn't be found, we don't return an empty list
+		for (int i = 0; i < results.length; i++) {
+			if (results[i] == null) {
+				return termFactory.makeList();
+			}
+		}
 		return termFactory.makeList(results);
-
-//		new TermVisitor() {
-//			IStrategoTerm unclosedChild;
-//			IToken unclosedLeft;
-//			IToken lastCloseQuote;
-//
-//			public void preVisit(IStrategoTerm term) {
-//				IToken left = getTokenBefore(getLeftToken(term));
-//				IToken right = getTokenAfter(getRightToken(term));
-//				if (isOpenQuote(left) && isNoQuoteBetween(left, right)) {
-//					if (isCloseQuote(right) && isNoQuoteBetween(left, right)) {
-//						if (right != lastCloseQuote) {
-//							lastCloseQuote = right;
-//							results.add(getMatchingDescendant(term));
-//						}
-//					} else if (unclosedChild == null) {
-//						unclosedChild = term;
-//						unclosedLeft = left;
-//					}
-//				}
-//			}
-//
-//			@Override
-//			public void postVisit(IStrategoTerm term) {
-//				IToken right = getTokenAfter(getRightToken(term));
-//				if (unclosedChild != null && isCloseQuote(right)
-//						&& isNoQuoteBetween(unclosedLeft, right)) {
-//					results.add(StrategoTermPath.findCommonAncestor(
-//							unclosedChild, term));
-//					unclosedChild = null;
-//				}
-//			}
-//		}.visit(parsedFragment);
-//		return termFactory.makeList(results);
 	}
-
-
-//	private static IStrategoTerm getMatchingDescendant(IStrategoTerm term) {
-//		IToken left = getLeftToken(term);
-//		IToken right = getRightToken(term);
-//		for (int i = 0; i < term.getSubtermCount(); i++) {
-//			IStrategoTerm child = termAt(term, i);
-//			if (getLeftToken(child) == left && getRightToken(child) == right)
-//				return getMatchingDescendant(child);
-//		}
-//		return term;
-//	}
-//
-//	private boolean isOpenQuote(IToken left) {
-//		return left != null && left.getKind() == TK_ESCAPE_OPERATOR
-//				&& isQuoteOpenText(left.toString());
-//	}
-//
-//	private boolean isCloseQuote(IToken right) {
-//		return right != null && right.getKind() == TK_ESCAPE_OPERATOR
-//				&& !isQuoteOpenText(right.toString());
-//	}
-//
-//	private boolean isNoQuoteBetween(IToken left, IToken right) {
-//		ITokenizer tokenizer = left.getTokenizer();
-//		for (int i = left.getIndex() + 1, end = right.getIndex(); i < end; i++) {
-//			IToken token = tokenizer.getTokenAt(i);
-//			if (token.getKind() == TK_ESCAPE_OPERATOR) {
-//				return false;
-//			}
-//		}
-//		return true;
-//	}
-//
-//	private boolean isQuoteOpenText(String contents) {
-//		// HACK: inspect string contents to find out if it's an open or close
-//		// quote
-//		if (contents.contains("[")) {
-//			return true;
-//		} else {
-//			assert contents.contains("]");
-//			return false;
-//		}
-//	}
-
 }

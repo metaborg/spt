@@ -1,5 +1,8 @@
 package org.metaborg.meta.lang.spt.testrunner.cmd;
 
+import javax.enterprise.util.TypeLiteral;
+
+import org.metaborg.core.analysis.IAnalysisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +35,7 @@ public class Main {
         try {
             final Module module = new Module();
             final Injector injector = Guice.createInjector(module);
+            
             final Runner runner = injector.getInstance(Runner.class);
             runner.run(arguments.targetLanguageLocation, arguments.testsLocation);
             System.exit(0);

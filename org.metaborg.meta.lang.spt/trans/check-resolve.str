@@ -20,17 +20,9 @@ rules
   check-expectation(|ast, selections, messages) :
     ResolveTo(_, _) -> $[No reference resolving defined for [<Language>]]
     where
-      spt-get-reference-resolvers => []
+      not(spt-reference-resolution-available(|<Language>))
   
-  check-error:
-    Test(_, _, input{a*}, expectations) -> error*
-    where
-      !a* => [ast | selections];
-      reference* := <collect-all(?Numbered(_) + ?Unnumbered(), conc)> expectations;
-      error*     := <filter(check-selection(|selections))> reference*;
-      not([])
-  
-  check-selection(|selections):
+  check-error(|selections):
     Numbered(n) -> (<id>, $[No identifier selection #[n] found in input])
     where
       not(resolve-selection(|selections))
@@ -48,34 +40,31 @@ rules
     ResolveTo(from, to) -> error
     where
       from' := <resolve-selection(|selections)> from;
-      to'   := <resolve-selection(|selections)> to
-    with
-//      <debug(!"resolving from: ")> Some(from');
-      input1    := <get-service-input-term> from';
-//      <debug(!"resolving input1: ")> Some(input1);
-      input2    := <get-service-input-term-without-ancestor> from';
-//      <debug(!"resolving input2: ")> Some(input2);
-      resolvers := <spt-get-reference-resolvers>;
-      results   := <map(execute-service(|input1); ?Some(_) <+
-                       execute-service(|input2))> resolvers
-    where
-      switch !results
-        case one(is-successful-resolver(|to')): fail
-        case one(?Some(t)):  error := $[Unexpected result:
-                                        <pre>[<write-to-html-string> t]</pre>]
-        case one(?Error(m)): error := $[Unexpected error resolving:
-                                        <pre>[m]</pre>]; say(!m)
-        case one(?Fail(m)):  error := $[Unexpected fail resolving:
-                                        <pre>[m]</pre>]; say(!m)
-        otherwise: with(fail)
+      to'   := <resolve-selection(|selections)> to;
+      <debug(!"Resolving (from, to): ")> (from', to');
+      if (
+        results := <spt-resolve-reference(|<InputFile>, <Language>, <LastAnalyzedAst>)> from'
+      ) then
+        <debug(!"Resolution results: ")> results;
+        switch !results
+          case one(is-successful-resolver(|to')): fail
+          case one(?Error(m)): error := $[Unexpected error resolving:
+                                          <pre>[m]</pre>]; say(!m)
+          otherwise: error := $[Unexpected result:
+                                          <pre>[<write-to-html-string> results]</pre>]
+        end
+      else
+        error := $[Failed to resolve! Does your language have reference resolution implemented?]
       end
   
   is-successful-resolver(|expected):
-    Some(result) -> <id>
+    result -> <id>
     where
       !expected => wildcard()
     <+
+      // NOTE: we allow resolution to bigger terms than the selection???
       oncetd(origin-equal(|expected))
     <+
+      // TODO: can we still use this in Spoofax Core?
       expected-offset := <origin-offset> expected;
       <oncetd(origin-offset => expected-offset)> result

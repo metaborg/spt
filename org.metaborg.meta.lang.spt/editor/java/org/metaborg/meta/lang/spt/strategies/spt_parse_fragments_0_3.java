@@ -2,6 +2,7 @@ package org.metaborg.meta.lang.spt.strategies;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgRuntimeException;
@@ -114,10 +115,6 @@ public class spt_parse_fragments_0_3 extends Strategy {
         final FragmentParser outputFragmentParser = new FragmentParser(injector, outputSetupCons, null);
         outputFragmentParser.configure(targetLang.activeImpl(), sptFile, ast);
 
-        // TODO: remove this
-        printTokens(resourceService, ast, "ast");
-        printAnnotatedAst(termFactory, resourceService, ast, "ast");
-
         // Look for fragments and parse them
         final IStrategoConstructor inputCons = termFactory.makeConstructor("Input", 4);
         final IStrategoConstructor outputCons = termFactory.makeConstructor("Output", 4);
@@ -155,10 +152,6 @@ public class spt_parse_fragments_0_3 extends Strategy {
                         // TODO: verify that parse fails tests don't throw this exception!
                         throw new MetaborgRuntimeException(e);
                     }
-
-                    // TODO: remove this
-                    printTokens(resourceService, parsedFragment, "fragment");
-                    printAnnotatedAst(termFactory, resourceService, parsedFragment, "fragment");
 
                     // retokenize: add all leftover tokens up to this fragment to the new tokenizer
                     IStrategoTerm fragmentHead = Term.termAt(term, 1);
@@ -217,64 +210,7 @@ public class spt_parse_fragments_0_3 extends Strategy {
         retokenizer.getTokenizer().setAst(newAst);
         retokenizer.getTokenizer().initAstNodeBinding();
 
-        // TODO: remove this
-        printTokens(resourceService, newAst, "result");
-        printAnnotatedAst(termFactory, resourceService, newAst, "result");
-
         return newAst;
     }
 
-    // TODO: remove everything below here
-    private static final String outloc = "/Users/volker/Documents/workspaces/sptcmdtests/random/";
-
-    private void printTokens(IResourceService resourceService, IStrategoTerm term, String filename) {
-    	try {
-            FileObject astTokens = resourceService.resolve(outloc + filename + "-tokens.txt");
-            PrintWriter writer = new PrintWriter(astTokens.getContent().getOutputStream());
-            Iterator<IToken> tokens = ImploderAttachment.getTokenizer(term).iterator();
-            while (tokens.hasNext()) {
-            	IToken token = tokens.next();
-            	writer.append('<').append(Integer.toString(token.getIndex())).append(':').append(token.toString()).append('>');
-            }
-            writer.close();
-        } catch (Exception e) {
-        	logger.error("oops", e);
-        }
-    }
-
-    private static TermTransformer tokenAnnotator(final ITermFactory factory) {
-    	return new TermTransformer(factory, true) {
-			@Override
-			public IStrategoTerm preTransform(IStrategoTerm term) {
-				return term;
-			}
-			@Override
-			public IStrategoTerm postTransform(IStrategoTerm term) {
-				if (ImploderAttachment.get(term) != null) {
-					IToken left = ImploderAttachment.getLeftToken(term);
-					IToken right = ImploderAttachment.getRightToken(term);
-					IStrategoList annos = term.getAnnotations();
-					if (annos != null && !annos.isEmpty()) {
-						return factory.annotateTerm(term, factory.makeList(factory.makeString("tokens " + left.getIndex() + "-" + right.getIndex() + " : " + left.getStartOffset() + "-" + right.getEndOffset()), tokenAnnotator(factory).transform(annos)));
-					} else {
-						return factory.annotateTerm(term, factory.makeList(factory.makeString("tokens " + left.getIndex() + "-" + right.getIndex() + " : " + left.getStartOffset() + "-" + right.getEndOffset())));
-					}
-				} else {
-					return term;
-				}
-			}
-		};
-    }
-
-    private void printAnnotatedAst(final ITermFactory factory, IResourceService resourceService, IStrategoTerm term, String filename) {
-    	IStrategoTerm newTerm = tokenAnnotator(factory).transform(term);
-		try {
-            FileObject ast = resourceService.resolve(outloc + filename + ".aterm");
-            PrintWriter writer = new PrintWriter(ast.getContent().getOutputStream());
-            writer.write(newTerm.toString());
-            writer.close();
-        } catch (Exception e) {
-        	logger.error("oops", e);
-        }
-    }
 }

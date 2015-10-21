@@ -16,6 +16,7 @@ import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.iterators.Iterables2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,10 @@ public class analyze_fragment_0_2 extends Strategy {
 				injector.getInstance(Key.get(new TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>>(){}));
 			// FIXME: this is a rather hacky way to get the parsed AST into a ParseResult
 			final ParseResult<IStrategoTerm> parseResult = new ParseResult<IStrategoTerm>("", ast, srcfile, Iterables2.<IMessage>empty(), -1, impl, null, null);
-			final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
+			final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult;
+			try (IClosableLock lock = targetLanguageContext.write()) {
+				analysisResult  = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
+			}
 
 			// record the resulting AST and the errors, warnings, and notes
 			final AnalysisFileResult<IStrategoTerm, IStrategoTerm> result = analysisResult.fileResults.iterator().next();
@@ -79,19 +83,31 @@ public class analyze_fragment_0_2 extends Strategy {
 				throw new MetaborgRuntimeException("The analysis of the fragment failed. Check the error log.");
 			}
 			for (IMessage message : result.messages) {
-				final IStrategoTerm messageString = termFactory.makeString(message.message());
-				if (logger.isDebugEnabled() && messageString == null)
-					logger.debug("This analysis message has no message...");
+				// turn message into a (term, message) tuple
+				final IStrategoTerm messageTerm;
+				if (message.region() == null) {
+					logger.error("The analysis produced a message we can't pin to an AST node: \n{}", message.message());
+					messageTerm = termFactory.makeTuple(analyzedAst, termFactory.makeString(message.message()));
+				} else {
+					final IStrategoTerm markedTerm = SelectionFetcher.fetchOne(message.region(), analyzedAst);
+					if (markedTerm == null) {
+						logger.error("The analysis produced a message on region ({},{}) which can not be resolved.", message.region().startOffset(), message.region().endOffset());
+						messageTerm = termFactory.makeTuple(analyzedAst, termFactory.makeString(message.message()));
+					} else {
+						messageTerm = termFactory.makeTuple(markedTerm, termFactory.makeString(message.message()));
+					}
+				}
+				// add the message to the right list
 				switch (message.severity()) {
-					case ERROR :
-						errors.add(messageString);
-						break;
-					case WARNING :
-						warnings.add(messageString);
-						break;
-					case NOTE :
-						notes.add(messageString);
-						break;
+				case ERROR :
+					errors.add(messageTerm);
+					break;
+				case WARNING :
+					warnings.add(messageTerm);
+					break;
+				case NOTE :
+					notes.add(messageTerm);
+					break;
 				}
 			}
 		} catch (Exception e) {

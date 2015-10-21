@@ -21,10 +21,10 @@ rules
   	(ast', path, project-path) -> None()
   	with
   	scope-paths(
-  	rules(
-          InputFile := path
-          Language  := <get-language> ast'
+    rules(
+          InputFile := <get-absolute-path(|project-path, path)>
           TargetLanguage := <get-target-language <+ get-language> ast'
+          Language := <get-language> ast'
         )
     |path, project-path)
 
@@ -43,11 +43,7 @@ rules
       scope-paths(
         <chdir> project-path;
         <record-all-sdfs> ".";
-        rules(
-          InputFile := path
-          Language  := <get-language> ast''
-          TargetLanguage := <get-target-language <+ get-language> ast''
-        );
+        <make-dynamic-rules> (ast'', path, project-path);
         where(spt-setup-isolate);
         errors    := <collect-all(check-error, conc;flatten-list)> ast'';
         warnings  := <collect-all(check-warning, conc)> ast'';
@@ -147,6 +143,7 @@ strategies
   editor-complete:
     (Language(t), _, _, _, _) -> [<spt-get-default-language>]
   
+  // TODO port to Spoofax Core
   editor-complete:
     (construct, position, ast, path, project-path) -> proposals
     where
@@ -155,10 +152,7 @@ strategies
       language := <origin-language> ast;
       not("Spoofax-Testing");
       {|Language:
-        rules(
-          InputFile := path
-          Language := language 
-        );
+        <make-dynamic-rules> (ast, path, project-path);
         where(spt-setup-isolate);
         completers := <spt-get-content-proposers>;
         results   := <map(execute-service(|input-tuple))> completers;
@@ -173,14 +167,11 @@ strategies
       language := <origin-language> ast;
       not("Spoofax-Testing");
       {|Language:
-        rules(
-          InputFile := path
-          Language := language 
-        );
+        <make-dynamic-rules> (ast, path, project-path);
         where(spt-setup-isolate);
-        resolvers := <spt-get-reference-resolvers>;
-        results   := <map(execute-service(|input-tuple))> resolvers;
-        proposals := <getfirst(?Some(<id>))> results;
+        // TODO: test if this actually works
+        resolvers := <spt-resolve-reference(|<InputFile>, <Language>, ast)> construct;
+        proposals := <map(execute-service(|input-tuple))> resolvers;
         where(spt-isolate)
       |}
       
@@ -193,9 +184,6 @@ strategies
     property -> value
     where
       plugin-get-property-values(|<Language>) => [property#([value|_]) | _]
-
-  spt-get-reference-resolvers =
-    get-reference-resolvers(|<Language>)
 
   spt-get-content-proposers =
     <plugin-get-property-values(|<Language>)> "CompletionProposer";
@@ -273,7 +261,9 @@ strategies
   external spt-parse-fragments(|filePath, languageName, targetLangName)
   external spt-resolve-marker(|fragment)
   external analyze-fragment(|filePath, languageName)
-  external get-reference-resolvers(|language)
+  external get-absolute-path(|projectPath, filePath)
+  external spt-resolve-reference(|filePath, languageName, analyzedAst)
+  external spt-reference-resolution-available(|languageName)
   external get-service-input-term(|analyzed-ast)
   external get-service-input-term-refactoring(|analyzed-ast)
   // FIXME: isn't working at the moment and shouldn't be used after porting is complete

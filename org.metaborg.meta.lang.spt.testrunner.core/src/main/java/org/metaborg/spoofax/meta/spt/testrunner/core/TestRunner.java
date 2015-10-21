@@ -5,9 +5,12 @@ import java.util.Collection;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.analysis.AnalysisFileResult;
+import org.metaborg.core.analysis.AnalysisResult;
 import org.metaborg.core.build.BuildInput;
 import org.metaborg.core.build.BuildInputBuilder;
 import org.metaborg.core.build.ConsoleBuildMessagePrinter;
+import org.metaborg.core.build.IBuildOutput;
 import org.metaborg.core.build.dependency.IDependencyService;
 import org.metaborg.core.build.paths.ILanguagePathService;
 import org.metaborg.core.language.ILanguageComponent;
@@ -16,14 +19,15 @@ import org.metaborg.core.language.ILanguageIdentifierService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageFileSelector;
 import org.metaborg.core.language.LanguageUtils;
+import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceTextService;
-import org.metaborg.core.transform.NamedGoal;
 import org.metaborg.spoofax.core.processing.ISpoofaxProcessorRunner;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -106,14 +110,22 @@ public class TestRunner {
             .withDefaultIncludePaths(false)
             .withSources(tests)
             .withTransformation(false)
-            .addTransformGoal(new NamedGoal("testrunnerfile"))
+//            .addTransformGoal(new NamedGoal("testrunnerfile"))
             .withMessagePrinter(new ConsoleBuildMessagePrinter(sourceTextService, true, true, logger))
             .build(dependencyService, languagePathService)
             ;
         // @formatter:on
 
         try {
-            runner.build(input, null, null).schedule().block();
+            IBuildOutput<IStrategoTerm, IStrategoTerm, IStrategoTerm> bRes = runner.build(input, null, null).schedule().block().result();
+            for (AnalysisResult<IStrategoTerm, IStrategoTerm> aRes : bRes.analysisResults()) {
+            	for (AnalysisFileResult<IStrategoTerm, IStrategoTerm> fRes : aRes.fileResults) {
+            		logger.info("Analysis results for file {}", fRes.source.getName());
+            		for (IMessage message : fRes.messages) {
+            			logger.info("{}: {} || ({})", message.severity(), message.message(), message.region());
+            		}
+            	}
+            }
         } catch(InterruptedException e) {
             // Ignore interruption
         }
