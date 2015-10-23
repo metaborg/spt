@@ -19,11 +19,6 @@
     </dependency>
     <dependency>
       <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.sunshine</artifactId>
-      <version>${metaborg-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
       <artifactId>org.metaborg.meta.lang.spt.listener</artifactId>
       <version>${metaborg-version}</version>
     </dependency>

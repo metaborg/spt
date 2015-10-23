@@ -64,7 +64,7 @@
                   <artifactId>org.metaborg.meta.lang.spt</artifactId>
                   <version>${metaborg-version}</version>
                   <type>spoofax-language</type>
-                  <includes>include/*</includes>
+                  <includes>include/*,src-gen/metaborg.generated.yaml</includes>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>src/main/resources/spt</outputDirectory>
