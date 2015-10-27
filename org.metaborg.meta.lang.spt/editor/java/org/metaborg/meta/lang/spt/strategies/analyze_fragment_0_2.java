@@ -10,13 +10,13 @@ import org.metaborg.core.analysis.AnalysisResult;
 import org.metaborg.core.analysis.IAnalysisService;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
+import org.metaborg.core.context.ITemporaryContext;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseResult;
-import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.iterators.Iterables2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,20 +60,17 @@ public class analyze_fragment_0_2 extends Strategy {
 		final FileObject srcfile = injector.getInstance(IResourceService.class).resolve(Tools.asJavaString(filePath));
 		
 		try {
-			// each fragment should be analyzed independently of the others
-			final IContextService contextService = injector.getInstance(IContextService.class);
-			IContext targetLanguageContext = contextService.get(metaborgContext, impl);
-			targetLanguageContext.reset();
-
+		    final IContextService contextService = injector.getInstance(IContextService.class);
+		    
 			// let Spoofax Core analyze the AST
 			final IAnalysisService<IStrategoTerm, IStrategoTerm> analyzer = 
 				injector.getInstance(Key.get(new TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>>(){}));
 			// FIXME: this is a rather hacky way to get the parsed AST into a ParseResult
 			final ParseResult<IStrategoTerm> parseResult = new ParseResult<IStrategoTerm>("", ast, srcfile, Iterables2.<IMessage>empty(), -1, impl, null, null);
 			final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult;
-			try (IClosableLock lock = targetLanguageContext.write()) {
-				analysisResult  = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
-			}
+            try(final ITemporaryContext targetLanguageContext = contextService.getTemporary(metaborgContext, impl)) {
+                analysisResult = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
+            }
 
 			// record the resulting AST and the errors, warnings, and notes
 			final AnalysisFileResult<IStrategoTerm, IStrategoTerm> result = analysisResult.fileResults.iterator().next();
