@@ -67,10 +67,10 @@ public class analyze_fragment_0_2 extends Strategy {
 				injector.getInstance(Key.get(new TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>>(){}));
 			// FIXME: this is a rather hacky way to get the parsed AST into a ParseResult
 			final ParseResult<IStrategoTerm> parseResult = new ParseResult<IStrategoTerm>("", ast, srcfile, Iterables2.<IMessage>empty(), -1, impl, null, null);
-			final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult;
-            try(final ITemporaryContext targetLanguageContext = contextService.getTemporary(metaborgContext, impl)) {
-                analysisResult = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
-            }
+			final ITemporaryContext targetLanguageContext = contextService.getTemporary(metaborgContext, impl);
+            // HACK: setting the temporary context as context object, so that subsequent steps such as reference resolution can use the context.
+            context.setContextObject(targetLanguageContext);
+            final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
 
 			// record the resulting AST and the errors, warnings, and notes
 			final AnalysisFileResult<IStrategoTerm, IStrategoTerm> result = analysisResult.fileResults.iterator().next();
