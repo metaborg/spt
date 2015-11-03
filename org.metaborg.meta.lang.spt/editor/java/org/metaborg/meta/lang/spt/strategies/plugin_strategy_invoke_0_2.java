@@ -38,16 +38,13 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
      */
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm languageName,
         IStrategoTerm strategy) {
-    	final Injector injector = ((IContext)context.contextObject()).injector();
-    	final IResourceService resourceService = injector.getInstance(IResourceService.class);
-    	// TODO: is this factory ok? Or do we need to use the injector to get one?
+        final IContext metaborgContext = (IContext)context.contextObject();
+    	final Injector injector = metaborgContext.injector();
         final ITermFactory factory = context.getFactory();
         final ILanguage lang = injector.getInstance(ILanguageService.class).getLanguage(asJavaString(languageName));
         final ILanguageImpl impl = lang.activeImpl();
-        final FileObject location = resourceService.resolve(context.getIOAgent().getWorkingDir());
         final HybridInterpreter runtime;
         try {
-        	final IContext metaborgContext = injector.getInstance(IContextService.class).get(location, impl);
             runtime =
                 injector.getInstance(IStrategoRuntimeService.class).runtime(
                     Iterables.get(impl.components(), 0),
