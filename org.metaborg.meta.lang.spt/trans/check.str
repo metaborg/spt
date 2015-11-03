@@ -202,11 +202,11 @@ rules
       not(!ast => FailsParsing());
       not(!ast => error(_, _))
 
-  check-expectation(|ast, selections, messages) :
-    c -> $[Syntax is ambiguous: [<write-to-html-string> ast]]
-    where
-      <oncetd(?amb(_))> ast;
-      not(!c => pattern(_); oncetd(?unquoted("amb")))
+//  check-expectation(|ast, selections, messages) :
+//    c -> $[Syntax is ambiguous: [<write-to-html-string> ast]]
+//    where
+//      <oncetd(?amb(_))> ast;
+//      not(!c => pattern(_); oncetd(?unquoted("amb")))
 
   check-expectation(|ast, selections, messages) :
     pattern(p) -> $[Does not match pattern: [<write-to-html-string> ast]]
