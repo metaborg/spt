@@ -47,13 +47,12 @@ public class spt_resolve_reference_0_3 extends Strategy {
 
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm refTerm, IStrategoTerm filePath, IStrategoTerm langName, IStrategoTerm analyzedAst) {
-		final IContext metaContext = (IContext) context.contextObject();
-		final Injector injector = metaContext.injector();
+		final IContext metaborgContext = (IContext) context.contextObject();
+		final Injector injector = metaborgContext.injector();
 		final IResolverService<IStrategoTerm, IStrategoTerm> resolver = injector.getInstance(
 				Key.get(new TypeLiteral<IResolverService<IStrategoTerm, IStrategoTerm>>(){})
 		);
 		final ILanguageService languageService = injector.getInstance(ILanguageService.class);
-		final IContextService contextService = injector.getInstance(IContextService.class);
 		final IResourceService resourceService = injector.getInstance(IResourceService.class);
 		final ITermFactoryService termFactoryService = injector.getInstance(ITermFactoryService.class);
 		final ITracingService<IStrategoTerm, IStrategoTerm, IStrategoTerm> tracingService = injector.getInstance(
@@ -77,8 +76,9 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		// TODO: is the 'previous' ParseResult allowed to be null?
 		final AnalysisFileResult<IStrategoTerm, IStrategoTerm> mockAnalysis;
 		try {
+		    // HACK: use metaborgContext, it is the context used to analyze in analyze_fragment_0_2.
 			mockAnalysis = new AnalysisFileResult<IStrategoTerm, IStrategoTerm>(
-					analyzedAst, sptFile, contextService.get(sptFile, lang), Iterables2.<IMessage>empty(), null
+					analyzedAst, sptFile, metaborgContext, Iterables2.<IMessage>empty(), null
 			);
 			result = resolver.resolve(leftToken.getStartOffset(), mockAnalysis);
 			logger.debug("Resolved {} to {}", refTerm, result);
