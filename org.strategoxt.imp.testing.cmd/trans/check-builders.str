@@ -11,7 +11,8 @@ imports
   check
   check-resolve
   ast-compare
-
+  origin
+  
 overlays
   
   OVERRIDE_INPUT(s) = Prim("\"SSL_EXT_overrideinput\"", [NoAnnoList(Str(s))])
@@ -33,7 +34,8 @@ rules
   check-builder(|ast, selections, messages, condition):
     (builder, arg, expected) -> error
     with
-      selected := <resolve-selection(|selections) <+ LastAnalyzedAst> Numbered("1");
+      a-ast    := <LastAnalyzedAst>;
+      selected := <(resolve-selection(|selections); find-outermost-origin-term(|a-ast)) <+ !a-ast> Numbered("1");
       input    := <get-service-input-term> selected;
       if !arg => Argument(arg') then
         // Store builder argument
