@@ -15,7 +15,6 @@ import org.metaborg.core.syntax.ISyntaxService;
 import org.metaborg.spoofax.core.syntax.IParserConfig;
 import org.metaborg.spoofax.core.syntax.JSGLRI;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
-import org.metaborg.spoofax.core.syntax.JSGLRSyntaxService;
 import org.metaborg.spoofax.core.syntax.ParserConfig;
 import org.metaborg.sunshine.environment.ServiceRegistry;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -38,6 +37,9 @@ public class parse_spt_file_0_0 extends Strategy {
     public static parse_spt_file_0_0 instance = new parse_spt_file_0_0();
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current) {
+    	return null; // Is this dead code?
+    	
+    	/*
         if(!isTermString(current))
             return null;
 
@@ -45,8 +47,7 @@ public class parse_spt_file_0_0 extends Strategy {
         final IResourceService resourceService = services.getService(IResourceService.class);
         final ILanguageService languageService = services.getService(ILanguageService.class);
         final ISourceTextService sourceTextService = services.getService(ISourceTextService.class);
-        final JSGLRSyntaxService syntaxService =
-            (JSGLRSyntaxService) services.getService(new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
+        final ISyntaxService<IStrategoTerm> syntaxService = services.getService(new TypeLiteral<ISyntaxService<IStrategoTerm>>() {});
 
         final String filename = ((IStrategoString) current).stringValue();
         final FileObject file = resourceService.resolve(filename);
@@ -69,5 +70,6 @@ public class parse_spt_file_0_0 extends Strategy {
             e.printStackTrace();
             return null;
         }
+        */
     }
 }
