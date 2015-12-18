@@ -17,28 +17,14 @@ signature constructors
 
 rules
   
+  //check-error:
+  //  CompleteTo(_, _) -> (<id>, $[Content completion testing not is (correctly) implemented at this point])
+
   spt-desugar:
     Complete(x) -> CompleteTo(x, wildcard())
-  
-  
-  /*
-  	Set a DR to indicate that completion tests are disabled. Necessary for selective workarounds of issues in Spoofax/544.
-  */
-  spt-desugar:
-  	CompletionDisable() -> <fail>
-  	where
-  		rules( DisableCompletion: _) 
-
-	check-note:
-		CompletionDisable() -> (<id>, $[This directive disables all completion tests in this file])
-
-	check-note:
-		CompleteTo(from, to) -> (<id>, $[Completion tests are disabled by "disable completion tests" directive in the file header])
-		where DisableCompletion
 
   check-expectation(|ast, selections, messages) :
     CompleteTo(from, to) -> $[[error][tip]]
-    where not(DisableCompletion)
     where
       from' := <resolve-selection(|selections)> from
     with
@@ -59,7 +45,7 @@ rules
       if <grab-errors> messages => [] then
         tip := ""
       else
-        tip := $[<br/>(showing semantic errors in fragment while this test fails) <br/>Completion tests have known issues (Spoofax/544), add "disable completion tests" to the file header to temporarily disable them]
+        tip := "\n(showing semantic errors in fragment while this test fails)"
       end
   
   get-completion-input-term: //TODO: input term building is in fact more complex. 
