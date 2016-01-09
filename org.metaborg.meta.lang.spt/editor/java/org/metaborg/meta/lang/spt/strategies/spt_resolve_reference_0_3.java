@@ -8,7 +8,6 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.analysis.AnalysisFileResult;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContext;
-import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
@@ -20,8 +19,8 @@ import org.metaborg.core.tracing.ITracingService;
 import org.metaborg.core.tracing.Resolution;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.util.iterators.Iterables2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.IToken;
@@ -43,7 +42,7 @@ public class spt_resolve_reference_0_3 extends Strategy {
 
 	public static final spt_resolve_reference_0_3 instance = new spt_resolve_reference_0_3();
 	private spt_resolve_reference_0_3() {}
-	private static final Logger logger = LoggerFactory.getLogger(spt_reference_resolution_available_0_1.class);
+	private static final ILogger logger = LoggerUtils.logger(spt_reference_resolution_available_0_1.class);
 
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm refTerm, IStrategoTerm filePath, IStrategoTerm langName, IStrategoTerm analyzedAst) {

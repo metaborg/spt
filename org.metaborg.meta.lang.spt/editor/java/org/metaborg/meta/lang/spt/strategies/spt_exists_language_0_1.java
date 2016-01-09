@@ -3,8 +3,8 @@ package org.metaborg.meta.lang.spt.strategies;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.lang.Context;
@@ -18,7 +18,7 @@ import com.google.inject.Injector;
 public class spt_exists_language_0_1 extends Strategy {
     public static final spt_exists_language_0_1 instance = new spt_exists_language_0_1();
 
-    private static final Logger logger = LoggerFactory.getLogger(spt_exists_language_0_1.class);
+    private static final ILogger logger = LoggerUtils.logger(spt_exists_language_0_1.class);
 
     @Override
     public IStrategoTerm invoke(Context context, IStrategoTerm current,

@@ -6,8 +6,8 @@ import java.util.List;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.source.SourceRegion;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -24,7 +24,7 @@ import com.google.inject.Injector;
  */
 public class SelectionFetcher {
 
-	private static final Logger logger = LoggerFactory.getLogger(SelectionFetcher.class);
+	private static final ILogger logger = LoggerUtils.logger(SelectionFetcher.class);
 	private final ITermFactory termFactory;
 	private final IStrategoConstructor MARKED;
 	

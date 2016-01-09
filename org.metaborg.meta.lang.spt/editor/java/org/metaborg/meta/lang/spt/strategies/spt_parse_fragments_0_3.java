@@ -1,9 +1,5 @@
 package org.metaborg.meta.lang.spt.strategies;
 
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgRuntimeException;
 import org.metaborg.core.context.IContext;
@@ -12,14 +8,13 @@ import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
@@ -59,7 +54,7 @@ public class spt_parse_fragments_0_3 extends Strategy {
 
     public static final spt_parse_fragments_0_3 instance = new spt_parse_fragments_0_3();
 
-    private static final Logger logger = LoggerFactory.getLogger(spt_parse_fragments_0_3.class);
+    private static final ILogger logger = LoggerUtils.logger(spt_parse_fragments_0_3.class);
 
     private static SelectionFetcher selectionFetcher;
 

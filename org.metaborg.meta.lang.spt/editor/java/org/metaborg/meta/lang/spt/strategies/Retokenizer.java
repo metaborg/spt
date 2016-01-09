@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
@@ -32,7 +32,7 @@ import com.google.inject.Injector;
  */
 public class Retokenizer {
 	
-	private static final Logger logger = LoggerFactory.getLogger(Retokenizer.class);
+	private static final ILogger logger = LoggerUtils.logger(Retokenizer.class);
 	
 	private static IStrategoConstructor QUOTEPART_1;
 	

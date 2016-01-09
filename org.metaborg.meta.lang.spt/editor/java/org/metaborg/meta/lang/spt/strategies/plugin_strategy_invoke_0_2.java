@@ -4,16 +4,12 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.termAt;
 
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
-import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
-import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.core.stratego.IStrategoRuntimeService;
-import org.metaborg.spoofax.core.stratego.StrategoRuntimeService;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoAppl;

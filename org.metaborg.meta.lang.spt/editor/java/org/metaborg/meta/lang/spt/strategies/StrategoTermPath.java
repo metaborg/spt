@@ -17,10 +17,11 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.TermTreeFactory;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.TermFactory;
-import trans.position_of_term_1_0;
-import trans.term_at_position_0_1;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
+
+import trans.position_of_term_1_0;
+import trans.term_at_position_0_1;
 
 public class StrategoTermPath {
 	private static int indexOfIdentical(IStrategoTerm parent, IStrategoTerm node) {

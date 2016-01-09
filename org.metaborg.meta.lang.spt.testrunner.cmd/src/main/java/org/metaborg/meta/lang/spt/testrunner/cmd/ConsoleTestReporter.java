@@ -3,11 +3,11 @@ package org.metaborg.meta.lang.spt.testrunner.cmd;
 import java.util.Collection;
 
 import org.metaborg.meta.lang.spt.listener.ITestReporter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 
 public class ConsoleTestReporter implements ITestReporter {
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleTestReporter.class);
+    private static final ILogger logger = LoggerUtils.logger(ConsoleTestReporter.class);
 
     public boolean failed = false;
     

@@ -18,8 +18,8 @@ import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseResult;
 import org.metaborg.util.iterators.Iterables2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -35,7 +35,7 @@ import com.google.inject.TypeLiteral;
  * Returns (analyzed ast, errors, warnings, notes)
  */
 public class analyze_fragment_0_2 extends Strategy {
-	private static final Logger logger = LoggerFactory.getLogger(analyze_fragment_0_2.class);
+	private static final ILogger logger = LoggerUtils.logger(analyze_fragment_0_2.class);
 	public static final analyze_fragment_0_2 instance = new analyze_fragment_0_2();
 
 	@Override
