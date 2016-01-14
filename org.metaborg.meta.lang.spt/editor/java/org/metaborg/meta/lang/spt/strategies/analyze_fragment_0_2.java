@@ -17,6 +17,7 @@ import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -26,6 +27,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
+import com.google.common.collect.Iterables;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -76,21 +78,23 @@ public class analyze_fragment_0_2 extends Strategy {
 			final AnalysisFileResult<IStrategoTerm, IStrategoTerm> result = analysisResult.fileResults.iterator().next();
 			analyzedAst = result.result;
 			if (analyzedAst == null) {
-				logger.error("The analysis failed: {}", result);
+				logger.debug("The analysis failed: {}", result);
 				throw new MetaborgRuntimeException("The analysis of the fragment failed. Check the error log.");
 			}
+			final ISpoofaxTracingService tracing = injector.getInstance(ISpoofaxTracingService.class);
 			for (IMessage message : result.messages) {
 				// turn message into a (term, message) tuple
 				final IStrategoTerm messageTerm;
 				if (message.region() == null) {
-					logger.error("The analysis produced a message we can't pin to an AST node: \n{}", message.message());
+					logger.debug("The analysis produced a message we can't pin to an AST node: \n{}", message.message());
 					messageTerm = termFactory.makeTuple(analyzedAst, termFactory.makeString(message.message()));
 				} else {
-					final IStrategoTerm markedTerm = SelectionFetcher.fetchOne(message.region(), analyzedAst);
-					if (markedTerm == null) {
-						logger.error("The analysis produced a message on region ({},{}) which can not be resolved.", message.region().startOffset(), message.region().endOffset());
+				    final Iterable<IStrategoTerm> markedTerms = tracing.toAnalyzed(result, message.region());
+					if (Iterables.isEmpty(markedTerms)) {
+						logger.debug("The analysis produced a message on region ({},{}) which can not be resolved.", message.region().startOffset(), message.region().endOffset());
 						messageTerm = termFactory.makeTuple(analyzedAst, termFactory.makeString(message.message()));
 					} else {
+					    final IStrategoTerm markedTerm = Iterables.get(markedTerms, 0);
 						messageTerm = termFactory.makeTuple(markedTerm, termFactory.makeString(message.message()));
 					}
 				}
