@@ -106,16 +106,11 @@ rules
   check-error:
     Test(_, _, i@Input(_, head, tail, _), _) -> errors
     with
-      debug(!"Checking markers of ");
       [fragment | selections] := <get-annos> i;
-      <debug(!"fragment: ")> fragment;
       markers := <collect-all(?Marked(_,_,_), conc)> tail
-      ;debug(!"markers: ")
     where
       <not(eq)> (<length> markers, <length> selections);
-      debug(!"there must be unresolved markers... ");
       unresolved := <filter(not(spt-resolve-marker(|fragment)))> markers;
-      debug(!"unresolved: ");
       errors := <map(!(<id>, "Could not resolve this selection."))>
     where
       <gt> (<length> errors, 0)
@@ -128,7 +123,6 @@ rules
         // NOTE: removed call to editor-init
       where(spt-setup-isolate)
       ; messages   := <analyze-fragment(|<InputFile>, <Language>)> input
-      ; strip-annos;debug(!"Spoofax Core Analysis of test: ")
       ; messages'  := <strip-and-record-analyzed-ast <+ reset-analyzed-ast(|input)> <try(?Some(<id>))> messages
       ; messages'' := <try((flatten-list, flatten-list, flatten-list))> messages'
       else
@@ -139,7 +133,6 @@ rules
       else
         warnings := <filter(check-expectation(|input, selections, messages''))> expectations
       end
-    ; debug(!"Messages generated: ")
     ; where(spt-isolate)
     ; not([]) 
    
@@ -328,10 +321,8 @@ rules
   is-grabbed-message(|messages):
     selection -> selection
     where
-      <debug(!"Checking if the selection ")> selection;
       // split the (term, message) tuples to get the terms
       message-terms := <map(try(Fst))> messages;
-      debug(!"is part of the following list of terms: "); 
       <one(\g -> <oncetd(origin-equal(|g))> selection\)> message-terms
 
 signature constructors

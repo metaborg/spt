@@ -41,11 +41,9 @@ rules
     where
       from' := <resolve-selection(|selections)> from;
       to'   := <resolve-selection(|selections)> to;
-      <debug(!"Resolving (from, to): ")> (from', to');
       if (
         results := <spt-resolve-reference(|<InputFile>, <Language>, <LastAnalyzedAst>)> from'
       ) then
-        <debug(!"Resolution results: ")> results;
         switch !results
           case one(is-successful-resolver(|to')): fail
           case one(?Error(m)): error := $[Unexpected error resolving:
