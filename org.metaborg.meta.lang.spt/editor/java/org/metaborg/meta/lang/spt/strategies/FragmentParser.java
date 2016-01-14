@@ -183,7 +183,9 @@ public class FragmentParser {
         if(parsed == null || !ALLOW_CACHING) {
             final ParseResult<IStrategoTerm> parseResult = syntaxService.parse(fragmentInput, sptFile, language, new JSGLRParserConfiguration(true, true, false, FRAGMENT_PARSE_TIMEOUT));
             parsed = parseResult.result;
-            // TODO: can we rely on this? or should we now use parsed != null? or check parseResult.messages?
+            if(parsed == null) {
+                throw new ParseException(sptFile, language, "Failed to parse fragment");
+            }
             isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
             // The parsed fragment will have the same resource as the SPT file it came from
             SourceAttachment.putSource(parsed, SourceAttachment.getResource(fragment, resourceService));
