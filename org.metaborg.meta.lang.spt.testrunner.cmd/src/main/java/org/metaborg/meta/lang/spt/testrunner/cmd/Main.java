@@ -30,6 +30,7 @@ public class Main {
         }
         
         if(arguments.exit) {
+            logger.info("Exitting immediately for testing purposes");
             System.exit(0);
         }
 

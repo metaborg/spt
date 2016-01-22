@@ -97,6 +97,10 @@
                 <argument>-classpath</argument>
                 <classpath />
                 <argument>${testrunner-main-class}</argument>
+                <argument>-l</argument>
+                <argument>dummy</argument>
+                <argument>-t</argument>
+                <argument>dummy</argument>
                 <argument>--exit</argument>
               </arguments>
             </configuration>
@@ -112,6 +116,10 @@
               <arguments>
                 <argument>-jar</argument>
                 <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+                <argument>-l</argument>
+                <argument>dummy</argument>
+                <argument>-t</argument>
+                <argument>dummy</argument>
                 <argument>--exit</argument>
               </arguments>
             </configuration>
