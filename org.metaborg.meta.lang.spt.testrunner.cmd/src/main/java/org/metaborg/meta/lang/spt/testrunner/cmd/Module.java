@@ -6,8 +6,8 @@ import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.spoofax.core.SpoofaxModule;
-import org.metaborg.spoofax.core.project.IMavenProjectService;
-import org.metaborg.spoofax.core.project.NullMavenProjectService;
+import org.metaborg.spoofax.core.project.ILegacyMavenProjectService;
+import org.metaborg.spoofax.core.project.NullLegacyMavenProjectService;
 import org.metaborg.spoofax.meta.spt.testrunner.core.TestRunner;
 
 import com.google.inject.Singleton;
@@ -27,7 +27,7 @@ public class Module extends SpoofaxModule {
     }
 
     @Override protected void bindMavenProject() {
-        bind(IMavenProjectService.class).to(NullMavenProjectService.class).in(Singleton.class);
+        bind(ILegacyMavenProjectService.class).to(NullLegacyMavenProjectService.class).in(Singleton.class);
     }
 
     @Override protected void bindEditor() {

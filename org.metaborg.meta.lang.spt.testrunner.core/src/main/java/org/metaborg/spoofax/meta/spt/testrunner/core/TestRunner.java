@@ -8,19 +8,14 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.analysis.AnalysisFileResult;
 import org.metaborg.core.analysis.AnalysisResult;
 import org.metaborg.core.build.BuildInput;
-import org.metaborg.core.build.BuildInputBuilder;
 import org.metaborg.core.build.ConsoleBuildMessagePrinter;
 import org.metaborg.core.build.IBuildOutput;
-import org.metaborg.core.build.dependency.IDependencyService;
-import org.metaborg.core.build.paths.ILanguagePathService;
-import org.metaborg.core.language.ILanguageComponent;
-import org.metaborg.core.language.ILanguageDiscoveryService;
-import org.metaborg.core.language.ILanguageIdentifierService;
-import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.language.LanguageFileSelector;
-import org.metaborg.core.language.LanguageUtils;
+import org.metaborg.core.build.NewBuildInputBuilder;
+import org.metaborg.core.build.dependency.INewDependencyService;
+import org.metaborg.core.build.paths.INewLanguagePathService;
+import org.metaborg.core.language.*;
 import org.metaborg.core.messages.IMessage;
-import org.metaborg.core.project.IProject;
+import org.metaborg.core.project.ILanguageSpec;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceTextService;
 import org.metaborg.spoofax.core.processing.ISpoofaxProcessorRunner;
@@ -37,10 +32,10 @@ public class TestRunner {
     private static final ILogger logger = LoggerUtils.logger(TestRunner.class);
 
     private final IResourceService resourceService;
-    private final ILanguageDiscoveryService languageDiscoveryService;
+    private final INewLanguageDiscoveryService languageDiscoveryService;
     private final ILanguageIdentifierService languageIdentifierService;
-    private final IDependencyService dependencyService;
-    private final ILanguagePathService languagePathService;
+    private final INewDependencyService dependencyService;
+    private final INewLanguagePathService languagePathService;
     private final ISpoofaxProcessorRunner runner;
     private final ISourceTextService sourceTextService;
 
@@ -49,9 +44,9 @@ public class TestRunner {
     private ILanguageImpl sptLanguage = null;
 
 
-    @Inject public TestRunner(IResourceService resourceService, ILanguageDiscoveryService languageDiscoveryService,
-        ILanguageIdentifierService languageIdentifierService, IDependencyService dependencyService,
-        ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner, ISourceTextService sourceTextService) {
+    @Inject public TestRunner(IResourceService resourceService, INewLanguageDiscoveryService languageDiscoveryService,
+        ILanguageIdentifierService languageIdentifierService, INewDependencyService dependencyService,
+        INewLanguagePathService languagePathService, ISpoofaxProcessorRunner runner, ISourceTextService sourceTextService) {
         this.resourceService = resourceService;
         this.languageDiscoveryService = languageDiscoveryService;
         this.languageIdentifierService = languageIdentifierService;
@@ -63,23 +58,23 @@ public class TestRunner {
 
 
     public Iterable<ILanguageComponent> discoverLanguages(FileObject location) throws MetaborgException {
-        final Iterable<ILanguageComponent> components = languageDiscoveryService.discover(location);
+        final Iterable<ILanguageComponent> components = languageDiscoveryService.discover(languageDiscoveryService.request(location));
         Iterables.addAll(this.components, components);
         return components;
     }
 
 
-    public void run(IProject project) throws MetaborgException, FileSystemException {
+    public void run(ILanguageSpec languageSpec) throws MetaborgException, FileSystemException {
         final ILanguageImpl sptLanguage = discoverSPT();
-        final FileObject location = project.location();
+        final FileObject location = languageSpec.location();
         final FileObject[] sptFiles =
             location.findFiles(new LanguageFileSelector(languageIdentifierService, sptLanguage));
-        runTests(project, Iterables2.from(sptFiles));
+        runTests(languageSpec, Iterables2.from(sptFiles));
     }
 
-    public void run(IProject project, Iterable<FileObject> tests) throws MetaborgException {
+    public void run(ILanguageSpec languageSpec, Iterable<FileObject> tests) throws MetaborgException {
         discoverSPT();
-        runTests(project, tests);
+        runTests(languageSpec, tests);
     }
 
 
@@ -102,8 +97,8 @@ public class TestRunner {
         }
     }
 
-    private void runTests(IProject project, Iterable<FileObject> tests) throws MetaborgException {
-        final BuildInputBuilder builder = new BuildInputBuilder(project);
+    private void runTests(ILanguageSpec languageSpec, Iterable<FileObject> tests) throws MetaborgException {
+        final NewBuildInputBuilder builder = new NewBuildInputBuilder(languageSpec);
         // @formatter:off
         final BuildInput input = builder
             .withComponents(components)
