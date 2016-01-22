@@ -28,6 +28,10 @@ public class Main {
             jc.usage();
             System.exit(0);
         }
+        
+        if(arguments.exit) {
+            System.exit(0);
+        }
 
         try {
             final Module module = new Module();
