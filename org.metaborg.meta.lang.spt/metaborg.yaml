@@ -1,0 +1,45 @@
+---
+id: "org.metaborg:org.metaborg.meta.lang.spt:1.5.0-SNAPSHOT"
+name: "Spoofax-Testing"
+format: "jar"
+compileDependencies:
+- "org.metaborg:org.metaborg.meta.lang.esv:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lib.analysis:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lang.template:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lang.nabl:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lang.ts:1.5.0-SNAPSHOT"
+runtimeDependencies:
+- "org.metaborg:org.metaborg.meta.lang.esv:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lib.analysis:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lang.template:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lang.nabl:1.5.0-SNAPSHOT"
+- "org.metaborg:org.metaborg.meta.lang.ts:1.5.0-SNAPSHOT"
+pardonedLanguages:
+- "EditorService"
+- "Stratego-Sugar"
+- "SDF"
+language:
+  sdf:
+    args:
+    - "-Idef"
+    - "${path:root}/lib/ATerm.def"
+    - "-Idef"
+    - "${path:root}/lib/Stratego-Sugar.def"
+  stratego:
+    args:
+    - "-la"
+    - "stratego-lib"
+    - "-la"
+    - "stratego-sglr"
+    - "-la"
+    - "stratego-gpp"
+    - "-la"
+    - "stratego-xtc"
+    - "-la"
+    - "stratego-aterm"
+    - "-la"
+    - "stratego-sdf"
+    - "-la"
+    - "strc"
+    - "-la"
+    - "stratego-sdf"
