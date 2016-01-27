@@ -10,9 +10,9 @@ import org.metaborg.core.analysis.AnalysisResult;
 import org.metaborg.core.build.BuildInput;
 import org.metaborg.core.build.ConsoleBuildMessagePrinter;
 import org.metaborg.core.build.IBuildOutput;
-import org.metaborg.core.build.NewBuildInputBuilder;
-import org.metaborg.core.build.dependency.INewDependencyService;
-import org.metaborg.core.build.paths.INewLanguagePathService;
+import org.metaborg.core.build.BuildInputBuilder;
+import org.metaborg.core.build.dependency.IDependencyService;
+import org.metaborg.core.build.paths.ILanguagePathService;
 import org.metaborg.core.language.*;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.ILanguageSpec;
@@ -32,10 +32,10 @@ public class TestRunner {
     private static final ILogger logger = LoggerUtils.logger(TestRunner.class);
 
     private final IResourceService resourceService;
-    private final INewLanguageDiscoveryService languageDiscoveryService;
+    private final ILanguageDiscoveryService languageDiscoveryService;
     private final ILanguageIdentifierService languageIdentifierService;
-    private final INewDependencyService dependencyService;
-    private final INewLanguagePathService languagePathService;
+    private final IDependencyService dependencyService;
+    private final ILanguagePathService languagePathService;
     private final ISpoofaxProcessorRunner runner;
     private final ISourceTextService sourceTextService;
 
@@ -44,9 +44,9 @@ public class TestRunner {
     private ILanguageImpl sptLanguage = null;
 
 
-    @Inject public TestRunner(IResourceService resourceService, INewLanguageDiscoveryService languageDiscoveryService,
-        ILanguageIdentifierService languageIdentifierService, INewDependencyService dependencyService,
-        INewLanguagePathService languagePathService, ISpoofaxProcessorRunner runner, ISourceTextService sourceTextService) {
+    @Inject public TestRunner(IResourceService resourceService, ILanguageDiscoveryService languageDiscoveryService,
+        ILanguageIdentifierService languageIdentifierService, IDependencyService dependencyService,
+        ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner, ISourceTextService sourceTextService) {
         this.resourceService = resourceService;
         this.languageDiscoveryService = languageDiscoveryService;
         this.languageIdentifierService = languageIdentifierService;
@@ -98,7 +98,7 @@ public class TestRunner {
     }
 
     private void runTests(ILanguageSpec languageSpec, Iterable<FileObject> tests) throws MetaborgException {
-        final NewBuildInputBuilder builder = new NewBuildInputBuilder(languageSpec);
+        final BuildInputBuilder builder = new BuildInputBuilder(languageSpec);
         // @formatter:off
         final BuildInput input = builder
             .withComponents(components)
