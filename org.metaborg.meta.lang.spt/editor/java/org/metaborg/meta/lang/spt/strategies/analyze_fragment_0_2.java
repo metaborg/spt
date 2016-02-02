@@ -15,6 +15,9 @@ import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.project.ILanguageSpec;
+import org.metaborg.core.project.ILanguageSpecService;
+import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseResult;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
@@ -60,6 +63,7 @@ public class analyze_fragment_0_2 extends Strategy {
 
 		// the resource corresponding to the fragments (i.e. the .spt file of this test case's suite)
 		final FileObject srcfile = injector.getInstance(IResourceService.class).resolve(Tools.asJavaString(filePath));
+		final ILanguageSpec project = injector.getInstance(ILanguageSpecService.class).get(injector.getInstance(IProjectService.class).get(srcfile));
 		
 		try {
 		    final IContextService contextService = injector.getInstance(IContextService.class);
@@ -69,7 +73,7 @@ public class analyze_fragment_0_2 extends Strategy {
 				injector.getInstance(Key.get(new TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>>(){}));
 			// FIXME: this is a rather hacky way to get the parsed AST into a ParseResult
 			final ParseResult<IStrategoTerm> parseResult = new ParseResult<IStrategoTerm>("", ast, srcfile, Iterables2.<IMessage>empty(), -1, impl, null, null);
-			final ITemporaryContext targetLanguageContext = contextService.getTemporary(metaborgContext, impl);
+			final ITemporaryContext targetLanguageContext = contextService.getTemporary(metaborgContext.location(), project, impl);
             // HACK: setting the temporary context as context object, so that subsequent steps such as reference resolution can use the context.
             context.setContextObject(targetLanguageContext);
             final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
