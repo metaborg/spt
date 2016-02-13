@@ -1,0 +1,48 @@
+module Spoofax-Testing-Completions
+
+completions
+                                         
+  completion proposer                  : editor-complete
+  
+  completion template : Header =
+    "language " <Language>
+  
+  completion template : Header =
+    "target language " <Language>
+  
+  completion template : Header =
+    "start symbol " <Start>
+                                         
+  completion template Header TestDecl Result :
+    "test" " " <description> " [[\n\t" <> "\n]] " <0 errors:Result> (blank)
+                                         
+  completion template Header TestDecl Result :
+    "setup" " [[\n\t" <> "\n]]" (blank)
+                                         
+  completion template Header TestDecl Result :
+    "target setup" " [[\n\t" <> "\n]]" (blank)
+    
+  completion template : Result = "parse " <:OptPattern> 
+  completion template : Result = "succeeds"
+  completion template : Result = "fails"    
+  completion template : Result = <n> " errors" 
+  completion template : Result = <n> " warnings" 
+  completion template : Result = "resolve " <x>
+  completion template : Result = "resolve " <#2> " to  " <#1>
+  // completion template : Result = "complete " <#1>
+  // completion template : Result = "complete " <#1> " to " <\"name\">
+  completion template : Result = "complete to \"" <name> "\""
+  completion template : Result = "build " <builder> "(" <> /*<OptArgument:>*/ ") to " <output:OptPattern>
+  completion template : Result = "refactor " <refactoring> "(" <> ") to " <output:OptPattern>
+  completion template : Result = "run " <builder> "(" <> ") " <to:OptPattern>
+  
+
+  completion template : OptArgument = ""
+  completion template : OptArgument = "\"" <arg> "\""
+
+  completion template : OptPattern = ""
+  completion template : OptPattern = "fails"
+  completion template : OptPattern = "to file " <file>
+  completion template : OptPattern = "to " <term>
+  completion template : OptPattern = "to " <term>
+  completion template : OptPattern = "to [[ " (cursor) " ]]" 

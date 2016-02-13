@@ -1,0 +1,6 @@
+module Spoofax-Testing-References
+
+references
+                
+  reference _ : editor-resolve
+  hover _     : editor-hover
