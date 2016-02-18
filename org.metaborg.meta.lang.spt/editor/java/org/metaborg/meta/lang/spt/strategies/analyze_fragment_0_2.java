@@ -15,8 +15,7 @@ import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
-import org.metaborg.core.project.ILanguageSpec;
-import org.metaborg.core.project.ILanguageSpecService;
+import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseResult;
@@ -63,7 +62,7 @@ public class analyze_fragment_0_2 extends Strategy {
 
 		// the resource corresponding to the fragments (i.e. the .spt file of this test case's suite)
 		final FileObject srcfile = injector.getInstance(IResourceService.class).resolve(Tools.asJavaString(filePath));
-		final ILanguageSpec project = injector.getInstance(ILanguageSpecService.class).get(injector.getInstance(IProjectService.class).get(srcfile));
+		final IProject project = injector.getInstance(IProjectService.class).get(srcfile);
 		
 		try {
 		    final IContextService contextService = injector.getInstance(IContextService.class);
