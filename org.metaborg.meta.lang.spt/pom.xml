@@ -16,76 +16,11 @@
     <relativePath>../../releng/parent/language</relativePath>
   </parent>
 
-  <properties>
-    <lib.directory>${basedir}/lib</lib.directory>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.metaborg</groupId>
       <artifactId>org.metaborg.meta.lang.spt.listener</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lib.analysis</artifactId>
-      <version>${metaborg-version}</version>
-      <type>spoofax-language</type>
-      <scope>${metaborg-meta-lang-scope}</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lang.template</artifactId>
-      <version>${metaborg-version}</version>
-      <type>spoofax-language</type>
-      <scope>${metaborg-meta-lang-scope}</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lang.nabl</artifactId>
-      <version>${metaborg-version}</version>
-      <type>spoofax-language</type>
-      <scope>${metaborg-meta-lang-scope}</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lang.ts</artifactId>
-      <version>${metaborg-version}</version>
-      <type>spoofax-language</type>
-      <scope>${metaborg-meta-lang-scope}</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lang.esv</artifactId>
-      <version>${metaborg-version}</version>
-      <type>spoofax-language</type>
-      <scope>${metaborg-meta-lang-scope}</scope>
-    </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.metaborg</groupId>
-        <artifactId>spoofax-maven-plugin</artifactId>
-        <version>${metaborg-version}</version>
-        <extensions>true</extensions>
-        <configuration>
-          <sdfArgs combine.children="append">
-            <arg>-Idef</arg>
-            <arg>${lib.directory}/ATerm.def</arg>
-            <arg>-Idef</arg>
-            <arg>${lib.directory}/Stratego-Sugar.def</arg>
-          </sdfArgs>
-          <strategoArgs combine.children="append">
-            <arg>-la</arg>
-            <arg>stratego-sdf</arg>
-          </strategoArgs>
-          <format>jar</format>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
