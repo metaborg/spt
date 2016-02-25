@@ -9,7 +9,6 @@ import org.metaborg.core.analysis.AnalysisFileResult;
 import org.metaborg.core.analysis.AnalysisResult;
 import org.metaborg.core.build.BuildInput;
 import org.metaborg.core.build.BuildInputBuilder;
-import org.metaborg.core.build.ConsoleBuildMessagePrinter;
 import org.metaborg.core.build.IBuildOutput;
 import org.metaborg.core.build.dependency.IDependencyService;
 import org.metaborg.core.build.paths.ILanguagePathService;
@@ -19,6 +18,7 @@ import org.metaborg.core.language.ILanguageIdentifierService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageFileSelector;
 import org.metaborg.core.language.LanguageUtils;
+import org.metaborg.core.messages.StreamMessagePrinter;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
@@ -111,7 +111,7 @@ public class TestRunner {
             .withSources(tests)
             .withTransformation(false)
 //            .addTransformGoal(new NamedGoal("testrunnerfile"))
-            .withMessagePrinter(new ConsoleBuildMessagePrinter(sourceTextService, true, true, logger))
+            .withMessagePrinter(new StreamMessagePrinter(sourceTextService, true, true, logger))
             .build(dependencyService, languagePathService)
             ;
         // @formatter:on
