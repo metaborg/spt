@@ -1,65 +1,60 @@
 module analysis
+
 imports
-  libstratego-lib
-  libstratego-sglr
-  libstratego-sdf
-  include/Spoofax-Testing
-  lib/editor-common.generated
+  
+  editor-common.generated
+  
+  runtime/index/-
+  runtime/nabl/-
+  runtime/properties/-
+  runtime/types/-
+  runtime/task/-
+  runtime/analysis/-
+  runtime/editor/-
+  
+  pp
 
-strategies
+rules // Analysis
 
-  record-all-sdfs =
-    record-all(record-sdf) 
+  editor-analyze = analyze-all(id, id, id|<language>)
 
-  record-all(s) =
-    <readdir> ".";
-    list-loop(
-      if <isdir> <filemode> then
-        chdir;
-        record-all(s);
-        <chdir> ".."
-      else
-        try(s)
-      end
-    )
+rules // Editor services
 
-  record-sdf:
-    filename -> filename
-    where 
-      <has-extension(|"sdf")> filename;
-      <open-import(abspath, parse-sdf-module-file, topdown(try(record-constructs)))> filename
-
-  record-sdf:
-    filename -> filename
-    where 
-      <has-extension(|"def")> filename; 
-      <open-import(abspath, parse-sdf-definition-file, topdown(try(record-constructs)))> filename
-
-  record-constructs = record-start-symbol + record-prod + record-cons
-
-  record-prod:
-    prod @ prod(lhs, sort, attrs) -> <id>
+  editor-resolve:
+    (node, _, _, _, project-path) -> definition
     where
-      !sort;
-      try(?cf(<id>) + ?lex(<id>));
-      repeat(?label(_, <id>));
-      (?sort(x) + ?parameterized-sort(x, _))
+      definition := <analysis-resolve(|<language>, project-path)> node
+
+  editor-hover:
+    (node, _, _, _, project-path) -> label
+    where
+      label := <get-editor-properties(pp-partial-SPT-string|<language>, project-path); properties-to-html> node
+
+rules // Debugging
+  
+  debug-show-analyzed:
+    (_, _, ast, path, _) -> (filename, result)
     with
-      rules(
-        SortDeclaration   :  x -> x
-        SortProductionLHS :+ x -> lhs
-      )
-  record-cons: 
-    term(cons(x)) -> <id>
-    with 
-      rules(
-        Constructor : x -> x  
-      )
-      
-  record-start-symbol:
-    context-free-start-symbols(ss) -> <id>
-    where 
-      <map({s: ?sort(s); rules( TopSort : s -> s)})>ss
-      
-       
-        
+      filename := <guarantee-extension(|"analyzed.aterm")> path;
+      result   := ast
+  
+  debug-index-project =
+    analysis-debug-index-project(|<language>)
+  debug-index-project-resolve = 
+    analysis-debug-index-project-resolve(|<language>)
+  debug-index-partition =
+    analysis-debug-index-partition(|<language>)
+
+  debug-task-project =
+    analysis-debug-task-project(|<language>)
+  debug-task-partition =
+    analysis-debug-task-partition(|<language>)
+  debug-task-selection =
+    analysis-debug-task-selection(|<language>)
+  debug-index-partition-resolve =
+    analysis-debug-index-partition-resolve(|<language>)
+    
+  debug-project =
+    analysis-debug-project(|<language>)
+  debug-partition =
+    analysis-debug-partition(|<language>)

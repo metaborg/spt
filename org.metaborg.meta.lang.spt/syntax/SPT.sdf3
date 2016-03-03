@@ -1,0 +1,98 @@
+module SPT
+
+imports Common
+
+context-free start-symbols TestSuite
+
+context-free syntax
+  TestSuite.TestSuite = <
+    <{Header "\n"}*>
+    <{TestDecl "\n\n"}*>
+  >
+
+  Header.Name = <module <ID>>
+  Header.StartSymbol = <start symbol <ID>>
+  Header.Language = <language <ID>>
+
+  TestDecl.Test2 = <
+    test <Description> <OpenMarker2>
+      <Fragment2>
+    <CloseMarker2>
+    <{Expectation "\n"}*>
+  >
+  
+  TestDecl.Test3 = <
+    test <Description> <OpenMarker3>
+      <Fragment3>
+    <CloseMarker3>
+    <{Expectation "\n"}*>
+  >
+  
+  TestDecl.Test4 = <
+    test <Description> <OpenMarker4>
+      <Fragment4>
+    <CloseMarker4>
+    <{Expectation "\n"}*>
+  >
+  
+  OpenMarker2 = OpenBracket2
+  OpenMarker3 = OpenBracket3
+  OpenMarker4 = OpenBracket4
+  CloseMarker2 = CloseBracket2
+  CloseMarker3 = CloseBracket3
+  CloseMarker4 = CloseBracket4
+  
+  Fragment2.Fragment2 = <<StringPart2><TailPart2>>
+  Fragment3.Fragment3 = <<StringPart3><TailPart3>>
+  Fragment4.Fragment4 = <<StringPart4><TailPart4>>
+  
+  TailPart2.Done = <>
+  TailPart2.More = <<Selection2><StringPart2><TailPart2>>
+  TailPart3.Done = <>
+  TailPart3.More = <<Selection3><StringPart3><TailPart3>>
+  TailPart4.Done = <>
+  TailPart4.More = <<Selection4><StringPart4><TailPart4>>
+  
+  Selection2.Selection2 = <<OpenBracket2><StringPart2><CloseBracket2>>
+  Selection3.Selection3 = <<OpenBracket3><StringPart3><CloseBracket3>>
+  Selection4.Selection4 = <<OpenBracket4><StringPart4><CloseBracket4>>
+  
+  Expectation.ParseSucceeds = <parse succeeds>
+
+lexical syntax
+  // NOTE: everything until the opening marker or newline is the description 
+  Description = (~[\n\[])+
+  
+  OpenBracket1 = "["
+  OpenBracket2 = "[["
+  OpenBracket3 = "[[["
+  OpenBracket4 = "[[[["
+  CloseBracket1 = "]"
+  CloseBracket2 = "]]"
+  CloseBracket3 = "]]]"
+  CloseBracket4 = "]]]]"
+  
+  // everything that isn't a [[ or ]] (or more brackets) will be a stringpart2 
+  StringPart2 = (~[\[\]] | OpenBracket1 | CloseBracket1)*
+  StringPart3 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2)*
+  StringPart4 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2 | OpenBracket3 | CloseBracket3)*
+
+lexical restrictions  
+  // NOTE: everything until the opening marker or newline is the description 
+  Description -/- [\n\[]
+  
+  OpenBracket1 -/- [\[]
+  OpenBracket2 -/- [\[]
+  OpenBracket3 -/- [\[]
+  OpenBracket4 -/- [\[]
+  CloseBracket1 -/- [\]]
+  CloseBracket2 -/- [\]]
+  CloseBracket3 -/- [\]]
+  CloseBracket4 -/- [\]]
+  
+  // NOTE: everything until the marker is part of the StringPart of a fragment 
+  StringPart2 -/- ~[\[\]]
+  StringPart3 -/- ~[\[\]]
+  StringPart4 -/- ~[\[\]]
+  
+  

@@ -1,0 +1,26 @@
+module SPT.main
+
+imports
+
+  Colorer
+  Menus
+  Syntax
+  Views
+
+language
+  
+  name : SPT
+  
+  extensions : spt
+
+  table         : include/SPT.tbl
+  start symbols : Start
+  
+  provider : include/spt.ctree
+  provider : include/spt-java.jar
+  observer : editor-analyze (multifile)
+  
+references
+
+  reference _ : editor-resolve
+  hover _     : editor-hover
