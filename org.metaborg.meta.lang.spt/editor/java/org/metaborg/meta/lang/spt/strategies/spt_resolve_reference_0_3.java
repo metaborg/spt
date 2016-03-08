@@ -98,7 +98,7 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		// Retrieve the terms from the resolution result
 		final Collection<IStrategoTerm> possibleResults = new ArrayList<IStrategoTerm>();
 		for (ISourceLocation loc : result.targets) {
-			for (IStrategoTerm possibleResult : tracingService.toAnalyzed(mockAnalysis, loc.region())) {
+			for (IStrategoTerm possibleResult : tracingService.fragments(mockAnalysis, loc.region())) {
 				possibleResults.add(possibleResult);
 			}
 		}

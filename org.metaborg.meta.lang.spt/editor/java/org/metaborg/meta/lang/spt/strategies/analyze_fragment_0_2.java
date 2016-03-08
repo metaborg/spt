@@ -92,7 +92,7 @@ public class analyze_fragment_0_2 extends Strategy {
 					logger.debug("The analysis produced a message we can't pin to an AST node: \n{}", message.message());
 					messageTerm = termFactory.makeTuple(analyzedAst, termFactory.makeString(message.message()));
 				} else {
-				    final Iterable<IStrategoTerm> markedTerms = tracing.toAnalyzed(result, message.region());
+				    final Iterable<IStrategoTerm> markedTerms = tracing.fragments(result, message.region());
 					if (Iterables.isEmpty(markedTerms)) {
 						logger.debug("The analysis produced a message on region ({},{}) which can not be resolved.", message.region().startOffset(), message.region().endOffset());
 						messageTerm = termFactory.makeTuple(analyzedAst, termFactory.makeString(message.message()));
