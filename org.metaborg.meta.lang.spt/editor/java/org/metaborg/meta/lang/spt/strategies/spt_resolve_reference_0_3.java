@@ -73,10 +73,10 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		final ITermFactory termFactory = termFactoryService.get(lang);
 		final Resolution result;
 		// TODO: is the 'previous' ParseResult allowed to be null?
-		final AnalysisFileResult<IStrategoTerm, IStrategoTerm> mockAnalysis;
+		final ISpoofaxAnalyzeUnit mockAnalysis;
 		try {
 		    // HACK: use metaborgContext, it is the context used to analyze in analyze_fragment_0_2.
-			mockAnalysis = new AnalysisFileResult<IStrategoTerm, IStrategoTerm>(
+			mockAnalysis = new ISpoofaxAnalyzeUnit(
 					analyzedAst, sptFile, metaborgContext, Iterables2.<IMessage>empty(), null
 			);
 			result = resolver.resolve(leftToken.getStartOffset(), mockAnalysis);

@@ -119,7 +119,7 @@ public class TestRunner {
         try {
             IBuildOutput<IStrategoTerm, IStrategoTerm, IStrategoTerm> bRes = runner.build(input, null, null).schedule().block().result();
             for (AnalysisResult<IStrategoTerm, IStrategoTerm> aRes : bRes.analysisResults()) {
-            	for (AnalysisFileResult<IStrategoTerm, IStrategoTerm> fRes : aRes.fileResults) {
+            	for (ISpoofaxAnalyzeUnit fRes : aRes.fileResults) {
             		logger.info("Analysis results for file {}", fRes.source.getName());
             		for (IMessage message : fRes.messages) {
             			logger.info("{}: {} || ({})", message.severity(), message.message(), message.region());

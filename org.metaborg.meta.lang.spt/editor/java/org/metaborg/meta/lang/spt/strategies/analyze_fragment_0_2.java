@@ -71,14 +71,14 @@ public class analyze_fragment_0_2 extends Strategy {
 			final IAnalysisService<IStrategoTerm, IStrategoTerm> analyzer = 
 				injector.getInstance(Key.get(new TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>>(){}));
 			// FIXME: this is a rather hacky way to get the parsed AST into a ParseResult
-			final ParseResult<IStrategoTerm> parseResult = new ParseResult<IStrategoTerm>("", ast, srcfile, Iterables2.<IMessage>empty(), -1, impl, null, null);
+			final ISpoofaxParseUnit parseResult = new ISpoofaxParseUnit("", ast, srcfile, Iterables2.<IMessage>empty(), -1, impl, null, null);
 			final ITemporaryContext targetLanguageContext = contextService.getTemporary(metaborgContext.location(), project, impl);
             // HACK: setting the temporary context as context object, so that subsequent steps such as reference resolution can use the context.
             context.setContextObject(targetLanguageContext);
             final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
 
 			// record the resulting AST and the errors, warnings, and notes
-			final AnalysisFileResult<IStrategoTerm, IStrategoTerm> result = analysisResult.fileResults.iterator().next();
+			final ISpoofaxAnalyzeUnit result = analysisResult.fileResults.iterator().next();
 			analyzedAst = result.result;
 			if (analyzedAst == null) {
 				logger.debug("The analysis failed: {}", result);
