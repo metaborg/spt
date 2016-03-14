@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SpoofaxTesting Plug-in
 Bundle-SymbolicName: org.strategoxt.imp.testing;singleton:=true
-Bundle-Version: 1.4.1
+Bundle-Version: 1.4.2
 Bundle-Activator: org.strategoxt.imp.testing.Activator
 Import-Package: org.osgi.framework
 Require-Bundle: org.strategoxt.imp.runtime,
