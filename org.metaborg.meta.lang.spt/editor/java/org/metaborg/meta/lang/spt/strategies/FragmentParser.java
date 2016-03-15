@@ -181,7 +181,7 @@ public class FragmentParser {
         }
         // parse the fragment
         if(parsed == null || !ALLOW_CACHING) {
-            final ParseResult<IStrategoTerm> parseResult = syntaxService.parse(fragmentInput, sptFile, language, new JSGLRParserConfiguration(true, true, false, FRAGMENT_PARSE_TIMEOUT));
+            final ParseResult<IStrategoTerm> parseResult = syntaxService.parse(fragmentInput, sptFile, language, new JSGLRParserConfiguration(true, true, false, FRAGMENT_PARSE_TIMEOUT, Integer.MAX_VALUE));
             parsed = parseResult.result;
             if(parsed == null) {
                 throw new ParseException(sptFile, language, "Failed to parse fragment");
