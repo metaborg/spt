@@ -5,9 +5,6 @@ import java.util.Collection;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgRuntimeException;
-import org.metaborg.core.analysis.AnalysisFileResult;
-import org.metaborg.core.analysis.AnalysisResult;
-import org.metaborg.core.analysis.IAnalysisService;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.context.ITemporaryContext;
@@ -18,8 +15,14 @@ import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
+import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
+import org.metaborg.spoofax.core.unit.ParseContrib;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -31,8 +34,6 @@ import org.strategoxt.lang.Strategy;
 
 import com.google.common.collect.Iterables;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 /**
  * Analyzes the given language's ast node in a new context.
@@ -68,24 +69,26 @@ public class analyze_fragment_0_2 extends Strategy {
 		    final IContextService contextService = injector.getInstance(IContextService.class);
 		    
 			// let Spoofax Core analyze the AST
-			final IAnalysisService<IStrategoTerm, IStrategoTerm> analyzer = 
-				injector.getInstance(Key.get(new TypeLiteral<IAnalysisService<IStrategoTerm, IStrategoTerm>>(){}));
-			// FIXME: this is a rather hacky way to get the parsed AST into a ParseResult
-			final ISpoofaxParseUnit parseResult = new ISpoofaxParseUnit("", ast, srcfile, Iterables2.<IMessage>empty(), -1, impl, null, null);
+	          final ISpoofaxUnitService unitService = 
+	                injector.getInstance(ISpoofaxUnitService.class);
+			final ISpoofaxAnalysisService analyzer = 
+				injector.getInstance(ISpoofaxAnalysisService.class);
+			final ISpoofaxInputUnit input = unitService.emptyInputUnit(srcfile, impl, null);
+			final ISpoofaxParseUnit parseResult = unitService.parseUnit(input, new ParseContrib(true, true, ast, Iterables2.<IMessage>empty(), -1));
 			final ITemporaryContext targetLanguageContext = contextService.getTemporary(metaborgContext.location(), project, impl);
             // HACK: setting the temporary context as context object, so that subsequent steps such as reference resolution can use the context.
             context.setContextObject(targetLanguageContext);
-            final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult = analyzer.analyze(Iterables2.singleton(parseResult), targetLanguageContext);
+            final ISpoofaxAnalyzeResult analysisResult = analyzer.analyze(parseResult, targetLanguageContext);
 
 			// record the resulting AST and the errors, warnings, and notes
-			final ISpoofaxAnalyzeUnit result = analysisResult.fileResults.iterator().next();
-			analyzedAst = result.result;
-			if (analyzedAst == null) {
+			final ISpoofaxAnalyzeUnit result = analysisResult.result();
+			if (!result.valid()) {
 				logger.debug("The analysis failed: {}", result);
 				throw new MetaborgRuntimeException("The analysis of the fragment failed. Check the error log.");
 			}
+			analyzedAst = result.ast();
 			final ISpoofaxTracingService tracing = injector.getInstance(ISpoofaxTracingService.class);
-			for (IMessage message : result.messages) {
+			for (IMessage message : result.messages()) {
 				// turn message into a (term, message) tuple
 				final IStrategoTerm messageTerm;
 				if (message.region() == null) {

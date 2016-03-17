@@ -5,11 +5,8 @@ import java.util.Collection;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
-import org.metaborg.core.analysis.AnalysisFileResult;
-import org.metaborg.core.analysis.AnalysisResult;
 import org.metaborg.core.build.BuildInput;
 import org.metaborg.core.build.BuildInputBuilder;
-import org.metaborg.core.build.IBuildOutput;
 import org.metaborg.core.build.dependency.IDependencyService;
 import org.metaborg.core.build.paths.ILanguagePathService;
 import org.metaborg.core.language.ILanguageComponent;
@@ -18,16 +15,17 @@ import org.metaborg.core.language.ILanguageIdentifierService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageFileSelector;
 import org.metaborg.core.language.LanguageUtils;
-import org.metaborg.core.messages.StreamMessagePrinter;
 import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.messages.StreamMessagePrinter;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceTextService;
+import org.metaborg.spoofax.core.build.ISpoofaxBuildOutput;
 import org.metaborg.spoofax.core.processing.ISpoofaxProcessorRunner;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -51,7 +49,8 @@ public class TestRunner {
 
     @Inject public TestRunner(IResourceService resourceService, ILanguageDiscoveryService languageDiscoveryService,
         ILanguageIdentifierService languageIdentifierService, IDependencyService dependencyService,
-        ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner, ISourceTextService sourceTextService) {
+        ILanguagePathService languagePathService, ISpoofaxProcessorRunner runner,
+        ISourceTextService sourceTextService) {
         this.resourceService = resourceService;
         this.languageDiscoveryService = languageDiscoveryService;
         this.languageIdentifierService = languageIdentifierService;
@@ -63,7 +62,8 @@ public class TestRunner {
 
 
     public Iterable<ILanguageComponent> discoverLanguages(FileObject location) throws MetaborgException {
-        final Iterable<ILanguageComponent> components = languageDiscoveryService.discover(languageDiscoveryService.request(location));
+        final Iterable<ILanguageComponent> components =
+            languageDiscoveryService.discover(languageDiscoveryService.request(location));
         Iterables.addAll(this.components, components);
         return components;
     }
@@ -110,21 +110,18 @@ public class TestRunner {
             .withDefaultIncludePaths(false)
             .withSources(tests)
             .withTransformation(false)
-//            .addTransformGoal(new NamedGoal("testrunnerfile"))
             .withMessagePrinter(new StreamMessagePrinter(sourceTextService, true, true, logger))
             .build(dependencyService, languagePathService)
             ;
         // @formatter:on
 
         try {
-            IBuildOutput<IStrategoTerm, IStrategoTerm, IStrategoTerm> bRes = runner.build(input, null, null).schedule().block().result();
-            for (AnalysisResult<IStrategoTerm, IStrategoTerm> aRes : bRes.analysisResults()) {
-            	for (ISpoofaxAnalyzeUnit fRes : aRes.fileResults) {
-            		logger.info("Analysis results for file {}", fRes.source.getName());
-            		for (IMessage message : fRes.messages) {
-            			logger.info("{}: {} || ({})", message.severity(), message.message(), message.region());
-            		}
-            	}
+            ISpoofaxBuildOutput bRes = runner.build(input, null, null).schedule().block().result();
+            for(ISpoofaxAnalyzeUnit aRes : bRes.analysisResults()) {
+                logger.info("Analysis results for file {}", aRes.source().getName());
+                for(IMessage message : aRes.messages()) {
+                    logger.info("{}: {} || ({})", message.severity(), message.message(), message.region());
+                }
             }
         } catch(InterruptedException e) {
             // Ignore interruption

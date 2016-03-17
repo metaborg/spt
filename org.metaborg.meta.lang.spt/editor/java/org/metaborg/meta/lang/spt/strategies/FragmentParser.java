@@ -1,12 +1,8 @@
 package org.metaborg.meta.lang.spt.strategies;
 
 import static java.lang.Math.max;
-import static org.spoofax.interpreter.core.Tools.asJavaString;
-import static org.spoofax.interpreter.core.Tools.isTermString;
-import static org.spoofax.interpreter.core.Tools.listAt;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
+import static org.spoofax.interpreter.core.Tools.*;
+import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
 import static org.spoofax.terms.Term.tryGetConstructor;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
@@ -18,12 +14,14 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.source.SourceRegion;
-import org.metaborg.core.syntax.ISyntaxService;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.syntax.SourceAttachment;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -37,8 +35,6 @@ import org.spoofax.terms.TermVisitor;
 import org.strategoxt.lang.WeakValueHashMap;
 
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 /**
  * A parser for the fragments (Input and Output terms) of an SPT test suite specification.
@@ -55,7 +51,8 @@ public class FragmentParser {
 
     private final ITermFactoryService factoryService;
     private final ITermFactory termFactory;
-    private final ISyntaxService<IStrategoTerm> syntaxService;
+    private final ISpoofaxInputUnitService unitService;
+    private final ISpoofaxSyntaxService syntaxService;
     private final IResourceService resourceService;
 
     // required for whiting out the test input
@@ -110,7 +107,8 @@ public class FragmentParser {
      */
     public FragmentParser(Injector injector, IStrategoConstructor setup_3, IStrategoConstructor topsort_1) {
         this.factoryService = injector.getInstance(ITermFactoryService.class);
-        this.syntaxService = injector.getInstance(Key.get(new TypeLiteral<ISyntaxService<IStrategoTerm>>(){}));
+        this.unitService = injector.getInstance(ISpoofaxInputUnitService.class);
+        this.syntaxService = injector.getInstance(ISpoofaxSyntaxService.class);
         this.resourceService = injector.getInstance(IResourceService.class);
         this.termFactory = factoryService.getGeneric();
         if (QUOTEPART_1 == null)
@@ -181,11 +179,12 @@ public class FragmentParser {
         }
         // parse the fragment
         if(parsed == null || !ALLOW_CACHING) {
-            final ISpoofaxParseUnit parseResult = syntaxService.parse(fragmentInput, sptFile, language, new JSGLRParserConfiguration(true, true, false, FRAGMENT_PARSE_TIMEOUT, Integer.MAX_VALUE));
-            parsed = parseResult.result;
-            if(parsed == null) {
-                throw new ParseException(sptFile, language, "Failed to parse fragment");
+            final ISpoofaxInputUnit inputUnit = unitService.inputUnit(sptFile, fragmentInput, language, null, new JSGLRParserConfiguration(true, true, false, FRAGMENT_PARSE_TIMEOUT, Integer.MAX_VALUE));
+            final ISpoofaxParseUnit parseResult = syntaxService.parse(inputUnit);
+            if(!parseResult.valid()) {
+                throw new ParseException(inputUnit, "Failed to parse fragment");
             }
+            parsed = parseResult.ast();
             isLastSyntaxCorrect = getTokenizer(parsed).isSyntaxCorrect();
             // The parsed fragment will have the same resource as the SPT file it came from
             SourceAttachment.putSource(parsed, SourceAttachment.getResource(fragment, resourceService));
