@@ -3,8 +3,8 @@ module test-runner
 imports
   libstratego-lib
   libstratego-aterm
-  include/Spoofax-Testing
-  editor-common.generated
+  signatures/Spoofax-Testing
+  stratego/metaborg
   spoofax_testing
   check
   
