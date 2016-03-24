@@ -1,4 +1,4 @@
-module Spoofax-Testing-Colorer
+module Colorer
 
 imports
 
