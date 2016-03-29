@@ -2,7 +2,7 @@ module index-taskengine-isolation
 
 imports
 	
-	lib/editor-common.generated
+	stratego/metaborg
 	spoofax_testing
 	check
 	

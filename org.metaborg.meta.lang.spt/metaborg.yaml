@@ -18,6 +18,7 @@ pardonedLanguages:
 - SDF
 language:
   sdf:
+    version: sdf2
     args:
     - -Idef
     - ${path:root}/lib/ATerm.def

@@ -3,8 +3,8 @@ module check-complete
 imports
   libstratego-lib
   libstratego-aterm
-  include/Spoofax-Testing
-  lib/editor-common.generated
+  signatures/Spoofax-Testing
+  stratego/metaborg
   aterm-eq
   spoofax_testing
   check-resolve
