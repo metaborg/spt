@@ -78,7 +78,7 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		    // HACK: use metaborgContext, it is the context used to analyze in analyze_fragment_0_2.
 		    final ISpoofaxInputUnit input = unitService.emptyInputUnit(sptFile, lang, null);
 		    final ISpoofaxParseUnit parseInput = unitService.parseUnit(input, new ParseContrib());
-		    mockAnalysis = unitService.analyzeUnit(parseInput, new AnalyzeContrib(true, true, analyzedAst, Iterables2.<IMessage>empty(), -1), metaborgContext);
+		    mockAnalysis = unitService.analyzeUnit(parseInput, new AnalyzeContrib(true, true, true, analyzedAst, false, null, Iterables2.<IMessage>empty(), -1), metaborgContext);
 			result = resolver.resolve(leftToken.getStartOffset(), mockAnalysis);
 			logger.debug("Resolved {} to {}", refTerm, result);
 		} catch (ContextException e) {
