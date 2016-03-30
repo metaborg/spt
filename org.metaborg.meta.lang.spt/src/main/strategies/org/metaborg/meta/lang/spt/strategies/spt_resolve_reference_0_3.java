@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
-import org.metaborg.core.analysis.AnalysisFileResult;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguage;
@@ -14,10 +13,16 @@ import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceLocation;
-import org.metaborg.core.tracing.IResolverService;
-import org.metaborg.core.tracing.ITracingService;
 import org.metaborg.core.tracing.Resolution;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
+import org.metaborg.spoofax.core.tracing.ISpoofaxResolverService;
+import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
+import org.metaborg.spoofax.core.unit.AnalyzeContrib;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
+import org.metaborg.spoofax.core.unit.ParseContrib;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -30,8 +35,6 @@ import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 /**
  * <spt-resolve-reference(|filePath, langName, analyzedAST)> ref
@@ -48,15 +51,12 @@ public class spt_resolve_reference_0_3 extends Strategy {
 	public IStrategoTerm invoke(Context context, IStrategoTerm refTerm, IStrategoTerm filePath, IStrategoTerm langName, IStrategoTerm analyzedAst) {
 		final IContext metaborgContext = (IContext) context.contextObject();
 		final Injector injector = metaborgContext.injector();
-		final IResolverService<IStrategoTerm, IStrategoTerm> resolver = injector.getInstance(
-				Key.get(new TypeLiteral<IResolverService<IStrategoTerm, IStrategoTerm>>(){})
-		);
+		final ISpoofaxUnitService unitService = injector.getInstance(ISpoofaxUnitService.class);
+		final ISpoofaxResolverService resolver = injector.getInstance(ISpoofaxResolverService.class);
 		final ILanguageService languageService = injector.getInstance(ILanguageService.class);
 		final IResourceService resourceService = injector.getInstance(IResourceService.class);
 		final ITermFactoryService termFactoryService = injector.getInstance(ITermFactoryService.class);
-		final ITracingService<IStrategoTerm, IStrategoTerm, IStrategoTerm> tracingService = injector.getInstance(
-				Key.get(new TypeLiteral<ITracingService<IStrategoTerm, IStrategoTerm, IStrategoTerm>>(){})
-		);
+		final ISpoofaxTracingService tracingService = injector.getInstance(ISpoofaxTracingService.class);
 		
 		// Get the Language Under Test and its resource
 		final ILanguage ilang = languageService.getLanguage(Term.asJavaString(langName));
@@ -73,12 +73,12 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		final ITermFactory termFactory = termFactoryService.get(lang);
 		final Resolution result;
 		// TODO: is the 'previous' ParseResult allowed to be null?
-		final AnalysisFileResult<IStrategoTerm, IStrategoTerm> mockAnalysis;
+		final ISpoofaxAnalyzeUnit mockAnalysis;
 		try {
 		    // HACK: use metaborgContext, it is the context used to analyze in analyze_fragment_0_2.
-			mockAnalysis = new AnalysisFileResult<IStrategoTerm, IStrategoTerm>(
-					analyzedAst, sptFile, metaborgContext, Iterables2.<IMessage>empty(), null
-			);
+		    final ISpoofaxInputUnit input = unitService.emptyInputUnit(sptFile, lang, null);
+		    final ISpoofaxParseUnit parseInput = unitService.parseUnit(input, new ParseContrib());
+		    mockAnalysis = unitService.analyzeUnit(parseInput, new AnalyzeContrib(true, true, analyzedAst, Iterables2.<IMessage>empty(), -1), metaborgContext);
 			result = resolver.resolve(leftToken.getStartOffset(), mockAnalysis);
 			logger.debug("Resolved {} to {}", refTerm, result);
 		} catch (ContextException e) {
@@ -98,7 +98,7 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		// Retrieve the terms from the resolution result
 		final Collection<IStrategoTerm> possibleResults = new ArrayList<IStrategoTerm>();
 		for (ISourceLocation loc : result.targets) {
-			for (IStrategoTerm possibleResult : tracingService.toAnalyzed(mockAnalysis, loc.region())) {
+			for (IStrategoTerm possibleResult : tracingService.fragments(mockAnalysis, loc.region())) {
 				possibleResults.add(possibleResult);
 			}
 		}
