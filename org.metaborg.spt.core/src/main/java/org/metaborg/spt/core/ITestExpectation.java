@@ -2,6 +2,12 @@ package org.metaborg.spt.core;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
+/**
+ * An implementation of ITestExpectation can support one or more SPT test expectations.
+ * 
+ * The expectation should be registered using the Guice MultiBinder.newSetBinder. The first expectation that claims to
+ * {@link #canEvaluate(IStrategoTerm)} the expectation will be assigned to evaluate it.
+ */
 public interface ITestExpectation {
 
     /**

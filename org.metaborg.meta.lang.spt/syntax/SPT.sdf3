@@ -42,9 +42,9 @@ context-free syntax
   CloseMarker3 = CloseBracket3
   CloseMarker4 = CloseBracket4
   
-  Fragment2.Fragment2 = <<StringPart2><TailPart2>>
-  Fragment3.Fragment3 = <<StringPart3><TailPart3>>
-  Fragment4.Fragment4 = <<StringPart4><TailPart4>>
+  Fragment2.Fragment = <<StringPart2><TailPart2>>
+  Fragment3.Fragment = <<StringPart3><TailPart3>>
+  Fragment4.Fragment = <<StringPart4><TailPart4>>
   
   TailPart2.Done = <>
   TailPart2.More = <<Selection2><StringPart2><TailPart2>>
@@ -53,9 +53,9 @@ context-free syntax
   TailPart4.Done = <>
   TailPart4.More = <<Selection4><StringPart4><TailPart4>>
   
-  Selection2.Selection2 = <<OpenBracket2><StringPart2><CloseBracket2>>
-  Selection3.Selection3 = <<OpenBracket3><StringPart3><CloseBracket3>>
-  Selection4.Selection4 = <<OpenBracket4><StringPart4><CloseBracket4>>
+  Selection2.Selection = <<OpenBracket2><StringPart2><CloseBracket2>>
+  Selection3.Selection = <<OpenBracket3><StringPart3><CloseBracket3>>
+  Selection4.Selection = <<OpenBracket4><StringPart4><CloseBracket4>>
   
   Expectation.ParseSucceeds = <parse succeeds>
 

@@ -23,22 +23,23 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 
-public class TestRunner implements ITestRunner {
+public class WhitespacingTestCaseRunner implements ITestCaseRunner {
 
     private final Set<ITestExpectation> expectationServices;
     private final ISyntaxService<IStrategoTerm> parseService;
     private final IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService;
     private final IContextService contextService;
 
-    @Inject public TestRunner(Set<ITestExpectation> expectations, ISyntaxService<IStrategoTerm> parseService,
-        IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService, IContextService contextService) {
+    @Inject public WhitespacingTestCaseRunner(Set<ITestExpectation> expectations,
+        ISyntaxService<IStrategoTerm> parseService, IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService,
+        IContextService contextService) {
         this.expectationServices = expectations;
         this.parseService = parseService;
         this.analysisService = analysisService;
         this.contextService = contextService;
     }
 
-    public ITestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest, ILanguageImpl spt) {
+    public ITestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest) {
 
         // lookup the ITestExpectations that can handle our test expectations
         final List<ITestExpectation> expectationHandlers = new ArrayList<>();
@@ -65,8 +66,9 @@ public class TestRunner implements ITestRunner {
         // parse the fragment
         final ParseResult<IStrategoTerm> parseRes;
         try {
-            parseRes = parseService.parse(SPTUtil.getFragmentText(test.getFragment()), test.getResource(),
-                languageUnderTest, null);
+
+            parseRes = parseService.parse(SPTUtil.getFragmentTextUsingWhitespace(allText, fragmentTerm),
+                test.getResource(), languageUnderTest, null);
         } catch(ParseException e) {
             throw new RuntimeException(e);
         }

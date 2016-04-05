@@ -7,6 +7,15 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.syntax.ParseResult;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
+/**
+ * Input for evaluation of a test expectation.
+ *
+ * @param
+ *            <P>
+ *            the type of the parse result of the language under test.
+ * @param <A>
+ *            the type of the analysis result of the language under test.
+ */
 public interface ITestExpectationInput<P, A> {
 
     /**

@@ -7,51 +7,88 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.analysis.AnalysisException;
+import org.metaborg.core.analysis.AnalysisFileResult;
+import org.metaborg.core.analysis.AnalysisResult;
+import org.metaborg.core.analysis.IAnalysisService;
+import org.metaborg.core.context.ContextException;
+import org.metaborg.core.context.IContext;
+import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.ISyntaxService;
 import org.metaborg.core.syntax.ParseException;
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
+import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
 public class TestCaseExtractor implements ITestCaseExtractor {
 
     private final ISyntaxService<IStrategoTerm> parseService;
+    private final IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService;
+    private final IContextService contextService;
+    private final ITestCaseBuilder testBuilder;
 
-    @Inject TestCaseExtractor(ISyntaxService<IStrategoTerm> parseService) {
+    @Inject public TestCaseExtractor(ISyntaxService<IStrategoTerm> parseService,
+        IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService, IContextService contextService,
+        ITestCaseBuilder builder) {
         this.parseService = parseService;
+        this.analysisService = analysisService;
+        this.contextService = contextService;
+        this.testBuilder = builder;
     }
 
-    @Override public Iterable<ITestCase> extract(ILanguageImpl spt, IProject project, final FileObject testSuite) {
+    @Override public ITestCaseExtractionResult extract(ILanguageImpl spt, IProject project,
+        final FileObject testSuite) {
         InputStream in;
-        final IStrategoTerm ast;
+        final ParseResult<IStrategoTerm> parseResult;
+        final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult;
         try {
             in = testSuite.getContent().getInputStream();
             String text = IOUtils.toString(in);
             in.close();
-            ast = parseService.parse(text, testSuite, spt, null).result;
-        } catch(IOException | ParseException e) {
-            throw new IllegalArgumentException(e);
+            parseResult = parseService.parse(text, testSuite, spt, null);
+            if(parseResult.result == null) {
+                // parse failed and couldn't recover
+                return new TestCaseExtractionResult(parseResult, null, Iterables2.<ITestCase>empty());
+            }
+            // even if parsing fails we can still analyze
+            // the result will just be empty
+            IContext ctx = contextService.get(testSuite, project, spt);
+            analysisResult = analysisService.analyze(Iterables2.singleton(parseResult), ctx);
+        } catch(IOException | ParseException | ContextException | AnalysisException e) {
+            throw new IllegalArgumentException("Failed to extract tests due to a previous exception.", e);
+        }
+
+        // Retrieve the AST from the analysis result
+        Iterable<AnalysisFileResult<IStrategoTerm, IStrategoTerm>> analysisFileResults = analysisResult.fileResults;
+        if(Iterables.isEmpty(analysisFileResults)) {
+            // analysis apparently failed? We have no analyzed ast.
+            return new TestCaseExtractionResult(parseResult, analysisResult, Iterables2.<ITestCase>empty());
+        }
+        final IStrategoTerm ast = analysisResult.fileResults.iterator().next().value();
+        if(Iterables.isEmpty(analysisFileResults)) {
+            // analysis apparently failed? We have no analyzed ast.
+            return new TestCaseExtractionResult(parseResult, analysisResult, Iterables2.<ITestCase>empty());
         }
 
         final List<ITestCase> tests = new ArrayList<>();
-        final ITestCaseBuilder builder = new TestCaseBuilder();
         new TermVisitor() {
 
             @Override public void preVisit(IStrategoTerm term) {
                 if(Term.isTermAppl(term)) {
-                    String cons = ((IStrategoAppl) term).getConstructor().getName();
-                    if("Test2".equals(cons) || "Test3".equals(cons) || "Test4".equals(cons)) {
-                        tests.add(builder.withTest(term, testSuite).build());
+                    if(SPTUtil.TEST_CONS.equals(SPTUtil.consName(term))) {
+                        tests.add(testBuilder.withTest(term, testSuite).build());
                     }
                 }
             }
         }.visit(ast);
 
-        return tests;
+        return new TestCaseExtractionResult(parseResult, analysisResult, tests);
     }
 }

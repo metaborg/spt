@@ -3,6 +3,8 @@ package org.metaborg.spt.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.source.ISourceRegion;
 import org.spoofax.interpreter.core.Tools;
@@ -23,29 +25,19 @@ public class TestCaseBuilder implements ITestCaseBuilder {
         throw new UnsupportedOperationException("Test fixtures are not supported yet.");
     }
 
-    @Override public ITestCaseBuilder withTest(IStrategoTerm test, FileObject suiteFile) {
+    @Override public ITestCaseBuilder withTest(IStrategoTerm test, @Nullable FileObject suiteFile) {
         this.resource = suiteFile;
-        return withTest(test);
-    }
 
-    @Override public ITestCaseBuilder withTest(IStrategoTerm test) {
         // Expected a Test<n> node
         if(!Tools.isTermAppl(test)) {
             throw new IllegalArgumentException("Expected a Test constructor, but got " + test);
         }
         IStrategoAppl testAppl = (IStrategoAppl) test;
         String testConsName = testAppl.getConstructor().getName();
-        final int markerLength;
-        if("Test2".equals(testConsName)) {
-            markerLength = 2;
-        } else if("Test3".equals(testConsName)) {
-            markerLength = 3;
-        } else if("Test4".equals(testConsName)) {
-            markerLength = 4;
-        } else {
+        if(!SPTUtil.TEST_CONS.equals(testConsName)) {
             throw new IllegalArgumentException("Expected a Test constructor, but got " + test);
         }
-        // It's a Test<n>(desc, marker, fragment, marker, expectations)
+        // It's a Test(desc, marker, fragment, marker, expectations)
         description = Tools.asJavaString(Tools.stringAt(test, 0));
         fragment = test.getSubterm(2);
         expectations = new ArrayList<>();
@@ -58,13 +50,18 @@ public class TestCaseBuilder implements ITestCaseBuilder {
 
             @Override public void preVisit(IStrategoTerm term) {
                 if(Tools.isTermAppl(term)) {
-                    String cons = ((IStrategoAppl) term).getConstructor().getName();
-                    if(cons.equals("Selection" + markerLength)) {
+                    if(SPTUtil.SELECTION_CONS.equals(SPTUtil.consName(term))) {
                         selections.add(SPTUtil.getRegion(term));
                     }
                 }
             }
         }.visit(fragment);
+
+        return this;
+    }
+
+    @Override public ITestCaseBuilder withTest(IStrategoTerm test) {
+        withTest(test, null);
 
         return this;
     }

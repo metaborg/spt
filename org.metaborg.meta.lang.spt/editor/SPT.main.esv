@@ -18,9 +18,6 @@ language
   
   provider : include/spt.ctree
   provider : include/spt-java.jar
-  observer : editor-analyze (multifile)
+  observer : editor-analyze
   
-references
-
-  reference _ : editor-resolve
-  hover _     : editor-hover
+  context: legacy

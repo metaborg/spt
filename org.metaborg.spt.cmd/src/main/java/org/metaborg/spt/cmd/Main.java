@@ -1,11 +1,11 @@
 package org.metaborg.spt.cmd;
 
+import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 /**
@@ -38,15 +38,17 @@ public class Main {
             System.exit(0);
         }
 
-        try {
-            final Module module = new Module();
-            final Injector injector = Guice.createInjector(module);
+        final Module module = new Module();
+        try(final Spoofax spoofax = new Spoofax(module)) {
+
+            final Injector injector = spoofax.injector;
 
             final Runner runner = injector.getInstance(Runner.class);
 
             runner.run(arguments.sptLocation, arguments.targetLanguageLocation, arguments.testsLocation);
 
             System.exit(0);
+
         } catch(Exception e) {
             logger.error("Error while running tests", e);
             System.exit(1);

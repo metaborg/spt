@@ -10,6 +10,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public interface ITestCase {
 
+    /**
+     * The description or name of the test case.
+     */
     public String getDescription();
 
     /**
@@ -17,9 +20,18 @@ public interface ITestCase {
      */
     public IStrategoTerm getFragment();
 
+    /**
+     * The regions corresponding to the Selection nodes inside the test's fragment.
+     */
     public List<ISourceRegion> getSelections();
 
+    /**
+     * The source file of the test suite from which this test case was extracted. May be null.
+     */
     public @Nullable FileObject getResource();
 
+    /**
+     * The SPT AST terms of the test's expectations.
+     */
     public List<IStrategoTerm> getExpectations();
 }

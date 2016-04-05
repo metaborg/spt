@@ -1,0 +1,18 @@
+module desugar
+
+imports
+  include/SPT
+
+signature constructors
+  // Test(description, open_marker, fragment, close_marker, expectations)
+  Test : String * String * Fragment * String * List -> Test
+
+rules
+  desugar-before = topdown(try(desugar-term-before))
+  
+  // Desugar Test
+  desugar-term-before:
+    cons#([description, open_marker, fragment, close_marker, exps]) -> Test(description, open_marker, fragment, close_marker, exps)
+    where
+      <eq> (cons, "Test2") + <eq> (cons, "Test3") + <eq> (cons, "Test4")
+  

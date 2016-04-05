@@ -14,9 +14,10 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spt.core.ITestCase;
+import org.metaborg.spt.core.ITestCaseExtractionResult;
 import org.metaborg.spt.core.ITestCaseExtractor;
+import org.metaborg.spt.core.ITestCaseRunner;
 import org.metaborg.spt.core.ITestResult;
-import org.metaborg.spt.core.ITestRunner;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
@@ -30,12 +31,12 @@ public class Runner {
     private final ILanguageDiscoveryService languageDiscoveryService;
     private final ILanguageIdentifierService langIdentService;
     private final ITestCaseExtractor extractor;
-    private final ITestRunner executor;
+    private final ITestCaseRunner executor;
 
 
     @Inject public Runner(IResourceService resourceService, ISimpleProjectService projectService,
         ILanguageDiscoveryService languageDiscoveryService, ILanguageIdentifierService langIdentService,
-        ITestCaseExtractor extractor, ITestRunner executor) {
+        ITestCaseExtractor extractor, ITestCaseRunner executor) {
         this.resourceService = resourceService;
         this.projectService = projectService;
 
@@ -64,13 +65,21 @@ public class Runner {
 
 
             for(FileObject testSuite : project.location().findFiles(new LanguageFileSelector(langIdentService, spt))) {
-                Iterable<ITestCase> tests = extractor.extract(spt, project, testSuite);
-                for(ITestCase test : tests) {
-                    logger.info("Running test {} of suite {}.", test, testSuite);
-                    ITestResult res = executor.run(project, test, lut, spt);
-                    logger.info("Test passed: {}", res.isSuccessful());
-                    for(IMessage m : res.getAllMessages()) {
-                        logger.info("\t{} : {}", m.severity(), m.message());
+                ITestCaseExtractionResult extractionResult = extractor.extract(spt, project, testSuite);
+                if(extractionResult.isSuccessful()) {
+                    Iterable<ITestCase> tests = extractionResult.getTests();
+                    for(ITestCase test : tests) {
+                        logger.info("Running test {} of suite {}.", test, testSuite);
+                        ITestResult res = executor.run(project, test, lut);
+                        logger.info("Test passed: {}", res.isSuccessful());
+                        for(IMessage m : res.getAllMessages()) {
+                            logger.info("\t{} : {}", m.severity(), m.message());
+                        }
+                    }
+                } else {
+                    logger.error("Failed to run tests at {}. Extraction of tests failed.", testsPath);
+                    for(IMessage m : extractionResult.getAllMessages()) {
+                        logger.error("\t{} : {}", m.severity(), m.message());
                     }
                 }
             }
