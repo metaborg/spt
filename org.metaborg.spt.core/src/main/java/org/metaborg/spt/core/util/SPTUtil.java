@@ -1,4 +1,4 @@
-package org.metaborg.spt.core;
+package org.metaborg.spt.core.util;
 
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.spoofax.core.syntax.JSGLRSourceRegionFactory;

@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.source.ISourceRegion;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public interface ITestCase {
@@ -16,14 +15,9 @@ public interface ITestCase {
     public String getDescription();
 
     /**
-     * The SPT AST of the Fragment of this test case.
+     * The fragment of this test case. I.e., the piece of code written in the language under test that is being tested.
      */
-    public IStrategoTerm getFragment();
-
-    /**
-     * The regions corresponding to the Selection nodes inside the test's fragment.
-     */
-    public List<ISourceRegion> getSelections();
+    public IFragment getFragment();
 
     /**
      * The source file of the test suite from which this test case was extracted. May be null.
@@ -31,7 +25,24 @@ public interface ITestCase {
     public @Nullable FileObject getResource();
 
     /**
-     * The SPT AST terms of the test's expectations.
+     * A list of tuples of an SPT AST term of a test expectation, and the ITestExpectation that can be used to evaluate
+     * it. One for each expectation on this test case.
      */
-    public List<IStrategoTerm> getExpectations();
+    public List<ExpectationPair> getExpectations();
+
+    /**
+     * A tuple of a test expectation and an ITestExpectation that claims to be able to evaluate it.
+     * 
+     * Note that the evaluator can be null if no such ITestExpectation was found. Whether you consider that to be an
+     * error is up to you.
+     */
+    public static class ExpectationPair {
+        @Nullable public final ITestExpectation evaluator;
+        public final IStrategoTerm expectation;
+
+        public ExpectationPair(@Nullable ITestExpectation evaluator, IStrategoTerm expectation) {
+            this.evaluator = evaluator;
+            this.expectation = expectation;
+        }
+    }
 }

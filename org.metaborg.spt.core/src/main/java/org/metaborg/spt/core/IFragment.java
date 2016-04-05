@@ -1,8 +1,9 @@
 package org.metaborg.spt.core;
 
-import org.metaborg.core.language.ILanguageImpl;
+import javax.annotation.Nullable;
+
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.source.ISourceRegion;
-import org.metaborg.core.syntax.ParseResult;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -13,8 +14,11 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * 
  * The problem with Fragments, is that the text has to be extracted from the original SPT specification, and parsed with
  * another language, while keeping the offsets of the nodes in the returned parse result correct within the larger
- * context of the SPT specification. Therefore the fragments should be parsed using the {@link #parse(ILanguageImpl)}
- * method.
+ * context of the SPT specification.
+ * 
+ * The IFragment simply represents the SPT AST node and the selected regions within that node. These selected regions
+ * have offsets based on the SPT AST, which is why parsing a fragment should be done using an IFragmentParser, to ensure
+ * that the character offsets of the parse result match properly with the selected regions.
  */
 public interface IFragment {
 
@@ -29,12 +33,29 @@ public interface IFragment {
     public Iterable<ISourceRegion> getSelections();
 
     /**
-     * Parse the fragment with the given language.
-     * 
-     * @param language
-     *            the language to parse the fragment with.
-     * @return the result of parsing the fragment.
+     * The source file of the test suite from which this fragment was extracted. May be null.
      */
-    public ParseResult<IStrategoTerm> parse(ILanguageImpl language);
+    public @Nullable FileObject getResource();
+
+    /**
+     * The text of this selection. It is returned as tuples of an offset and a piece of text. The offset is the start
+     * offset of the piece of text in the rest of the Fragment's surrounding source (usually an SPT test suite).
+     * 
+     * The text is a consecutive part of program text from the fragment. This text will not contain the SPT specific
+     * text.
+     * 
+     * These tuples should be used by an IFragmentParser to ensure the parse result has the correct offsets.
+     */
+    public Iterable<FragmentPiece> getText();
+
+    public static class FragmentPiece {
+        public final int startOffset;
+        public final String text;
+
+        public FragmentPiece(int offset, String txt) {
+            this.text = txt;
+            this.startOffset = offset;
+        }
+    }
 
 }

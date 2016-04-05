@@ -30,9 +30,19 @@ public interface ITestCaseExtractionResult {
     public @Nullable AnalysisResult<IStrategoTerm, IStrategoTerm> getAnalysisResult();
 
     /**
-     * All messages from parsing and analysis of the test suite.
+     * All messages raised while extracting the test case.
+     * 
+     * This includes the messages from parsing, analysis, and the extra messages from {@link #getMessages()}.
      */
     public Iterable<IMessage> getAllMessages();
+
+    /**
+     * Any extra messages created while extracting the test case.
+     * 
+     * These can be caused by exceptions thrown by the parsing or analysis, or from errors during the construction of
+     * the test case. E.g., messages about missing ITestExpectations that can evaluate this test's expectations.
+     */
+    public Iterable<IMessage> getMessages();
 
     /**
      * The test cases that were extracted.

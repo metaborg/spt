@@ -1,5 +1,6 @@
 package org.metaborg.spt.core;
 
+import org.apache.commons.vfs2.FileObject;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -8,20 +9,29 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public interface IFragmentBuilder {
 
     /**
-     * Use this test fixture for the fragment creation.
+     * Use this fixture for the fragment creation.
      * 
-     * @param testFixture
+     * @param fragmentFixture
      *            the SPT AST term of the test fixture to use.
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder withTestFixture(IStrategoTerm fragmentFixture);
+    public IFragmentBuilder withFixture(IStrategoTerm fragmentFixture);
+
+    /**
+     * Use this resource as the source from which this fragment was created.
+     * 
+     * @param resource
+     *            the source of the fragment (usually an SPT test suite file).
+     * @return the same builder for chaining calls.
+     */
+    public IFragmentBuilder withResource(FileObject resource);
 
     /**
      * Use this fragment term to create an IFragment.
      * 
      * Consecutive calls of this method will simply override each other.
      * 
-     * @param test
+     * @param fragment
      *            the SPT AST term of the fragment.
      * @return the same builder for chaining calls.
      */
