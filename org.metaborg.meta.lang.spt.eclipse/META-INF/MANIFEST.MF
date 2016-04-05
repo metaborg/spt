@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Spoofax-Testing language Eclipse plugin
+Bundle-SymbolicName: org.metaborg.meta.lang.spt.eclipse;singleton:=true
+Bundle-Version: 2.0.0.qualifier
+Bundle-Vendor: metaborg.org
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.metaborg.spoofax.eclipse,
+ org.metaborg.core,
+ org.metaborg.spoofax.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

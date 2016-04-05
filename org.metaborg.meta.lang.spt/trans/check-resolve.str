@@ -1,0 +1,68 @@
+module check-resolve
+
+imports
+  libstratego-lib
+  libstratego-aterm
+  signatures/Spoofax-Testing
+  stratego/metaborg
+  aterm-eq
+  spoofax_testing
+  check
+
+rules
+  
+  spt-desugar:
+    Resolve(n) -> ResolveTo(n, wildcard())
+  
+  spt-desugar:
+    Unnumbered() -> Numbered("1")
+
+  check-expectation(|ast, selections, messages) :
+    ResolveTo(_, _) -> $[No reference resolving defined for [<Language>]]
+    where
+      not(spt-reference-resolution-available(|<Language>))
+  
+  check-error(|selections):
+    Numbered(n) -> (<id>, $[No identifier selection #[n] found in input])
+    where
+      not(resolve-selection(|selections))
+  
+  resolve-selection(|selections):
+    Numbered(n) -> selection
+    where
+      n'        := <string-to-int> n;
+      selection := <index(|n')> selections
+  
+  resolve-selection(|selections):
+    wildcard() -> wildcard()
+
+  check-expectation(|ast, selections, messages) :
+    ResolveTo(from, to) -> error
+    where
+      from' := <resolve-selection(|selections)> from;
+      to'   := <resolve-selection(|selections)> to;
+      if (
+        results := <spt-resolve-reference(|<InputFile>, <Language>, <LastAnalyzedAst>)> from'
+      ) then
+        switch !results
+          case one(is-successful-resolver(|to')): fail
+          case one(?Error(m)): error := $[Unexpected error resolving:
+                                          <pre>[m]</pre>]; say(!m)
+          otherwise: error := $[Unexpected result:
+                                          <pre>[<write-to-html-string> results]</pre>]
+        end
+      else
+        error := $[Failed to resolve! Does your language have reference resolution implemented?]
+      end
+  
+  is-successful-resolver(|expected):
+    result -> <id>
+    where
+      !expected => wildcard()
+    <+
+      // NOTE: we allow resolution to bigger terms than the selection???
+      oncetd(origin-equal(|expected))
+    <+
+      // TODO: can we still use this in Spoofax Core?
+      expected-offset := <origin-offset> expected;
+      <oncetd(origin-offset => expected-offset)> result
