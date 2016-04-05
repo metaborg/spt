@@ -3,8 +3,8 @@ imports
   libstratego-lib
   libstratego-gpp
   libstratego-aterm
-  include/Spoofax-Testing
-  lib/editor-common.generated
+  signatures/Spoofax-Testing
+  stratego/metaborg
   analysis
 strategies
 
