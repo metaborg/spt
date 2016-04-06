@@ -31,5 +31,5 @@ public interface ITestExpectation {
     /**
      * Evaluate the expectation.
      */
-    public ITestExpectationOutput evaluate(ITestExpectationInput<IStrategoTerm, IStrategoTerm> input);
+    public ITestExpectationOutput evaluate(ITestExpectationInput input);
 }

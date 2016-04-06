@@ -69,11 +69,16 @@ public class Runner {
                 if(extractionResult.isSuccessful()) {
                     Iterable<ITestCase> tests = extractionResult.getTests();
                     for(ITestCase test : tests) {
-                        logger.info("Running test {} of suite {}.", test, testSuite);
-                        ITestResult res = executor.run(project, test, lut);
+                        logger.info("Running test '{}' of suite {}.", test.getDescription(), testSuite);
+                        ITestResult res = executor.run(project, test, lut, null);
                         logger.info("Test passed: {}", res.isSuccessful());
                         for(IMessage m : res.getAllMessages()) {
-                            logger.info("\t{} : {}", m.severity(), m.message());
+                            if(m.region() == null) {
+                                logger.info("\t{} : {}", m.severity(), m.message());
+                            } else {
+                                logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
+                                    m.severity(), m.message());
+                            }
                         }
                     }
                 } else {

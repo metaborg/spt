@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.source.ISourceRegion;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public interface ITestCase {
@@ -13,6 +14,14 @@ public interface ITestCase {
      * The description or name of the test case.
      */
     public String getDescription();
+
+    /**
+     * The source region covered by the test's description.
+     * 
+     * Use this to place messages that appear during test runs, but that have no corresponding region in the test
+     * fragment.
+     */
+    public ISourceRegion getDescriptionRegion();
 
     /**
      * The fragment of this test case. I.e., the piece of code written in the language under test that is being tested.

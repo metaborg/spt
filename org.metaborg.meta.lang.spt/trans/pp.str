@@ -4,7 +4,7 @@ imports
 
   libstratego-gpp
   runtime/refactoring/-
-  include/SPT-parenthesize
+  pp/SPT-parenthesize
   pp/SPT-pp
 
 rules

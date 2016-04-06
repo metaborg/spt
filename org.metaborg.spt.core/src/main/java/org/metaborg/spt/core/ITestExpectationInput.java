@@ -2,9 +2,9 @@ package org.metaborg.spt.core;
 
 import javax.annotation.Nullable;
 
-import org.metaborg.core.analysis.AnalysisResult;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -16,7 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @param <A>
  *            the type of the analysis result of the language under test.
  */
-public interface ITestExpectationInput<P, A> {
+public interface ITestExpectationInput {
 
     /**
      * The test case for which we should evaluate the expectation.
@@ -36,13 +36,13 @@ public interface ITestExpectationInput<P, A> {
     /**
      * The result of parsing the fragment with the language under test.
      */
-    public ParseResult<P> getParseResult();
+    public ISpoofaxParseUnit getParseResult();
 
     /**
      * The result of analyzing the fragment with the language under test.
      * 
      * May be null if the expectation only requires the {@link TestPhase#PARSING} phase, or if the parsing failed.
      */
-    public @Nullable AnalysisResult<P, A> getAnalysisResult();
+    public @Nullable ISpoofaxAnalyzeUnit getAnalysisResult();
 
 }

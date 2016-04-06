@@ -1,5 +1,7 @@
 package org.metaborg.spt.core.util;
 
+import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.messages.MessageBuilder;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.spoofax.core.syntax.JSGLRSourceRegionFactory;
 import org.spoofax.interpreter.core.Tools;
@@ -22,6 +24,30 @@ public class SPTUtil {
         IToken left = imploder.getLeftToken();
         IToken right = imploder.getRightToken();
         return JSGLRSourceRegionFactory.fromTokens(left, right);
+    }
+
+    /**
+     * Create a new message with the same information, but the given region.
+     * 
+     * @param m
+     *            the message to copy.
+     * @param r
+     *            the region to set on the new message.
+     * @return the new message with the new region.
+     */
+    public static IMessage setRegion(IMessage m, ISourceRegion r) {
+        MessageBuilder b = MessageBuilder.create();
+        b.withMessage(m.message());
+        b.withSeverity(m.severity());
+        b.withType(m.type());
+        b.withRegion(r);
+        if(m.source() != null) {
+            b.withSource(m.source());
+        }
+        if(m.exception() != null) {
+            b.withException(m.exception());
+        }
+        return b.build();
     }
 
     /**

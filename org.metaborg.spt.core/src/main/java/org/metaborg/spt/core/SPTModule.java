@@ -20,11 +20,9 @@ public class SPTModule extends SpoofaxModule {
         bind(ITestCaseExtractor.class).to(TestCaseExtractor.class);
         bind(TestCaseRunner.class).in(Singleton.class);
         bind(ITestCaseRunner.class).to(TestCaseRunner.class);
-        bind(TestCaseBuilder.class).in(Singleton.class);
         bind(ITestCaseBuilder.class).to(TestCaseBuilder.class);
 
         // we rely on ImploderAttachments to be present
-        bind(ImploderFragmentBuilder.class).in(Singleton.class);
         bind(IFragmentBuilder.class).to(ImploderFragmentBuilder.class);
 
         // for now, we keep using the whitespace hack

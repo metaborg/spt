@@ -1,9 +1,10 @@
 package org.metaborg.spt.core;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.core.syntax.ParseResult;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
 /**
  * An IFragmentParser can parse an IFragment, and ensures that the offsets of the parse result match with the offsets of
@@ -21,7 +22,11 @@ public interface IFragmentParser {
      *            the IFragment to parse.
      * @param fragmentLanguage
      *            the language to parse the fragment's text with.
+     * @param dialect
+     *            TODO I don't know what it does, but it's cool and needs to be added. For now just pass null if you
+     *            also don't know what it does.
      * @return the parse result.
      */
-    public ParseResult<IStrategoTerm> parse(IFragment fragment, ILanguageImpl fragmentLanguage) throws ParseException;
+    public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect)
+        throws ParseException;
 }

@@ -1,4 +1,4 @@
-module SPT.main
+module Main
 
 imports
 
@@ -13,11 +13,10 @@ language
   
   extensions : spt
 
-  table         : include/SPT.tbl
+  table         : target/metaborg/sdf.tbl
   start symbols : Start
   
-  provider : include/spt.ctree
-  provider : include/spt-java.jar
+  provider : target/metaborg/stratego.ctree
   observer : editor-analyze
   
   context: legacy

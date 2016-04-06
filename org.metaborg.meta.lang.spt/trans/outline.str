@@ -1,10 +1,6 @@
 module outline
 
 imports
-  
-  include/SPT
-  runtime/editor/outline-library
-  runtime/editor/origins
 
 rules
   

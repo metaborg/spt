@@ -11,6 +11,7 @@ context-free syntax
   >
 
   Header.Name = <module <ID>>
+  // the start symbol is not supported yet by the SPT implementation
   Header.StartSymbol = <start symbol <ID>>
   Header.Language = <language <ID>>
 
@@ -35,6 +36,7 @@ context-free syntax
     <{Expectation "\n"}*>
   >
   
+  // for now we only have brackets as markers
   OpenMarker2 = OpenBracket2
   OpenMarker3 = OpenBracket3
   OpenMarker4 = OpenBracket4
@@ -57,10 +59,30 @@ context-free syntax
   Selection3.Selection = <<OpenBracket3><StringPart3><CloseBracket3>>
   Selection4.Selection = <<OpenBracket4><StringPart4><CloseBracket4>>
   
+  // Expectations
+  
+  // parse expectations 
   Expectation.ParseSucceeds = <parse succeeds>
+  Expectation.ParseFails = <parse fails>
+  Expectation.ParseTo2 = <
+    parse to <OpenMarker2>
+      <Fragment2>
+    <CloseMarker2>
+  >
+  Expectation.ParseTo3 = <
+    parse to <OpenMarker3>
+      <Fragment3>
+    <CloseMarker3>
+  >
+  Expectation.ParseTo4 = <
+    parse to <ID> <OpenMarker4>
+      <Fragment4>
+    <CloseMarker4>
+  >
 
 lexical syntax
   // NOTE: everything until the opening marker or newline is the description 
+  // update this when a new type of opening marker is introduced
   Description = (~[\n\[])+
   
   OpenBracket1 = "["
@@ -72,15 +94,18 @@ lexical syntax
   CloseBracket3 = "]]]"
   CloseBracket4 = "]]]]"
   
-  // everything that isn't a [[ or ]] (or more brackets) will be a stringpart2 
+  // everything that isn't a [[ or ]] (or more brackets) will be a stringpart2
+  // update these when a new type of opening or closing marker is introduced
   StringPart2 = (~[\[\]] | OpenBracket1 | CloseBracket1)*
   StringPart3 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2)*
   StringPart4 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2 | OpenBracket3 | CloseBracket3)*
 
 lexical restrictions  
-  // NOTE: everything until the opening marker or newline is the description 
+  // NOTE: everything until the opening marker or newline is the description
+  // update this when a new opening marker is introduced
   Description -/- [\n\[]
   
+  // update these when a new opening or closing marker is introduced
   OpenBracket1 -/- [\[]
   OpenBracket2 -/- [\[]
   OpenBracket3 -/- [\[]
@@ -90,7 +115,8 @@ lexical restrictions
   CloseBracket3 -/- [\]]
   CloseBracket4 -/- [\]]
   
-  // NOTE: everything until the marker is part of the StringPart of a fragment 
+  // NOTE: everything until the marker is part of the StringPart of a fragment
+  // update these when a new opening or closing marker is introduced
   StringPart2 -/- ~[\[\]]
   StringPart3 -/- ~[\[\]]
   StringPart4 -/- ~[\[\]]

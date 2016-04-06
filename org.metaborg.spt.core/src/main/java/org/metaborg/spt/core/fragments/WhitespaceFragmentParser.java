@@ -1,13 +1,16 @@
 package org.metaborg.spt.core.fragments;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.syntax.ISyntaxService;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.IFragment;
-import org.metaborg.spt.core.IFragmentParser;
 import org.metaborg.spt.core.IFragment.FragmentPiece;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.spt.core.IFragmentParser;
 
 import com.google.inject.Inject;
 
@@ -18,13 +21,16 @@ import com.google.inject.Inject;
  */
 public class WhitespaceFragmentParser implements IFragmentParser {
 
-    private final ISyntaxService<IStrategoTerm> parseService;
+    private final ISpoofaxSyntaxService parseService;
+    private final ISpoofaxInputUnitService inputService;
 
-    @Inject public WhitespaceFragmentParser(ISyntaxService<IStrategoTerm> parseService) {
+    @Inject public WhitespaceFragmentParser(ISpoofaxSyntaxService parseService, ISpoofaxInputUnitService inputService) {
         this.parseService = parseService;
+        this.inputService = inputService;
     }
 
-    public ParseResult<IStrategoTerm> parse(IFragment fragment, ILanguageImpl language) throws ParseException {
+    public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, @Nullable ILanguageImpl dialect)
+        throws ParseException {
         StringBuilder fragmentTextBuilder = new StringBuilder();
         for(FragmentPiece piece : fragment.getText()) {
             // add whitespace to get the character offset of this piece right
@@ -37,6 +43,8 @@ public class WhitespaceFragmentParser implements IFragmentParser {
         String fragmentText = fragmentTextBuilder.toString();
 
         // now we can parse the fragment
-        return parseService.parse(fragmentText, fragment.getResource(), language, null);
+        // TODO: support dialects
+        ISpoofaxInputUnit input = inputService.inputUnit(fragment.getResource(), fragmentText, language, dialect);
+        return parseService.parse(input);
     }
 }

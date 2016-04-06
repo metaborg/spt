@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.metaborg.core.analysis.AnalysisException;
-import org.metaborg.core.analysis.AnalysisResult;
-import org.metaborg.core.analysis.IAnalysisService;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.context.ITemporaryContext;
@@ -14,7 +12,9 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.ITestCase.ExpectationPair;
 import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -23,30 +23,30 @@ import com.google.inject.Inject;
 
 public class TestCaseRunner implements ITestCaseRunner {
 
-    private final IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService;
+    private final ISpoofaxAnalysisService analysisService;
     private final IContextService contextService;
     private final IFragmentParser fragmentParser;
 
-    @Inject public TestCaseRunner(Set<ITestExpectation> expectations,
-        IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService, IContextService contextService,
-        IFragmentParser fragmentParser) {
+    @Inject public TestCaseRunner(Set<ITestExpectation> expectations, ISpoofaxAnalysisService analysisService,
+        IContextService contextService, IFragmentParser fragmentParser) {
         this.analysisService = analysisService;
         this.contextService = contextService;
         this.fragmentParser = fragmentParser;
     }
 
-    public ITestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest) {
+    @Override public ITestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
+        ILanguageImpl dialectUnderTest) {
         // parse the fragment
-        final ParseResult<IStrategoTerm> parseRes;
+        final ISpoofaxParseUnit parseRes;
         try {
-            parseRes = fragmentParser.parse(test.getFragment(), languageUnderTest);
+            parseRes = fragmentParser.parse(test.getFragment(), languageUnderTest, dialectUnderTest);
         } catch(ParseException e) {
             // TODO: is this ok? or should we fail the test and gracefully return a message?
             throw new RuntimeException(e);
         }
 
         // analyze the fragment if any expectation requires analysis
-        AnalysisResult<IStrategoTerm, IStrategoTerm> analysisRes = null;
+        ISpoofaxAnalyzeUnit analysisRes = null;
         for(ExpectationPair expectationPair : test.getExpectations()) {
             ITestExpectation evaluator = expectationPair.evaluator;
             if(evaluator == null) {
@@ -61,8 +61,9 @@ public class TestCaseRunner implements ITestCaseRunner {
                 // TODO: what if the resource is null?
                 try(ITemporaryContext ctx =
                     contextService.getTemporary(test.getResource(), project, languageUnderTest)) {
-                    analysisRes = analysisService.analyze(Iterables2.singleton(parseRes), ctx);
+                    analysisRes = analysisService.analyze(parseRes, ctx).result();
                 } catch(ContextException | AnalysisException e) {
+                    // TODO: is this ok? or should we fail the test and gracefully return a message?
                     throw new RuntimeException(e);
                 }
                 break;
@@ -70,26 +71,30 @@ public class TestCaseRunner implements ITestCaseRunner {
         }
 
         // evaluate the test expectations
-        // TODO: handle the 'no expectation means parsing must succeed' thing
         boolean success = true;
         List<ITestExpectationOutput> expectationOutputs = new ArrayList<>();
-        for(ExpectationPair expectationPair : test.getExpectations()) {
-            ITestExpectation evaluator = expectationPair.evaluator;
-            if(evaluator == null) {
-                // The TestExtractor may return tests with missing ITestExpectations
-                // if this happens, the ExtractorResult should have signalled that it failed
-                // we get here if the user blatantly ignores that,
-                // So we will assume the user simply doesn't care about this expectation
-                continue;
+        if(test.getExpectations().isEmpty()) {
+            // handle the 'no expectation means parsing must succeed' thing
+            success = parseRes.success();
+        } else {
+            for(ExpectationPair expectationPair : test.getExpectations()) {
+                ITestExpectation evaluator = expectationPair.evaluator;
+                if(evaluator == null) {
+                    // The TestExtractor may return tests with missing ITestExpectations
+                    // if this happens, the ExtractorResult should have signalled that it failed
+                    // we get here if the user blatantly ignores that,
+                    // So we will assume the user simply doesn't care about this expectation
+                    continue;
+                }
+                IStrategoTerm expectation = expectationPair.expectation;
+                TestExpectationInput input =
+                    new TestExpectationInput(test, expectation, languageUnderTest, parseRes, analysisRes);
+                ITestExpectationOutput output = evaluator.evaluate(input);
+                if(!output.isSuccessful()) {
+                    success = false;
+                }
+                expectationOutputs.add(output);
             }
-            IStrategoTerm expectation = expectationPair.expectation;
-            TestExpectationInput input =
-                new TestExpectationInput(test, expectation, languageUnderTest, parseRes, analysisRes);
-            ITestExpectationOutput output = evaluator.evaluate(input);
-            if(!output.isSuccessful()) {
-                success = false;
-            }
-            expectationOutputs.add(output);
         }
 
         return new TestResult(success, Iterables2.<IMessage>empty(), expectationOutputs);

@@ -9,21 +9,20 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.analysis.AnalysisException;
-import org.metaborg.core.analysis.AnalysisFileResult;
-import org.metaborg.core.analysis.AnalysisResult;
-import org.metaborg.core.analysis.IAnalysisService;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageBuilder;
-import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.source.ISourceRegion;
-import org.metaborg.core.syntax.ISyntaxService;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.core.syntax.ParseResult;
+import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
+import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.ITestCase.ExpectationPair;
 import org.metaborg.spt.core.util.SPTUtil;
 import org.metaborg.util.iterators.Iterables2;
@@ -31,19 +30,19 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
-import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
 public class TestCaseExtractor implements ITestCaseExtractor {
 
-    private final ISyntaxService<IStrategoTerm> parseService;
-    private final IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService;
+    private final ISpoofaxInputUnitService inputService;
+    private final ISpoofaxSyntaxService parseService;
+    private final ISpoofaxAnalysisService analysisService;
     private final IContextService contextService;
     private final ITestCaseBuilder testBuilder;
 
-    @Inject public TestCaseExtractor(ISyntaxService<IStrategoTerm> parseService,
-        IAnalysisService<IStrategoTerm, IStrategoTerm> analysisService, IContextService contextService,
-        ITestCaseBuilder builder) {
+    @Inject public TestCaseExtractor(ISpoofaxInputUnitService inputService, ISpoofaxSyntaxService parseService,
+        ISpoofaxAnalysisService analysisService, IContextService contextService, ITestCaseBuilder builder) {
+        this.inputService = inputService;
         this.parseService = parseService;
         this.analysisService = analysisService;
         this.contextService = contextService;
@@ -53,14 +52,15 @@ public class TestCaseExtractor implements ITestCaseExtractor {
     @Override public ITestCaseExtractionResult extract(ILanguageImpl spt, IProject project,
         final FileObject testSuite) {
         InputStream in;
-        final ParseResult<IStrategoTerm> parseResult;
-        final AnalysisResult<IStrategoTerm, IStrategoTerm> analysisResult;
+        final ISpoofaxParseUnit parseResult;
+        final ISpoofaxAnalyzeUnit analysisResult;
         try {
             in = testSuite.getContent().getInputStream();
             String text = IOUtils.toString(in);
             in.close();
-            parseResult = parseService.parse(text, testSuite, spt, null);
-            if(parseResult.result == null) {
+            // TODO: do we need a dialect for SPT?
+            parseResult = parseService.parse(inputService.inputUnit(testSuite, text, spt, null));
+            if(!parseResult.valid()) {
                 // parse failed and couldn't recover
                 return new TestCaseExtractionResult(parseResult, null, Iterables2.<IMessage>empty(),
                     Iterables2.<ITestCase>empty());
@@ -70,7 +70,7 @@ public class TestCaseExtractor implements ITestCaseExtractor {
             IMessage error = MessageBuilder.create()
                 .asInternal()
                 .withException(ioe)
-                .withSeverity(MessageSeverity.ERROR)
+                .asError()
                 .withSource(testSuite)
                 .withMessage("Failed to read the testsuite " + testSuite.getName().getBaseName())
                 .build();
@@ -81,7 +81,7 @@ public class TestCaseExtractor implements ITestCaseExtractor {
             IMessage error = MessageBuilder.create()
                 .asParser()
                 .withException(pe)
-                .withSeverity(MessageSeverity.ERROR)
+                .asError()
                 .withSource(testSuite)
                 .withMessage(pe.getMessage())
                 .build();
@@ -93,13 +93,13 @@ public class TestCaseExtractor implements ITestCaseExtractor {
             // even if parsing fails we can still analyze
             // the result will just be empty
             IContext ctx = contextService.get(testSuite, project, spt);
-            analysisResult = analysisService.analyze(Iterables2.singleton(parseResult), ctx);
+            analysisResult = analysisService.analyze(parseResult, ctx).result();
         } catch(ContextException | AnalysisException ae) {
             // @formatter:off
             IMessage error = MessageBuilder.create()
                 .asAnalysis()
                 .withException(ae)
-                .withSeverity(MessageSeverity.ERROR)
+                .asError()
                 .withSource(testSuite)
                 .withMessage(ae.getMessage())
                 .build();
@@ -109,13 +109,19 @@ public class TestCaseExtractor implements ITestCaseExtractor {
         }
 
         // Retrieve the AST from the analysis result
-        Iterable<AnalysisFileResult<IStrategoTerm, IStrategoTerm>> analysisFileResults = analysisResult.fileResults;
-        if(Iterables.isEmpty(analysisFileResults)) {
-            // analysis apparently failed? We have no analyzed ast.
-            return new TestCaseExtractionResult(parseResult, analysisResult, Iterables2.<IMessage>empty(),
-                Iterables2.<ITestCase>empty());
+        if(!analysisResult.valid() || !analysisResult.hasAst()) {
+            return new TestCaseExtractionResult(parseResult, analysisResult,
+                Iterables2.singleton(MessageBuilder.create()
+                    // @formatter:off
+                    .asInternal()
+                    .asError()
+                    .withSource(testSuite)
+                    .withMessage("The analysis of SPT did not return an AST.")
+                    .build()
+                    // @formatter:on
+            ), Iterables2.<ITestCase>empty());
         }
-        final IStrategoTerm ast = analysisResult.fileResults.iterator().next().value();
+        final IStrategoTerm ast = analysisResult.ast();
 
         // build each test case and gather messages for missing ITestExpectations
         // for now, we will consider these missing evaluators to be an error
@@ -134,8 +140,8 @@ public class TestCaseExtractor implements ITestCaseExtractor {
                                 ISourceRegion region = SPTUtil.getRegion(expectation.expectation);
                                 // @formatter:off
                                 IMessage m = MessageBuilder.create()
-                                    .asError()
                                     .asAnalysis()
+                                    .asError()
                                     .withSource(test.getResource())
                                     .withRegion(region)
                                     .withMessage(

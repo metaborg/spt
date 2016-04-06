@@ -1,11 +1,13 @@
 module desugar
 
 imports
-  include/SPT
+  signatures/SPT-sig
 
 signature constructors
   // Test(description, open_marker, fragment, close_marker, expectations)
   Test : String * String * Fragment * String * List -> Test
+  // ParseTo(language_name, open_marker, fragment, close_marker)
+  ParseTo : String * String * Fragment * String -> ParseTo
 
 rules
   desugar-before = topdown(try(desugar-term-before))
@@ -16,3 +18,8 @@ rules
     where
       <eq> (cons, "Test2") + <eq> (cons, "Test3") + <eq> (cons, "Test4")
   
+  // Desugar ParseTo
+  desugar-term-before:
+    cons#([lang_name, open_marker, fragment, close_marker]) -> ParseTo(lang_name, open_marker, fragment, close_marker)
+    where
+      <eq> (cons, "ParseTo2") + <eq> (cons, "ParseTo3") + <eq> (cons, "ParseTo4")

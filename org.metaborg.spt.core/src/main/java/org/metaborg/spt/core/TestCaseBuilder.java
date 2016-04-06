@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.spt.core.ITestCase.ExpectationPair;
 import org.metaborg.spt.core.util.SPTUtil;
 import org.spoofax.interpreter.core.Tools;
@@ -19,6 +20,7 @@ public class TestCaseBuilder implements ITestCaseBuilder {
 
     private FileObject resource = null;
     private String description = null;
+    private ISourceRegion descriptionRegion = null;
     private List<IStrategoTerm> expectations = null;
 
     private final Set<ITestExpectation> expectationEvaluators;
@@ -45,7 +47,9 @@ public class TestCaseBuilder implements ITestCaseBuilder {
 
         // It's a Test(desc, marker, fragment, marker, expectations)
         // record the test's description
-        description = Tools.asJavaString(Tools.stringAt(test, 0));
+        IStrategoTerm descriptionTerm = Tools.stringAt(test, 0);
+        description = Tools.asJavaString(descriptionTerm);
+        descriptionRegion = SPTUtil.getRegion(descriptionTerm);
 
         // collect the AST nodes for the test expectations
         expectations = new ArrayList<>();
@@ -93,7 +97,7 @@ public class TestCaseBuilder implements ITestCaseBuilder {
         // build the fragment
         IFragment fragment = fragmentBuilder.build();
 
-        return new TestCase(description, fragment, resource, expectationPairs);
+        return new TestCase(description, descriptionRegion, fragment, resource, expectationPairs);
     }
 
 }

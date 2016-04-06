@@ -6,17 +6,20 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.source.ISourceRegion;
 
 public class TestCase implements ITestCase {
 
     private final String description;
+    private final ISourceRegion descriptionRegion;
     private final IFragment fragment;
     private final FileObject resource;
     private final List<ExpectationPair> expectations = new LinkedList<>();
 
-    public TestCase(String description, IFragment fragment, @Nullable FileObject resource,
-        List<ExpectationPair> expectations) {
+    public TestCase(String description, ISourceRegion descriptionRegion, IFragment fragment,
+        @Nullable FileObject resource, List<ExpectationPair> expectations) {
         this.description = description;
+        this.descriptionRegion = descriptionRegion;
         this.fragment = fragment;
         this.resource = resource;
         this.expectations.addAll(expectations);
@@ -24,6 +27,10 @@ public class TestCase implements ITestCase {
 
     @Override public String getDescription() {
         return description;
+    }
+
+    @Override public ISourceRegion getDescriptionRegion() {
+        return descriptionRegion;
     }
 
     @Override public IFragment getFragment() {
