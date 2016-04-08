@@ -1,8 +1,12 @@
 package org.metaborg.spt.core;
 
 import org.metaborg.spoofax.core.SpoofaxModule;
+import org.metaborg.spt.core.expectations.AnalyzeExpectation;
+import org.metaborg.spt.core.expectations.FragmentUtil;
 import org.metaborg.spt.core.expectations.ParseExpectation;
-import org.metaborg.spt.core.fragments.ImploderFragmentBuilder;
+import org.metaborg.spt.core.expectations.ResolveExpectation;
+import org.metaborg.spt.core.expectations.RunStrategoExpectation;
+import org.metaborg.spt.core.fragments.TracingFragmentBuilder;
 import org.metaborg.spt.core.fragments.WhitespaceFragmentParser;
 
 import com.google.inject.Singleton;
@@ -23,13 +27,19 @@ public class SPTModule extends SpoofaxModule {
         bind(ITestCaseBuilder.class).to(TestCaseBuilder.class);
 
         // we rely on ImploderAttachments to be present
-        bind(IFragmentBuilder.class).to(ImploderFragmentBuilder.class);
+        bind(IFragmentBuilder.class).to(TracingFragmentBuilder.class);
 
         // for now, we keep using the whitespace hack
         bind(WhitespaceFragmentParser.class).in(Singleton.class);
         bind(IFragmentParser.class).to(WhitespaceFragmentParser.class);
 
+        // bindings for expectations
         Multibinder<ITestExpectation> expectationBinder = Multibinder.newSetBinder(binder(), ITestExpectation.class);
         expectationBinder.addBinding().to(ParseExpectation.class);
+        expectationBinder.addBinding().to(AnalyzeExpectation.class);
+        expectationBinder.addBinding().to(ResolveExpectation.class);
+        expectationBinder.addBinding().to(RunStrategoExpectation.class);
+
+        bind(FragmentUtil.class);
     }
 }

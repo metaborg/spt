@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContextService;
@@ -17,11 +19,15 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.ITestCase.ExpectationPair;
 import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 
 public class TestCaseRunner implements ITestCaseRunner {
+
+    private static final ILogger logger = LoggerUtils.logger(TestCaseRunner.class);
 
     private final ISpoofaxAnalysisService analysisService;
     private final IContextService contextService;
@@ -35,7 +41,9 @@ public class TestCaseRunner implements ITestCaseRunner {
     }
 
     @Override public ITestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
-        ILanguageImpl dialectUnderTest) {
+        @Nullable ILanguageImpl dialectUnderTest) {
+        logger.debug("About to run test case '{}' with language {}", test.getDescription(), languageUnderTest.id());
+
         // parse the fragment
         final ISpoofaxParseUnit parseRes;
         try {
@@ -47,6 +55,7 @@ public class TestCaseRunner implements ITestCaseRunner {
 
         // analyze the fragment if any expectation requires analysis
         ISpoofaxAnalyzeUnit analysisRes = null;
+        ITemporaryContext context = null;
         for(ExpectationPair expectationPair : test.getExpectations()) {
             ITestExpectation evaluator = expectationPair.evaluator;
             if(evaluator == null) {
@@ -59,10 +68,13 @@ public class TestCaseRunner implements ITestCaseRunner {
             IStrategoTerm expectation = expectationPair.expectation;
             if(evaluator.getPhase(expectation).ordinal() > TestPhase.PARSING.ordinal()) {
                 // TODO: what if the resource is null?
-                try(ITemporaryContext ctx =
-                    contextService.getTemporary(test.getResource(), project, languageUnderTest)) {
-                    analysisRes = analysisService.analyze(parseRes, ctx).result();
+                try {
+                    context = contextService.getTemporary(test.getResource(), project, languageUnderTest);
+                    analysisRes = analysisService.analyze(parseRes, context).result();
                 } catch(ContextException | AnalysisException e) {
+                    if(context != null) {
+                        context.close();
+                    }
                     // TODO: is this ok? or should we fail the test and gracefully return a message?
                     throw new RuntimeException(e);
                 }
@@ -81,7 +93,7 @@ public class TestCaseRunner implements ITestCaseRunner {
                 ITestExpectation evaluator = expectationPair.evaluator;
                 if(evaluator == null) {
                     // The TestExtractor may return tests with missing ITestExpectations
-                    // if this happens, the ExtractorResult should have signalled that it failed
+                    // if this happens, the ExtractorResult should have signaled that it failed
                     // we get here if the user blatantly ignores that,
                     // So we will assume the user simply doesn't care about this expectation
                     continue;
@@ -95,6 +107,11 @@ public class TestCaseRunner implements ITestCaseRunner {
                 }
                 expectationOutputs.add(output);
             }
+        }
+
+        // close the analysis context for this test run
+        if(context != null) {
+            context.close();
         }
 
         return new TestResult(success, Iterables2.<IMessage>empty(), expectationOutputs);

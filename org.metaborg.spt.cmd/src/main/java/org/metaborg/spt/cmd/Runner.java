@@ -1,5 +1,7 @@
 package org.metaborg.spt.cmd;
 
+import java.util.List;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
@@ -21,6 +23,7 @@ import org.metaborg.spt.core.ITestResult;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 public class Runner {
@@ -47,10 +50,14 @@ public class Runner {
     }
 
 
-    public void run(String sptPath, String languagePath, String testsPath)
+    public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath)
         throws MetaborgException, FileSystemException {
         final FileObject sptLocation = resourceService.resolve(sptPath);
-        final FileObject languageLocation = resourceService.resolve(languagePath);
+        final FileObject lutLocation = resourceService.resolve(lutPath);
+        final List<FileObject> languageLocations = Lists.newLinkedList();
+        for(String languagePath : languagePaths) {
+            languageLocations.add(resourceService.resolve(languagePath));
+        }
         final FileObject testsLocation = resourceService.resolve(testsPath);
         final IProject project = projectService.create(testsLocation);
         try {
@@ -60,9 +67,12 @@ public class Runner {
             final ILanguageImpl spt = LanguageUtils.toImpls(sptComponents).iterator().next();
             // get LUT
             Iterable<ILanguageComponent> lutComponents =
-                languageDiscoveryService.discover(languageDiscoveryService.request(languageLocation));
+                languageDiscoveryService.discover(languageDiscoveryService.request(lutLocation));
             final ILanguageImpl lut = LanguageUtils.toImpls(lutComponents).iterator().next();
-
+            // load any extra languages
+            for(FileObject languageLocation : languageLocations) {
+                languageDiscoveryService.discover(languageDiscoveryService.request(languageLocation));
+            }
 
             for(FileObject testSuite : project.location().findFiles(new LanguageFileSelector(langIdentService, spt))) {
                 ITestCaseExtractionResult extractionResult = extractor.extract(spt, project, testSuite);
@@ -84,7 +94,12 @@ public class Runner {
                 } else {
                     logger.error("Failed to run tests at {}. Extraction of tests failed.", testsPath);
                     for(IMessage m : extractionResult.getAllMessages()) {
-                        logger.error("\t{} : {}", m.severity(), m.message());
+                        if(m.region() == null) {
+                            logger.info("\t{} : {}", m.severity(), m.message());
+                        } else {
+                            logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
+                                m.severity(), m.message());
+                        }
                     }
                 }
             }

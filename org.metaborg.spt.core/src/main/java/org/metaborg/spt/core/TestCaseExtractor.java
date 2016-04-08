@@ -16,16 +16,20 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageBuilder;
 import org.metaborg.core.project.IProject;
+import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
+import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.ITestCase.ExpectationPair;
 import org.metaborg.spt.core.util.SPTUtil;
 import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
@@ -34,14 +38,19 @@ import com.google.inject.Inject;
 
 public class TestCaseExtractor implements ITestCaseExtractor {
 
+    private static final ILogger logger = LoggerUtils.logger(TestCaseExtractor.class);
+
+    private final ISpoofaxTracingService traceService;
     private final ISpoofaxInputUnitService inputService;
     private final ISpoofaxSyntaxService parseService;
     private final ISpoofaxAnalysisService analysisService;
     private final IContextService contextService;
     private final ITestCaseBuilder testBuilder;
 
-    @Inject public TestCaseExtractor(ISpoofaxInputUnitService inputService, ISpoofaxSyntaxService parseService,
-        ISpoofaxAnalysisService analysisService, IContextService contextService, ITestCaseBuilder builder) {
+    @Inject public TestCaseExtractor(ISpoofaxTracingService traceService, ISpoofaxInputUnitService inputService,
+        ISpoofaxSyntaxService parseService, ISpoofaxAnalysisService analysisService, IContextService contextService,
+        ITestCaseBuilder builder) {
+        this.traceService = traceService;
         this.inputService = inputService;
         this.parseService = parseService;
         this.analysisService = analysisService;
@@ -49,7 +58,7 @@ public class TestCaseExtractor implements ITestCaseExtractor {
         this.testBuilder = builder;
     }
 
-    @Override public ITestCaseExtractionResult extract(ILanguageImpl spt, IProject project,
+    @Override public ITestCaseExtractionResult extract(ILanguageImpl spt, final IProject project,
         final FileObject testSuite) {
         InputStream in;
         final ISpoofaxParseUnit parseResult;
@@ -69,8 +78,8 @@ public class TestCaseExtractor implements ITestCaseExtractor {
             // @formatter:off
             IMessage error = MessageBuilder.create()
                 .asInternal()
-                .withException(ioe)
                 .asError()
+                .withException(ioe)
                 .withSource(testSuite)
                 .withMessage("Failed to read the testsuite " + testSuite.getName().getBaseName())
                 .build();
@@ -80,8 +89,8 @@ public class TestCaseExtractor implements ITestCaseExtractor {
             // @formatter:off
             IMessage error = MessageBuilder.create()
                 .asParser()
-                .withException(pe)
                 .asError()
+                .withException(pe)
                 .withSource(testSuite)
                 .withMessage(pe.getMessage())
                 .build();
@@ -98,8 +107,8 @@ public class TestCaseExtractor implements ITestCaseExtractor {
             // @formatter:off
             IMessage error = MessageBuilder.create()
                 .asAnalysis()
-                .withException(ae)
                 .asError()
+                .withException(ae)
                 .withSource(testSuite)
                 .withMessage(ae.getMessage())
                 .build();
@@ -133,11 +142,19 @@ public class TestCaseExtractor implements ITestCaseExtractor {
                     if(SPTUtil.TEST_CONS.equals(SPTUtil.consName(term))) {
                         // TODO: this doesn't seem like a proper use of builders
                         // are we allowed to reuse a builder like this?
-                        ITestCase test = testBuilder.withTest(term, testSuite).build();
+                        ITestCase test =
+                            testBuilder.withProject(project).withResource(testSuite).withTest(term).build();
                         tests.add(test);
                         for(ExpectationPair expectation : test.getExpectations()) {
                             if(expectation.evaluator == null) {
-                                ISourceRegion region = SPTUtil.getRegion(expectation.expectation);
+                                logger.debug("No evaluator found for " + expectation.expectation);
+                                ISourceLocation loc = traceService.location(expectation.expectation);
+                                final ISourceRegion region;
+                                if(loc == null) {
+                                    region = test.getDescriptionRegion();
+                                } else {
+                                    region = loc.region();
+                                }
                                 // @formatter:off
                                 IMessage m = MessageBuilder.create()
                                     .asAnalysis()

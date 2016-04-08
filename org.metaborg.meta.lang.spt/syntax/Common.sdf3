@@ -3,6 +3,8 @@ module Common
 lexical syntax
 
   ID             = [a-zA-Z] [a-zA-Z0-9]* 
+  LANG           = [a-zA-Z] [a-zA-Z0-9\-]*
+  STRAT          = [a-zA-Z] [a-zA-Z0-9\-\']*
   INT            = "-"? [0-9]+ 
   STRING         = "\"" StringChar* "\"" 
   StringChar     = ~[\"\n] 

@@ -13,7 +13,7 @@ context-free syntax
   Header.Name = <module <ID>>
   // the start symbol is not supported yet by the SPT implementation
   Header.StartSymbol = <start symbol <ID>>
-  Header.Language = <language <ID>>
+  Header.Language = <language <LANG>>
 
   TestDecl.Test2 = <
     test <Description> <OpenMarker2>
@@ -60,25 +60,44 @@ context-free syntax
   Selection4.Selection = <<OpenBracket4><StringPart4><CloseBracket4>>
   
   // Expectations
+
+  // a term for the 'to' part that many expectations use
+  ToPart.ToPart2 = <
+    to <LANG> <OpenMarker2>
+      <Fragment2>
+    <CloseMarker2>
+  >
+  ToPart.ToPart3 = <
+    to <LANG> <OpenMarker3>
+      <Fragment3>
+    <CloseMarker3>
+  >
+  ToPart.ToPart4 = <
+    to <LANG> <OpenMarker4>
+      <Fragment4>
+    <CloseMarker4>
+  >
   
   // parse expectations 
   Expectation.ParseSucceeds = <parse succeeds>
   Expectation.ParseFails = <parse fails>
-  Expectation.ParseTo2 = <
-    parse to <OpenMarker2>
-      <Fragment2>
-    <CloseMarker2>
-  >
-  Expectation.ParseTo3 = <
-    parse to <OpenMarker3>
-      <Fragment3>
-    <CloseMarker3>
-  >
-  Expectation.ParseTo4 = <
-    parse to <ID> <OpenMarker4>
-      <Fragment4>
-    <CloseMarker4>
-  >
+  Expectation.ParseTo = <parse <ToPart>>
+  
+  // analysis expectations
+  Expectation.Errors = <<INT> errors>
+  Expectation.OneError = <1 error>
+  Expectation.Warnings = <<INT> warnings>
+  Expectation.OneWarning = <1 warning>
+  Expectation.Notes = <<INT> notes>
+  Expectation.OneNote = <1 note>
+  
+  // reference resolution expectations
+  Expectation.Resolve = <resolve #<INT>>
+  Expectation.ResolveTo = <resolve #<INT> to #<INT>>
+  
+  // running stratego strategies expectations
+  Expectation.Run = <run <STRAT>>
+  Expectation.RunTo = <run <STRAT> <ToPart>>
 
 lexical syntax
   // NOTE: everything until the opening marker or newline is the description 

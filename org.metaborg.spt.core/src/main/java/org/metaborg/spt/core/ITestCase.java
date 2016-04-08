@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.project.IProject;
 import org.metaborg.core.source.ISourceRegion;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -29,9 +30,14 @@ public interface ITestCase {
     public IFragment getFragment();
 
     /**
-     * The source file of the test suite from which this test case was extracted. May be null.
+     * The source file (or other resource) of the test suite from which this test case was extracted.
      */
-    public @Nullable FileObject getResource();
+    public FileObject getResource();
+
+    /**
+     * The project that contains this test. It is required for analysis of fragments.
+     */
+    public IProject getProject();
 
     /**
      * A list of tuples of an SPT AST term of a test expectation, and the ITestExpectation that can be used to evaluate

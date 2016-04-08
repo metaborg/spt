@@ -1,6 +1,7 @@
 package org.metaborg.spt.core;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.project.IProject;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -25,6 +26,15 @@ public interface IFragmentBuilder {
      * @return the same builder for chaining calls.
      */
     public IFragmentBuilder withResource(FileObject resource);
+
+    /**
+     * Use this project as the project from within which this fragment was created.
+     * 
+     * @param project
+     *            the project.
+     * @return the same builder for chaining calls.
+     */
+    public IFragmentBuilder withProject(IProject project);
 
     /**
      * Use this fragment term to create an IFragment.

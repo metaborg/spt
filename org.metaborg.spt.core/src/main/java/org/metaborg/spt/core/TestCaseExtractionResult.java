@@ -29,8 +29,10 @@ public class TestCaseExtractionResult implements ITestCaseExtractionResult {
         this.tests = testCases;
         Iterables.addAll(allMessages, extraMessages);
         Iterables.addAll(allMessages, p.messages());
-        Iterables.addAll(allMessages, a.messages());
-        boolean suc = p.success() && a.success();
+        if(a != null) {
+            Iterables.addAll(allMessages, a.messages());
+        }
+        boolean suc = p.success() && a != null && a.success();
         for(IMessage m : allMessages) {
             // shortcut the loop if we already failed
             if(!suc) {

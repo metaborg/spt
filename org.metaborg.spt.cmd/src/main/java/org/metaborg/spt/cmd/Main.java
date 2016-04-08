@@ -45,7 +45,8 @@ public class Main {
 
             final Runner runner = injector.getInstance(Runner.class);
 
-            runner.run(arguments.sptLocation, arguments.targetLanguageLocation, arguments.testsLocation);
+            runner.run(arguments.sptLocation, arguments.lutLocation, arguments.targetLanguageLocation,
+                arguments.testsLocation);
 
             System.exit(0);
 

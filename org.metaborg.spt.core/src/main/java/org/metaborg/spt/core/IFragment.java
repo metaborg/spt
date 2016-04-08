@@ -1,8 +1,11 @@
 package org.metaborg.spt.core;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.project.IProject;
 import org.metaborg.core.source.ISourceRegion;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -29,13 +32,20 @@ public interface IFragment {
 
     /**
      * The selections of this fragment.
+     * 
+     * Ordered by the order in which they appeared in the fragment.
      */
-    public Iterable<ISourceRegion> getSelections();
+    public List<ISourceRegion> getSelections();
 
     /**
      * The source file of the test suite from which this fragment was extracted. May be null.
      */
     public @Nullable FileObject getResource();
+
+    /**
+     * The project that contains the test suite that contains this fragment. It is required for analysis.
+     */
+    public IProject getProject();
 
     /**
      * The text of this selection. It is returned as tuples of an offset and a piece of text. The offset is the start
