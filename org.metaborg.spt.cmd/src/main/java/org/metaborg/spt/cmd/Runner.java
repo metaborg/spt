@@ -9,7 +9,6 @@ import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageDiscoveryService;
 import org.metaborg.core.language.ILanguageIdentifierService;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.language.LanguageFileSelector;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
@@ -22,6 +21,7 @@ import org.metaborg.spt.core.ITestCaseRunner;
 import org.metaborg.spt.core.ITestResult;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.metaborg.util.resource.FileSelectorUtils;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -74,7 +74,7 @@ public class Runner {
                 languageDiscoveryService.discover(languageDiscoveryService.request(languageLocation));
             }
 
-            for(FileObject testSuite : project.location().findFiles(new LanguageFileSelector(langIdentService, spt))) {
+            for(FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
                 ITestCaseExtractionResult extractionResult = extractor.extract(spt, project, testSuite);
                 if(extractionResult.isSuccessful()) {
                     Iterable<ITestCase> tests = extractionResult.getTests();

@@ -1,20 +1,9 @@
 module Main
 
-imports
-
-  Colorer
-  Menus
-  Syntax
-  Views
-
 language
   
-  name : SPT
-  
-  extensions : spt
-
   table         : target/metaborg/sdf.tbl
-  start symbols : Start
+  start symbols : TestSuite
   
   provider : target/metaborg/stratego.ctree
   observer : editor-analyze

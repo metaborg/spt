@@ -1,46 +1,7 @@
 module spt
 
 imports
-  
-  runtime/editor/outline-library
-  runtime/analysis/core
-  
-  pp
-  desugar
-  outline
-
-rules // Analysis
-
-  editor-analyze:
-    (ast, path, project-path) -> (ast', error*, warning*, info*)
-    with
-      ast'     := <desugar-before> ast
-    ; error*   := <collect-all(constraint-error)> ast'
-    ; warning* := <collect-all(constraint-warning)> ast'
-    ; info*    := <collect-all(constraint-info)> ast'
-  
-  constraint-error = fail
-  constraint-warning = fail
-  constraint-info = fail
-
-rules // Editor services
-
-  editor-outline:
-    (_, _, ast, path, project-path) -> outline
-    where
-      outline := <simple-label-outline(to-outline-label)> ast
-  
-  editor-format:
-    (node, _, ast, path, project-path) -> (filename, result)
-    with
-      ext      := <get-extension> path
-    ; filename := <guarantee-extension(|$[pp.[ext]])> path
-    ; result   := <pp-debug> node
-
-rules // Debugging
-  
-  debug-show-aterm:
-    (node, _, _, path, project-path) -> (filename, result)
-    with
-      filename := <guarantee-extension(|"aterm")> path
-    ; result   := node
+    
+  spt/pp
+  spt/desugar
+  spt/analysis

@@ -1,0 +1,13 @@
+module SPT-Interactive
+
+imports
+  
+  spt/SPT
+
+context-free start-symbols
+
+  Dummy
+
+context-free syntax
+
+  Dummy.Dummy = <>

@@ -1,7 +1,7 @@
-module desugar
+module spt/desugar
 
 imports
-  signatures/SPT-sig
+  signatures/spt/-
 
 signature constructors
   // Test(description, open_marker, fragment, close_marker, expectations)

@@ -1,6 +1,6 @@
 ---
-id: org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
-name: SPT
+id: org.metaborg:org.metaborg.meta.lang.spt.interactive:2.0.0-SNAPSHOT
+name: SPT-Interactive
 metaborgVersion: 2.0.0-SNAPSHOT
 dependencies:
   compile:
@@ -8,21 +8,11 @@ dependencies:
   - org.metaborg:org.metaborg.meta.lang.template:${metaborgVersion}
   source:
   - org.metaborg:org.metaborg.meta.lib.analysis:${metaborgVersion}
+  - org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
 pardonedLanguages:
 - EditorService
 - Stratego-Sugar
 - SDF
-exports:
-- language: EditorService
-  directory: src-gen
-- language: TemplateLang
-  directory: syntax
-- language: SDF
-  directory: src-gen/syntax
-- language: Stratego-Sugar
-  directory: trans
-- language: Stratego-Sugar
-  directory: src-gen
 language:
   stratego:
     format: ctree
