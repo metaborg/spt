@@ -5,11 +5,11 @@ import org.metaborg.core.editor.NullEditorRegistry;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.project.SimpleProjectService;
-import org.metaborg.spt.core.SPTModule;
+import org.metaborg.spoofax.core.SpoofaxModule;
 
 import com.google.inject.Singleton;
 
-public class Module extends SPTModule {
+public class Module extends SpoofaxModule {
     @Override protected void configure() {
         super.configure();
 

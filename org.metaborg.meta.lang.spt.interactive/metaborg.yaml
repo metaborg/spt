@@ -9,6 +9,8 @@ dependencies:
   source:
   - org.metaborg:org.metaborg.meta.lib.analysis:${metaborgVersion}
   - org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
+  java:
+  - org.metaborg:org.metaborg.spt.core:${metaborgVersion}
 pardonedLanguages:
 - EditorService
 - Stratego-Sugar
