@@ -69,7 +69,7 @@ public class run_spt_core_0_0 extends Strategy {
         // input term should be (ast, relative-path, project-path)
         if(!(current instanceof IStrategoTuple) || current.getSubtermCount() != 3) {
             // fail
-            logger.warn("Why are you trying to analyze this thing? It isn't an (ast, filePath, projectPath) tuple! {}",
+            logger.warn("Why are you trying to analyze this thing? It isn't a (ast, filePath, projectPath) tuple! {}",
                 current);
             return null;
         }
@@ -237,10 +237,6 @@ public class run_spt_core_0_0 extends Strategy {
     private static IStrategoTerm makeMessage(IMessage message, IStrategoTerm defaultTerm, FileObject testSuite,
         ITermFactory termFactory) {
         ISourceRegion region = message.region();
-        Throwable e = message.exception();
-        if(e != null) {
-            logger.warn("A message was caused by an exception: {}", e, message.message());
-        }
         IStrategoTerm term = region == null ? defaultTerm : createTermWithRegion(region, testSuite, termFactory);
         return termFactory.makeTuple(term, termFactory.makeString(message.message()));
     }
