@@ -2,9 +2,12 @@ package org.metaborg.spt.core.expectations;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageBuilder;
 import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.source.SourceRegion;
 
 public class MessageUtil {
 
@@ -45,13 +48,25 @@ public class MessageUtil {
      *            the collection of messages to copy the messages to.
      * @param defaultRegion
      *            the default region to use if any of the propagated messages doesn't have a region.
+     * @param bounds
+     *            the region to which we should limit error messages. If the message has a region completely outside of
+     *            the bounds, the default region will be used instead. If the region crosses one side of bounds, it will
+     *            be bounded to be within the given bounded region. If the region is inside the bounds, the message
+     *            won't have to be altered.
      */
     public static void propagateMessages(Iterable<IMessage> toPropagate, Collection<IMessage> messages,
-        ISourceRegion defaultRegion) {
+        ISourceRegion defaultRegion, @Nullable ISourceRegion bounds) {
         for(IMessage message : toPropagate) {
-            if(message.region() == null) {
-                // assign the message to the test's description if it has no region
+            ISourceRegion region = message.region();
+            if(bounds == null && region != null) {
+                messages.add(message);
+            } else if(region == null || region.endOffset() < bounds.startOffset()
+                || region.startOffset() > bounds.endOffset()) {
                 messages.add(setRegion(message, defaultRegion));
+            } else if(region.startOffset() < bounds.startOffset()) {
+                messages.add(setRegion(message, new SourceRegion(bounds.startOffset(), region.endOffset())));
+            } else if(region.endOffset() > bounds.endOffset()) {
+                messages.add(setRegion(message, new SourceRegion(region.startOffset(), bounds.endOffset())));
             } else {
                 messages.add(message);
             }

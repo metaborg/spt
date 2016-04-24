@@ -1,24 +1,28 @@
 package org.metaborg.spt.cmd;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageDiscoveryService;
-import org.metaborg.core.language.ILanguageIdentifierService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spt.core.ITestCase;
-import org.metaborg.spt.core.ITestCaseExtractionResult;
-import org.metaborg.spt.core.ITestCaseExtractor;
 import org.metaborg.spt.core.ITestCaseRunner;
 import org.metaborg.spt.core.ITestResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractionResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractor;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
@@ -32,19 +36,19 @@ public class Runner {
     private final IResourceService resourceService;
     private final ISimpleProjectService projectService;
     private final ILanguageDiscoveryService languageDiscoveryService;
-    private final ILanguageIdentifierService langIdentService;
-    private final ITestCaseExtractor extractor;
+    private final ISpoofaxInputUnitService inputService;
+    private final ISpoofaxTestCaseExtractor extractor;
     private final ITestCaseRunner executor;
 
 
     @Inject public Runner(IResourceService resourceService, ISimpleProjectService projectService,
-        ILanguageDiscoveryService languageDiscoveryService, ILanguageIdentifierService langIdentService,
-        ITestCaseExtractor extractor, ITestCaseRunner executor) {
+        ILanguageDiscoveryService languageDiscoveryService, ISpoofaxInputUnitService inputService,
+        ISpoofaxTestCaseExtractor extractor, ITestCaseRunner executor) {
         this.resourceService = resourceService;
         this.projectService = projectService;
 
         this.languageDiscoveryService = languageDiscoveryService;
-        this.langIdentService = langIdentService;
+        this.inputService = inputService;
         this.extractor = extractor;
         this.executor = executor;
     }
@@ -75,7 +79,15 @@ public class Runner {
             }
 
             for(FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
-                ITestCaseExtractionResult extractionResult = extractor.extract(spt, project, testSuite);
+                final String text;
+                try(InputStream in = testSuite.getContent().getInputStream()) {
+                    text = IOUtils.toString(in);
+                } catch(IOException e) {
+                    logger.error("Unable to process file {}", e, testSuite);
+                    continue;
+                }
+                ISpoofaxInputUnit input = inputService.inputUnit(testSuite, text, spt, null);
+                ISpoofaxTestCaseExtractionResult extractionResult = extractor.extract(input, project);
                 if(extractionResult.isSuccessful()) {
                     Iterable<ITestCase> tests = extractionResult.getTests();
                     for(ITestCase test : tests) {

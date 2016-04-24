@@ -1,31 +1,27 @@
-package org.metaborg.spt.core;
+package org.metaborg.spt.core.spoofax;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
-import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageBuilder;
 import org.metaborg.core.project.IProject;
-import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
-import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spt.core.ITestCase.ExpectationPair;
+import org.metaborg.spt.core.ITestCase;
+import org.metaborg.spt.core.ITestExpectation;
+import org.metaborg.spt.core.expectations.NoExpectationError;
 import org.metaborg.spt.core.util.SPTUtil;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
@@ -36,55 +32,45 @@ import org.spoofax.terms.TermVisitor;
 
 import com.google.inject.Inject;
 
-public class TestCaseExtractor implements ITestCaseExtractor {
+public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
 
-    private static final ILogger logger = LoggerUtils.logger(TestCaseExtractor.class);
+    private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseExtractor.class);
 
-    private final ISpoofaxTracingService traceService;
-    private final ISpoofaxInputUnitService inputService;
     private final ISpoofaxSyntaxService parseService;
     private final ISpoofaxAnalysisService analysisService;
     private final IContextService contextService;
-    private final ITestCaseBuilder testBuilder;
+    private final ISpoofaxTestCaseBuilder testBuilder;
 
-    @Inject public TestCaseExtractor(ISpoofaxTracingService traceService, ISpoofaxInputUnitService inputService,
-        ISpoofaxSyntaxService parseService, ISpoofaxAnalysisService analysisService, IContextService contextService,
-        ITestCaseBuilder builder) {
-        this.traceService = traceService;
-        this.inputService = inputService;
+    @Inject public SpoofaxTestCaseExtractor(ISpoofaxSyntaxService parseService, ISpoofaxAnalysisService analysisService,
+        IContextService contextService, ISpoofaxTestCaseBuilder builder) {
         this.parseService = parseService;
         this.analysisService = analysisService;
         this.contextService = contextService;
         this.testBuilder = builder;
     }
 
-    @Override public ITestCaseExtractionResult extract(ILanguageImpl spt, final IProject project,
-        final FileObject testSuite) {
-        InputStream in;
-        final ISpoofaxParseUnit parseResult;
-        final ISpoofaxAnalyzeUnit analysisResult;
+    @Override public ISpoofaxTestCaseExtractionResult extract(ISpoofaxInputUnit input, IProject project) {
+        final FileObject testSuite = input.source();
+        if(testSuite == null) {
+            return new SpoofaxTestCaseExtractionResult(null, null,
+                Iterables2.singleton(MessageBuilder.create()
+                    // @formatter:off
+                    .asInternal()
+                    .asError()
+                    .withMessage("Can't extract a test without a source FileObject.")
+                    .build()
+                    // @formatter:on
+                ), Iterables2.<ITestCase>empty());
+        }
+
+        final ISpoofaxParseUnit p;
         try {
-            in = testSuite.getContent().getInputStream();
-            String text = IOUtils.toString(in);
-            in.close();
-            // TODO: do we need a dialect for SPT?
-            parseResult = parseService.parse(inputService.inputUnit(testSuite, text, spt, null));
-            if(!parseResult.valid()) {
+            p = parseService.parse(input);
+            if(!p.valid()) {
                 // parse failed and couldn't recover
-                return new TestCaseExtractionResult(parseResult, null, Iterables2.<IMessage>empty(),
+                return new SpoofaxTestCaseExtractionResult(p, null, Iterables2.<IMessage>empty(),
                     Iterables2.<ITestCase>empty());
             }
-        } catch(IOException ioe) {
-            // @formatter:off
-            IMessage error = MessageBuilder.create()
-                .asInternal()
-                .asError()
-                .withException(ioe)
-                .withSource(testSuite)
-                .withMessage("Failed to read the testsuite " + testSuite.getName().getBaseName())
-                .build();
-            // @formatter:on
-            return new TestCaseExtractionResult(null, null, Iterables2.singleton(error), Iterables2.<ITestCase>empty());
         } catch(ParseException pe) {
             // @formatter:off
             IMessage error = MessageBuilder.create()
@@ -95,14 +81,34 @@ public class TestCaseExtractor implements ITestCaseExtractor {
                 .withMessage(pe.getMessage())
                 .build();
             // @formatter:on
-            return new TestCaseExtractionResult(null, null, Iterables2.singleton(error), Iterables2.<ITestCase>empty());
+            return new SpoofaxTestCaseExtractionResult(null, null, Iterables2.singleton(error),
+                Iterables2.<ITestCase>empty());
         }
 
+        return extract(p, project);
+    }
+
+    @Override public ISpoofaxTestCaseExtractionResult extract(ISpoofaxParseUnit p, final IProject project) {
+
+        final FileObject testSuite = p.input().source();
+        if(testSuite == null) {
+            return new SpoofaxTestCaseExtractionResult(null, null,
+                Iterables2.singleton(MessageBuilder.create()
+                    // @formatter:off
+                    .asInternal()
+                    .asError()
+                    .withMessage("Can't extract a test without a source FileObject.")
+                    .build()
+                    // @formatter:on
+                ), Iterables2.<ITestCase>empty());
+        }
+
+        final ISpoofaxAnalyzeUnit a;
         try {
             // even if parsing fails we can still analyze
             // the result will just be empty
-            IContext ctx = contextService.get(testSuite, project, spt);
-            analysisResult = analysisService.analyze(parseResult, ctx).result();
+            IContext ctx = contextService.get(testSuite, project, p.input().langImpl());
+            a = analysisService.analyze(p, ctx).result();
         } catch(ContextException | AnalysisException ae) {
             // @formatter:off
             IMessage error = MessageBuilder.create()
@@ -113,13 +119,13 @@ public class TestCaseExtractor implements ITestCaseExtractor {
                 .withMessage(ae.getMessage())
                 .build();
             // @formatter:on
-            return new TestCaseExtractionResult(parseResult, null, Iterables2.singleton(error),
+            return new SpoofaxTestCaseExtractionResult(p, null, Iterables2.singleton(error),
                 Iterables2.<ITestCase>empty());
         }
 
         // Retrieve the AST from the analysis result
-        if(!analysisResult.valid() || !analysisResult.hasAst()) {
-            return new TestCaseExtractionResult(parseResult, analysisResult,
+        if(a == null || !a.valid() || !a.hasAst()) {
+            return new SpoofaxTestCaseExtractionResult(p, a,
                 Iterables2.singleton(MessageBuilder.create()
                     // @formatter:off
                     .asInternal()
@@ -128,12 +134,12 @@ public class TestCaseExtractor implements ITestCaseExtractor {
                     .withMessage("The analysis of SPT did not return an AST.")
                     .build()
                     // @formatter:on
-            ), Iterables2.<ITestCase>empty());
+                ), Iterables2.<ITestCase>empty());
         }
-        final IStrategoTerm ast = analysisResult.ast();
+        final IStrategoTerm ast = a.ast();
 
         // build each test case and gather messages for missing ITestExpectations
-        // for now, we will consider these missing evaluators to be an error
+        // for now, we will consider these missing expectations to be an error
         final List<IMessage> extraMessages = new LinkedList<>();
         final List<ITestCase> tests = new ArrayList<>();
         new TermVisitor() {
@@ -145,16 +151,13 @@ public class TestCaseExtractor implements ITestCaseExtractor {
                         ITestCase test =
                             testBuilder.withProject(project).withResource(testSuite).withTest(term).build();
                         tests.add(test);
-                        for(ExpectationPair expectation : test.getExpectations()) {
-                            if(expectation.evaluator == null) {
-                                logger.debug("No evaluator found for " + expectation.expectation);
-                                ISourceLocation loc = traceService.location(expectation.expectation);
-                                final ISourceRegion region;
-                                if(loc == null) {
-                                    region = test.getDescriptionRegion();
-                                } else {
-                                    region = loc.region();
-                                }
+                        for(ITestExpectation expectation : test.getExpectations()) {
+                            // TODO: not a very good way of error reporting, but it works for now
+                            // also see SpoofaxTestCaseBuilder.build()
+                            if(expectation instanceof NoExpectationError) {
+                                ISourceRegion region = ((NoExpectationError) expectation).region();
+                                logger.debug("No evaluator found for the expectation at ({}, {});",
+                                    region.startOffset(), region.endOffset());
                                 // @formatter:off
                                 IMessage m = MessageBuilder.create()
                                     .asAnalysis()
@@ -173,6 +176,6 @@ public class TestCaseExtractor implements ITestCaseExtractor {
             }
         }.visit(ast);
 
-        return new TestCaseExtractionResult(parseResult, analysisResult, extraMessages, tests);
+        return new SpoofaxTestCaseExtractionResult(p, a, extraMessages, tests);
     }
 }

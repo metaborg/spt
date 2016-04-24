@@ -16,10 +16,10 @@ public class TestCase implements ITestCase {
     private final IFragment fragment;
     private final FileObject resource;
     private final IProject project;
-    private final List<ExpectationPair> expectations = new LinkedList<>();
+    private final List<ITestExpectation> expectations = new LinkedList<>();
 
     public TestCase(String description, ISourceRegion descriptionRegion, IFragment fragment, FileObject resource,
-        IProject project, List<ExpectationPair> expectations) {
+        IProject project, List<ITestExpectation> expectations) {
         this.description = description;
         this.descriptionRegion = descriptionRegion;
         this.fragment = fragment;
@@ -48,7 +48,7 @@ public class TestCase implements ITestCase {
         return project;
     }
 
-    @Override public List<ExpectationPair> getExpectations() {
+    @Override public List<ITestExpectation> getExpectations() {
         return expectations;
     }
 

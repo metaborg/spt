@@ -5,24 +5,25 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageSeverity;
-import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.core.syntax.IParseUnit;
 
 import com.google.common.collect.Iterables;
 
-public class TestCaseExtractionResult implements ITestCaseExtractionResult {
+public class TestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUnit>
+    implements ITestCaseExtractionResult<P, A> {
 
     private final boolean success;
-    private final ISpoofaxParseUnit p;
-    private final ISpoofaxAnalyzeUnit a;
+    private final P p;
+    private final A a;
     private final Iterable<IMessage> extraMessages;
     private final List<IMessage> allMessages = new LinkedList<>();
     private final Iterable<ITestCase> tests;
 
-    public TestCaseExtractionResult(ISpoofaxParseUnit parseResult, @Nullable ISpoofaxAnalyzeUnit analysisResult,
-        Iterable<IMessage> extraMessages, Iterable<ITestCase> testCases) {
+    public TestCaseExtractionResult(P parseResult, @Nullable A analysisResult, Iterable<IMessage> extraMessages,
+        Iterable<ITestCase> testCases) {
         this.p = parseResult;
         this.a = analysisResult;
         this.extraMessages = extraMessages;
@@ -50,11 +51,11 @@ public class TestCaseExtractionResult implements ITestCaseExtractionResult {
         return success;
     };
 
-    @Override public ISpoofaxParseUnit getParseResult() {
+    @Override public P getParseResult() {
         return p;
     }
 
-    @Override public @Nullable ISpoofaxAnalyzeUnit getAnalysisResult() {
+    @Override public @Nullable A getAnalysisResult() {
         return a;
     }
 

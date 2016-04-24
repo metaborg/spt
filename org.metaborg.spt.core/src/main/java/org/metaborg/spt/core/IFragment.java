@@ -2,12 +2,9 @@ package org.metaborg.spt.core;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.source.ISourceRegion;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * A Fragment represents a piece of code within an SPT test suite, written in another language.
@@ -26,9 +23,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public interface IFragment {
 
     /**
-     * The SPT Fragment node representing the fragment.
+     * The region of the entire SPT Fragment node.
      */
-    public IStrategoTerm getSPTNode();
+    public ISourceRegion getRegion();
 
     /**
      * The selections of this fragment.
@@ -38,9 +35,9 @@ public interface IFragment {
     public List<ISourceRegion> getSelections();
 
     /**
-     * The source file of the test suite from which this fragment was extracted. May be null.
+     * The source file of the test suite from which this fragment was extracted.
      */
-    public @Nullable FileObject getResource();
+    public FileObject getResource();
 
     /**
      * The project that contains the test suite that contains this fragment. It is required for analysis.

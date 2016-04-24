@@ -1,4 +1,4 @@
-package org.metaborg.spt.core;
+package org.metaborg.spt.core.spoofax;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -10,7 +10,11 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
-import org.metaborg.spt.core.ITestCase.ExpectationPair;
+import org.metaborg.spt.core.IFragment;
+import org.metaborg.spt.core.ITestCase;
+import org.metaborg.spt.core.ITestExpectation;
+import org.metaborg.spt.core.TestCase;
+import org.metaborg.spt.core.expectations.NoExpectationError;
 import org.metaborg.spt.core.util.SPTUtil;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -19,46 +23,46 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 
-public class TestCaseBuilder implements ITestCaseBuilder {
+public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 
-    private static final ILogger logger = LoggerUtils.logger(TestCaseBuilder.class);
+    private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseBuilder.class);
 
     private FileObject resource = null;
     private IProject project = null;
     private String description = null;
     private ISourceRegion descriptionRegion = null;
-    private List<IStrategoTerm> expectations = null;
+    private List<IStrategoTerm> expectationTerms = null;
 
-    private final Set<ITestExpectation> expectationEvaluators;
-    private final IFragmentBuilder fragmentBuilder;
+    private final Set<ISpoofaxTestExpectationProvider> expectationProviders;
+    private final ISpoofaxFragmentBuilder fragmentBuilder;
     private final ISpoofaxTracingService trace;
 
-    @Inject public TestCaseBuilder(Set<ITestExpectation> expectationEvaluators, IFragmentBuilder fragmentBuilder,
-        ISpoofaxTracingService trace) {
-        this.expectationEvaluators = expectationEvaluators;
+    @Inject public SpoofaxTestCaseBuilder(Set<ISpoofaxTestExpectationProvider> expectationProviders,
+        ISpoofaxFragmentBuilder fragmentBuilder, ISpoofaxTracingService trace) {
+        this.expectationProviders = expectationProviders;
         this.fragmentBuilder = fragmentBuilder;
         this.trace = trace;
     }
 
-    @Override public ITestCaseBuilder withTestFixture(IStrategoTerm testFixture) {
+    @Override public ISpoofaxTestCaseBuilder withTestFixture(IStrategoTerm testFixture) {
         fragmentBuilder.withFixture(testFixture);
         // TODO: support test fixtures
         throw new UnsupportedOperationException("Test fixtures are not supported yet.");
     }
 
-    @Override public ITestCaseBuilder withResource(FileObject suiteFile) {
+    @Override public ISpoofaxTestCaseBuilder withResource(FileObject suiteFile) {
         this.resource = suiteFile;
         fragmentBuilder.withResource(suiteFile);
         return this;
     }
 
-    @Override public ITestCaseBuilder withProject(IProject project) {
+    @Override public ISpoofaxTestCaseBuilder withProject(IProject project) {
         this.project = project;
         fragmentBuilder.withProject(project);
         return this;
     }
 
-    @Override public ITestCaseBuilder withTest(IStrategoTerm test) {
+    @Override public ISpoofaxTestCaseBuilder withTest(IStrategoTerm test) {
         // Expected a Test<n> node
         if(!Tools.isTermAppl(test) || !SPTUtil.TEST_CONS.equals(SPTUtil.consName(test))) {
             throw new IllegalArgumentException("Expected a Test constructor, but got " + test);
@@ -76,12 +80,12 @@ public class TestCaseBuilder implements ITestCaseBuilder {
         descriptionRegion = descriptionLocation.region();
 
         // collect the AST nodes for the test expectations
-        expectations = new ArrayList<>();
+        expectationTerms = new ArrayList<>();
         for(IStrategoTerm expectation : Tools.listAt(test, 4).getAllSubterms()) {
             if(trace.location(expectation) == null) {
                 logger.warn("No origin information on test expectation {}", expectation);
             }
-            expectations.add(expectation);
+            expectationTerms.add(expectation);
         }
 
         // setup the fragment builder
@@ -102,26 +106,33 @@ public class TestCaseBuilder implements ITestCaseBuilder {
             throw new IllegalStateException("No project added to the builder. We can't build without one.");
         }
 
-        // lookup the ITestExpectations that can handle our test expectations
-        final List<ExpectationPair> expectationPairs = new LinkedList<>();
-        for(IStrategoTerm expectationTerm : expectations) {
+        // build the fragment
+        IFragment fragment = fragmentBuilder.build();
+
+        // lookup the ITestExpectationProviders that can handle our test expectations
+        final List<ITestExpectation> expectations = new LinkedList<>();
+        for(IStrategoTerm expectationTerm : expectationTerms) {
             boolean found = false;
-            for(ITestExpectation evaluator : expectationEvaluators) {
-                if(evaluator.canEvaluate(expectationTerm)) {
-                    expectationPairs.add(new ExpectationPair(evaluator, expectationTerm));
+            for(ISpoofaxTestExpectationProvider provider : expectationProviders) {
+                if(provider.canEvaluate(fragment, expectationTerm)) {
+                    final ITestExpectation expectation = provider.createExpectation(fragment, expectationTerm);
+                    expectations.add(expectation);
                     found = true;
                     break;
                 }
             }
             if(!found) {
-                expectationPairs.add(new ExpectationPair(null, expectationTerm));
+                // TODO: for now we add this specific expectation if we couldn't find a proper one.
+                // We might want to have a way to make it less dirty.
+                // The main reason for this is that the builder can't give back any messages, so we rely on someone
+                // after us to check for these things and do the error message reporting.
+                ISourceLocation loc = trace.location(expectationTerm);
+                expectations.add(new NoExpectationError(loc == null ? descriptionRegion : loc.region()));
             }
         }
 
-        // build the fragment
-        IFragment fragment = fragmentBuilder.build();
 
-        return new TestCase(description, descriptionRegion, fragment, resource, project, expectationPairs);
+        return new TestCase(description, descriptionRegion, fragment, resource, project, expectations);
     }
 
 }

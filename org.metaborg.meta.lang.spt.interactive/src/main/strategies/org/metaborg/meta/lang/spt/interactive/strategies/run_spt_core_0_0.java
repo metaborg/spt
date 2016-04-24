@@ -14,14 +14,19 @@ import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
+import org.metaborg.spoofax.core.unit.ParseContrib;
 import org.metaborg.spt.core.ITestCase;
-import org.metaborg.spt.core.ITestCaseExtractionResult;
-import org.metaborg.spt.core.ITestCaseExtractor;
 import org.metaborg.spt.core.ITestCaseRunner;
 import org.metaborg.spt.core.ITestResult;
-import org.metaborg.spt.core.SPTModule;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractionResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractor;
+import org.metaborg.spt.core.spoofax.SpoofaxSPTModule;
 import org.metaborg.spt.core.util.SPTUtil;
+import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -50,7 +55,7 @@ public class run_spt_core_0_0 extends Strategy {
         // Get the injector for the required services
         final IContext context = (IContext) strategoContext.contextObject();
         final Injector spoofaxInjector = context.injector();
-        final Injector injector = spoofaxInjector.createChildInjector(new SPTModule());
+        final Injector injector = spoofaxInjector.createChildInjector(new SpoofaxSPTModule());
 
         // Setup the things we need to return
         IStrategoTerm ast = null;
@@ -60,10 +65,12 @@ public class run_spt_core_0_0 extends Strategy {
         final List<IStrategoTerm> notes = Lists.newLinkedList();
 
         // Get required services
+        final ISpoofaxInputUnitService inputService = injector.getInstance(ISpoofaxInputUnitService.class);
+        final ISpoofaxUnitService unitService = injector.getInstance(ISpoofaxUnitService.class);
         final IResourceService resourceService = injector.getInstance(IResourceService.class);
         final IProjectService projectService = injector.getInstance(IProjectService.class);
         final ILanguageService langService = injector.getInstance(ILanguageService.class);
-        final ITestCaseExtractor extractor = injector.getInstance(ITestCaseExtractor.class);
+        final ISpoofaxTestCaseExtractor extractor = injector.getInstance(ISpoofaxTestCaseExtractor.class);
         final ITestCaseRunner runner = injector.getInstance(ITestCaseRunner.class);
 
         // input term should be (ast, relative-path, project-path)
@@ -154,12 +161,15 @@ public class run_spt_core_0_0 extends Strategy {
          * -------------------------- Extract the test cases --------------------------
          */
         // TODO: this parses the file again, we can save time by having a TestExtractor method for an AST
-        final ITestCaseExtractionResult extractionResult = extractor.extract(spt, project, testSuitePath);
+        final ISpoofaxInputUnit input = inputService.emptyInputUnit(testSuitePath, spt, null);
+        final ISpoofaxParseUnit parseUnit =
+            unitService.parseUnit(input, new ParseContrib(true, true, baseAst, Iterables2.<IMessage>empty(), -1));
+        final ISpoofaxTestCaseExtractionResult extractionResult = extractor.extract(parseUnit, project);
         final ISpoofaxParseUnit sptParseUnit = extractionResult.getParseResult();
         final ISpoofaxAnalyzeUnit sptAnalyzeUnit = extractionResult.getAnalysisResult();
 
         // Check if we have an analyzed ast
-        if(sptParseUnit.success() && sptAnalyzeUnit.success() && sptAnalyzeUnit.hasAst()) {
+        if(sptParseUnit != null && sptParseUnit.success() && sptAnalyzeUnit.success() && sptAnalyzeUnit.hasAst()) {
             ast = sptAnalyzeUnit.ast();
         }
 

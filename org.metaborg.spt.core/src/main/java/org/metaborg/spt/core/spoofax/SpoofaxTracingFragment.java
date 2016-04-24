@@ -1,4 +1,4 @@
-package org.metaborg.spt.core.fragments;
+package org.metaborg.spt.core.spoofax;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,21 +16,25 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
-public class TracingFragment implements IFragment {
+public class SpoofaxTracingFragment implements IFragment {
 
     private final ISpoofaxTracingService traceService;
 
-    private final IStrategoTerm fragment;
+    private final ISourceRegion region;
     private final FileObject resource;
     private final IProject project;
 
     private final List<ISourceRegion> selections = new ArrayList<>();
     private final List<FragmentPiece> text = new LinkedList<>();
 
-    public TracingFragment(ISpoofaxTracingService tracingService, IStrategoTerm fragment, FileObject resource,
+    public SpoofaxTracingFragment(ISpoofaxTracingService tracingService, IStrategoTerm fragment, FileObject resource,
         IProject project) {
         this.traceService = tracingService;
-        this.fragment = fragment;
+        ISourceLocation fragmentLocation = traceService.location(fragment);
+        if (fragmentLocation == null) {
+            throw new IllegalArgumentException("The given fragment has no origin location.");
+        }
+        this.region = fragmentLocation.region();
         this.resource = resource;
         this.project = project;
         new TermVisitor() {
@@ -93,10 +97,10 @@ public class TracingFragment implements IFragment {
         }.visit(fragment);
     }
 
-    @Override public IStrategoTerm getSPTNode() {
-        return fragment;
+    @Override public ISourceRegion getRegion() {
+        return region;
     }
-
+    
     @Override public List<ISourceRegion> getSelections() {
         return selections;
     }
@@ -112,5 +116,4 @@ public class TracingFragment implements IFragment {
     @Override public Iterable<FragmentPiece> getText() {
         return text;
     }
-
 }

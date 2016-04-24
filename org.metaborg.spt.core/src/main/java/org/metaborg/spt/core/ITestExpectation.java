@@ -1,35 +1,14 @@
 package org.metaborg.spt.core;
 
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.core.source.ISourceRegion;
 
 /**
- * An implementation of ITestExpectation can support one or more SPT test expectations.
+ * During test case extraction, ITestExpectationProviders create an ITestExpectation for each expectation AST node.
  * 
- * The expectation should be registered using the Guice MultiBinder.newSetBinder. The first expectation that claims to
- * {@link #canEvaluate(IStrategoTerm)} the expectation will be assigned to evaluate it.
+ * When the test is being run, we look for an IExpectationEvaluator that can handle the ITestExpectation. These
+ * evaluators should be registered in Guice with the class of the subclass.
  */
 public interface ITestExpectation {
 
-    /**
-     * Returns true if this implementation can evaluate the given expectation term.
-     * 
-     * @param expectationTerm
-     *            the AST term of the expectation.
-     */
-    public boolean canEvaluate(IStrategoTerm expectationTerm);
-
-    /**
-     * Returns the phase of test execution that is required to evaluate this expectation.
-     * 
-     * This method will only be called if {@link #canEvaluate(IStrategoTerm)} returned true.
-     * 
-     * @param expectationTerm
-     *            the AST term of the expectation.
-     */
-    public TestPhase getPhase(IStrategoTerm expectationTerm);
-
-    /**
-     * Evaluate the expectation.
-     */
-    public ITestExpectationOutput evaluate(ITestExpectationInput input);
+    public ISourceRegion region();
 }

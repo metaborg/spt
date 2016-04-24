@@ -3,8 +3,9 @@ package org.metaborg.spt.core;
 import javax.annotation.Nullable;
 
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.syntax.IInputUnit;
+import org.metaborg.core.syntax.IParseUnit;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
 /**
  * An IFragmentParser can parse an IFragment, and ensures that the offsets of the parse result match with the offsets of
@@ -13,7 +14,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
  * This is important, to ensure that selections resolve to the correct AST nodes in the parse result, and for error
  * reporting.
  */
-public interface IFragmentParser {
+public interface IFragmentParser<I extends IInputUnit, P extends IParseUnit> {
 
     /**
      * Parse the fragment, and ensure the offsets of the parse result match with the fragment.
@@ -27,6 +28,6 @@ public interface IFragmentParser {
      *            also don't know what it does.
      * @return the parse result.
      */
-    public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect)
+    public P parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect)
         throws ParseException;
 }

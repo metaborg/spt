@@ -2,14 +2,14 @@ package org.metaborg.spt.core;
 
 import javax.annotation.Nullable;
 
+import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;
-import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.core.syntax.IParseUnit;
 
 /**
  * The result of trying to extract test cases from an SPT test suite.
  */
-public interface ITestCaseExtractionResult {
+public interface ITestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUnit> {
 
     /**
      * True iff there were no errors during parsing and analysis.
@@ -18,15 +18,17 @@ public interface ITestCaseExtractionResult {
 
     /**
      * The result of trying to parse the test suite.
+     * 
+     * May be null, if we couldn't even parse.
      */
-    public ISpoofaxParseUnit getParseResult();
+    public @Nullable P getParseResult();
 
     /**
      * The result of trying to analyze the test suite.
      * 
      * May be null.
      */
-    public @Nullable ISpoofaxAnalyzeUnit getAnalysisResult();
+    public @Nullable A getAnalysisResult();
 
     /**
      * All messages raised while extracting the test case.

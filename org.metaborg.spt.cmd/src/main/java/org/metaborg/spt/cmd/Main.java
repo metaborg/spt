@@ -1,7 +1,7 @@
 package org.metaborg.spt.cmd;
 
 import org.metaborg.spoofax.core.Spoofax;
-import org.metaborg.spt.core.SPTModule;
+import org.metaborg.spt.core.spoofax.SpoofaxSPTModule;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
@@ -40,7 +40,7 @@ public class Main {
         }
 
         final Module module = new Module();
-        try(final Spoofax spoofax = new Spoofax(module, new SPTModule())) {
+        try(final Spoofax spoofax = new Spoofax(module, new SpoofaxSPTModule())) {
 
             final Injector injector = spoofax.injector;
 

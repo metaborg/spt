@@ -2,12 +2,16 @@ package org.metaborg.spt.core;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.project.IProject;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * A builder for IFragments.
+ * 
+ * @param <F>
+ *            the internal SPT representation of a fragment.
+ * @param <TF>
+ *            the internal SPT representation of a test fixture.
  */
-public interface IFragmentBuilder {
+public interface IFragmentBuilder<F, TF> {
 
     /**
      * Use this fixture for the fragment creation.
@@ -16,7 +20,7 @@ public interface IFragmentBuilder {
      *            the SPT AST term of the test fixture to use.
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder withFixture(IStrategoTerm fragmentFixture);
+    public IFragmentBuilder<F, TF> withFixture(TF fragmentFixture);
 
     /**
      * Use this resource as the source from which this fragment was created.
@@ -25,7 +29,7 @@ public interface IFragmentBuilder {
      *            the source of the fragment (usually an SPT test suite file).
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder withResource(FileObject resource);
+    public IFragmentBuilder<F, TF> withResource(FileObject resource);
 
     /**
      * Use this project as the project from within which this fragment was created.
@@ -34,7 +38,7 @@ public interface IFragmentBuilder {
      *            the project.
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder withProject(IProject project);
+    public IFragmentBuilder<F, TF> withProject(IProject project);
 
     /**
      * Use this fragment term to create an IFragment.
@@ -45,7 +49,7 @@ public interface IFragmentBuilder {
      *            the SPT AST term of the fragment.
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder withFragment(IStrategoTerm fragment);
+    public IFragmentBuilder<F, TF> withFragment(F fragment);
 
     /**
      * Create the actual fragment.

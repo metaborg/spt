@@ -2,46 +2,45 @@ package org.metaborg.spt.core;
 
 import javax.annotation.Nullable;
 
+import org.metaborg.core.analysis.IAnalyzeUnit;
+import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.core.syntax.IParseUnit;
 
-public class TestExpectationInput implements ITestExpectationInput {
+public class TestExpectationInput<P extends IParseUnit, A extends IAnalyzeUnit> implements ITestExpectationInput<P, A> {
 
     private final ITestCase test;
-    private final IStrategoTerm expectation;
     private final ILanguageImpl lut;
-    private final ISpoofaxParseUnit pRes;
-    private final ISpoofaxAnalyzeUnit aRes;
+    private final P p;
+    private final A a;
+    private final IContext ctx;
 
-    public TestExpectationInput(ITestCase testCase, IStrategoTerm expectationTerm, ILanguageImpl languageUnderTest,
-        ISpoofaxParseUnit parseResult, @Nullable ISpoofaxAnalyzeUnit analysisResult) {
+    public TestExpectationInput(ITestCase testCase, ILanguageImpl languageUnderTest, P parseResult,
+        @Nullable A analysisResult, @Nullable IContext ctx) {
         this.test = testCase;
-        this.expectation = expectationTerm;
         this.lut = languageUnderTest;
-        this.pRes = parseResult;
-        this.aRes = analysisResult;
+        this.p = parseResult;
+        this.a = analysisResult;
+        this.ctx = ctx;
     }
 
     @Override public ITestCase getTestCase() {
         return test;
     }
 
-    @Override public IStrategoTerm getExpectation() {
-        return expectation;
-    }
-
     @Override public ILanguageImpl getLanguageUnderTest() {
         return lut;
     }
 
-    @Override public ISpoofaxParseUnit getParseResult() {
-        return pRes;
+    @Override public P getParseResult() {
+        return p;
     }
 
-    @Override public @Nullable ISpoofaxAnalyzeUnit getAnalysisResult() {
-        return aRes;
+    @Override public @Nullable A getAnalysisResult() {
+        return a;
     }
 
+    @Override public IContext getContext() {
+        return ctx;
+    }
 }

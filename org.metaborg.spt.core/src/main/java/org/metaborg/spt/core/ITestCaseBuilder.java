@@ -2,12 +2,16 @@ package org.metaborg.spt.core;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.project.IProject;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * A builder for ITestCases.
+ * 
+ * @param <T>
+ *            the internal SPT representation of a test case.
+ * @param <TF>
+ *            the internal SPT representation of a test fixture.
  */
-public interface ITestCaseBuilder {
+public interface ITestCaseBuilder<T, TF> {
 
     /**
      * Use this test fixture for the test case creation.
@@ -16,7 +20,7 @@ public interface ITestCaseBuilder {
      *            the SPT AST term of the test fixture to use.
      * @return the same builder for chaining calls.
      */
-    public ITestCaseBuilder withTestFixture(IStrategoTerm testFixture);
+    public ITestCaseBuilder<T, TF> withTestFixture(TF testFixture);
 
     /**
      * Use this resource for the test case creation.
@@ -25,7 +29,7 @@ public interface ITestCaseBuilder {
      *            the resource containing the test.
      * @return the same builder for chaining calls.
      */
-    public ITestCaseBuilder withResource(FileObject resource);
+    public ITestCaseBuilder<T, TF> withResource(FileObject resource);
 
     /**
      * Use this project for the test case creation.
@@ -34,7 +38,7 @@ public interface ITestCaseBuilder {
      *            the project containing the test.
      * @return the same builder for chaining calls.
      */
-    public ITestCaseBuilder withProject(IProject project);
+    public ITestCaseBuilder<T, TF> withProject(IProject project);
 
     /**
      * Use this test for the test case creation.
@@ -45,7 +49,7 @@ public interface ITestCaseBuilder {
      *            the SPT AST term of the test case.
      * @return the same builder for chaining calls.
      */
-    public ITestCaseBuilder withTest(IStrategoTerm test);
+    public ITestCaseBuilder<T, TF> withTest(T test);
 
     /**
      * Create the actual test case.
