@@ -118,7 +118,8 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
         try {
             // transform the input fragment
-            IStrategoTerm result = transform(input, expectation.goal(), ctx, test, messages, useAnalysis);
+            IStrategoTerm result =
+                transform(input, expectation.goal(), ctx, test, messages, useAnalysis, transformService);
             if(result != null) {
                 // do stuff to the output fragment
                 final IStrategoTerm out =
@@ -162,8 +163,9 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
     }
 
     // run the transformation on either the analysis or parse result
-    private @Nullable IStrategoTerm transform(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input,
-        ITransformGoal goal, IContext ctx, ITestCase test, Collection<IMessage> messages, boolean useAnalysis)
+    protected static @Nullable IStrategoTerm transform(
+        ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ITransformGoal goal, IContext ctx,
+        ITestCase test, Collection<IMessage> messages, boolean useAnalysis, ISpoofaxTransformService transformService)
         throws TransformException {
 
         ISpoofaxTransformUnit<? extends IUnit> result;
@@ -188,7 +190,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
     }
 
     // get the transform unit from the results
-    private @Nullable <T> T getTransformResult(ITransformGoal goal, Collection<T> results, ITestCase test,
+    protected static @Nullable <T> T getTransformResult(ITransformGoal goal, Collection<T> results, ITestCase test,
         Collection<IMessage> messages) {
         if(results.isEmpty()) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

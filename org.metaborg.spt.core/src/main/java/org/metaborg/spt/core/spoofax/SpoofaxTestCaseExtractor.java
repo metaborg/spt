@@ -24,8 +24,6 @@ import org.metaborg.spt.core.ITestExpectation;
 import org.metaborg.spt.core.expectations.NoExpectationError;
 import org.metaborg.spt.core.util.SPTUtil;
 import org.metaborg.util.iterators.Iterables2;
-import org.metaborg.util.log.ILogger;
-import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
@@ -34,7 +32,7 @@ import com.google.inject.Inject;
 
 public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
 
-    private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseExtractor.class);
+    // private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseExtractor.class);
 
     private final ISpoofaxSyntaxService parseService;
     private final ISpoofaxAnalysisService analysisService;
@@ -156,8 +154,6 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                             // also see SpoofaxTestCaseBuilder.build()
                             if(expectation instanceof NoExpectationError) {
                                 ISourceRegion region = ((NoExpectationError) expectation).region();
-                                logger.debug("No evaluator found for the expectation at ({}, {});",
-                                    region.startOffset(), region.endOffset());
                                 // @formatter:off
                                 IMessage m = MessageBuilder.create()
                                     .asAnalysis()

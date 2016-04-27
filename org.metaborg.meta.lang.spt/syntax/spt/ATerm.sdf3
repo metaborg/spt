@@ -1,0 +1,11 @@
+module spt/ATerm
+
+imports spt/Common
+
+context-free syntax
+
+ATerm.Anno = <<ATerm>{<{ATerm ", "}*>}>
+ATerm.Appl = <<ID>(<{ATerm ", "}*>)>
+ATerm.List = <[<{ATerm ", "}*>]>
+ATerm.Int = <<INT>>
+ATerm.String = <<STRING>>

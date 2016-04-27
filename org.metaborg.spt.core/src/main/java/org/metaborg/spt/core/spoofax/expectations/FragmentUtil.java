@@ -9,6 +9,7 @@ import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.context.ITemporaryContext;
 import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
@@ -123,11 +124,32 @@ public class FragmentUtil {
         if(lang == null) {
             return null;
         }
+        return parseFragment(fragment, lang.activeImpl(), messages, test);
+    }
+
+    /**
+     * Tries to parse the given fragment with the given name.
+     * 
+     * Will collect messages if things go wrong.
+     * 
+     * @param fragment
+     *            the fragment to parse.
+     * @param langName
+     *            the language to parse it with.
+     * @param messages
+     *            where we collect messages.
+     * @param test
+     *            the test that contained the fragment.
+     * 
+     * @return the result of parsing the fragment.
+     */
+    public @Nullable ISpoofaxParseUnit parseFragment(IFragment fragment, ILanguageImpl lang,
+        Collection<IMessage> messages, ITestCase test) {
         // parse the fragment
         final ISpoofaxParseUnit parsedFragment;
         try {
             // TODO: would we ever need to use a dialect?
-            parsedFragment = fragmentParser.parse(fragment, lang.activeImpl(), null);
+            parsedFragment = fragmentParser.parse(fragment, lang, null);
         } catch(ParseException e) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), fragment.getRegion(),
                 "Unable to parse the fragment due to an exception", e));

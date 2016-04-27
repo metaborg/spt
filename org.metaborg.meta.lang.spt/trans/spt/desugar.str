@@ -51,3 +51,19 @@ rules
     with
       i := <dec-string-to-int> x;
       j := <dec-string-to-int> y
+      
+  // Desugar our ATerms
+  desugar-term-before:
+    Anno(term, annos) -> term{annos}
+
+  desugar-term-before:
+    Appl(cons, children) -> cons#(children)
+
+  desugar-term-before:
+    List(l) -> l
+    
+  desugar-term-before:
+    Int(n) -> n
+    
+  desugar-term-before:
+    String(s) -> <un-double-quote> s

@@ -1,6 +1,7 @@
 module spt/SPT
 
 imports spt/Common
+imports spt/ATerm
 
 context-free start-symbols TestSuite
 
@@ -77,11 +78,14 @@ context-free syntax
       <Fragment4>
     <CloseMarker4>
   >
+  // to ATerm:
+  ToAterm.ToAterm = <to <ATerm>>
   
   // parse expectations 
   Expectation.ParseSucceeds = <parse succeeds>
   Expectation.ParseFails = <parse fails>
   Expectation.ParseTo = <parse <ToPart>>
+  Expectation.ParseToAterm = <parse <ToAterm>>
   
   // analysis expectations
   Expectation.Errors = <<INT> errors>
@@ -98,9 +102,11 @@ context-free syntax
   // running stratego strategies expectations
   Expectation.Run = <run <STRAT>>
   Expectation.RunTo = <run <STRAT> <ToPart>>
+  Expectation.RunToAterm = <run <STRAT> <ToAterm>>
   
   // transformations
   Expectation.Transform = <transform <STRING> <ToPart>>
+  Expectation.TransformToAterm = <transform <STRING> <ToAterm>>
 
 lexical syntax
   // NOTE: everything until the opening marker or newline is the description 

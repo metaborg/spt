@@ -22,12 +22,21 @@ import org.metaborg.spt.core.spoofax.expectations.AnalyzeExpectationProvider;
 import org.metaborg.spt.core.spoofax.expectations.FragmentUtil;
 import org.metaborg.spt.core.spoofax.expectations.ParseExpectationEvaluator;
 import org.metaborg.spt.core.spoofax.expectations.ParseExpectationProvider;
+import org.metaborg.spt.core.spoofax.expectations.ParseToAtermExpectation;
+import org.metaborg.spt.core.spoofax.expectations.ParseToAtermExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.expectations.ParseToAtermExpectationProvider;
 import org.metaborg.spt.core.spoofax.expectations.ResolveExpectationEvaluator;
 import org.metaborg.spt.core.spoofax.expectations.ResolveExpectationProvider;
 import org.metaborg.spt.core.spoofax.expectations.RunStrategoExpectationEvaluator;
 import org.metaborg.spt.core.spoofax.expectations.RunStrategoExpectationProvider;
+import org.metaborg.spt.core.spoofax.expectations.RunStrategoToAtermExpectation;
+import org.metaborg.spt.core.spoofax.expectations.RunStrategoToAtermExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.expectations.RunStrategoToAtermExpectationProvider;
 import org.metaborg.spt.core.spoofax.expectations.TransformExpectationEvaluator;
 import org.metaborg.spt.core.spoofax.expectations.TransformExpectationProvider;
+import org.metaborg.spt.core.spoofax.expectations.TransformToAtermExpectation;
+import org.metaborg.spt.core.spoofax.expectations.TransformToAtermExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.expectations.TransformToAtermExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Singleton;
@@ -52,6 +61,10 @@ public class SpoofaxSPTModule extends SPTModule {
         expectationBinder2.addBinding().to(ResolveExpectationProvider.class);
         expectationBinder2.addBinding().to(RunStrategoExpectationProvider.class);
         expectationBinder2.addBinding().to(TransformExpectationProvider.class);
+        // Spoofax specific binders
+        expectationBinder2.addBinding().to(ParseToAtermExpectationProvider.class);
+        expectationBinder2.addBinding().to(RunStrategoToAtermExpectationProvider.class);
+        expectationBinder2.addBinding().to(TransformToAtermExpectationProvider.class);
     }
 
     @Override protected void configureExpectationEvaluators() {
@@ -88,6 +101,26 @@ public class SpoofaxSPTModule extends SPTModule {
             .to(TransformExpectationEvaluator.class);
         bind(new TypeLiteral<ISpoofaxExpectationEvaluator<TransformExpectation>>() {})
             .to(TransformExpectationEvaluator.class);
+
+        // To ATERM stuff
+        // parse to aterm (very Spoofax specific)
+        bind(
+            new TypeLiteral<IExpectationEvaluator<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, ParseToAtermExpectation>>() {})
+                .to(ParseToAtermExpectationEvaluator.class);
+        bind(new TypeLiteral<ISpoofaxExpectationEvaluator<ParseToAtermExpectation>>() {})
+            .to(ParseToAtermExpectationEvaluator.class);
+        // run to aterm (very Spoofax specific)
+        bind(
+            new TypeLiteral<IExpectationEvaluator<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, RunStrategoToAtermExpectation>>() {})
+                .to(RunStrategoToAtermExpectationEvaluator.class);
+        bind(new TypeLiteral<ISpoofaxExpectationEvaluator<RunStrategoToAtermExpectation>>() {})
+            .to(RunStrategoToAtermExpectationEvaluator.class);
+        // transform to aterm (very Spoofax specific)
+        bind(
+            new TypeLiteral<IExpectationEvaluator<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, TransformToAtermExpectation>>() {})
+                .to(TransformToAtermExpectationEvaluator.class);
+        bind(new TypeLiteral<ISpoofaxExpectationEvaluator<TransformToAtermExpectation>>() {})
+            .to(TransformToAtermExpectationEvaluator.class);
     }
 
     @Override protected void configureExtractor() {
