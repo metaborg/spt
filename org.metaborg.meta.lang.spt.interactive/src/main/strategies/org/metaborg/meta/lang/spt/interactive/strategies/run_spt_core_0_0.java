@@ -20,10 +20,10 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.metaborg.spoofax.core.unit.ParseContrib;
 import org.metaborg.spt.core.ITestCase;
-import org.metaborg.spt.core.ITestCaseRunner;
-import org.metaborg.spt.core.ITestResult;
 import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractionResult;
 import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractor;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseRunner;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestResult;
 import org.metaborg.spt.core.spoofax.SpoofaxSPTModule;
 import org.metaborg.spt.core.util.SPTUtil;
 import org.metaborg.util.iterators.Iterables2;
@@ -71,7 +71,7 @@ public class run_spt_core_0_0 extends Strategy {
         final IProjectService projectService = injector.getInstance(IProjectService.class);
         final ILanguageService langService = injector.getInstance(ILanguageService.class);
         final ISpoofaxTestCaseExtractor extractor = injector.getInstance(ISpoofaxTestCaseExtractor.class);
-        final ITestCaseRunner runner = injector.getInstance(ITestCaseRunner.class);
+        final ISpoofaxTestCaseRunner runner = injector.getInstance(ISpoofaxTestCaseRunner.class);
 
         // input term should be (ast, relative-path, project-path)
         if(!(current instanceof IStrategoTuple) || current.getSubtermCount() != 3) {
@@ -128,6 +128,7 @@ public class run_spt_core_0_0 extends Strategy {
             logger.error(msg);
             errors.add(termFactory.makeTuple(termFactory.makeString(msg)));
         }
+        logger.debug("Finished looking for the language under test");
 
         // Create or get the project
         final FileObject projectPath = resourceService.resolve(projectPathString);
@@ -136,6 +137,8 @@ public class run_spt_core_0_0 extends Strategy {
             String msg = String.format("Unable to create a project at location %1$s", projectPathString);
             logger.error(msg);
             errors.add(termFactory.makeTuple(termFactory.makeString(msg)));
+        } else {
+            logger.debug("Got the project for the tests.");
         }
 
         // Create or get the testsuite resource
@@ -148,10 +151,13 @@ public class run_spt_core_0_0 extends Strategy {
             String msg = "Unable to access the SPT core language.";
             logger.error(msg);
             errors.add(termFactory.makeTuple(termFactory.makeString(msg)));
+        } else {
+            logger.debug("Obtained the SPT language.");
         }
 
         // make sure we have all the data we need
         if(name == null || lut == null || spt == null || project == null || testSuitePath == null) {
+            logger.debug("Not extracting tests, things are missing.");
             // assuming the proper error messages have been collected already
             return termFactory.makeTuple(baseAst, termFactory.makeList(errors), termFactory.makeList(),
                 termFactory.makeList());
@@ -160,11 +166,12 @@ public class run_spt_core_0_0 extends Strategy {
         /*
          * -------------------------- Extract the test cases --------------------------
          */
-        // TODO: this parses the file again, we can save time by having a TestExtractor method for an AST
         final ISpoofaxInputUnit input = inputService.emptyInputUnit(testSuitePath, spt, null);
         final ISpoofaxParseUnit parseUnit =
             unitService.parseUnit(input, new ParseContrib(true, true, baseAst, Iterables2.<IMessage>empty(), -1));
+        logger.debug("Extracting tests.");
         final ISpoofaxTestCaseExtractionResult extractionResult = extractor.extract(parseUnit, project);
+        logger.debug("Finished extracting tests.");
         final ISpoofaxParseUnit sptParseUnit = extractionResult.getParseResult();
         final ISpoofaxAnalyzeUnit sptAnalyzeUnit = extractionResult.getAnalysisResult();
 
@@ -182,17 +189,24 @@ public class run_spt_core_0_0 extends Strategy {
 
         // Stop if extraction failed
         if(!extractionResult.isSuccessful()) {
+            logger.debug("Extraction failed.");
             return termFactory.makeTuple(ast, termFactory.makeList(errors), termFactory.makeList(warnings),
                 termFactory.makeList(notes));
+        } else {
+            logger.debug("Extraction succeeded.");
         }
 
 
         /*
          * ---------------------------- Execute all test cases ----------------------------
          */
+        List<ISpoofaxTestResult> testResults = Lists.newLinkedList();
         for(ITestCase test : extractionResult.getTests()) {
+            logger.debug("About to run test {}.", test.getDescription());
             // TODO: we don't support dialects yet
-            ITestResult result = runner.run(project, test, lut, null);
+            ISpoofaxTestResult result = runner.run(project, test, lut, null);
+            logger.debug("Ran test {}.", test.getDescription());
+            testResults.add(result);
             if(result.isSuccessful()) {
                 gatherMessages(ast, testSuitePath, result.getAllMessages(), errors, warnings, notes, termFactory);
                 // TODO: inline the AST of the fragment in the token stream to get syntax highlighting
@@ -203,6 +217,8 @@ public class run_spt_core_0_0 extends Strategy {
                 gatherMessages(ast, testSuitePath, result.getAllMessages(), errors, warnings, notes, termFactory);
             }
         }
+
+        // TODO: get syntax coloring on the fragments
 
         return termFactory.makeTuple(ast, termFactory.makeList(errors), termFactory.makeList(warnings),
             termFactory.makeList(notes));
@@ -279,4 +295,6 @@ public class run_spt_core_0_0 extends Strategy {
         term.putAttachment(imploder);
         return term;
     }
+
 }
+

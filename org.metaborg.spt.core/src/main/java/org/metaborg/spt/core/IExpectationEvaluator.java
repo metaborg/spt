@@ -40,5 +40,5 @@ public interface IExpectationEvaluator<P extends IParseUnit, A extends IAnalyzeU
     /**
      * Evaluate the test expectation for the given input.
      */
-    public ITestExpectationOutput evaluate(ITestExpectationInput<P, A> input, E expectation);
+    public ITestExpectationOutput<P, A> evaluate(ITestExpectationInput<P, A> input, E expectation);
 }

@@ -3,29 +3,40 @@ package org.metaborg.spt.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.syntax.IParseUnit;
 import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.Iterables;
 
-public class TestResult implements ITestResult {
+public class TestResult<P extends IParseUnit, A extends IAnalyzeUnit> implements ITestResult<P, A> {
 
+    private final ITestCase test;
     private final boolean success;
     private final Iterable<IMessage> messages;
     private final Iterable<IMessage> allMessages;
-    private final Iterable<ITestExpectationOutput> results;
+    private final IFragmentResult<P, A> fragmentResult;
+    private final Iterable<? extends ITestExpectationOutput<P, A>> results;
 
-    public TestResult(boolean success, Iterable<IMessage> messages, Iterable<ITestExpectationOutput> results) {
+    public TestResult(ITestCase test, boolean success, Iterable<IMessage> messages,
+        IFragmentResult<P, A> fragmentResult, Iterable<? extends ITestExpectationOutput<P, A>> results) {
+        this.test = test;
         this.success = success;
         this.messages = messages;
+        this.fragmentResult = fragmentResult;
         this.results = Iterables2.from(results);
 
         Collection<IMessage> allM = new ArrayList<>();
         Iterables.addAll(allM, messages);
-        for(ITestExpectationOutput res : results) {
+        for(ITestExpectationOutput<P, A> res : results) {
             Iterables.addAll(allM, res.getMessages());
         }
         this.allMessages = allM;
+    }
+
+    @Override public ITestCase getTest() {
+        return test;
     }
 
     @Override public boolean isSuccessful() {
@@ -40,7 +51,11 @@ public class TestResult implements ITestResult {
         return allMessages;
     }
 
-    @Override public Iterable<ITestExpectationOutput> getExpectationResults() {
+    @Override public IFragmentResult<P, A> getFragmentResult() {
+        return fragmentResult;
+    }
+
+    @Override public Iterable<? extends ITestExpectationOutput<P, A>> getExpectationResults() {
         return results;
     }
 

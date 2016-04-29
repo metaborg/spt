@@ -13,12 +13,14 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.IFragment;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectationInput;
-import org.metaborg.spt.core.ITestExpectationOutput;
-import org.metaborg.spt.core.TestExpectationOutput;
 import org.metaborg.spt.core.TestPhase;
 import org.metaborg.spt.core.expectations.AnalysisMessageExpectation;
 import org.metaborg.spt.core.expectations.MessageUtil;
 import org.metaborg.spt.core.spoofax.ISpoofaxExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.ISpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestExpectationOutput;
+import org.metaborg.spt.core.spoofax.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.Lists;
 
@@ -40,9 +42,11 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         return TestPhase.ANALYSIS;
     }
 
-    @Override public ITestExpectationOutput evaluate(
+    @Override public ISpoofaxTestExpectationOutput evaluate(
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, AnalysisMessageExpectation expectation) {
         List<IMessage> messages = Lists.newLinkedList();
+        // analysis expectations don't have output fragments (not at the moment anyway)
+        final Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         ITestCase test = input.getTestCase();
 
@@ -52,19 +56,19 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
          * is ok with analysis failing. Will that ever happen? Do we want to disallow it just to save us from copying
          * over this code block to each analysis phase expectation?
          */
-        ISpoofaxAnalyzeUnit analysisResult = input.getAnalysisResult();
+        ISpoofaxAnalyzeUnit analysisResult = input.getFragmentResult().getAnalysisResult();
         if(analysisResult == null) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected analysis to succeed", null));
-            return new TestExpectationOutput(false, messages);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
-        Iterable<IMessage> analysisMessages = input.getAnalysisResult().messages();
+        Iterable<IMessage> analysisMessages = input.getFragmentResult().getAnalysisResult().messages();
 
         final boolean success =
             checkMessages(test, analysisMessages, expectation.severity(), expectation.num(), messages);
 
-        return new TestExpectationOutput(success, messages);
+        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
     /**

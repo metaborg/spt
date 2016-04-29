@@ -14,12 +14,14 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.IFragment;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectationInput;
-import org.metaborg.spt.core.ITestExpectationOutput;
-import org.metaborg.spt.core.TestExpectationOutput;
 import org.metaborg.spt.core.TestPhase;
 import org.metaborg.spt.core.expectations.MessageUtil;
 import org.metaborg.spt.core.expectations.ParseExpectation;
 import org.metaborg.spt.core.spoofax.ISpoofaxExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.ISpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestExpectationOutput;
+import org.metaborg.spt.core.spoofax.SpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.SpoofaxTestExpectationOutput;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.strategoxt.lang.TermEqualityUtil;
@@ -47,13 +49,14 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         return TestPhase.PARSING;
     }
 
-    @Override public ITestExpectationOutput
+    @Override public ISpoofaxTestExpectationOutput
         evaluate(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ParseExpectation expectation) {
-        ISpoofaxParseUnit p = input.getParseResult();
+        ISpoofaxParseUnit p = input.getFragmentResult().getParseResult();
         ITestCase test = input.getTestCase();
         final boolean success;
 
         List<IMessage> messages = new LinkedList<>();
+        List<ISpoofaxFragmentResult> fragmentResults = Lists.newLinkedList();
 
         if(expectation.outputFragment() == null) {
             // this is a parse fails or succeeds test
@@ -92,6 +95,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
                 parsedFragment = fragmentUtil.parseFragment(expectation.outputFragment(), expectation.outputLanguage(),
                     messages, test);
             }
+            fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(), parsedFragment, null, null));
 
             // compare the results and set the success boolean
             if(parsedFragment == null) {
@@ -108,7 +112,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
             }
         }
 
-        return new TestExpectationOutput(success, messages);
+        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
 }

@@ -13,10 +13,12 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.IFragment;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectationInput;
-import org.metaborg.spt.core.ITestExpectationOutput;
-import org.metaborg.spt.core.TestExpectationOutput;
 import org.metaborg.spt.core.TestPhase;
 import org.metaborg.spt.core.spoofax.ISpoofaxExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.ISpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestExpectationOutput;
+import org.metaborg.spt.core.spoofax.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
@@ -41,19 +43,20 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         return TestPhase.PARSING;
     }
 
-    @Override public ITestExpectationOutput evaluate(
+    @Override public ISpoofaxTestExpectationOutput evaluate(
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ParseToAtermExpectation expectation) {
 
-        ISpoofaxParseUnit p = input.getParseResult();
+        ISpoofaxParseUnit p = input.getFragmentResult().getParseResult();
         ITestCase test = input.getTestCase();
         final boolean success;
 
         List<IMessage> messages = new LinkedList<>();
+        Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         if(p == null || !p.success()) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected the input fragment to parse successfully.", null));
-            return new TestExpectationOutput(false, messages);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
         // compare the parse result
@@ -66,7 +69,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
                     p.ast(), expectation.expectedResult()),
                 null));
         }
-        return new TestExpectationOutput(success, messages);
+        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
 }

@@ -19,11 +19,15 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.IFragment;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectationInput;
-import org.metaborg.spt.core.ITestExpectationOutput;
-import org.metaborg.spt.core.TestExpectationOutput;
 import org.metaborg.spt.core.TestPhase;
 import org.metaborg.spt.core.expectations.MessageUtil;
 import org.metaborg.spt.core.spoofax.ISpoofaxExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.ISpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestExpectationOutput;
+import org.metaborg.spt.core.spoofax.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -36,7 +40,7 @@ import com.google.inject.Inject;
 public class RunStrategoToAtermExpectationEvaluator
     implements ISpoofaxExpectationEvaluator<RunStrategoToAtermExpectation> {
 
-    // private static final ILogger logger = LoggerUtils.logger(RunStrategoToAtermExpectationEvaluator.class);
+    private static final ILogger logger = LoggerUtils.logger(RunStrategoToAtermExpectationEvaluator.class);
 
     private final IStrategoRuntimeService runtimeService;
     private final ISpoofaxTracingService traceService;
@@ -63,11 +67,13 @@ public class RunStrategoToAtermExpectationEvaluator
         return TestPhase.ANALYSIS;
     }
 
-    @Override public ITestExpectationOutput evaluate(
+    @Override public ISpoofaxTestExpectationOutput evaluate(
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input,
         RunStrategoToAtermExpectation expectation) {
 
         List<IMessage> messages = Lists.newLinkedList();
+        // the 'to ATerm' variant of this expectation doesn't have a fragment
+        Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         ITestCase test = input.getTestCase();
         List<ISourceRegion> selections = test.getFragment().getSelections();
@@ -75,18 +81,20 @@ public class RunStrategoToAtermExpectationEvaluator
         String strategy = expectation.strategy();
 
         // we need an analysis result with an AST (until we allow running on raw ASTs)
-        ISpoofaxAnalyzeUnit analysisResult = input.getAnalysisResult();
+        ISpoofaxAnalyzeUnit analysisResult = input.getFragmentResult().getAnalysisResult();
         if(analysisResult == null) {
+            logger.debug("Expected analysis to succeed");
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected analysis to succeed", null));
-            return new TestExpectationOutput(false, messages);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
         if(!analysisResult.valid() || !analysisResult.hasAst()) {
+            logger.debug("Analysis did not return a valid AST.");
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Analysis did not return a valid AST.", null));
             MessageUtil.propagateMessages(analysisResult.messages(), messages, test.getDescriptionRegion(),
                 test.getFragment().getRegion());
-            return new TestExpectationOutput(false, messages);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
         // Create the runtime for stratego
@@ -94,12 +102,17 @@ public class RunStrategoToAtermExpectationEvaluator
         FacetContribution<StrategoRuntimeFacet> facetContrib =
             input.getLanguageUnderTest().facetContribution(StrategoRuntimeFacet.class);
         if(facetContrib == null) {
+            logger.debug("Unable to load the StrategoRuntimeFacet for the language under test.");
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Unable to load the StrategoRuntimeFacet for the language under test.", null));
         } else {
             try {
                 runtime = runtimeService.runtime(facetContrib.contributor, analysisResult.context());
+                if(runtime == null) {
+                    logger.debug("Unable to create a runtime! This should NOT happen, it isn't Nullable.");
+                }
             } catch(MetaborgException e) {
+                logger.debug("Unable to load required files for the Stratego runtime.");
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Unable to load required files for the Stratego runtime.", e));
             }
@@ -117,6 +130,8 @@ public class RunStrategoToAtermExpectationEvaluator
             terms.add(analysisResult.ast());
         } else if(selections.size() > 1) {
             // too many selections, we don't know which to select as input
+            logger.debug(
+                "Too many selections in this test case, we don't know which selection you want to use as input.");
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Too many selections in this test case, we don't know which selection you want to use as input.",
                 null));
@@ -125,6 +140,7 @@ public class RunStrategoToAtermExpectationEvaluator
             ISourceRegion selection = selections.get(0);
             for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
                 ISourceLocation loc = traceService.location(possibleSelection);
+                logger.debug("Checking possible selected term {} with location {}", possibleSelection, loc);
                 // the region should match exactly
                 if(loc != null && loc.region().startOffset() == selection.startOffset()
                     && loc.region().endOffset() == selection.endOffset()) {
@@ -132,6 +148,7 @@ public class RunStrategoToAtermExpectationEvaluator
                 }
             }
             if(terms.isEmpty()) {
+                logger.debug("Could not resolve this selection to an AST node.");
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), selection,
                     "Could not resolve this selection to an AST node.", null));
             }
@@ -140,14 +157,14 @@ public class RunStrategoToAtermExpectationEvaluator
 
         // before we try to run anything, make sure we have a runtime and something to execute on
         if(runtime == null || terms.isEmpty()) {
-            return new TestExpectationOutput(false, messages);
+            logger.debug("Returning early, as there is either no runtime or nothing to run on.");
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
         // run the strategy until we are done
         boolean success = false;
         IMessage lastMessage = null;
         for(IStrategoTerm term : terms) {
-            // logger.debug("About to try to run the strategy {} on {}", expectation.strategy(), term);
             // reset the last message
             lastMessage = null;
             runtime.setCurrent(term);
@@ -164,6 +181,12 @@ public class RunStrategoToAtermExpectationEvaluator
                 if(TermEqualityUtil.equalsIgnoreAnnos(expectation.expectedResult(), runtime.current(),
                     termFactoryService.get(input.getLanguageUnderTest()))) {
                     success = true;
+                } else {
+                    lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                        String.format(
+                            "The result of running %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
+                            strategy, expectation.expectedResult(), runtime.current()),
+                        null);
                 }
                 if(success) {
                     break;
@@ -183,7 +206,7 @@ public class RunStrategoToAtermExpectationEvaluator
             messages.add(lastMessage);
         }
 
-        return new TestExpectationOutput(success, messages);
+        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
 }

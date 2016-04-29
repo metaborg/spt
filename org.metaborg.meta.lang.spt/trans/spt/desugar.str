@@ -63,7 +63,7 @@ rules
     List(l) -> l
     
   desugar-term-before:
-    Int(n) -> n
+    Int(n) -> <dec-string-to-int> n
     
   desugar-term-before:
     String(s) -> <un-double-quote> s

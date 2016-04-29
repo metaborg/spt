@@ -19,10 +19,10 @@ import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spt.core.ITestCase;
-import org.metaborg.spt.core.ITestCaseRunner;
-import org.metaborg.spt.core.ITestResult;
 import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractionResult;
 import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractor;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseRunner;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestResult;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
@@ -38,12 +38,12 @@ public class Runner {
     private final ILanguageDiscoveryService languageDiscoveryService;
     private final ISpoofaxInputUnitService inputService;
     private final ISpoofaxTestCaseExtractor extractor;
-    private final ITestCaseRunner executor;
+    private final ISpoofaxTestCaseRunner executor;
 
 
     @Inject public Runner(IResourceService resourceService, ISimpleProjectService projectService,
         ILanguageDiscoveryService languageDiscoveryService, ISpoofaxInputUnitService inputService,
-        ISpoofaxTestCaseExtractor extractor, ITestCaseRunner executor) {
+        ISpoofaxTestCaseExtractor extractor, ISpoofaxTestCaseRunner executor) {
         this.resourceService = resourceService;
         this.projectService = projectService;
 
@@ -92,7 +92,7 @@ public class Runner {
                     Iterable<ITestCase> tests = extractionResult.getTests();
                     for(ITestCase test : tests) {
                         logger.info("Running test '{}' of suite {}.", test.getDescription(), testSuite);
-                        ITestResult res = executor.run(project, test, lut, null);
+                        ISpoofaxTestResult res = executor.run(project, test, lut, null);
                         logger.info("Test passed: {}", res.isSuccessful());
                         for(IMessage m : res.getAllMessages()) {
                             if(m.region() == null) {

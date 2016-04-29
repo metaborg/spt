@@ -1,8 +1,5 @@
 package org.metaborg.spt.core.spoofax;
 
-import javax.annotation.Nullable;
-
-import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -13,8 +10,8 @@ public class SpoofaxTestExpectationInput extends TestExpectationInput<ISpoofaxPa
     implements ISpoofaxTestExpectationInput {
 
     public SpoofaxTestExpectationInput(ITestCase testCase, ILanguageImpl languageUnderTest,
-        ISpoofaxParseUnit parseResult, @Nullable ISpoofaxAnalyzeUnit analysisResult, @Nullable IContext ctx) {
-        super(testCase, languageUnderTest, parseResult, analysisResult, ctx);
+        ISpoofaxFragmentResult fragmentResult) {
+        super(testCase, languageUnderTest, fragmentResult);
     }
 
 }

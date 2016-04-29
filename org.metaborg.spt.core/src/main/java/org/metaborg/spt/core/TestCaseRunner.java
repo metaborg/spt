@@ -1,5 +1,7 @@
 package org.metaborg.spt.core;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import org.metaborg.core.analysis.AnalysisException;
@@ -17,14 +19,14 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.IInputUnit;
 import org.metaborg.core.syntax.IParseUnit;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 public abstract class TestCaseRunner<I extends IInputUnit, P extends IParseUnit, A extends IAnalyzeUnit, AU extends IAnalyzeUnitUpdate>
-    implements ITestCaseRunner {
+    implements ITestCaseRunner<P, A> {
 
     private static final ILogger logger = LoggerUtils.logger(TestCaseRunner.class);
 
@@ -40,9 +42,15 @@ public abstract class TestCaseRunner<I extends IInputUnit, P extends IParseUnit,
         this.fragmentParser = fragmentParser;
     }
 
-    @Override public ITestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
+    /**
+     * Guaranteed to return the result provided by the subclass' implementation of
+     * {@link #evaluateExpectations(ITestCase, IParseUnit, IAnalyzeUnit, ILanguageImpl)}.
+     */
+    @Override public ITestResult<P, A> run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
         @Nullable ILanguageImpl dialectUnderTest) {
         logger.debug("About to run test case '{}' with language {}", test.getDescription(), languageUnderTest.id());
+
+        List<IMessage> messages = Lists.newLinkedList();
 
         // parse the fragment
         final P parseRes;
@@ -66,16 +74,13 @@ public abstract class TestCaseRunner<I extends IInputUnit, P extends IParseUnit,
             if(context != null) {
                 context.close();
             }
-            return new TestResult(false,
-                Iterables2.<IMessage>singleton(
-                    MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                        "Failed to analyze the input fragment, which is required to evaluate some of the test expectations.",
-                        e)),
-                Iterables2.<ITestExpectationOutput>empty());
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                "Failed to analyze the input fragment, which is required to evaluate some of the test expectations.",
+                e));
         }
 
         // evaluate the test expectations
-        final ITestResult result = evaluateExpectations(test, parseRes, analysisRes, languageUnderTest);
+        final ITestResult<P, A> result = evaluateExpectations(test, parseRes, analysisRes, languageUnderTest, messages);
 
         // close the analysis context for this test run
         if(context != null) {
@@ -88,8 +93,8 @@ public abstract class TestCaseRunner<I extends IInputUnit, P extends IParseUnit,
     /**
      * Evaluate the expectations of the test.
      */
-    protected abstract ITestResult evaluateExpectations(ITestCase test, P parseRes, A analysisRes,
-        ILanguageImpl languageUnderTest);
+    protected abstract ITestResult<P, A> evaluateExpectations(ITestCase test, P parseRes, A analysisRes,
+        ILanguageImpl languageUnderTest, List<IMessage> messages);
 
     /**
      * The maximum required phase for this input fragment.

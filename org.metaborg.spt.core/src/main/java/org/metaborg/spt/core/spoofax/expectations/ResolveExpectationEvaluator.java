@@ -16,12 +16,14 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.IFragment;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectationInput;
-import org.metaborg.spt.core.ITestExpectationOutput;
-import org.metaborg.spt.core.TestExpectationOutput;
 import org.metaborg.spt.core.TestPhase;
 import org.metaborg.spt.core.expectations.MessageUtil;
 import org.metaborg.spt.core.expectations.ResolveExpectation;
 import org.metaborg.spt.core.spoofax.ISpoofaxExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.ISpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestExpectationOutput;
+import org.metaborg.spt.core.spoofax.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -48,11 +50,13 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
         return TestPhase.ANALYSIS;
     }
 
-    @Override public ITestExpectationOutput
+    @Override public ISpoofaxTestExpectationOutput
         evaluate(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ResolveExpectation expectation) {
 
         final boolean success;
         List<IMessage> messages = Lists.newLinkedList();
+        // resolving expectations don't have output fragments
+        Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
         // indicates if, after collecting preliminary messages, we still need to try to resolve
         boolean tryResolve = true;
 
@@ -83,17 +87,17 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
             }
         }
 
-        ISpoofaxAnalyzeUnit analysisResult = input.getAnalysisResult();
+        ISpoofaxAnalyzeUnit analysisResult = input.getFragmentResult().getAnalysisResult();
         if(analysisResult == null) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected analysis to succeed", null));
-            return new TestExpectationOutput(false, messages);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
         // If the referenced selections couldn't be found, we won't need to try to resolve
         // otherwise, we may assume the selections exist
         if(!tryResolve) {
-            return new TestExpectationOutput(false, messages);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
         // Try resolving selection at index num1
@@ -151,7 +155,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
             MessageUtil.propagateMessages(analysisResult.messages(), messages, test.getDescriptionRegion(),
                 test.getFragment().getRegion());
         }
-        return new TestExpectationOutput(success, messages);
+        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
 }

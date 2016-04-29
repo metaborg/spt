@@ -20,10 +20,12 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.IFragment;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectationInput;
-import org.metaborg.spt.core.ITestExpectationOutput;
-import org.metaborg.spt.core.TestExpectationOutput;
 import org.metaborg.spt.core.TestPhase;
 import org.metaborg.spt.core.spoofax.ISpoofaxExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.ISpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestExpectationOutput;
+import org.metaborg.spt.core.spoofax.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -62,16 +64,17 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
             : TestPhase.PARSING;
     }
 
-    @Override public ITestExpectationOutput evaluate(
+    @Override public ISpoofaxTestExpectationOutput evaluate(
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, TransformToAtermExpectation expectation) {
         boolean success = false;
         final ITestCase test = input.getTestCase();
         final ILanguageImpl lut = input.getLanguageUnderTest();
         final List<IMessage> messages = Lists.newLinkedList();
+        final Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         // obtain a context
         ITemporaryContext tempCtx = null;
-        IContext ctx = input.getContext();
+        IContext ctx = input.getFragmentResult().getContext();
         if(ctx == null) {
             // we have to create a new context
             try {
@@ -80,7 +83,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
             } catch(ContextException e) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Failed to create a context for the language under test.", e));
-                return new TestExpectationOutput(success, messages);
+                return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
             }
         }
 
@@ -101,7 +104,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
             if(tempCtx != null) {
                 tempCtx.close();
             }
-            return new TestExpectationOutput(success, messages);
+            return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
         }
 
         boolean useAnalysis = transformService.requiresAnalysis(ctx, expectation.goal());
@@ -116,9 +119,19 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
                 // check the equality
                 if(TermEqualityUtil.equalsIgnoreAnnos(result, out, termFactoryService.get(lut))) {
                     success = true;
+                } else {
+                    messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                        String.format(
+                            "The result of transformation %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
+                            expectation.goal(), out, result),
+                        null));
                 }
+            } else {
+                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                    String.format("Transformation %1$s failed.", expectation.goal()), null));
             }
         } catch(TransformException e) {
+            logger.debug("An exception occured while trying to transform {}.", e, expectation.goal());
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 String.format("An exception occured while trying to transform %1$s.", expectation.goal()), e));
         }
@@ -126,7 +139,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
         if(tempCtx != null) {
             tempCtx.close();
         }
-        return new TestExpectationOutput(success, messages);
+        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
 }

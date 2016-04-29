@@ -13,6 +13,7 @@ import org.metaborg.core.context.ITemporaryContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.transform.TransformConfig;
 import org.metaborg.core.transform.TransformException;
 import org.metaborg.core.unit.IUnit;
 import org.metaborg.spoofax.core.action.ActionFacet;
@@ -24,12 +25,14 @@ import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
 import org.metaborg.spt.core.IFragment;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectationInput;
-import org.metaborg.spt.core.ITestExpectationOutput;
-import org.metaborg.spt.core.TestExpectationOutput;
 import org.metaborg.spt.core.TestPhase;
 import org.metaborg.spt.core.expectations.MessageUtil;
 import org.metaborg.spt.core.expectations.TransformExpectation;
 import org.metaborg.spt.core.spoofax.ISpoofaxExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.ISpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.ISpoofaxTestExpectationOutput;
+import org.metaborg.spt.core.spoofax.SpoofaxFragmentResult;
+import org.metaborg.spt.core.spoofax.SpoofaxTestExpectationOutput;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -72,16 +75,17 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             : TestPhase.PARSING;
     }
 
-    @Override public ITestExpectationOutput evaluate(
+    @Override public ISpoofaxTestExpectationOutput evaluate(
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, TransformExpectation expectation) {
         boolean success = false;
         final ITestCase test = input.getTestCase();
         final ILanguageImpl lut = input.getLanguageUnderTest();
         final List<IMessage> messages = Lists.newLinkedList();
+        final List<ISpoofaxFragmentResult> fragmentResults = Lists.newLinkedList();
 
         // obtain a context
         ITemporaryContext tempCtx = null;
-        IContext ctx = input.getContext();
+        IContext ctx = input.getFragmentResult().getContext();
         if(ctx == null) {
             // we have to create a new context
             try {
@@ -90,7 +94,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             } catch(ContextException e) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Failed to create a context for the language under test.", e));
-                return new TestExpectationOutput(success, messages);
+                return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
             }
         }
 
@@ -111,7 +115,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             if(tempCtx != null) {
                 tempCtx.close();
             }
-            return new TestExpectationOutput(success, messages);
+            return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
         }
 
         boolean useAnalysis = transformService.requiresAnalysis(ctx, expectation.goal());
@@ -122,14 +126,23 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
                 transform(input, expectation.goal(), ctx, test, messages, useAnalysis, transformService);
             if(result != null) {
                 // do stuff to the output fragment
-                final IStrategoTerm out =
-                    doFragment(expectation.outputFragment(), expectation.outputLanguage(), test, messages, useAnalysis);
+                final IStrategoTerm out = doFragment(expectation.outputFragment(), expectation.outputLanguage(), test,
+                    messages, fragmentResults, useAnalysis);
                 if(out != null) {
                     // check the equality
                     if(TermEqualityUtil.equalsIgnoreAnnos(result, out, termFactoryService.get(lut))) {
                         success = true;
+                    } else {
+                        messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                            String.format(
+                                "The result of transformation %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
+                                expectation.goal(), out, result),
+                            null));
                     }
                 }
+            } else {
+                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                    String.format("Transformation %1$s failed.", expectation.goal()), null));
             }
         } catch(TransformException e) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
@@ -139,19 +152,21 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
         if(tempCtx != null) {
             tempCtx.close();
         }
-        return new TestExpectationOutput(success, messages);
+        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
     // parse or analyze the output fragment
     private @Nullable IStrategoTerm doFragment(IFragment fragment, String langName, ITestCase test,
-        Collection<IMessage> messages, boolean useAnalysis) {
+        Collection<IMessage> messages, List<ISpoofaxFragmentResult> fragmentResults, boolean useAnalysis) {
         if(useAnalysis) {
             ISpoofaxAnalyzeUnit a = fragmentUtil.analyzeFragment(fragment, langName, messages, test);
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, null));
             if(a != null && a.success() && a.hasAst()) {
                 return a.ast();
             }
         } else {
             ISpoofaxParseUnit p = fragmentUtil.parseFragment(fragment, langName, messages, test);
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null));
             if(p == null || !p.valid()) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), fragment.getRegion(),
                     "Parsing of the fragment did not return an AST.", null));
@@ -170,17 +185,24 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
         ISpoofaxTransformUnit<? extends IUnit> result;
         if(useAnalysis) {
-            Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> results =
-                transformService.transform(input.getAnalysisResult(), ctx, goal);
-            result = getTransformResult(goal, results, test, messages);
+            ISpoofaxAnalyzeUnit a = input.getFragmentResult().getAnalysisResult();
+            if(a == null || !a.success()) {
+                result = null;
+                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                    "Expected analysis to succeed before transforming.", null));
+            } else {
+                Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> results =
+                    transformService.transform(a, ctx, goal, new TransformConfig(true));
+                result = getTransformResult(goal, results, test, messages);
+            }
         } else {
-            Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> results =
-                transformService.transform(input.getParseResult(), ctx, goal);
+            Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> results = transformService
+                .transform(input.getFragmentResult().getParseResult(), ctx, goal, new TransformConfig(true));
             result = getTransformResult(goal, results, test, messages);
         }
-        if(result.success()) {
+        if(result != null && result.success()) {
             return result.ast();
-        } else {
+        } else if(result != null) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 String.format("Transformation %1$s failed", goal), null));
             MessageUtil.propagateMessages(result.messages(), messages, test.getDescriptionRegion(),

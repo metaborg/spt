@@ -133,7 +133,9 @@ public class SpoofaxSPTModule extends SPTModule {
 
     @Override protected void configureRunner() {
         bind(SpoofaxTestCaseRunner.class).in(Singleton.class);
-        bind(ITestCaseRunner.class).to(SpoofaxTestCaseRunner.class);
+        bind(new TypeLiteral<ITestCaseRunner<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit>>() {})
+            .to(SpoofaxTestCaseRunner.class);
+        bind(ISpoofaxTestCaseRunner.class).to(SpoofaxTestCaseRunner.class);
     }
 
     @Override protected void configureBuilders() {

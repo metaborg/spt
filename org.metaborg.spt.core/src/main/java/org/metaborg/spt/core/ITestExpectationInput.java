@@ -1,9 +1,6 @@
 package org.metaborg.spt.core;
 
-import javax.annotation.Nullable;
-
 import org.metaborg.core.analysis.IAnalyzeUnit;
-import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.syntax.IParseUnit;
 
@@ -29,22 +26,8 @@ public interface ITestExpectationInput<P extends IParseUnit, A extends IAnalyzeU
     public ILanguageImpl getLanguageUnderTest();
 
     /**
-     * The result of parsing the fragment with the language under test.
+     * The result of either parsing, or parsing and analyzing the fragment.
      */
-    public P getParseResult();
-
-    /**
-     * The result of analyzing the fragment with the language under test.
-     * 
-     * May be null if the expectation only requires the {@link TestPhase#PARSING} phase, or if the parsing failed.
-     */
-    public @Nullable A getAnalysisResult();
-
-    /**
-     * The context that was used to analyze the input fragment.
-     * 
-     * May be null.
-     */
-    public @Nullable IContext getContext();
+    public IFragmentResult<P, A> getFragmentResult();
 
 }

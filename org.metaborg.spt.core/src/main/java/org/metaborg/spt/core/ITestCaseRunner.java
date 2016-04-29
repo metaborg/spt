@@ -2,13 +2,15 @@ package org.metaborg.spt.core;
 
 import javax.annotation.Nullable;
 
+import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
+import org.metaborg.core.syntax.IParseUnit;
 
 /**
  * Runs individual test cases.
  */
-public interface ITestCaseRunner {
+public interface ITestCaseRunner<P extends IParseUnit, A extends IAnalyzeUnit> {
 
     /**
      * Run the given test.
@@ -24,7 +26,7 @@ public interface ITestCaseRunner {
      *            also don't know what it is, just pass null.
      * @return
      */
-    public ITestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
+    public ITestResult<P, A> run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
         @Nullable ILanguageImpl dialectUnderTest);
 
 }

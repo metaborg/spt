@@ -8,6 +8,7 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnitUpdate;
@@ -15,16 +16,15 @@ import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.ITestCase;
 import org.metaborg.spt.core.ITestExpectation;
-import org.metaborg.spt.core.ITestExpectationOutput;
+import org.metaborg.spt.core.ITestResult;
 import org.metaborg.spt.core.TestCaseRunner;
 import org.metaborg.spt.core.TestPhase;
-import org.metaborg.spt.core.TestResult;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 public class SpoofaxTestCaseRunner
-    extends TestCaseRunner<ISpoofaxInputUnit, ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, ISpoofaxAnalyzeUnitUpdate> {
+    extends TestCaseRunner<ISpoofaxInputUnit, ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, ISpoofaxAnalyzeUnitUpdate>
+    implements ISpoofaxTestCaseRunner {
 
     private final ISpoofaxExpectationEvaluatorService evaluatorService;
 
@@ -34,12 +34,19 @@ public class SpoofaxTestCaseRunner
         this.evaluatorService = evaluatorService;
     }
 
-    @Override protected TestResult evaluateExpectations(ITestCase test, ISpoofaxParseUnit parseRes,
-        ISpoofaxAnalyzeUnit analysisRes, ILanguageImpl languageUnderTest) {
-        boolean success = true;
-        List<IMessage> messages = Lists.newLinkedList();
+    @Override public ISpoofaxTestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
+        ILanguageImpl dialectUnderTest) {
+        ITestResult<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> res =
+            super.run(project, test, languageUnderTest, dialectUnderTest);
+        // safe as long as the guarantee of TestCaseRunner.run holds (see the JavaDoc of that method)
+        return (ISpoofaxTestResult) res;
+    }
 
-        List<ITestExpectationOutput> expectationOutputs = new ArrayList<>();
+    @Override protected ISpoofaxTestResult evaluateExpectations(ITestCase test, ISpoofaxParseUnit parseRes,
+        ISpoofaxAnalyzeUnit analysisRes, ILanguageImpl languageUnderTest, List<IMessage> messages) {
+        boolean success = true;
+
+        List<ISpoofaxTestExpectationOutput> expectationOutputs = new ArrayList<>();
         if(test.getExpectations().isEmpty()) {
             // handle the 'no expectation means parsing must succeed' thing
             success = parseRes.success();
@@ -53,8 +60,9 @@ public class SpoofaxTestCaseRunner
                     // TODO: should we really reuse the analysis context for expectation evaluation?
                     // an example is that we reuse it when running a transformation.
                     SpoofaxTestExpectationInput input = new SpoofaxTestExpectationInput(test, languageUnderTest,
-                        parseRes, analysisRes, analysisRes == null ? null : analysisRes.context());
-                    ITestExpectationOutput output = evaluator.evaluate(input, expectation);
+                        new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes,
+                            analysisRes == null ? null : analysisRes.context()));
+                    ISpoofaxTestExpectationOutput output = evaluator.evaluate(input, expectation);
                     if(!output.isSuccessful()) {
                         success = false;
                     }
@@ -62,7 +70,8 @@ public class SpoofaxTestCaseRunner
                 }
             }
         }
-        return new TestResult(success, messages, expectationOutputs);
+        return new SpoofaxTestResult(test, success, messages,
+            new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes, null), expectationOutputs);
     }
 
     @Override protected TestPhase requiredPhase(ITestCase test, IContext languageUnderTestCtx) {
