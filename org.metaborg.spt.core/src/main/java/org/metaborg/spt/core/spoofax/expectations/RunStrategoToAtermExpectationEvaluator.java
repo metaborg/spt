@@ -144,6 +144,7 @@ public class RunStrategoToAtermExpectationEvaluator
                 // the region should match exactly
                 if(loc != null && loc.region().startOffset() == selection.startOffset()
                     && loc.region().endOffset() == selection.endOffset()) {
+                    logger.debug("Matched, adding it as input node to the strategy");
                     terms.add(possibleSelection);
                 }
             }

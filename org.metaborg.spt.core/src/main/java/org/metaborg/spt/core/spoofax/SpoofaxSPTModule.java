@@ -13,6 +13,7 @@ import org.metaborg.spt.core.ITestCaseRunner;
 import org.metaborg.spt.core.ITestExpectationProvider;
 import org.metaborg.spt.core.SPTModule;
 import org.metaborg.spt.core.expectations.AnalysisMessageExpectation;
+import org.metaborg.spt.core.expectations.HasOriginExpectation;
 import org.metaborg.spt.core.expectations.ParseExpectation;
 import org.metaborg.spt.core.expectations.ResolveExpectation;
 import org.metaborg.spt.core.expectations.RunStrategoExpectation;
@@ -20,6 +21,8 @@ import org.metaborg.spt.core.expectations.TransformExpectation;
 import org.metaborg.spt.core.spoofax.expectations.AnalyzeExpectationEvaluator;
 import org.metaborg.spt.core.spoofax.expectations.AnalyzeExpectationProvider;
 import org.metaborg.spt.core.spoofax.expectations.FragmentUtil;
+import org.metaborg.spt.core.spoofax.expectations.HasOriginExpectationEvaluator;
+import org.metaborg.spt.core.spoofax.expectations.HasOriginExpectationProvider;
 import org.metaborg.spt.core.spoofax.expectations.ParseExpectationEvaluator;
 import org.metaborg.spt.core.spoofax.expectations.ParseExpectationProvider;
 import org.metaborg.spt.core.spoofax.expectations.ParseToAtermExpectation;
@@ -61,6 +64,7 @@ public class SpoofaxSPTModule extends SPTModule {
         expectationBinder2.addBinding().to(ResolveExpectationProvider.class);
         expectationBinder2.addBinding().to(RunStrategoExpectationProvider.class);
         expectationBinder2.addBinding().to(TransformExpectationProvider.class);
+        expectationBinder2.addBinding().to(HasOriginExpectationProvider.class);
         // Spoofax specific binders
         expectationBinder2.addBinding().to(ParseToAtermExpectationProvider.class);
         expectationBinder2.addBinding().to(RunStrategoToAtermExpectationProvider.class);
@@ -101,6 +105,11 @@ public class SpoofaxSPTModule extends SPTModule {
             .to(TransformExpectationEvaluator.class);
         bind(new TypeLiteral<ISpoofaxExpectationEvaluator<TransformExpectation>>() {})
             .to(TransformExpectationEvaluator.class);
+        // origin expectation
+        bind(new TypeLiteral<IExpectationEvaluator<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, HasOriginExpectation>>() {})
+            .to(HasOriginExpectationEvaluator.class);
+        bind(new TypeLiteral<ISpoofaxExpectationEvaluator<HasOriginExpectation>>() {})
+            .to(HasOriginExpectationEvaluator.class);
 
         // To ATERM stuff
         // parse to aterm (very Spoofax specific)

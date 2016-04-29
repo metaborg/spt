@@ -98,6 +98,9 @@ context-free syntax
   // reference resolution expectations
   Expectation.Resolve = <resolve #<INT>>
   Expectation.ResolveTo = <resolve #<INT> to #<INT>>
+
+  // origin expectations
+  Expectation.HasOrigin = <has origin locations>
   
   // running stratego strategies expectations
   Expectation.Run = <run <STRAT>>

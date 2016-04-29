@@ -39,9 +39,10 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
         String cons = SPTUtil.consName(expectationTerm);
-        return Term.isTermString(expectationTerm.getSubterm(0))
-            && (RUN.equals(cons) && expectationTerm.getSubtermCount() == 1
-                || RUN_TO.equals(cons) && expectationTerm.getSubtermCount() == 2);
+        return RUN.equals(cons) && expectationTerm.getSubtermCount() == 1
+            && Term.isTermString(expectationTerm.getSubterm(0))
+            || RUN_TO.equals(cons) && expectationTerm.getSubtermCount() == 2
+                && Term.isTermString(expectationTerm.getSubterm(0));
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
