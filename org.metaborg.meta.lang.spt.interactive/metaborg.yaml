@@ -10,6 +10,7 @@ dependencies:
   - org.metaborg:org.metaborg.meta.lib.analysis:${metaborgVersion}
   - org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
   java:
+  - org.metaborg:org.metaborg.mbt.core:${metaborgVersion}
   - org.metaborg:org.metaborg.spt.core:${metaborgVersion}
 pardonedLanguages:
 - EditorService

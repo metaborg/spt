@@ -13,19 +13,19 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.metaborg.spoofax.core.unit.ParseContrib;
-import org.metaborg.spt.core.ITestCase;
-import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractionResult;
-import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseExtractor;
-import org.metaborg.spt.core.spoofax.ISpoofaxTestCaseRunner;
-import org.metaborg.spt.core.spoofax.ISpoofaxTestResult;
-import org.metaborg.spt.core.spoofax.SpoofaxSPTModule;
-import org.metaborg.spt.core.util.SPTUtil;
+import org.metaborg.spt.core.SPTUtil;
+import org.metaborg.spt.core.SPTModule;
+import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractionResult;
+import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractor;
+import org.metaborg.spt.core.run.ISpoofaxTestCaseRunner;
+import org.metaborg.spt.core.run.ISpoofaxTestResult;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -55,7 +55,7 @@ public class run_spt_core_0_0 extends Strategy {
         // Get the injector for the required services
         final IContext context = (IContext) strategoContext.contextObject();
         final Injector spoofaxInjector = context.injector();
-        final Injector injector = spoofaxInjector.createChildInjector(new SpoofaxSPTModule());
+        final Injector injector = spoofaxInjector.createChildInjector(new SPTModule());
 
         // Setup the things we need to return
         IStrategoTerm ast = null;
