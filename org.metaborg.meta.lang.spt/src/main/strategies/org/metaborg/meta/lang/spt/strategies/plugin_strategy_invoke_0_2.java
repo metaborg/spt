@@ -44,7 +44,8 @@ public class plugin_strategy_invoke_0_2 extends Strategy {
             runtime =
                 injector.getInstance(IStrategoRuntimeService.class).runtime(
                     Iterables.get(impl.components(), 0),
-                    metaborgContext
+                    metaborgContext,
+		    true
                 );
         } catch(MetaborgException e) {
             return factory.makeAppl(factory.makeConstructor("Error", 1), factory.makeString(e.getLocalizedMessage()));

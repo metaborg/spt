@@ -70,7 +70,7 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		}
 		
 		// Run the reference resolver
-		final ITermFactory termFactory = termFactoryService.get(lang);
+		final ITermFactory termFactory = termFactoryService.get(lang, true);
 		final Resolution result;
 		// TODO: is the 'previous' ParseResult allowed to be null?
 		final ISpoofaxAnalyzeUnit mockAnalysis;
