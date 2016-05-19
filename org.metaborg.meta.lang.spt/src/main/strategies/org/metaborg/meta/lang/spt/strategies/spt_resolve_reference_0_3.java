@@ -11,6 +11,7 @@ import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.ILanguageService;
 import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.tracing.Resolution;
@@ -50,6 +51,7 @@ public class spt_resolve_reference_0_3 extends Strategy {
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm refTerm, IStrategoTerm filePath, IStrategoTerm langName, IStrategoTerm analyzedAst) {
 		final IContext metaborgContext = (IContext) context.contextObject();
+		final IProject project = metaborgContext.project();
 		final Injector injector = metaborgContext.injector();
 		final ISpoofaxUnitService unitService = injector.getInstance(ISpoofaxUnitService.class);
 		final ISpoofaxResolverService resolver = injector.getInstance(ISpoofaxResolverService.class);
@@ -70,7 +72,7 @@ public class spt_resolve_reference_0_3 extends Strategy {
 		}
 		
 		// Run the reference resolver
-		final ITermFactory termFactory = termFactoryService.get(lang, true);
+		final ITermFactory termFactory = termFactoryService.get(lang, project, true);
 		final Resolution result;
 		// TODO: is the 'previous' ParseResult allowed to be null?
 		final ISpoofaxAnalyzeUnit mockAnalysis;
