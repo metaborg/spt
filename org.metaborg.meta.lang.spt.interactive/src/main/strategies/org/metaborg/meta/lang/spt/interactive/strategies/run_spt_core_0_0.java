@@ -2,6 +2,7 @@ package org.metaborg.meta.lang.spt.interactive.strategies;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.context.IContext;
@@ -20,8 +21,8 @@ import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.metaborg.spoofax.core.unit.ParseContrib;
-import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.SPTModule;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractionResult;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractor;
 import org.metaborg.spt.core.run.ISpoofaxTestCaseRunner;
@@ -38,10 +39,10 @@ import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Injector;
 
 public class run_spt_core_0_0 extends Strategy {
-
     private static final ILogger logger = LoggerUtils.logger(run_spt_core_0_0.class);
 
     private static final String MESSAGE = "MESSAGE";
@@ -51,11 +52,19 @@ public class run_spt_core_0_0 extends Strategy {
     private static final String LUT = "Language";
     private static final String START = "StartSymbol";
 
+
+    private static Map<Injector, Injector> injectorMap = Maps.newHashMap();
+
+
     @Override public IStrategoTerm invoke(Context strategoContext, IStrategoTerm current) {
         // Get the injector for the required services
         final IContext context = (IContext) strategoContext.contextObject();
         final Injector spoofaxInjector = context.injector();
-        final Injector injector = spoofaxInjector.createChildInjector(new SPTModule());
+        Injector injector = injectorMap.get(spoofaxInjector);
+        if(injector == null) {
+            injector = spoofaxInjector.createChildInjector(new SPTModule());
+            injectorMap.put(spoofaxInjector, injector);
+        }
 
         // Setup the things we need to return
         IStrategoTerm ast = null;
