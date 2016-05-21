@@ -110,7 +110,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                 "Unable to load the StrategoRuntimeFacet for the language under test.", null));
         } else {
             try {
-                runtime = runtimeService.runtime(facetContrib.contributor, analysisResult.context());
+                runtime = runtimeService.runtime(facetContrib.contributor, analysisResult.context(), false);
             } catch(MetaborgException e) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Unable to load required files for the Stratego runtime.", e));
@@ -181,9 +181,11 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     ISpoofaxAnalyzeUnit analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
                         expectation.outputLanguage(), messages, test);
                     // compare the ASTs
-                    if(analyzedFragment != null && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(),
-                        runtime.current(), termFactoryService.get(
-                            fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl()))) {
+                    if(analyzedFragment != null
+                        && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(), runtime.current(),
+                            termFactoryService.get(
+                                fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl(),
+                                test.getProject(), false))) {
                         success = true;
                     } else {
                         lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

@@ -118,7 +118,8 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
                 // do stuff to the output fragment
                 final IStrategoTerm out = expectation.expectedResult();
                 // check the equality
-                if(TermEqualityUtil.equalsIgnoreAnnos(result, out, termFactoryService.get(lut))) {
+                if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
+                    termFactoryService.get(lut, test.getProject(), false))) {
                     success = true;
                 } else {
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

@@ -108,7 +108,7 @@ public class RunStrategoToAtermExpectationEvaluator
                 "Unable to load the StrategoRuntimeFacet for the language under test.", null));
         } else {
             try {
-                runtime = runtimeService.runtime(facetContrib.contributor, analysisResult.context());
+                runtime = runtimeService.runtime(facetContrib.contributor, analysisResult.context(), false);
                 if(runtime == null) {
                     logger.debug("Unable to create a runtime! This should NOT happen, it isn't Nullable.");
                 }
@@ -181,7 +181,7 @@ public class RunStrategoToAtermExpectationEvaluator
                 // the strategy was successfull
                 // compare the ASTs
                 if(TermEqualityUtil.equalsIgnoreAnnos(expectation.expectedResult(), runtime.current(),
-                    termFactoryService.get(input.getLanguageUnderTest()))) {
+                    termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
                     success = true;
                 } else {
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

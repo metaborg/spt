@@ -131,7 +131,8 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
                     messages, fragmentResults, useAnalysis);
                 if(out != null) {
                     // check the equality
-                    if(TermEqualityUtil.equalsIgnoreAnnos(result, out, termFactoryService.get(lut))) {
+                    if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
+                        termFactoryService.get(lut, test.getProject(), false))) {
                         success = true;
                     } else {
                         messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

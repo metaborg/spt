@@ -62,7 +62,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
 
         // compare the parse result
         success = TermEqualityUtil.equalsIgnoreAnnos(p.ast(), expectation.expectedResult(),
-            termFactoryService.get(input.getLanguageUnderTest()));
+            termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false));
         if(!success) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 String.format(
