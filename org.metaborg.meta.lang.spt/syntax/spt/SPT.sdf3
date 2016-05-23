@@ -11,7 +11,7 @@ context-free syntax
     <{TestDecl "\n\n"}*>
   >
 
-  Header.Name = <module <ID>>
+  Header.Name = <module <MODULE>>
   // the start symbol is not supported yet by the SPT implementation
   Header.StartSymbol = <start symbol <ID>>
   Header.Language = <language <LANG>>
@@ -114,7 +114,7 @@ context-free syntax
 lexical syntax
   // NOTE: everything until the opening marker or newline is the description 
   // update this when a new type of opening marker is introduced
-  Description = (~[\n\[])+
+  Description = (~[\n\r\[])+
   
   OpenBracket1 = "["
   OpenBracket2 = "[["
@@ -134,7 +134,7 @@ lexical syntax
 lexical restrictions  
   // NOTE: everything until the opening marker or newline is the description
   // update this when a new opening marker is introduced
-  Description -/- [\n\[]
+  Description -/- [\ \t]
   
   // update these when a new opening or closing marker is introduced
   OpenBracket1 -/- [\[]

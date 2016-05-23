@@ -3,6 +3,7 @@ module spt/Common
 lexical syntax
 
   ID             = [a-zA-Z] [a-zA-Z0-9]* 
+  MODULE         = [a-zA-Z] [a-zA-Z0-9\-\_]*
   LANG           = [a-zA-Z] [a-zA-Z0-9\-]*
   STRAT          = [a-zA-Z] [a-zA-Z0-9\-\']*
   INT            = "-"? [0-9]+ 
