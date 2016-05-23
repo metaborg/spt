@@ -1,0 +1,23 @@
+module analysis
+
+rules // Analysis
+
+  external run-spt-core(|)
+
+  editor-analyze = run-spt-core
+  
+rules // Editor services
+  
+  editor-resolve:
+    (node, position, ast, path, project-path) -> <fail>
+
+  editor-hover:
+    (node, position, ast, path, project-path) -> <fail>
+
+rules // Debugging
+
+  debug-show-analyzed:
+    (_, _, ast, path, _) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"analyzed.aterm")> path;
+      result   := ast

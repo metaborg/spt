@@ -1,0 +1,28 @@
+module spt/pp
+
+imports
+
+  libstratego-gpp
+  pp/SPT-parenthesize
+  pp/SPT-pp
+
+rules
+  
+  pp-SPT-string =
+    parenthesize-SPT
+    ; prettyprint-SDF-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+      
+  pp-partial-SPT-string =
+    parenthesize-SPT
+    ; prettyprint-example
+    ; !V([], <id>)
+    ; box2text-string(|120)
+      
+  pp-debug :
+    ast -> result
+    with
+       result := <pp-SPT-string> ast
+    <+ <bottomup(try(not(is-string); not(is-list); not(pp-SPT-string); debug(!"cannot pp ")))> ast
+    ;  result := ""
