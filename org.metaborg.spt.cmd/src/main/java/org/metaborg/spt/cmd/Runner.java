@@ -97,11 +97,22 @@ public class Runner {
                 }
                 ISpoofaxInputUnit input = inputService.inputUnit(testSuite, text, spt, null);
                 ISpoofaxTestCaseExtractionResult extractionResult = extractor.extract(input, project);
+
+                // use the start symbol of the test suite if no overriding start symbol has been given to this method
+                ISpoofaxFragmentParserConfig moduleFragmentConfig = fragmentConfig;
+                if(extractionResult.getStartSymbol() != null && moduleFragmentConfig == null) {
+                    moduleFragmentConfig = new SpoofaxFragmentParserConfig();
+                    moduleFragmentConfig.putConfig(lut,
+                        new JSGLRParserConfiguration(extractionResult.getStartSymbol()));
+                }
+
                 if(extractionResult.isSuccessful()) {
                     Iterable<ITestCase> tests = extractionResult.getTests();
+                    logger.debug("Using the following start symbol for this suite: {}", moduleFragmentConfig == null
+                        ? null : moduleFragmentConfig.getParserConfigForLanguage(lut).overridingStartSymbol);
                     for(ITestCase test : tests) {
                         logger.info("Running test '{}' of suite {}.", test.getDescription(), testSuite);
-                        ISpoofaxTestResult res = executor.run(project, test, lut, null, fragmentConfig);
+                        ISpoofaxTestResult res = executor.run(project, test, lut, null, moduleFragmentConfig);
                         logger.info("Test passed: {}", res.isSuccessful());
                         for(IMessage m : res.getAllMessages()) {
                             if(m.region() == null) {
@@ -114,13 +125,14 @@ public class Runner {
                     }
                 } else {
                     logger.error("Failed to run tests at {}. Extraction of tests failed.", testsPath);
-                    for(IMessage m : extractionResult.getAllMessages()) {
-                        if(m.region() == null) {
-                            logger.info("\t{} : {}", m.severity(), m.message());
-                        } else {
-                            logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
-                                m.severity(), m.message());
-                        }
+                }
+
+                for(IMessage m : extractionResult.getAllMessages()) {
+                    if(m.region() == null) {
+                        logger.info("\t{} : {}", m.severity(), m.message());
+                    } else {
+                        logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
+                            m.severity(), m.message());
                     }
                 }
             }

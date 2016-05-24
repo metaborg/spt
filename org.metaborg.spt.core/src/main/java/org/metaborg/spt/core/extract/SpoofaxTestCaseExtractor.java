@@ -140,10 +140,13 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
         // for now, we will consider these missing expectations to be an error
         final List<IMessage> extraMessages = new LinkedList<>();
         final List<ITestCase> tests = new ArrayList<>();
+        final List<String> startSymbolContainer = new ArrayList<>();
         new TermVisitor() {
             @Override public void preVisit(IStrategoTerm term) {
                 if(Term.isTermAppl(term)) {
-                    if(SPTUtil.TEST_CONS.equals(SPTUtil.consName(term))) {
+                    if(SPTUtil.START_SYMBOL_CONS.equals(SPTUtil.consName(term))) {
+                        startSymbolContainer.add(Term.asJavaString(term.getSubterm(0)));
+                    } else if(SPTUtil.TEST_CONS.equals(SPTUtil.consName(term))) {
                         // TODO: this doesn't seem like a proper use of builders
                         // are we allowed to reuse a builder like this?
                         ITestCase test =
@@ -172,6 +175,20 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
             }
         }.visit(ast);
 
-        return new SpoofaxTestCaseExtractionResult(p, a, extraMessages, tests);
+        if(startSymbolContainer.size() > 1) {
+         // @formatter:off
+            IMessage m = MessageBuilder.create()
+                .asAnalysis()
+                .asWarning()
+                .withSource(testSuite)
+                .withMessage(
+                    "Found more than 1 start symbol. We will just use the first one. " + startSymbolContainer)
+                .build();
+            // @formatter:on
+            extraMessages.add(m);
+        }
+        String startSymbol = startSymbolContainer.isEmpty() ? null : startSymbolContainer.get(0);
+
+        return new SpoofaxTestCaseExtractionResult(p, a, extraMessages, tests, startSymbol);
     }
 }
