@@ -31,4 +31,9 @@ public interface ITestExpectationInput<P extends IParseUnit, A extends IAnalyzeU
      */
     public IFragmentResult<P, A> getFragmentResult();
 
+    /**
+     * The configuration parameter to use during this test run for the parsing of fragments.
+     */
+    public IFragmentParserConfig getFragmentParserConfig();
+
 }

@@ -90,11 +90,11 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
             if(expectation.outputLanguage() == null) {
                 // this implicitly means we parse with the LUT
                 parsedFragment = fragmentUtil.parseFragment(expectation.outputFragment(), input.getLanguageUnderTest(),
-                    messages, test);
+                    messages, test, input.getFragmentParserConfig());
             } else {
                 // parse with the given language
                 parsedFragment = fragmentUtil.parseFragment(expectation.outputFragment(), expectation.outputLanguage(),
-                    messages, test);
+                    messages, test, input.getFragmentParserConfig());
             }
             fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(), parsedFragment, null, null));
 

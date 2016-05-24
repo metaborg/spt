@@ -26,8 +26,10 @@ public interface IFragmentParser<P extends IParseUnit> {
      * @param dialect
      *            TODO I don't know what it does, but it's cool and needs to be added. For now just pass null if you
      *            also don't know what it does.
+     * @param config
+     *            optional configuration object to customize the parser's behavior.
      * @return the parse result.
      */
-    public P parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect)
-        throws ParseException;
+    public P parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect,
+        @Nullable IFragmentParserConfig config) throws ParseException;
 }

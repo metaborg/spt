@@ -10,12 +10,14 @@ public class TestExpectationInput<P extends IParseUnit, A extends IAnalyzeUnit> 
     private final ITestCase test;
     private final ILanguageImpl lut;
     private final IFragmentResult<P, A> fragmentResult;
+    private final IFragmentParserConfig fragmentConfig;
 
     public TestExpectationInput(ITestCase testCase, ILanguageImpl languageUnderTest,
-        IFragmentResult<P, A> fragmentResult) {
+        IFragmentResult<P, A> fragmentResult, IFragmentParserConfig fragmentConfig) {
         this.test = testCase;
         this.lut = languageUnderTest;
         this.fragmentResult = fragmentResult;
+        this.fragmentConfig = fragmentConfig;
     }
 
     @Override public ITestCase getTestCase() {
@@ -28,5 +30,9 @@ public class TestExpectationInput<P extends IParseUnit, A extends IAnalyzeUnit> 
 
     @Override public IFragmentResult<P, A> getFragmentResult() {
         return fragmentResult;
+    }
+
+    @Override public IFragmentParserConfig getFragmentParserConfig() {
+        return fragmentConfig;
     }
 }

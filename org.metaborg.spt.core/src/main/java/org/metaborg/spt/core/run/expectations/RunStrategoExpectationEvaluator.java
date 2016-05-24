@@ -179,7 +179,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     // it's a RunTo(strategyName, ToPart(languageName, openMarker, fragment, closeMarker))
                     // we need to analyze the fragment, at least until we support running on raw parsed terms
                     ISpoofaxAnalyzeUnit analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
-                        expectation.outputLanguage(), messages, test);
+                        expectation.outputLanguage(), messages, test, input.getFragmentParserConfig());
                     // compare the ASTs
                     if(analyzedFragment != null
                         && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(), runtime.current(),

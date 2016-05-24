@@ -48,7 +48,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
      * {@link #evaluateExpectations(ITestCase, IParseUnit, IAnalyzeUnit, ILanguageImpl)}.
      */
     @Override public ITestResult<P, A> run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
-        @Nullable ILanguageImpl dialectUnderTest) {
+        @Nullable ILanguageImpl dialectUnderTest, @Nullable IFragmentParserConfig fragmentParseConfig) {
         logger.debug("About to run test case '{}' with language {}", test.getDescription(), languageUnderTest.id());
 
         List<IMessage> messages = Lists.newLinkedList();
@@ -56,7 +56,8 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
         // parse the fragment
         final P parseRes;
         try {
-            parseRes = fragmentParser.parse(test.getFragment(), languageUnderTest, dialectUnderTest);
+            parseRes =
+                fragmentParser.parse(test.getFragment(), languageUnderTest, dialectUnderTest, fragmentParseConfig);
         } catch(ParseException e) {
             // TODO: is this ok? or should we fail the test and gracefully return a message?
             throw new RuntimeException(e);
@@ -81,7 +82,8 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
         }
 
         // evaluate the test expectations
-        final ITestResult<P, A> result = evaluateExpectations(test, parseRes, analysisRes, languageUnderTest, messages);
+        final ITestResult<P, A> result =
+            evaluateExpectations(test, parseRes, analysisRes, languageUnderTest, messages, fragmentParseConfig);
 
         // close the analysis context for this test run
         if(context != null) {
@@ -95,7 +97,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
      * Evaluate the expectations of the test.
      */
     protected abstract ITestResult<P, A> evaluateExpectations(ITestCase test, P parseRes, A analysisRes,
-        ILanguageImpl languageUnderTest, List<IMessage> messages);
+        ILanguageImpl languageUnderTest, List<IMessage> messages, @Nullable IFragmentParserConfig fragmentParseConfig);
 
     /**
      * The maximum required phase for this input fragment.

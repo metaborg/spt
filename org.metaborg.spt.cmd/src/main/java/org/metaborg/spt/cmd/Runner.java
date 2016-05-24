@@ -17,12 +17,15 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.mbt.core.model.ITestCase;
+import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractionResult;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractor;
+import org.metaborg.spt.core.run.ISpoofaxFragmentParserConfig;
 import org.metaborg.spt.core.run.ISpoofaxTestCaseRunner;
 import org.metaborg.spt.core.run.ISpoofaxTestResult;
+import org.metaborg.spt.core.run.SpoofaxFragmentParserConfig;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
@@ -54,7 +57,7 @@ public class Runner {
     }
 
 
-    public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath)
+    public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath, String startSymbol)
         throws MetaborgException, FileSystemException {
         final FileObject sptLocation = resourceService.resolve(sptPath);
         final FileObject lutLocation = resourceService.resolve(lutPath);
@@ -77,6 +80,12 @@ public class Runner {
             for(FileObject languageLocation : languageLocations) {
                 languageDiscoveryService.discover(languageDiscoveryService.request(languageLocation));
             }
+            // process start symbol
+            ISpoofaxFragmentParserConfig fragmentConfig =
+                startSymbol == null ? null : new SpoofaxFragmentParserConfig();
+            if(fragmentConfig != null) {
+                fragmentConfig.putConfig(lut, new JSGLRParserConfiguration(startSymbol));
+            }
 
             for(FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
                 final String text;
@@ -92,7 +101,7 @@ public class Runner {
                     Iterable<ITestCase> tests = extractionResult.getTests();
                     for(ITestCase test : tests) {
                         logger.info("Running test '{}' of suite {}.", test.getDescription(), testSuite);
-                        ISpoofaxTestResult res = executor.run(project, test, lut, null);
+                        ISpoofaxTestResult res = executor.run(project, test, lut, null, fragmentConfig);
                         logger.info("Test passed: {}", res.isSuccessful());
                         for(IMessage m : res.getAllMessages()) {
                             if(m.region() == null) {
