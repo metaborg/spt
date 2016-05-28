@@ -21,6 +21,7 @@ import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.model.expectations.MessageUtil;
 import org.metaborg.mbt.core.model.expectations.TransformExpectation;
+import org.metaborg.mbt.core.run.IFragmentParserConfig;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.action.ActionFacet;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
@@ -128,7 +129,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             if(result != null) {
                 // do stuff to the output fragment
                 final IStrategoTerm out = doFragment(expectation.outputFragment(), expectation.outputLanguage(), test,
-                    messages, fragmentResults, useAnalysis);
+                    messages, fragmentResults, useAnalysis, input.getFragmentParserConfig());
                 if(out != null) {
                     // check the equality
                     if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
@@ -159,15 +160,16 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     // parse or analyze the output fragment
     private @Nullable IStrategoTerm doFragment(IFragment fragment, String langName, ITestCase test,
-        Collection<IMessage> messages, List<ISpoofaxFragmentResult> fragmentResults, boolean useAnalysis) {
+        Collection<IMessage> messages, List<ISpoofaxFragmentResult> fragmentResults, boolean useAnalysis,
+        @Nullable IFragmentParserConfig fragmentConfig) {
         if(useAnalysis) {
-            ISpoofaxAnalyzeUnit a = fragmentUtil.analyzeFragment(fragment, langName, messages, test);
+            ISpoofaxAnalyzeUnit a = fragmentUtil.analyzeFragment(fragment, langName, messages, test, fragmentConfig);
             fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, null));
             if(a != null && a.success() && a.hasAst()) {
                 return a.ast();
             }
         } else {
-            ISpoofaxParseUnit p = fragmentUtil.parseFragment(fragment, langName, messages, test);
+            ISpoofaxParseUnit p = fragmentUtil.parseFragment(fragment, langName, messages, test, fragmentConfig);
             fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null));
             if(p == null || !p.valid()) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), fragment.getRegion(),

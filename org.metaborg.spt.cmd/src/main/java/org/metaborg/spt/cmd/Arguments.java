@@ -26,4 +26,7 @@ public class Arguments {
 
     @Parameter(names = { "--exit" }, description = "Immediately exit, used for testing purposes",
         hidden = true) public boolean exit;
+
+    @Parameter(names = { "--start-symbol", "-start" }, description = "Start Symbol for these tests",
+        required = false) public String startSymbol;
 }

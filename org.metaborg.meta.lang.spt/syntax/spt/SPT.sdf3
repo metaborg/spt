@@ -5,6 +5,11 @@ imports spt/ATerm
 
 context-free start-symbols TestSuite
 
+syntax
+  TestDecl-CF.Test2 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker2-CF Fragment2-CF CloseMarker2-CF LAYOUT?-CF {Expectation "\n"}*-CF
+  TestDecl-CF.Test3 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker3-CF Fragment3-CF CloseMarker3-CF LAYOUT?-CF {Expectation "\n"}*-CF
+  TestDecl-CF.Test4 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker4-CF Fragment4-CF CloseMarker4-CF LAYOUT?-CF {Expectation "\n"}*-CF
+
 context-free syntax
   TestSuite.TestSuite = <
     <{Header "\n"}*>
@@ -15,27 +20,6 @@ context-free syntax
   // the start symbol is not supported yet by the SPT implementation
   Header.StartSymbol = <start symbol <ID>>
   Header.Language = <language <LANG>>
-
-  TestDecl.Test2 = <
-    test <Description> <OpenMarker2>
-      <Fragment2>
-    <CloseMarker2>
-    <{Expectation "\n"}*>
-  >
-  
-  TestDecl.Test3 = <
-    test <Description> <OpenMarker3>
-      <Fragment3>
-    <CloseMarker3>
-    <{Expectation "\n"}*>
-  >
-  
-  TestDecl.Test4 = <
-    test <Description> <OpenMarker4>
-      <Fragment4>
-    <CloseMarker4>
-    <{Expectation "\n"}*>
-  >
   
   // for now we only have brackets as markers
   OpenMarker2 = OpenBracket2

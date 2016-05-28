@@ -3,6 +3,8 @@ package org.metaborg.spt.core.run;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
@@ -12,6 +14,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.model.expectations.ITestExpectation;
+import org.metaborg.mbt.core.run.IFragmentParserConfig;
 import org.metaborg.mbt.core.run.ITestResult;
 import org.metaborg.mbt.core.run.TestCaseRunner;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
@@ -34,15 +37,16 @@ public class SpoofaxTestCaseRunner
     }
 
     @Override public ISpoofaxTestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
-        ILanguageImpl dialectUnderTest) {
+        ILanguageImpl dialectUnderTest, IFragmentParserConfig fragmentParseConfig) {
         ITestResult<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> res =
-            super.run(project, test, languageUnderTest, dialectUnderTest);
+            super.run(project, test, languageUnderTest, dialectUnderTest, fragmentParseConfig);
         // safe as long as the guarantee of TestCaseRunner.run holds (see the JavaDoc of that method)
         return (ISpoofaxTestResult) res;
     }
 
     @Override protected ISpoofaxTestResult evaluateExpectations(ITestCase test, ISpoofaxParseUnit parseRes,
-        ISpoofaxAnalyzeUnit analysisRes, ILanguageImpl languageUnderTest, List<IMessage> messages) {
+        ISpoofaxAnalyzeUnit analysisRes, ILanguageImpl languageUnderTest, List<IMessage> messages,
+        @Nullable IFragmentParserConfig fragmentParseConfig) {
         boolean success = true;
 
         List<ISpoofaxTestExpectationOutput> expectationOutputs = new ArrayList<>();
@@ -60,7 +64,8 @@ public class SpoofaxTestCaseRunner
                     // an example is that we reuse it when running a transformation.
                     SpoofaxTestExpectationInput input = new SpoofaxTestExpectationInput(test, languageUnderTest,
                         new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes,
-                            analysisRes == null ? null : analysisRes.context()));
+                            analysisRes == null ? null : analysisRes.context()),
+                        fragmentParseConfig);
                     ISpoofaxTestExpectationOutput output = evaluator.evaluate(input, expectation);
                     if(!output.isSuccessful()) {
                         success = false;

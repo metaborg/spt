@@ -15,6 +15,7 @@ import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.ITestCase;
+import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
@@ -25,8 +26,10 @@ import org.metaborg.spt.core.SPTModule;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractionResult;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractor;
+import org.metaborg.spt.core.run.ISpoofaxFragmentParserConfig;
 import org.metaborg.spt.core.run.ISpoofaxTestCaseRunner;
 import org.metaborg.spt.core.run.ISpoofaxTestResult;
+import org.metaborg.spt.core.run.SpoofaxFragmentParserConfig;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -101,6 +104,7 @@ public class run_spt_core_0_0 extends Strategy {
         // Obtain the module name and language under test from the given ast
         String name = null;
         String lutName = null;
+        String startSymbol = null;
         if(SUITE.equals(SPTUtil.consName(baseAst)) && baseAst.getSubtermCount() == 2) {
             IStrategoTerm headers = baseAst.getSubterm(0);
             for(IStrategoTerm header : headers.getAllSubterms()) {
@@ -112,8 +116,7 @@ public class run_spt_core_0_0 extends Strategy {
                         lutName = Term.asJavaString(header.getSubterm(0));
                         break;
                     case START:
-                        warnings.add(termFactory.makeTuple(header,
-                            termFactory.makeString("Setting a start symbol is not supported yet.")));
+                        startSymbol = Term.asJavaString(header.getSubterm(0));
                         break;
                     default:
                         // just ignore it for now
@@ -209,11 +212,15 @@ public class run_spt_core_0_0 extends Strategy {
         /*
          * ---------------------------- Execute all test cases ----------------------------
          */
+        ISpoofaxFragmentParserConfig fragmentConfig = startSymbol == null ? null : new SpoofaxFragmentParserConfig();
+        if(fragmentConfig != null) {
+            fragmentConfig.putConfig(lut, new JSGLRParserConfiguration(startSymbol));
+        }
         List<ISpoofaxTestResult> testResults = Lists.newLinkedList();
         for(ITestCase test : extractionResult.getTests()) {
             logger.debug("About to run test {}.", test.getDescription());
             // TODO: we don't support dialects yet
-            ISpoofaxTestResult result = runner.run(project, test, lut, null);
+            ISpoofaxTestResult result = runner.run(project, test, lut, null, fragmentConfig);
             logger.debug("Ran test {}.", test.getDescription());
             testResults.add(result);
             if(result.isSuccessful()) {

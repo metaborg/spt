@@ -19,6 +19,7 @@ import org.metaborg.core.syntax.ParseException;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.expectations.MessageUtil;
+import org.metaborg.mbt.core.run.IFragmentParserConfig;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
@@ -109,16 +110,18 @@ public class FragmentUtil {
      *            where we collect messages.
      * @param test
      *            the test that contained the fragment.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
      * 
      * @return the result of parsing the fragment. May be null if parsing failed.
      */
     public @Nullable ISpoofaxParseUnit parseFragment(IFragment fragment, String langName, Collection<IMessage> messages,
-        ITestCase test) {
+        ITestCase test, @Nullable IFragmentParserConfig fragmentConfig) {
         ILanguage lang = getLanguage(langName, messages, test);
         if(lang == null) {
             return null;
         }
-        return parseFragment(fragment, lang.activeImpl(), messages, test);
+        return parseFragment(fragment, lang.activeImpl(), messages, test, fragmentConfig);
     }
 
     /**
@@ -134,16 +137,18 @@ public class FragmentUtil {
      *            where we collect messages.
      * @param test
      *            the test that contained the fragment.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
      * 
      * @return the result of parsing the fragment. May be null if parsing failed.
      */
     public @Nullable ISpoofaxParseUnit parseFragment(IFragment fragment, ILanguageImpl lang,
-        Collection<IMessage> messages, ITestCase test) {
+        Collection<IMessage> messages, ITestCase test, @Nullable IFragmentParserConfig fragmentConfig) {
         // parse the fragment
         final ISpoofaxParseUnit parsedFragment;
         try {
             // TODO: would we ever need to use a dialect?
-            parsedFragment = fragmentParser.parse(fragment, lang, null);
+            parsedFragment = fragmentParser.parse(fragment, lang, null, fragmentConfig);
         } catch(ParseException e) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), fragment.getRegion(),
                 "Unable to parse the fragment due to an exception", e));
@@ -173,12 +178,14 @@ public class FragmentUtil {
      *            where we collect messages.
      * @param test
      *            the test that contained the fragment.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
      * 
      * @return the result of analyzing the fragment.
      */
     public @Nullable ISpoofaxAnalyzeUnit analyzeFragment(IFragment fragment, String langName,
-        Collection<IMessage> messages, ITestCase test) {
-        ISpoofaxParseUnit p = parseFragment(fragment, langName, messages, test);
+        Collection<IMessage> messages, ITestCase test, @Nullable IFragmentParserConfig fragmentConfig) {
+        ISpoofaxParseUnit p = parseFragment(fragment, langName, messages, test, fragmentConfig);
         if(p == null) {
             return null;
         }

@@ -28,9 +28,18 @@ public class WhitespaceFragmentParser<I extends IInputUnit, P extends IParseUnit
         this.parseService = parseService;
     }
 
-    @Override public P parse(IFragment fragment, ILanguageImpl language, @Nullable ILanguageImpl dialect)
-        throws ParseException {
+    @Override public P parse(IFragment fragment, ILanguageImpl language, @Nullable ILanguageImpl dialect,
+        @Nullable IFragmentParserConfig config) throws ParseException {
 
+        String fragmentText = getWhitespacedFragmentText(fragment);
+
+        // now we can parse the fragment
+        I input = inputService.inputUnit(fragment.getResource(), fragmentText, language, dialect);
+
+        return parse(input);
+    }
+
+    protected String getWhitespacedFragmentText(IFragment fragment) {
         StringBuilder fragmentTextBuilder = new StringBuilder();
         for(FragmentPiece piece : fragment.getText()) {
             // add whitespace to get the character offset of this piece right
@@ -40,11 +49,10 @@ public class WhitespaceFragmentParser<I extends IInputUnit, P extends IParseUnit
             // add the actual piece of program text from the fragment
             fragmentTextBuilder.append(piece.text);
         }
-        String fragmentText = fragmentTextBuilder.toString();
+        return fragmentTextBuilder.toString();
+    }
 
-        // now we can parse the fragment
-        I input = inputService.inputUnit(fragment.getResource(), fragmentText, language, dialect);
-
+    protected P parse(I input) throws ParseException {
         return parseService.parse(input);
     }
 }

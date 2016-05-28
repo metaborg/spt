@@ -17,12 +17,15 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.mbt.core.model.ITestCase;
+import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractionResult;
 import org.metaborg.spt.core.extract.ISpoofaxTestCaseExtractor;
+import org.metaborg.spt.core.run.ISpoofaxFragmentParserConfig;
 import org.metaborg.spt.core.run.ISpoofaxTestCaseRunner;
 import org.metaborg.spt.core.run.ISpoofaxTestResult;
+import org.metaborg.spt.core.run.SpoofaxFragmentParserConfig;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
@@ -54,7 +57,7 @@ public class Runner {
     }
 
 
-    public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath)
+    public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath, String startSymbol)
         throws MetaborgException, FileSystemException {
         final FileObject sptLocation = resourceService.resolve(sptPath);
         final FileObject lutLocation = resourceService.resolve(lutPath);
@@ -77,6 +80,12 @@ public class Runner {
             for(FileObject languageLocation : languageLocations) {
                 languageDiscoveryService.discover(languageDiscoveryService.request(languageLocation));
             }
+            // process start symbol
+            ISpoofaxFragmentParserConfig fragmentConfig =
+                startSymbol == null ? null : new SpoofaxFragmentParserConfig();
+            if(fragmentConfig != null) {
+                fragmentConfig.putConfig(lut, new JSGLRParserConfiguration(startSymbol));
+            }
 
             for(FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
                 final String text;
@@ -88,11 +97,22 @@ public class Runner {
                 }
                 ISpoofaxInputUnit input = inputService.inputUnit(testSuite, text, spt, null);
                 ISpoofaxTestCaseExtractionResult extractionResult = extractor.extract(input, project);
+
+                // use the start symbol of the test suite if no overriding start symbol has been given to this method
+                ISpoofaxFragmentParserConfig moduleFragmentConfig = fragmentConfig;
+                if(extractionResult.getStartSymbol() != null && moduleFragmentConfig == null) {
+                    moduleFragmentConfig = new SpoofaxFragmentParserConfig();
+                    moduleFragmentConfig.putConfig(lut,
+                        new JSGLRParserConfiguration(extractionResult.getStartSymbol()));
+                }
+
                 if(extractionResult.isSuccessful()) {
                     Iterable<ITestCase> tests = extractionResult.getTests();
+                    logger.debug("Using the following start symbol for this suite: {}", moduleFragmentConfig == null
+                        ? null : moduleFragmentConfig.getParserConfigForLanguage(lut).overridingStartSymbol);
                     for(ITestCase test : tests) {
                         logger.info("Running test '{}' of suite {}.", test.getDescription(), testSuite);
-                        ISpoofaxTestResult res = executor.run(project, test, lut, null);
+                        ISpoofaxTestResult res = executor.run(project, test, lut, null, moduleFragmentConfig);
                         logger.info("Test passed: {}", res.isSuccessful());
                         for(IMessage m : res.getAllMessages()) {
                             if(m.region() == null) {
@@ -105,13 +125,14 @@ public class Runner {
                     }
                 } else {
                     logger.error("Failed to run tests at {}. Extraction of tests failed.", testsPath);
-                    for(IMessage m : extractionResult.getAllMessages()) {
-                        if(m.region() == null) {
-                            logger.info("\t{} : {}", m.severity(), m.message());
-                        } else {
-                            logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
-                                m.severity(), m.message());
-                        }
+                }
+
+                for(IMessage m : extractionResult.getAllMessages()) {
+                    if(m.region() == null) {
+                        logger.info("\t{} : {}", m.severity(), m.message());
+                    } else {
+                        logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
+                            m.severity(), m.message());
                     }
                 }
             }
