@@ -11,9 +11,6 @@ public class Arguments {
     @Parameter(names = { "--help", "-h" }, description = "Shows usage help", required = false,
         help = true) public boolean help;
 
-    @Parameter(names = { "--lang", "-ol" }, description = "Location of any other language that should be loaded",
-        required = false) public List<String> targetLanguageLocation = Lists.newLinkedList();
-
 
     @Parameter(names = { "--lut", "-l" }, description = "Location of the language under test",
         required = true) public String lutLocation;
@@ -24,9 +21,14 @@ public class Arguments {
     @Parameter(names = { "--tests", "-t" }, description = "Location of test files",
         required = true) public String testsLocation;
 
-    @Parameter(names = { "--exit" }, description = "Immediately exit, used for testing purposes",
-        hidden = true) public boolean exit;
 
     @Parameter(names = { "--start-symbol", "-start" }, description = "Start Symbol for these tests",
         required = false) public String startSymbol;
+
+    @Parameter(names = { "--lang", "-ol" }, description = "Location of any other language that should be loaded",
+        required = false) public List<String> targetLanguageLocation = Lists.newLinkedList();
+
+
+    @Parameter(names = { "--exit" }, description = "Immediately exit, used for testing purposes",
+        hidden = true) public boolean exit;
 }
