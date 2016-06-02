@@ -9,10 +9,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.inject.Injector;
 
-/**
- * An example
- *
- */
 public class Main {
     private static final ILogger logger = LoggerUtils.logger(Main.class);
 
