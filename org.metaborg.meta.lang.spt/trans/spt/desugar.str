@@ -14,9 +14,15 @@ rules
   
   // Desugar Test
   desugar-term-before:
-    cons#([description, open_marker, fragment, close_marker, exps]) -> Test(description, open_marker, fragment, close_marker, exps)
+    cons#([description, open_marker, fragment, close_marker, exps]) -> <try(desugar-test)> Test(description, open_marker, fragment, close_marker, exps)
     where
       <eq> (cons, "Test2") + <eq> (cons, "Test3") + <eq> (cons, "Test4")
+  
+  desugar-test:
+    Test(description, open_marker, fragment, close_marker, expectations) -> Test(description, open_marker, fragment, close_marker, expectations')
+    where
+      [] := <filter(?ParseSucceeds() + ?ParseFails() + ?ParseTo(_) + ?ParseToAterm(_))> expectations;
+      expectations' := [ParseSucceeds() | expectations]
   
   // Desugar ToPart
   desugar-term-before:

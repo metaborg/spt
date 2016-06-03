@@ -7,9 +7,9 @@ context-free start-symbols TestSuite
 
 syntax
   // All layout between fragment markers has to be considered part of the fragment text
-  TestDecl-CF.Test2 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker2-CF Fragment2-CF CloseMarker2-CF LAYOUT?-CF {Expectation "\n"}*-CF
-  TestDecl-CF.Test3 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker3-CF Fragment3-CF CloseMarker3-CF LAYOUT?-CF {Expectation "\n"}*-CF
-  TestDecl-CF.Test4 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker4-CF Fragment4-CF CloseMarker4-CF LAYOUT?-CF {Expectation "\n"}*-CF
+  TestDecl-CF.Test2 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker2-CF Fragment2-CF CloseMarker2-CF LAYOUT?-CF Expectations-CF
+  TestDecl-CF.Test3 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker3-CF Fragment3-CF CloseMarker3-CF LAYOUT?-CF Expectations-CF
+  TestDecl-CF.Test4 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker4-CF Fragment4-CF CloseMarker4-CF LAYOUT?-CF Expectations-CF
 
   Fragment2-CF.Fragment = StringPart2-CF TailPart2-CF
   Fragment3-CF.Fragment = StringPart3-CF TailPart3-CF
@@ -47,6 +47,7 @@ context-free syntax
   CloseMarker4 = CloseBracket4
   
   // Expectations
+  Expectations = <<{Expectation "\n"}*>>
 
   // a term for the 'to' part that many expectations use
   ToPart.ToPart2 = <
