@@ -8,8 +8,12 @@ import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageBuilder;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.source.SourceRegion;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 
 public class MessageUtil {
+
+    private static final ILogger logger = LoggerUtils.logger(MessageUtil.class);
 
     /**
      * Create a new message with the same information, but the given region.
@@ -56,18 +60,30 @@ public class MessageUtil {
      */
     public static void propagateMessages(Iterable<IMessage> toPropagate, Collection<IMessage> messages,
         ISourceRegion defaultRegion, @Nullable ISourceRegion bounds) {
+        logger.debug("Propagating messages: {}", toPropagate);
         for(IMessage message : toPropagate) {
             ISourceRegion region = message.region();
             if(bounds == null && region != null) {
+                logger.debug("Propagating {} at its own region {}, because no bounds were given", message.message(),
+                    region);
                 messages.add(message);
             } else if(region == null || region.endOffset() < bounds.startOffset()
                 || region.startOffset() > bounds.endOffset()) {
+                logger.debug("Propagating '{}' at the default region due to bounds {}, not its own region {}",
+                    message.message(), bounds, region);
                 messages.add(setRegion(message, defaultRegion));
+            } else if(region.startOffset() < bounds.startOffset() && region.endOffset() > bounds.endOffset()) {
+                logger.debug("Propagating '{}' and cutting of the beginning and end offsets", message.message());
+                messages.add(setRegion(message, new SourceRegion(bounds.startOffset(), bounds.endOffset())));
             } else if(region.startOffset() < bounds.startOffset()) {
+                logger.debug("Propagating '{}' and cutting of the beginning offset", message.message());
                 messages.add(setRegion(message, new SourceRegion(bounds.startOffset(), region.endOffset())));
             } else if(region.endOffset() > bounds.endOffset()) {
+                logger.debug("Propagating '{}' and cutting of the end offset", message.message());
                 messages.add(setRegion(message, new SourceRegion(region.startOffset(), bounds.endOffset())));
             } else {
+                logger.debug("Propagating '{}' at its own region {}, as it was within the bounds", message.message(),
+                    region);
                 messages.add(message);
             }
         }

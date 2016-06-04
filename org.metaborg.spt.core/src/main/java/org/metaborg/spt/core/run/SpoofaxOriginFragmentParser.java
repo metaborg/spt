@@ -6,15 +6,21 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.source.SourceRegion;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.IFragment.FragmentPiece;
+import org.metaborg.mbt.core.model.expectations.MessageUtil;
 import org.metaborg.mbt.core.run.IFragmentParserConfig;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
+import org.metaborg.spoofax.core.unit.ParseContrib;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -38,11 +44,13 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
     private static final ILogger logger = LoggerUtils.logger(SpoofaxOriginFragmentParser.class);
 
     private final ISpoofaxInputUnitService inputService;
+    private final ISpoofaxUnitService unitService;
     private final ISpoofaxSyntaxService parseService;
 
-    @Inject public SpoofaxOriginFragmentParser(ISpoofaxInputUnitService inputService,
+    @Inject public SpoofaxOriginFragmentParser(ISpoofaxInputUnitService inputService, ISpoofaxUnitService unitService,
         ISpoofaxSyntaxService parseService) {
         this.inputService = inputService;
+        this.unitService = unitService;
         this.parseService = parseService;
     }
 
@@ -135,8 +143,34 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         }
 
         // now the offsets of the tokens are updated
-        // changing the state like this should update the offsets of the nodes automatically
-        return p;
+        // changing the state like this should update the offsets of the ast nodes automatically
+        // but next, we need to update the offsets of the parse messages
+        List<IMessage> changedMessages = Lists.newLinkedList();
+        for(IMessage m : p.messages()) {
+            ISourceRegion region = m.region();
+            if(region == null) {
+                continue;
+            }
+            int startAdjustment = 0;
+            int endAdjustment = 0;
+            for(OffsetAdjustment gap : gaps) {
+                if(gap.normalOffset <= region.startOffset()) {
+                    startAdjustment = gap.adjustment;
+                }
+                if(gap.normalOffset <= region.endOffset()) {
+                    endAdjustment = gap.adjustment;
+                } else {
+                    break;
+                }
+            }
+            if(startAdjustment > 0 || endAdjustment > 0) {
+                ISourceRegion newRegion =
+                    new SourceRegion(region.startOffset() + startAdjustment, region.endOffset() + endAdjustment);
+                changedMessages.add(MessageUtil.setRegion(m, newRegion));
+            }
+        }
+        return unitService.parseUnit(input,
+            new ParseContrib(p.valid(), p.success(), p.ast(), changedMessages, p.duration()));
     }
 
     @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, ILanguageImpl dialect,

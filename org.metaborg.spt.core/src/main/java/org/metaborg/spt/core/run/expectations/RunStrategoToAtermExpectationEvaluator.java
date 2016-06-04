@@ -141,11 +141,11 @@ public class RunStrategoToAtermExpectationEvaluator
             ISourceRegion selection = selections.get(0);
             for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
                 ISourceLocation loc = traceService.location(possibleSelection);
-                logger.debug("Checking possible selected term {} with location {}", possibleSelection, loc);
+                // logger.debug("Checking possible selected term {} with location {}", possibleSelection, loc);
                 // the region should match exactly
                 if(loc != null && loc.region().startOffset() == selection.startOffset()
                     && loc.region().endOffset() == selection.endOffset()) {
-                    logger.debug("Matched, adding it as input node to the strategy");
+                    // logger.debug("Matched, adding it as input node to the strategy");
                     terms.add(possibleSelection);
                 }
             }
