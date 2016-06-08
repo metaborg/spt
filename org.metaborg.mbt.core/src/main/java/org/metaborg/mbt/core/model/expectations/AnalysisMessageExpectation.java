@@ -16,11 +16,14 @@ public class AnalysisMessageExpectation extends ATestExpectation {
 
     private final int num;
     private final MessageSeverity severity;
+    private final Iterable<Integer> selections;
 
-    public AnalysisMessageExpectation(ISourceRegion region, int num, MessageSeverity severity) {
+    public AnalysisMessageExpectation(ISourceRegion region, int num, MessageSeverity severity,
+        Iterable<Integer> selections) {
         super(region);
         this.num = num;
         this.severity = severity;
+        this.selections = selections;
     }
 
     /**
@@ -35,5 +38,14 @@ public class AnalysisMessageExpectation extends ATestExpectation {
      */
     public MessageSeverity severity() {
         return severity;
+    }
+
+    /**
+     * The references to the selections at which the messages are expected.
+     * 
+     * May be empty. May be smaller than the number of expected messages.
+     */
+    public Iterable<Integer> selections() {
+        return selections;
     }
 }

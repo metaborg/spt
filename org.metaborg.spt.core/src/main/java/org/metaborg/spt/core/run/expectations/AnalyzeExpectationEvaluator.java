@@ -7,6 +7,7 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.messages.MessageSeverity;
+import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
@@ -64,8 +65,8 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
 
         Iterable<IMessage> analysisMessages = input.getFragmentResult().getAnalysisResult().messages();
 
-        final boolean success =
-            checkMessages(test, analysisMessages, expectation.severity(), expectation.num(), messages);
+        final boolean success = checkMessages(test, analysisMessages, expectation.severity(), expectation.num(),
+            expectation.selections(), messages);
 
         return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
@@ -77,10 +78,11 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
      * Only considers messages that are within the bounds of the fragment (so it ignores any messages that are on the
      * test fixture).
      * 
-     * TODO: support syntax like 'n errors on #i, #j' to make sure the locations of the messages are correct too.
+     * Also make sure the locations of the messages are correct if any selections were given (e.g. '2 errors at #1,
+     * #2').
      */
     private boolean checkMessages(ITestCase test, Iterable<IMessage> analysisMessages, MessageSeverity severity,
-        int expectedNumMessages, Collection<IMessage> messages) {
+        int expectedNumMessages, Iterable<Integer> selectionRefs, Collection<IMessage> messages) {
         // collect the messages of the given severity and proper location
         List<IMessage> interestingMessages = Lists.newLinkedList();
         for(IMessage message : analysisMessages) {
@@ -95,27 +97,27 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
                 "Expected " + expectedNumMessages + " " + severity + "s, but got " + interestingMessages.size(), null));
         }
 
-        // TODO: FIXME:
-        // in the future, the selections have to be explicitly specified by the expectation
-        // for example: 1 error at #2
-        // or : 2 errors at #1,#3
-        // /*
-        // * Check if all selections capture a message we are interested in. Not all messages have to be captured by a
-        // * selection, but all selections have to capture an interesting message.
-        // */
-        // for(ISourceRegion selection : test.getFragment().getSelections()) {
-        // boolean found = false;
-        // for(IMessage error : interestingMessages) {
-        // if(error.region() != null && selection.contains(error.region())) {
-        // found = true;
-        // break;
-        // }
-        // }
-        // if(!found) {
-        // messages.add(MessageFactory.newAnalysisError(test.getResource(), selection,
-        // "Expected an " + severity + " at this selection, but didn't find one.", null));
-        // }
-        // }
+        // Check message locations
+        final List<ISourceRegion> selections = test.getFragment().getSelections();
+        for(int i : selectionRefs) {
+            if(i > selections.size()) {
+                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                    "Not enough selections in the fragment to resolve #" + i, null));
+            } else {
+                ISourceRegion selection = selections.get(i - 1);
+                boolean found = false;
+                for(IMessage error : interestingMessages) {
+                    if(error.region() != null && selection.contains(error.region())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    messages.add(MessageFactory.newAnalysisError(test.getResource(), selection,
+                        "Expected a " + severity + " at this selection, but didn't find one.", null));
+                }
+            }
+        }
 
         if(messages.isEmpty()) {
             return true;

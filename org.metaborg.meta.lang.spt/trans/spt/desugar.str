@@ -46,7 +46,28 @@ rules
     OneWarning() -> Warnings(1)
   desugar-term-before:
     OneNote() -> Notes(1)
+  
+  // Desugar the 'n messages at ' expectations
+  desugar-term-before:
+    OneErrorAt(selref) -> ErrorsAt(1, [<desugar-selection-ref> selref])
+  desugar-term-before:
+    OneWarningAt(selref) -> WarningsAt(1, [<desugar-selection-ref> selref])
+  desugar-term-before:
+    OneNoteAt(selref) -> NotesAt(1, [<desugar-selection-ref> selref])
+  desugar-term-before:
+    ErrorsAt(n, at) -> ErrorsAt(<dec-string-to-int> n, <all(desugar-selection-ref)> at)
+  desugar-term-before:
+    WarningsAt(n, at) -> WarningsAt(<dec-string-to-int> n, <all(desugar-selection-ref)> at)
+  desugar-term-before:
+    NotesAt(n, at) -> NotesAt(<dec-string-to-int> n, <all(desugar-selection-ref)> at)
     
+    
+  // Desugar from a SelectionRef(string) to an int
+  desugar-selection-ref:
+    SelectionRef(n) -> i
+    with
+      i := <dec-string-to-int> n
+      
   // Desugar from a string to an int inside Errors|Warnings|Notes
   desugar-term-before:
     cons#([n]) -> cons#([i])
@@ -55,6 +76,7 @@ rules
       with
         i := <dec-string-to-int> n
         
+
   // Desugar from a string to an int inside Resolve|ResolveTo
   desugar-term-before:
     Resolve(n) -> Resolve(i)

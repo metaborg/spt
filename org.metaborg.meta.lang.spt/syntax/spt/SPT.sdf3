@@ -80,12 +80,19 @@ context-free syntax
   Expectation.ParseToAterm = <parse <ToAterm>>
   
   // analysis expectations
+  SelectionRef.SelectionRef = <#<INT>>
   Expectation.Errors = <<INT> errors>
+  Expectation.ErrorsAt = <<INT> errors at <{SelectionRef ", "}+>>
   Expectation.OneError = <1 error>
+  Expectation.OneErrorAt = <1 error at <SelectionRef>>
   Expectation.Warnings = <<INT> warnings>
+  Expectation.WarningsAt = <<INT> warnings at <{SelectionRef ", "}+>>
   Expectation.OneWarning = <1 warning>
+  Expectation.OneWarningAt = <1 warning at <SelectionRef>>
   Expectation.Notes = <<INT> notes>
+  Expectation.NotesAt = <<INT> notes at <{SelectionRef ", "}+>>
   Expectation.OneNote = <1 note>
+  Expectation.OneNoteAt = <1 note at <SelectionRef>>
   
   // reference resolution expectations
   Expectation.Resolve = <resolve #<INT>>
