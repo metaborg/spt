@@ -6,6 +6,7 @@ import java.util.List;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.FacetContribution;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.source.ISourceLocation;
@@ -22,6 +23,7 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -126,7 +128,11 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         List<IStrategoTerm> terms = Lists.newLinkedList();
         if(selections.isEmpty()) {
             // no selections, so we run on the entire ast
-            terms.add(analysisResult.ast());
+            // but only on the part that is inside the actual fragment, not the fixture
+            for(IStrategoTerm term : SPTUtil.outerFragments(traceService,
+                traceService.fragments(analysisResult, test.getFragment().getRegion()))) {
+                terms.add(term);
+            }
         } else if(selections.size() > 1) {
             // too many selections, we don't know which to select as input
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
@@ -178,14 +184,24 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                 } else {
                     // it's a RunTo(strategyName, ToPart(languageName, openMarker, fragment, closeMarker))
                     // we need to analyze the fragment, at least until we support running on raw parsed terms
-                    ISpoofaxAnalyzeUnit analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
-                        expectation.outputLanguage(), messages, test, input.getFragmentParserConfig());
+                    final ISpoofaxAnalyzeUnit analyzedFragment;
+                    if(expectation.outputLanguage() == null) {
+                        // default to the language under test if no language was given
+                        analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
+                            input.getLanguageUnderTest(), messages, test, input.getFragmentParserConfig());
+                    } else {
+                        analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
+                            expectation.outputLanguage(), messages, test, input.getFragmentParserConfig());
+                    }
                     // compare the ASTs
-                    if(analyzedFragment != null
-                        && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(), runtime.current(),
-                            termFactoryService.get(
-                                fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl(),
-                                test.getProject(), false))) {
+                    final ILanguageImpl toLang;
+                    if(expectation.outputLanguage() == null) {
+                        toLang = input.getLanguageUnderTest();
+                    } else {
+                        toLang = fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl();
+                    }
+                    if(analyzedFragment != null && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(),
+                        runtime.current(), termFactoryService.get(toLang, test.getProject(), false))) {
                         success = true;
                     } else {
                         lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

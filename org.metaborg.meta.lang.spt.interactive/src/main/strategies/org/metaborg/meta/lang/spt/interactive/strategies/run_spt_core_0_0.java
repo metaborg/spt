@@ -105,7 +105,7 @@ public class run_spt_core_0_0 extends Strategy {
         String name = null;
         String lutName = null;
         String startSymbol = null;
-        if(SUITE.equals(SPTUtil.consName(baseAst)) && baseAst.getSubtermCount() == 2) {
+        if(SUITE.equals(SPTUtil.consName(baseAst)) && baseAst.getSubtermCount() == 3) {
             IStrategoTerm headers = baseAst.getSubterm(0);
             for(IStrategoTerm header : headers.getAllSubterms()) {
                 switch(SPTUtil.consName(header)) {

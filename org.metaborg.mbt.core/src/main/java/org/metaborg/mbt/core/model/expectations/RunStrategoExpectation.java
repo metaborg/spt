@@ -1,5 +1,7 @@
 package org.metaborg.mbt.core.model.expectations;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 
@@ -19,7 +21,7 @@ public class RunStrategoExpectation extends AToPartExpectation {
     }
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
-        IFragment outputFragment, String langName, ISourceRegion langRegion) {
+        IFragment outputFragment, @Nullable String langName, @Nullable ISourceRegion langRegion) {
         super(region, outputFragment, langName, langRegion);
         this.strategy = stratName;
         this.stratRegion = stratRegion;

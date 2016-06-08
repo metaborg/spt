@@ -4,8 +4,22 @@ imports spt/Common
 
 context-free syntax
 
-ATerm.Anno = <<ATerm>{<{ATerm ", "}*>}>
-ATerm.Appl = <<ID>(<{ATerm ", "}*>)>
-ATerm.List = <[<{ATerm ", "}*>]>
-ATerm.Int = <<INT>>
-ATerm.String = <<STRING>>
+// Anno's can't be annotated again
+TermAnno.Anno = <<PreTerm>{<{PreTerm ", "}*>}>
+// Lists conflict with fragment markers, so they can't be ATerm in our grammar
+TermList.List = <[<{Term ", "}*>]>
+
+Term.Appl = <<ID>(<{MidTerm ", "}*>)>
+Term.Int = <<INT>>
+Term.String = <<STRING>>
+
+PreTerm = TermList
+PreTerm = Term
+
+MidTerm = Term
+MidTerm = TermList
+MidTerm = TermAnno
+
+ATerm = TermAnno
+ATerm = Term
+ATerm.List = <!ATerm <TermList>>

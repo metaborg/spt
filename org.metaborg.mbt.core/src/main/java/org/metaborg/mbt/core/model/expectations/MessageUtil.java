@@ -40,6 +40,30 @@ public class MessageUtil {
     }
 
     /**
+     * Create a new message with the same information, but the given message text.
+     * 
+     * @param m
+     *            the message to copy.
+     * @param msg
+     *            the message text to change to.
+     * @return the new message with the new message text.
+     */
+    public static IMessage setMessage(IMessage m, String msg) {
+        MessageBuilder b = MessageBuilder.create();
+        b.withMessage(msg);
+        b.withSeverity(m.severity());
+        b.withType(m.type());
+        b.withRegion(m.region());
+        if(m.source() != null) {
+            b.withSource(m.source());
+        }
+        if(m.exception() != null) {
+            b.withException(m.exception());
+        }
+        return b.build();
+    }
+
+    /**
      * Adds all messages in toPropagate to the given collection.
      * 
      * If any of the propagated messages does not have a region, it will be set to the given default region. This is
@@ -71,7 +95,12 @@ public class MessageUtil {
                 || region.startOffset() > bounds.endOffset()) {
                 logger.debug("Propagating '{}' at the default region due to bounds {}, not its own region {}",
                     message.message(), bounds, region);
-                messages.add(setRegion(message, defaultRegion));
+                messages
+                    .add(
+                        setMessage(setRegion(message, defaultRegion),
+                            message.message() + String.format(" (Relocated this message. Original location: (%s, %s))",
+                                region == null ? null : region.startOffset(),
+                                region == null ? null : region.endOffset())));
             } else if(region.startOffset() < bounds.startOffset() && region.endOffset() > bounds.endOffset()) {
                 logger.debug("Propagating '{}' and cutting of the beginning and end offsets", message.message());
                 messages.add(setRegion(message, new SourceRegion(bounds.startOffset(), bounds.endOffset())));

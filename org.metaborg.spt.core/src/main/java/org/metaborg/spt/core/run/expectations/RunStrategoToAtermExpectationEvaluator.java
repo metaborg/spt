@@ -21,6 +21,7 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.RunStrategoToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -128,7 +129,11 @@ public class RunStrategoToAtermExpectationEvaluator
         List<IStrategoTerm> terms = Lists.newLinkedList();
         if(selections.isEmpty()) {
             // no selections, so we run on the entire ast
-            terms.add(analysisResult.ast());
+            // but only on the part that is inside the actual fragment, not the fixture
+            for(IStrategoTerm term : SPTUtil.outerFragments(traceService,
+                traceService.fragments(analysisResult, test.getFragment().getRegion()))) {
+                terms.add(term);
+            }
         } else if(selections.size() > 1) {
             // too many selections, we don't know which to select as input
             logger.debug(

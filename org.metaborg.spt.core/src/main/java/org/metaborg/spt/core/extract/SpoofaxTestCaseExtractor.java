@@ -24,6 +24,8 @@ import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
@@ -32,7 +34,7 @@ import com.google.inject.Inject;
 
 public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
 
-    // private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseExtractor.class);
+    private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseExtractor.class);
 
     private final ISpoofaxSyntaxService parseService;
     private final ISpoofaxAnalysisService analysisService;
@@ -142,15 +144,20 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
         final List<ITestCase> tests = new ArrayList<>();
         final List<String> startSymbolContainer = new ArrayList<>();
         new TermVisitor() {
+            IStrategoTerm fixtureTerm = null;
+
             @Override public void preVisit(IStrategoTerm term) {
                 if(Term.isTermAppl(term)) {
                     if(SPTUtil.START_SYMBOL_CONS.equals(SPTUtil.consName(term))) {
                         startSymbolContainer.add(Term.asJavaString(term.getSubterm(0)));
+                    } else if(SPTUtil.FIXTURE_CONS.equals(SPTUtil.consName(term))) {
+                        fixtureTerm = term;
+                        logger.debug("Using test fixture: {}", fixtureTerm);
                     } else if(SPTUtil.TEST_CONS.equals(SPTUtil.consName(term))) {
                         // TODO: this doesn't seem like a proper use of builders
                         // are we allowed to reuse a builder like this?
-                        ITestCase test =
-                            testBuilder.withProject(project).withResource(testSuite).withTest(term).build();
+                        ITestCase test = testBuilder.withProject(project).withResource(testSuite)
+                            .withTestFixture(fixtureTerm).withTest(term).build();
                         tests.add(test);
                         for(ITestExpectation expectation : test.getExpectations()) {
                             // TODO: not a very good way of error reporting, but it works for now

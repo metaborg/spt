@@ -7,6 +7,10 @@ context-free start-symbols TestSuite
 
 syntax
   // All layout between fragment markers has to be considered part of the fragment text
+  TestFixture-CF.Fixture2 = "fixture" LAYOUT-CF OpenMarker2-CF StringPart2-CF OpenMarker2-CF LAYOUT?-CF "..." LAYOUT?-CF CloseMarker2-CF StringPart2-CF CloseMarker2-CF
+  TestFixture-CF.Fixture3 = "fixture" LAYOUT-CF OpenMarker3-CF StringPart3-CF OpenMarker3-CF LAYOUT?-CF "..." LAYOUT?-CF CloseMarker3-CF StringPart3-CF CloseMarker3-CF
+  TestFixture-CF.Fixture4 = "fixture" LAYOUT-CF OpenMarker4-CF StringPart4-CF OpenMarker4-CF LAYOUT?-CF "..." LAYOUT?-CF CloseMarker4-CF StringPart4-CF CloseMarker4-CF
+
   TestDecl-CF.Test2 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker2-CF Fragment2-CF CloseMarker2-CF LAYOUT?-CF Expectations-CF
   TestDecl-CF.Test3 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker3-CF Fragment3-CF CloseMarker3-CF LAYOUT?-CF Expectations-CF
   TestDecl-CF.Test4 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker4-CF Fragment4-CF CloseMarker4-CF LAYOUT?-CF Expectations-CF
@@ -26,6 +30,7 @@ syntax
 context-free syntax
   TestSuite.TestSuite = <
     <{Header "\n"}*>
+    <TestFixture?>
     <{TestDecl "\n\n"}*>
   >
 
@@ -51,17 +56,17 @@ context-free syntax
 
   // a term for the 'to' part that many expectations use
   ToPart.ToPart2 = <
-    to <LANG> <OpenMarker2>
+    to <LANG?> <OpenMarker2>
       <Fragment2>
     <CloseMarker2>
   >
   ToPart.ToPart3 = <
-    to <LANG> <OpenMarker3>
+    to <LANG?> <OpenMarker3>
       <Fragment3>
     <CloseMarker3>
   >
   ToPart.ToPart4 = <
-    to <LANG> <OpenMarker4>
+    to <LANG?> <OpenMarker4>
       <Fragment4>
     <CloseMarker4>
   >
@@ -117,7 +122,7 @@ lexical syntax
   StringPart2 = (~[\[\]] | OpenBracket1 | CloseBracket1)*
   StringPart3 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2)*
   StringPart4 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2 | OpenBracket3 | CloseBracket3)*
-
+  
 lexical restrictions  
   // NOTE: everything until the opening marker or newline is the description
   // update this when a new opening marker is introduced

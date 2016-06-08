@@ -24,6 +24,7 @@ import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 
@@ -61,8 +62,13 @@ public class FragmentUtil {
     /**
      * Get the name of the language of the given ToPart.
      */
-    public static String toPartLangName(IStrategoTerm toPart) {
-        return Term.asJavaString(toPart.getSubterm(0));
+    public static @Nullable String toPartLangName(IStrategoTerm toPart) {
+        IStrategoTerm langOption = toPart.getSubterm(0);
+        if("None".equals(SPTUtil.consName(langOption))) {
+            return null;
+        } else {
+            return Term.asJavaString(langOption.getSubterm(0));
+        }
     }
 
     /**
@@ -183,19 +189,14 @@ public class FragmentUtil {
      * 
      * @return the result of analyzing the fragment.
      */
-    public @Nullable ISpoofaxAnalyzeUnit analyzeFragment(IFragment fragment, String langName,
+    public @Nullable ISpoofaxAnalyzeUnit analyzeFragment(IFragment fragment, ILanguageImpl lang,
         Collection<IMessage> messages, ITestCase test, @Nullable IFragmentParserConfig fragmentConfig) {
-        ISpoofaxParseUnit p = parseFragment(fragment, langName, messages, test, fragmentConfig);
+        ISpoofaxParseUnit p = parseFragment(fragment, lang, messages, test, fragmentConfig);
         if(p == null) {
             return null;
         }
 
-        ILanguage lang = getLanguage(langName, messages, test);
-        if(lang == null) {
-            return null;
-        }
-        try(ITemporaryContext ctx =
-            contextService.getTemporary(test.getResource(), test.getProject(), lang.activeImpl())) {
+        try(ITemporaryContext ctx = contextService.getTemporary(test.getResource(), test.getProject(), lang)) {
             ISpoofaxAnalyzeUnit a = analysisService.analyze(p, ctx).result();
             if(a.success() && a.hasAst()) {
                 return a;
@@ -215,5 +216,33 @@ public class FragmentUtil {
                 "Analysis of the fragment failed with an unexpected exception.", e));
         }
         return null;
+    }
+
+    /**
+     * Tries to analyze the given fragment with the given name.
+     * 
+     * Will collect messages if things go wrong.
+     * 
+     * @param fragment
+     *            the fragment to parse.
+     * @param langName
+     *            the language to analyze it with.
+     * @param messages
+     *            where we collect messages.
+     * @param test
+     *            the test that contained the fragment.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
+     * 
+     * @return the result of analyzing the fragment.
+     */
+    public @Nullable ISpoofaxAnalyzeUnit analyzeFragment(IFragment fragment, String langName,
+        Collection<IMessage> messages, ITestCase test, @Nullable IFragmentParserConfig fragmentConfig) {
+        ILanguage lang = getLanguage(langName, messages, test);
+        if(lang == null) {
+            return null;
+        } else {
+            return analyzeFragment(fragment, lang.activeImpl(), messages, test, fragmentConfig);
+        }
     }
 }

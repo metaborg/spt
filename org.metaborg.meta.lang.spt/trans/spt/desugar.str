@@ -6,6 +6,8 @@ imports
 signature constructors
   // Test(description, open_marker, fragment, close_marker, expectations)
   Test : String * String * Fragment * String * List -> Test
+  // Fixture(open_marker1, str1, open_marker2, close_marker2, str2, close_marker1)
+  Fixture : String * String * String * String * String * String -> Fixture
   // ParseTo(language_name, open_marker, fragment, close_marker)
   ToPart : String * String * Fragment * String -> ParseTo
 
@@ -18,11 +20,18 @@ rules
     where
       <eq> (cons, "Test2") + <eq> (cons, "Test3") + <eq> (cons, "Test4")
   
+  // Add a parse succeeds expectation if no parse expectation is present
   desugar-test:
     Test(description, open_marker, fragment, close_marker, expectations) -> Test(description, open_marker, fragment, close_marker, expectations')
     where
       [] := <filter(?ParseSucceeds() + ?ParseFails() + ?ParseTo(_) + ?ParseToAterm(_))> expectations;
       expectations' := [ParseSucceeds() | expectations]
+  
+  // Desugar Fixture
+  desugar-term-before:
+    cons#([open_marker1, str1, open_marker2, close_marker2, str2, close_marker1]) -> Fixture(open_marker1, str1, open_marker2, close_marker2, str2, close_marker1)
+    where
+      <eq> (cons, "Fixture2") + <eq> (cons, "Fixture3") + <eq> (cons, "Fixture4")
   
   // Desugar ToPart
   desugar-term-before:

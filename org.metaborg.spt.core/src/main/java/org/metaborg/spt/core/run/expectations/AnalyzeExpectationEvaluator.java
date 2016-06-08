@@ -74,17 +74,17 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
      * Check if the number of messages in the given analysisMessages of the given severity matches the given expected
      * number of messages of this severity.
      * 
-     * Also checks if all selections of the test case capture a message of the given severity. It is allowed to have
-     * uncaptured messages, but it's not allowed to have selection that don't capture a message. A selection captures a
-     * message if the selection's region contains the message's region. Note that this means that selection are allowed
-     * to be wider than the actual message!
+     * Only considers messages that are within the bounds of the fragment (so it ignores any messages that are on the
+     * test fixture).
+     * 
+     * TODO: support syntax like 'n errors on #i, #j' to make sure the locations of the messages are correct too.
      */
     private boolean checkMessages(ITestCase test, Iterable<IMessage> analysisMessages, MessageSeverity severity,
         int expectedNumMessages, Collection<IMessage> messages) {
-        // collect the messages of the given severity
+        // collect the messages of the given severity and proper location
         List<IMessage> interestingMessages = Lists.newLinkedList();
         for(IMessage message : analysisMessages) {
-            if(severity == message.severity()) {
+            if(severity == message.severity() && test.getFragment().getRegion().contains(message.region())) {
                 interestingMessages.add(message);
             }
         }

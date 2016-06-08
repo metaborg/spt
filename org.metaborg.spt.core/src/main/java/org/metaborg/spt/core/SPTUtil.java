@@ -1,5 +1,9 @@
 package org.metaborg.spt.core;
 
+import java.util.List;
+
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -7,11 +11,14 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.StrategoAnnotation;
 import org.spoofax.terms.Term;
 
+import com.google.common.collect.Lists;
+
 public class SPTUtil {
 
     private static final ILogger logger = LoggerUtils.logger(SPTUtil.class);
 
     public static final String START_SYMBOL_CONS = "StartSymbol";
+    public static final String FIXTURE_CONS = "Fixture";
     public static final String TEST_CONS = "Test";
     public static final String SELECTION_CONS = "Selection";
     public static final String FRAGMENT_CONS = "Fragment";
@@ -76,5 +83,37 @@ public class SPTUtil {
             b.append(term.toString());
         }
         return b;
+    }
+
+    /**
+     * Gets the outermost terms from the terms returned by the tracing service.
+     * 
+     * NOTE: assumes the outer terms are at the end of the given iterable of fragments.
+     * 
+     * @param allFragments
+     *            the terms returned from the ITracingService.
+     * @return the outermost terms.
+     */
+    public static Iterable<IStrategoTerm> outerFragments(ISpoofaxTracingService traceService,
+        Iterable<IStrategoTerm> allFragments) {
+        final List<IStrategoTerm> allTerms = Lists.newArrayList(allFragments);
+        final List<IStrategoTerm> outerTerms = Lists.newArrayList();
+        final List<ISourceRegion> regions = Lists.newArrayList();
+        // the outermost terms are at the end, as the fragments function works bottomup
+        for(int i = allTerms.size() - 1; i >= 0; i--) {
+            IStrategoTerm term = allTerms.get(i);
+            ISourceRegion region = traceService.location(term).region();
+            boolean isOuter = true;
+            for(ISourceRegion other : regions) {
+                if(other.contains(region)) {
+                    isOuter = false;
+                    break;
+                }
+            }
+            if(isOuter) {
+                outerTerms.add(term);
+            }
+        }
+        return outerTerms;
     }
 }

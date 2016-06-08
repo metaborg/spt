@@ -46,8 +46,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 
     @Override public ISpoofaxTestCaseBuilder withTestFixture(IStrategoTerm testFixture) {
         fragmentBuilder.withFixture(testFixture);
-        // TODO: support test fixtures
-        throw new UnsupportedOperationException("Test fixtures are not supported yet.");
+        return this;
     }
 
     @Override public ISpoofaxTestCaseBuilder withResource(FileObject suiteFile) {
