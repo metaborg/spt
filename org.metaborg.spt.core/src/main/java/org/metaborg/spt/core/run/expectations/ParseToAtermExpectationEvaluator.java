@@ -16,13 +16,14 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.ParseToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.lang.TermEqualityUtil;
 
@@ -33,6 +34,8 @@ import com.google.inject.Inject;
  * Check if the input fragment parsed to the expected ATerm AST.
  */
 public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEvaluator<ParseToAtermExpectation> {
+
+    private static final ILogger logger = LoggerUtils.logger(ParseToAtermExpectationEvaluator.class);
 
     private final ITermFactoryService termFactoryService;
     private final ISpoofaxTracingService traceService;
@@ -69,7 +72,8 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         // compare the parse result
         // but only the part of the test's fragment, not the parts of the test fixture
         ISourceRegion fragmentRegion = test.getFragment().getRegion();
-        Iterable<IStrategoTerm> terms = SPTUtil.outerFragments(traceService, traceService.fragments(p, fragmentRegion));
+        Iterable<IStrategoTerm> terms = traceService.fragmentsWithin(p, fragmentRegion);
+        logger.debug("Fragment region: {}\nFragment terms: {}", fragmentRegion, terms);
         boolean success = false;
         String latestMessage = "The fragment was empty.";
         for(IStrategoTerm term : terms) {

@@ -10,8 +10,6 @@ import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.extract.ISpoofaxFragmentBuilder;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.metaborg.spt.core.run.FragmentUtil;
-import org.metaborg.util.log.ILogger;
-import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
@@ -21,7 +19,7 @@ import com.google.inject.Inject;
  */
 public class ParseExpectationProvider implements ISpoofaxTestExpectationProvider {
 
-    private static final ILogger logger = LoggerUtils.logger(ParseExpectationProvider.class);
+    // private static final ILogger logger = LoggerUtils.logger(ParseExpectationProvider.class);
 
     private static final String SUC = "ParseSucceeds";
     private static final String FAIL = "ParseFails";
@@ -46,7 +44,7 @@ public class ParseExpectationProvider implements ISpoofaxTestExpectationProvider
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        logger.debug("Creating a ParseExpectation for {}", expectationTerm);
+        // logger.debug("Creating a ParseExpectation for {}", expectationTerm);
         ISourceLocation loc = traceService.location(expectationTerm);
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
         final String cons = SPTUtil.consName(expectationTerm);

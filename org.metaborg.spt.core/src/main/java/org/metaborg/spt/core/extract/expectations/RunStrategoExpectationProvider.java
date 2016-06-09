@@ -40,10 +40,14 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
         String cons = SPTUtil.consName(expectationTerm);
-        return RUN.equals(cons) && expectationTerm.getSubtermCount() == 1
-            && Term.isTermString(expectationTerm.getSubterm(0))
-            || RUN_TO.equals(cons) && expectationTerm.getSubtermCount() == 2
-                && Term.isTermString(expectationTerm.getSubterm(0));
+        switch(cons) {
+            case RUN:
+                return expectationTerm.getSubtermCount() == 2 && Term.isTermString(expectationTerm.getSubterm(0));
+            case RUN_TO:
+                return expectationTerm.getSubtermCount() == 3 && Term.isTermString(expectationTerm.getSubterm(0));
+            default:
+                return false;
+        }
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
@@ -53,16 +57,33 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
         final String cons = SPTUtil.consName(expectationTerm);
         final IStrategoTerm stratTerm = expectationTerm.getSubterm(0);
         final String strategy = Term.asJavaString(stratTerm);
-        ISourceLocation stratLoc = traceService.location(stratTerm);
+        final ISourceLocation stratLoc = traceService.location(stratTerm);
+        final IStrategoTerm onTerm = expectationTerm.getSubterm(1);
+        final Integer selection;
+        final ISourceRegion selectionRegion;
+        if(SPTUtil.SOME.equals(SPTUtil.consName(onTerm))) {
+            selection = Term.asJavaInt(onTerm.getSubterm(0));
+            final ISourceLocation selLoc = traceService.location(onTerm);
+            if(selLoc == null) {
+                selectionRegion = region;
+            } else {
+                selectionRegion = selLoc.region();
+            }
+        } else {
+            selection = null;
+            selectionRegion = null;
+        }
+
         if(RUN.equals(cons)) {
-            return new RunStrategoExpectation(region, strategy, stratLoc.region());
+            return new RunStrategoExpectation(region, strategy, stratLoc.region(), selection, selectionRegion);
         } else {
             final IStrategoTerm toPart = expectationTerm.getSubterm(1);
             final String langName = FragmentUtil.toPartLangName(toPart);
             final ISourceRegion langRegion = fragmentUtil.toPartLangNameRegion(toPart);
             final IFragment outputFragment = fragmentBuilder.withFragment(FragmentUtil.toPartFragment(toPart))
                 .withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
-            return new RunStrategoExpectation(region, strategy, loc.region(), outputFragment, langName, langRegion);
+            return new RunStrategoExpectation(region, strategy, stratLoc.region(), selection, selectionRegion,
+                outputFragment, langName, langRegion);
         }
     }
 

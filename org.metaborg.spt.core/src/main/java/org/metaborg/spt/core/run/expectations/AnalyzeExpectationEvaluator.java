@@ -27,15 +27,7 @@ import com.google.common.collect.Lists;
 public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator<AnalysisMessageExpectation> {
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, AnalysisMessageExpectation expectation) {
-        // we claim the first n selections for an 'n errors' expectation
-        Collection<Integer> used = Lists.newLinkedList();
-        // but only if there are enough selections
-        if(fragment.getSelections().size() >= expectation.num()) {
-            for(int i = 0; i < expectation.num(); i++) {
-                used.add(i);
-            }
-        }
-        return used;
+        return Lists.newArrayList(expectation.selections());
     }
 
     @Override public TestPhase getPhase(IContext unused, AnalysisMessageExpectation expectation) {

@@ -89,6 +89,13 @@ rules
       i := <dec-string-to-int> x;
       j := <dec-string-to-int> y
       
+      
+  // Desugar OnPart to int
+  desugar-term-before:
+    OnPart(n) -> i
+    with
+      i := <dec-string-to-int> n      
+      
   // Desugar our ATerms
   desugar-term-before:
     Anno(term, annos) -> term{annos}

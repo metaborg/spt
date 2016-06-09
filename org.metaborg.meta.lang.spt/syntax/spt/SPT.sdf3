@@ -102,9 +102,10 @@ context-free syntax
   Expectation.HasOrigin = <has origin locations>
   
   // running stratego strategies expectations
-  Expectation.Run = <run <STRAT>>
-  Expectation.RunTo = <run <STRAT> <ToPart>>
-  Expectation.RunToAterm = <run <STRAT> <ToAterm>>
+  OnPart.OnPart = <on #<INT>>
+  Expectation.Run = <run <STRAT> <OnPart?>>
+  Expectation.RunTo = <run <STRAT> <OnPart?> <ToPart>>
+  Expectation.RunToAterm = <run <STRAT> <OnPart?> <ToAterm>>
   
   // transformations
   Expectation.Transform = <transform <STRING> <ToPart>>

@@ -1,6 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.core.MetaborgException;
@@ -23,7 +24,6 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -60,13 +60,9 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         this.fragmentUtil = fragmentUtil;
     }
 
-    @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoExpectation expectation) {
-        List<Integer> used = Lists.newLinkedList();
-        // we use the first selection (if any)
-        if(!fragment.getSelections().isEmpty()) {
-            used.add(0);
-        }
-        return used;
+    @SuppressWarnings("unchecked") @Override public Collection<Integer> usesSelections(IFragment fragment,
+        RunStrategoExpectation expectation) {
+        return expectation.selection() == null ? Collections.EMPTY_LIST : Lists.newArrayList(expectation.selection());
     }
 
     @Override public TestPhase getPhase(IContext languageUnderTestCtx, RunStrategoExpectation expectation) {
@@ -126,21 +122,19 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
          * starting on the outermost term, until we processed them all or one of them passed successfully.
          */
         List<IStrategoTerm> terms = Lists.newLinkedList();
-        if(selections.isEmpty()) {
+        if(expectation.selection() == null) {
             // no selections, so we run on the entire ast
             // but only on the part that is inside the actual fragment, not the fixture
-            for(IStrategoTerm term : SPTUtil.outerFragments(traceService,
-                traceService.fragments(analysisResult, test.getFragment().getRegion()))) {
+            for(IStrategoTerm term : traceService.fragmentsWithin(analysisResult, test.getFragment().getRegion())) {
                 terms.add(term);
             }
-        } else if(selections.size() > 1) {
-            // too many selections, we don't know which to select as input
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "Too many selections in this test case, we don't know which selection you want to use as input.",
-                null));
+        } else if(expectation.selection() > selections.size()) {
+            // not enough selections to resolve it
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
+                "Not enough selections to resolve #" + expectation.selection(), null));
         } else {
             // the input should be the selected term
-            ISourceRegion selection = selections.get(0);
+            ISourceRegion selection = selections.get(expectation.selection() - 1);
             for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
                 ISourceLocation loc = traceService.location(possibleSelection);
                 // the region should match exactly
