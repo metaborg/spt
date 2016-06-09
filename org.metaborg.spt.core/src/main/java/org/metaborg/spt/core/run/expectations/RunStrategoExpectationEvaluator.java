@@ -1,11 +1,13 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.FacetContribution;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.source.ISourceLocation;
@@ -58,13 +60,9 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         this.fragmentUtil = fragmentUtil;
     }
 
-    @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoExpectation expectation) {
-        List<Integer> used = Lists.newLinkedList();
-        // we use the first selection (if any)
-        if(!fragment.getSelections().isEmpty()) {
-            used.add(0);
-        }
-        return used;
+    @SuppressWarnings("unchecked") @Override public Collection<Integer> usesSelections(IFragment fragment,
+        RunStrategoExpectation expectation) {
+        return expectation.selection() == null ? Collections.EMPTY_LIST : Lists.newArrayList(expectation.selection());
     }
 
     @Override public TestPhase getPhase(IContext languageUnderTestCtx, RunStrategoExpectation expectation) {
@@ -124,17 +122,19 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
          * starting on the outermost term, until we processed them all or one of them passed successfully.
          */
         List<IStrategoTerm> terms = Lists.newLinkedList();
-        if(selections.isEmpty()) {
+        if(expectation.selection() == null) {
             // no selections, so we run on the entire ast
-            terms.add(analysisResult.ast());
-        } else if(selections.size() > 1) {
-            // too many selections, we don't know which to select as input
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "Too many selections in this test case, we don't know which selection you want to use as input.",
-                null));
+            // but only on the part that is inside the actual fragment, not the fixture
+            for(IStrategoTerm term : traceService.fragmentsWithin(analysisResult, test.getFragment().getRegion())) {
+                terms.add(term);
+            }
+        } else if(expectation.selection() > selections.size()) {
+            // not enough selections to resolve it
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
+                "Not enough selections to resolve #" + expectation.selection(), null));
         } else {
             // the input should be the selected term
-            ISourceRegion selection = selections.get(0);
+            ISourceRegion selection = selections.get(expectation.selection() - 1);
             for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
                 ISourceLocation loc = traceService.location(possibleSelection);
                 // the region should match exactly
@@ -178,14 +178,24 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                 } else {
                     // it's a RunTo(strategyName, ToPart(languageName, openMarker, fragment, closeMarker))
                     // we need to analyze the fragment, at least until we support running on raw parsed terms
-                    ISpoofaxAnalyzeUnit analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
-                        expectation.outputLanguage(), messages, test, input.getFragmentParserConfig());
+                    final ISpoofaxAnalyzeUnit analyzedFragment;
+                    if(expectation.outputLanguage() == null) {
+                        // default to the language under test if no language was given
+                        analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
+                            input.getLanguageUnderTest(), messages, test, input.getFragmentParserConfig());
+                    } else {
+                        analyzedFragment = fragmentUtil.analyzeFragment(expectation.outputFragment(),
+                            expectation.outputLanguage(), messages, test, input.getFragmentParserConfig());
+                    }
                     // compare the ASTs
-                    if(analyzedFragment != null
-                        && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(), runtime.current(),
-                            termFactoryService.get(
-                                fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl(),
-                                test.getProject(), false))) {
+                    final ILanguageImpl toLang;
+                    if(expectation.outputLanguage() == null) {
+                        toLang = input.getLanguageUnderTest();
+                    } else {
+                        toLang = fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl();
+                    }
+                    if(analyzedFragment != null && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(),
+                        runtime.current(), termFactoryService.get(toLang, test.getProject(), false))) {
                         success = true;
                     } else {
                         lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

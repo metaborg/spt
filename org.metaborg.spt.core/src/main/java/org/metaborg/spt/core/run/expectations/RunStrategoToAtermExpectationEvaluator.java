@@ -1,6 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.core.MetaborgException;
@@ -54,13 +55,9 @@ public class RunStrategoToAtermExpectationEvaluator
         this.termFactoryService = termFactoryService;
     }
 
-    @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoToAtermExpectation expectation) {
-        List<Integer> used = Lists.newLinkedList();
-        // we use the first selection (if any)
-        if(!fragment.getSelections().isEmpty()) {
-            used.add(0);
-        }
-        return used;
+    @SuppressWarnings("unchecked") @Override public Collection<Integer> usesSelections(IFragment fragment,
+        RunStrategoToAtermExpectation expectation) {
+        return expectation.selection() == null ? Collections.EMPTY_LIST : Lists.newArrayList(expectation.selection());
     }
 
     @Override public TestPhase getPhase(IContext languageUnderTestCtx, RunStrategoToAtermExpectation expectation) {
@@ -126,26 +123,26 @@ public class RunStrategoToAtermExpectationEvaluator
          * starting on the outermost term, until we processed them all or one of them passed successfully.
          */
         List<IStrategoTerm> terms = Lists.newLinkedList();
-        if(selections.isEmpty()) {
+        if(expectation.selection() == null) {
             // no selections, so we run on the entire ast
-            terms.add(analysisResult.ast());
-        } else if(selections.size() > 1) {
-            // too many selections, we don't know which to select as input
-            logger.debug(
-                "Too many selections in this test case, we don't know which selection you want to use as input.");
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "Too many selections in this test case, we don't know which selection you want to use as input.",
-                null));
+            // but only on the part that is inside the actual fragment, not the fixture
+            for(IStrategoTerm term : traceService.fragmentsWithin(analysisResult, test.getFragment().getRegion())) {
+                terms.add(term);
+            }
+        } else if(expectation.selection() > selections.size()) {
+            // not enough selections to resolve this selection
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
+                "Not enough selections to resolve #" + expectation.selection(), null));
         } else {
             // the input should be the selected term
-            ISourceRegion selection = selections.get(0);
+            ISourceRegion selection = selections.get(expectation.selection() - 1);
             for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
                 ISourceLocation loc = traceService.location(possibleSelection);
-                logger.debug("Checking possible selected term {} with location {}", possibleSelection, loc);
+                // logger.debug("Checking possible selected term {} with location {}", possibleSelection, loc);
                 // the region should match exactly
                 if(loc != null && loc.region().startOffset() == selection.startOffset()
                     && loc.region().endOffset() == selection.endOffset()) {
-                    logger.debug("Matched, adding it as input node to the strategy");
+                    // logger.debug("Matched, adding it as input node to the strategy");
                     terms.add(possibleSelection);
                 }
             }

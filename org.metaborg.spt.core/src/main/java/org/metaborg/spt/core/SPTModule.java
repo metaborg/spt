@@ -43,8 +43,8 @@ import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluatorService;
 import org.metaborg.spt.core.run.ISpoofaxFragmentParser;
 import org.metaborg.spt.core.run.ISpoofaxTestCaseRunner;
 import org.metaborg.spt.core.run.SpoofaxExpectationEvaluatorService;
+import org.metaborg.spt.core.run.SpoofaxOriginFragmentParser;
 import org.metaborg.spt.core.run.SpoofaxTestCaseRunner;
-import org.metaborg.spt.core.run.SpoofaxWhitespaceFragmentParser;
 import org.metaborg.spt.core.run.expectations.AnalyzeExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.HasOriginExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.ParseExpectationEvaluator;
@@ -177,10 +177,16 @@ public class SPTModule extends MBTModule {
 
     @Override protected void configureFragmentParser() {
         // for now, we keep using the whitespace hack
-        bind(SpoofaxWhitespaceFragmentParser.class).in(Singleton.class);
-        bind(ISpoofaxFragmentParser.class).to(SpoofaxWhitespaceFragmentParser.class);
-        bind(new TypeLiteral<IFragmentParser<?>>() {}).to(SpoofaxWhitespaceFragmentParser.class);
-        bind(new TypeLiteral<IFragmentParser<ISpoofaxParseUnit>>() {}).to(SpoofaxWhitespaceFragmentParser.class);
+        // bind(SpoofaxWhitespaceFragmentParser.class).in(Singleton.class);
+        // bind(ISpoofaxFragmentParser.class).to(SpoofaxWhitespaceFragmentParser.class);
+        // bind(new TypeLiteral<IFragmentParser<?>>() {}).to(SpoofaxWhitespaceFragmentParser.class);
+        // bind(new TypeLiteral<IFragmentParser<ISpoofaxParseUnit>>() {}).to(SpoofaxWhitespaceFragmentParser.class);
+
+        // this is a test for the new fragment parser
+        bind(SpoofaxOriginFragmentParser.class).in(Singleton.class);
+        bind(ISpoofaxFragmentParser.class).to(SpoofaxOriginFragmentParser.class);
+        bind(new TypeLiteral<IFragmentParser<?>>() {}).to(SpoofaxOriginFragmentParser.class);
+        bind(new TypeLiteral<IFragmentParser<ISpoofaxParseUnit>>() {}).to(SpoofaxOriginFragmentParser.class);
     }
 
     @Override public void configureUtil() {

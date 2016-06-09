@@ -11,7 +11,10 @@ public class SPTUtil {
 
     private static final ILogger logger = LoggerUtils.logger(SPTUtil.class);
 
+    public static final String SOME = "Some";
+
     public static final String START_SYMBOL_CONS = "StartSymbol";
+    public static final String FIXTURE_CONS = "Fixture";
     public static final String TEST_CONS = "Test";
     public static final String SELECTION_CONS = "Selection";
     public static final String FRAGMENT_CONS = "Fragment";
@@ -77,4 +80,5 @@ public class SPTUtil {
         }
         return b;
     }
+
 }

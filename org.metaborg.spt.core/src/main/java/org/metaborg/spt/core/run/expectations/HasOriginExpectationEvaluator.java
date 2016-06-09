@@ -60,7 +60,7 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
         ISpoofaxAnalyzeUnit a = input.getFragmentResult().getAnalysisResult();
         if(a == null || !a.valid() || !a.hasAst()) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "An analyzed AST is required to check origin location.", null));
+                "An analyzed AST is required to check origin locations.", null));
             return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 

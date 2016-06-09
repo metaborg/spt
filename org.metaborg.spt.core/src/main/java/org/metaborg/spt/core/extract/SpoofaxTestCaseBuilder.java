@@ -46,8 +46,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 
     @Override public ISpoofaxTestCaseBuilder withTestFixture(IStrategoTerm testFixture) {
         fragmentBuilder.withFixture(testFixture);
-        // TODO: support test fixtures
-        throw new UnsupportedOperationException("Test fixtures are not supported yet.");
+        return this;
     }
 
     @Override public ISpoofaxTestCaseBuilder withResource(FileObject suiteFile) {
@@ -82,9 +81,9 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
         // collect the AST nodes for the test expectations
         expectationTerms = new ArrayList<>();
         for(IStrategoTerm expectation : Tools.listAt(test, 4).getAllSubterms()) {
-            if(trace.location(expectation) == null) {
-                logger.warn("No origin information on test expectation {}", expectation);
-            }
+            // if(trace.location(expectation) == null) {
+            // logger.warn("No origin information on test expectation {}", expectation);
+            // }
             expectationTerms.add(expectation);
         }
 

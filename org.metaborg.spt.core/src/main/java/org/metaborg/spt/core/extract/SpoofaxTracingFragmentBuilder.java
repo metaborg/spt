@@ -13,6 +13,8 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.IFragment.FragmentPiece;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
@@ -21,14 +23,17 @@ import org.spoofax.terms.TermVisitor;
 import com.google.inject.Inject;
 
 /**
- * A builder for IFragments from the AST nodes of a Spoofax SPT test suite specification. 
+ * A builder for IFragments from the AST nodes of a Spoofax SPT test suite specification.
  * 
  * Uses the ISpoofaxTracingService to construct the regions for the selections of a Fragment.
  */
 public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
 
+//    private static final ILogger logger = LoggerUtils.logger(SpoofaxTracingFragmentBuilder.class);
+    
     private final ISpoofaxTracingService traceService;
 
+    private IStrategoTerm fixtureTerm = null;
     private IStrategoTerm fragmentTerm;
     private FileObject resource = null;
     private IProject project = null;
@@ -38,7 +43,8 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
     }
 
     @Override public ISpoofaxFragmentBuilder withFixture(IStrategoTerm fragmentFixture) {
-        throw new UnsupportedOperationException("We don't support test fixtures yet.");
+        this.fixtureTerm = fragmentFixture;
+        return this;
     }
 
     @Override public ISpoofaxFragmentBuilder withResource(FileObject resource) {
@@ -74,8 +80,19 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
         }
         ISourceRegion region = fragmentLocation.region();
         
-        // get the text and selections
+        // get the text of the fixture before the fragment
         final List<FragmentPiece> text = new LinkedList<>();
+        if (fixtureTerm != null) {
+            // Fixture(openmarker, text1, openmarker, closemarker, text2, closemarker)
+            final IStrategoTerm text1Term = fixtureTerm.getSubterm(1);
+            final ISourceLocation loc = traceService.location(text1Term);
+            if (loc == null) {
+                throw new IllegalArgumentException("No origin info for test fixture text: " + text1Term);
+            }
+            text.add(new FragmentPiece(loc.region().startOffset(), Term.asJavaString(text1Term)));
+        }
+        
+        // get the text and selections
         final List<ISourceRegion> selections = new ArrayList<>();
         new TermVisitor() {
 
@@ -136,6 +153,16 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
             }
         }.visit(fragmentTerm);
 
+        if (fixtureTerm != null) {
+            // Fixture(openmarker, text1, openmarker, closemarker, text2, closemarker)
+            final IStrategoTerm text2Term = fixtureTerm.getSubterm(4);
+            final ISourceLocation loc = traceService.location(text2Term);
+            if (loc == null) {
+                throw new IllegalArgumentException("No origin info for test fixture text: " + text2Term);
+            }
+            text.add(new FragmentPiece(loc.region().startOffset(), Term.asJavaString(text2Term)));
+        }
+        
         return new Fragment(region, selections, text, resource, project);
     }
 

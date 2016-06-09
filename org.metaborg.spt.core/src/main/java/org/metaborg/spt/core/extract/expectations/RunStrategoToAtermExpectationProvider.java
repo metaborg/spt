@@ -31,7 +31,7 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
         String cons = SPTUtil.consName(expectationTerm);
         return Term.isTermString(expectationTerm.getSubterm(0)) && RUN_TO.equals(cons)
-            && expectationTerm.getSubtermCount() == 2 && expectationTerm.getSubterm(1).getSubtermCount() == 1;
+            && expectationTerm.getSubtermCount() == 3 && expectationTerm.getSubterm(2).getSubtermCount() == 1;
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
@@ -40,8 +40,24 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
 
         final IStrategoTerm stratTerm = expectationTerm.getSubterm(0);
         final String strategy = Term.asJavaString(stratTerm);
-        final IStrategoTerm toAtermPart = expectationTerm.getSubterm(1);
-        return new RunStrategoToAtermExpectation(region, strategy, loc.region(), toAtermPart.getSubterm(0));
+        final IStrategoTerm onTerm = expectationTerm.getSubterm(1);
+        final Integer selection;
+        final ISourceRegion selectionRegion;
+        if(SPTUtil.SOME.equals(SPTUtil.consName(onTerm))) {
+            selection = Term.asJavaInt(onTerm.getSubterm(0));
+            final ISourceLocation selLoc = traceService.location(onTerm);
+            if(selLoc == null) {
+                selectionRegion = region;
+            } else {
+                selectionRegion = selLoc.region();
+            }
+        } else {
+            selection = null;
+            selectionRegion = null;
+        }
+        final IStrategoTerm toAtermPart = expectationTerm.getSubterm(2);
+        return new RunStrategoToAtermExpectation(region, strategy, loc.region(), selection, selectionRegion,
+            toAtermPart.getSubterm(0));
     }
 
 }

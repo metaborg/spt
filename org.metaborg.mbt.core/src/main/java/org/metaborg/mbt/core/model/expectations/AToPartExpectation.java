@@ -22,7 +22,8 @@ public abstract class AToPartExpectation extends ATestExpectation {
         this(region, fragment, null, null);
     }
 
-    public AToPartExpectation(ISourceRegion region, IFragment fragment, String langName, ISourceRegion langNameRegion) {
+    public AToPartExpectation(ISourceRegion region, IFragment fragment, @Nullable String langName,
+        @Nullable ISourceRegion langNameRegion) {
         super(region);
         this.expectedResult = fragment;
         this.expectedResultLanguage = langName;

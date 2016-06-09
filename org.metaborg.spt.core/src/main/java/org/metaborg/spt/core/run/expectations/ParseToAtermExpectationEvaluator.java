@@ -7,11 +7,13 @@ import java.util.List;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
+import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.expectations.ParseToAtermExpectation;
@@ -20,6 +22,9 @@ import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
@@ -30,10 +35,15 @@ import com.google.inject.Inject;
  */
 public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEvaluator<ParseToAtermExpectation> {
 
-    private final ITermFactoryService termFactoryService;
+    private static final ILogger logger = LoggerUtils.logger(ParseToAtermExpectationEvaluator.class);
 
-    @Inject public ParseToAtermExpectationEvaluator(ITermFactoryService termFactoryService) {
+    private final ITermFactoryService termFactoryService;
+    private final ISpoofaxTracingService traceService;
+
+    @Inject public ParseToAtermExpectationEvaluator(ITermFactoryService termFactoryService,
+        ISpoofaxTracingService traceService) {
         this.termFactoryService = termFactoryService;
+        this.traceService = traceService;
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, ParseToAtermExpectation expectation) {
@@ -49,7 +59,6 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
 
         ISpoofaxParseUnit p = input.getFragmentResult().getParseResult();
         ITestCase test = input.getTestCase();
-        final boolean success;
 
         List<IMessage> messages = new LinkedList<>();
         Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
@@ -61,14 +70,26 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         }
 
         // compare the parse result
-        success = TermEqualityUtil.equalsIgnoreAnnos(p.ast(), expectation.expectedResult(),
-            termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false));
-        if(!success) {
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                String.format(
+        // but only the part of the test's fragment, not the parts of the test fixture
+        ISourceRegion fragmentRegion = test.getFragment().getRegion();
+        Iterable<IStrategoTerm> terms = traceService.fragmentsWithin(p, fragmentRegion);
+        logger.debug("Fragment region: {}\nFragment terms: {}", fragmentRegion, terms);
+        boolean success = false;
+        String latestMessage = "The fragment was empty.";
+        for(IStrategoTerm term : terms) {
+            if(TermEqualityUtil.equalsIgnoreAnnos(term, expectation.expectedResult(),
+                termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
+                success = true;
+                break;
+            } else {
+                latestMessage = String.format(
                     "The fragment did not parse to the expected ATerm.\nParse result was: %1$s\nExpected result was: %2$s",
-                    p.ast(), expectation.expectedResult()),
-                null));
+                    term, expectation.expectedResult());
+            }
+        }
+        if(!success) {
+            messages.add(
+                MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(), latestMessage, null));
         }
         return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }

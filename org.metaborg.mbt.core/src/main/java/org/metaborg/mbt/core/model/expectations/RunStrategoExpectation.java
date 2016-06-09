@@ -1,5 +1,7 @@
 package org.metaborg.mbt.core.model.expectations;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 
@@ -13,16 +15,22 @@ public class RunStrategoExpectation extends AToPartExpectation {
 
     private final String strategy;
     private final ISourceRegion stratRegion;
+    @Nullable private final Integer selection;
+    @Nullable private final ISourceRegion selectionRegion;
 
-    public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion) {
-        this(region, stratName, stratRegion, null, null, null);
+    public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
+        @Nullable Integer selection, @Nullable ISourceRegion selectionRegion) {
+        this(region, stratName, stratRegion, selection, selectionRegion, null, null, null);
     }
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
-        IFragment outputFragment, String langName, ISourceRegion langRegion) {
+        @Nullable Integer selection, @Nullable ISourceRegion selectionRegion, IFragment outputFragment,
+        @Nullable String langName, @Nullable ISourceRegion langRegion) {
         super(region, outputFragment, langName, langRegion);
         this.strategy = stratName;
         this.stratRegion = stratRegion;
+        this.selection = selection;
+        this.selectionRegion = selectionRegion;
     }
 
     /**
@@ -37,5 +45,25 @@ public class RunStrategoExpectation extends AToPartExpectation {
      */
     public ISourceRegion strategyRegion() {
         return stratRegion;
+    }
+
+    /**
+     * The number of the selection on which the strategy should be executed.
+     * 
+     * May be null, if it should be executed on the entire fragment.
+     */
+    public @Nullable Integer selection() {
+        return selection;
+    }
+
+    /**
+     * The region of the reference to the selection on which the strategy should be executed.
+     * 
+     * I.e. the region of the '#n' part.
+     * 
+     * May be null, iff the selection is null.
+     */
+    public @Nullable ISourceRegion selectionRegion() {
+        return selectionRegion;
     }
 }

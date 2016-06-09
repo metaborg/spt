@@ -6,13 +6,31 @@ imports spt/ATerm
 context-free start-symbols TestSuite
 
 syntax
-  TestDecl-CF.Test2 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker2-CF Fragment2-CF CloseMarker2-CF LAYOUT?-CF {Expectation "\n"}*-CF
-  TestDecl-CF.Test3 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker3-CF Fragment3-CF CloseMarker3-CF LAYOUT?-CF {Expectation "\n"}*-CF
-  TestDecl-CF.Test4 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker4-CF Fragment4-CF CloseMarker4-CF LAYOUT?-CF {Expectation "\n"}*-CF
+  // All layout between fragment markers has to be considered part of the fragment text
+  TestFixture-CF.Fixture2 = "fixture" LAYOUT-CF OpenMarker2-CF StringPart2-CF OpenMarker2-CF LAYOUT?-CF "..." LAYOUT?-CF CloseMarker2-CF StringPart2-CF CloseMarker2-CF
+  TestFixture-CF.Fixture3 = "fixture" LAYOUT-CF OpenMarker3-CF StringPart3-CF OpenMarker3-CF LAYOUT?-CF "..." LAYOUT?-CF CloseMarker3-CF StringPart3-CF CloseMarker3-CF
+  TestFixture-CF.Fixture4 = "fixture" LAYOUT-CF OpenMarker4-CF StringPart4-CF OpenMarker4-CF LAYOUT?-CF "..." LAYOUT?-CF CloseMarker4-CF StringPart4-CF CloseMarker4-CF
+
+  TestDecl-CF.Test2 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker2-CF Fragment2-CF CloseMarker2-CF LAYOUT?-CF Expectations-CF
+  TestDecl-CF.Test3 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker3-CF Fragment3-CF CloseMarker3-CF LAYOUT?-CF Expectations-CF
+  TestDecl-CF.Test4 = "test" LAYOUT?-CF Description-CF LAYOUT?-CF OpenMarker4-CF Fragment4-CF CloseMarker4-CF LAYOUT?-CF Expectations-CF
+
+  Fragment2-CF.Fragment = StringPart2-CF TailPart2-CF
+  Fragment3-CF.Fragment = StringPart3-CF TailPart3-CF
+  Fragment4-CF.Fragment = StringPart4-CF TailPart4-CF
+  
+  TailPart2-CF.More = Selection2-CF StringPart2-CF TailPart2-CF
+  TailPart3-CF.More = Selection3-CF StringPart3-CF TailPart3-CF
+  TailPart4-CF.More = Selection4-CF StringPart4-CF TailPart4-CF
+  
+  Selection2-CF.Selection = OpenBracket2-CF StringPart2-CF CloseBracket2-CF
+  Selection3-CF.Selection = OpenBracket3-CF StringPart3-CF CloseBracket3-CF
+  Selection4-CF.Selection = OpenBracket4-CF StringPart4-CF CloseBracket4-CF
 
 context-free syntax
   TestSuite.TestSuite = <
     <{Header "\n"}*>
+    <TestFixture?>
     <{TestDecl "\n\n"}*>
   >
 
@@ -20,7 +38,11 @@ context-free syntax
   // the start symbol is not supported yet by the SPT implementation
   Header.StartSymbol = <start symbol <ID>>
   Header.Language = <language <LANG>>
-  
+
+  TailPart2.Done = <>
+  TailPart3.Done = <>
+  TailPart4.Done = <>
+
   // for now we only have brackets as markers
   OpenMarker2 = OpenBracket2
   OpenMarker3 = OpenBracket3
@@ -29,36 +51,22 @@ context-free syntax
   CloseMarker3 = CloseBracket3
   CloseMarker4 = CloseBracket4
   
-  Fragment2.Fragment = <<StringPart2><TailPart2>>
-  Fragment3.Fragment = <<StringPart3><TailPart3>>
-  Fragment4.Fragment = <<StringPart4><TailPart4>>
-  
-  TailPart2.Done = <>
-  TailPart2.More = <<Selection2><StringPart2><TailPart2>>
-  TailPart3.Done = <>
-  TailPart3.More = <<Selection3><StringPart3><TailPart3>>
-  TailPart4.Done = <>
-  TailPart4.More = <<Selection4><StringPart4><TailPart4>>
-  
-  Selection2.Selection = <<OpenBracket2><StringPart2><CloseBracket2>>
-  Selection3.Selection = <<OpenBracket3><StringPart3><CloseBracket3>>
-  Selection4.Selection = <<OpenBracket4><StringPart4><CloseBracket4>>
-  
   // Expectations
+  Expectations = <<{Expectation "\n"}*>>
 
   // a term for the 'to' part that many expectations use
   ToPart.ToPart2 = <
-    to <LANG> <OpenMarker2>
+    to <LANG?> <OpenMarker2>
       <Fragment2>
     <CloseMarker2>
   >
   ToPart.ToPart3 = <
-    to <LANG> <OpenMarker3>
+    to <LANG?> <OpenMarker3>
       <Fragment3>
     <CloseMarker3>
   >
   ToPart.ToPart4 = <
-    to <LANG> <OpenMarker4>
+    to <LANG?> <OpenMarker4>
       <Fragment4>
     <CloseMarker4>
   >
@@ -72,12 +80,19 @@ context-free syntax
   Expectation.ParseToAterm = <parse <ToAterm>>
   
   // analysis expectations
+  SelectionRef.SelectionRef = <#<INT>>
   Expectation.Errors = <<INT> errors>
+  Expectation.ErrorsAt = <<INT> errors at <{SelectionRef ", "}+>>
   Expectation.OneError = <1 error>
+  Expectation.OneErrorAt = <1 error at <SelectionRef>>
   Expectation.Warnings = <<INT> warnings>
+  Expectation.WarningsAt = <<INT> warnings at <{SelectionRef ", "}+>>
   Expectation.OneWarning = <1 warning>
+  Expectation.OneWarningAt = <1 warning at <SelectionRef>>
   Expectation.Notes = <<INT> notes>
+  Expectation.NotesAt = <<INT> notes at <{SelectionRef ", "}+>>
   Expectation.OneNote = <1 note>
+  Expectation.OneNoteAt = <1 note at <SelectionRef>>
   
   // reference resolution expectations
   Expectation.Resolve = <resolve #<INT>>
@@ -87,9 +102,10 @@ context-free syntax
   Expectation.HasOrigin = <has origin locations>
   
   // running stratego strategies expectations
-  Expectation.Run = <run <STRAT>>
-  Expectation.RunTo = <run <STRAT> <ToPart>>
-  Expectation.RunToAterm = <run <STRAT> <ToAterm>>
+  OnPart.OnPart = <on #<INT>>
+  Expectation.Run = <run <STRAT> <OnPart?>>
+  Expectation.RunTo = <run <STRAT> <OnPart?> <ToPart>>
+  Expectation.RunToAterm = <run <STRAT> <OnPart?> <ToAterm>>
   
   // transformations
   Expectation.Transform = <transform <STRING> <ToPart>>
@@ -114,7 +130,7 @@ lexical syntax
   StringPart2 = (~[\[\]] | OpenBracket1 | CloseBracket1)*
   StringPart3 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2)*
   StringPart4 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2 | OpenBracket3 | CloseBracket3)*
-
+  
 lexical restrictions  
   // NOTE: everything until the opening marker or newline is the description
   // update this when a new opening marker is introduced

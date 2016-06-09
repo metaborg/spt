@@ -1,5 +1,7 @@
 package org.metaborg.mbt.core.model.expectations;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.action.ITransformGoal;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
@@ -15,8 +17,8 @@ public class TransformExpectation extends AToPartExpectation {
         this(region, goal, outputFragment, null, null);
     }
 
-    public TransformExpectation(ISourceRegion region, ITransformGoal goal, IFragment outputFragment, String langName,
-        ISourceRegion langRegion) {
+    public TransformExpectation(ISourceRegion region, ITransformGoal goal, IFragment outputFragment,
+        @Nullable String langName, @Nullable ISourceRegion langRegion) {
         super(region, outputFragment, langName, langRegion);
         this.goal = goal;
     }
