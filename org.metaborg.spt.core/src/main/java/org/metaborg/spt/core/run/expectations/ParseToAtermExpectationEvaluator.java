@@ -84,7 +84,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
             } else {
                 latestMessage = String.format(
                     "The fragment did not parse to the expected ATerm.\nParse result was: %1$s\nExpected result was: %2$s",
-                    term, expectation.expectedResult());
+                    term, SPTUtil.prettyPrintMatch(expectation.expectedResult()));
             }
         }
         if(!success) {

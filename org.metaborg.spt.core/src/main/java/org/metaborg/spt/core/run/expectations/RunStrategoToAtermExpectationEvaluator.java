@@ -184,7 +184,7 @@ public class RunStrategoToAtermExpectationEvaluator
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                         String.format(
                             "The result of running %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
-                            strategy, expectation.expectedResult(), runtime.current()),
+                            strategy, SPTUtil.prettyPrintMatch(expectation.expectedResult()), runtime.current()),
                         null);
                 }
                 if(success) {

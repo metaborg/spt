@@ -124,7 +124,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                         String.format(
                             "The result of transformation %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
-                            expectation.goal(), out, result),
+                            expectation.goal(), SPTUtil.prettyPrintMatch(out), result),
                         null));
                 }
             } else {
@@ -132,9 +132,9 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
                     String.format("Transformation %1$s failed.", expectation.goal()), null));
             }
         } catch(TransformException e) {
-            logger.debug("An exception occured while trying to transform {}.", e, expectation.goal());
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                String.format("An exception occured while trying to transform %1$s.", expectation.goal()), e));
+            logger.debug("An exception occured while trying to transform {}", e, expectation.goal());
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(), String.format(
+                "An exception occured while trying to transform %s: %s.", expectation.goal(), e.getMessage()), e));
         }
 
         if(tempCtx != null) {
