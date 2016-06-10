@@ -1,0 +1,27 @@
+module transform
+
+language MiniSQL
+
+fixture [[
+  CREATE TABLE T(
+    [[...]]
+  );
+]]
+
+test run transform on entire AST (positive) [[
+  i int
+]] transform "Print id" to Module([TableDef("T",[ColDef("i", INT())])])
+
+test run transform on entire AST (negative) [[
+  i int
+]] transform "Print id" to ColDef("i", INT())
+
+test to part of transform optional (positive) [[
+  i int
+]] transform "Print 1 on parse"
+
+test output fragment not combined with fixture (positive) [[
+  i int
+]] transform "Print id" to [[CREATE TABLE T(i int);]]
+
+

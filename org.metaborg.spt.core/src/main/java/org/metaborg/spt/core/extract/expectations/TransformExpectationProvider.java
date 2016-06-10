@@ -49,22 +49,28 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
         String cons = SPTUtil.consName(expectationTerm);
-        return cons != null && TRANSFORM.equals(cons) && expectationTerm.getSubtermCount() == 2
-            && Term.isTermString(expectationTerm.getSubterm(0))
-            && goalNames(Term.asJavaString(expectationTerm.getSubterm(0))).size() > 0;
+        if(!TRANSFORM.equals(cons)) {
+            return false;
+        }
+        if(expectationTerm.getSubtermCount() == 1) {
+            return Term.isTermString(expectationTerm.getSubterm(0));
+        } else if(expectationTerm.getSubtermCount() == 2) {
+            return Term.isTermString(expectationTerm.getSubterm(0))
+                && goalNames(Term.asJavaString(expectationTerm.getSubterm(0))).size() > 0;
+        }
+        return false;
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
         ISourceLocation loc = traceService.location(expectationTerm);
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
-        // It's a Transform("goal", ToPart(...))
+        // It's a Transform("goal") or a Transform("goal", ToPart(...))
         String unQuotedGoalStr = Term.asJavaString(expectationTerm.getSubterm(0));
         if(unQuotedGoalStr.length() > 2 && unQuotedGoalStr.startsWith("\"") && unQuotedGoalStr.endsWith("\"")) {
             unQuotedGoalStr = unQuotedGoalStr.substring(1, unQuotedGoalStr.length() - 1);
         }
         final List<String> goalNames = goalNames(unQuotedGoalStr);
-        final IStrategoTerm toPart = expectationTerm.getSubterm(1);
 
         final ITransformGoal goal;
         if(goalNames.size() > 1) {
@@ -76,11 +82,16 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
             goal = new EndNamedGoal(goalNames.get(0));
         }
 
-        final String lang = FragmentUtil.toPartLangName(toPart);
-        final ISourceRegion langRegion = fragmentUtil.toPartLangNameRegion(toPart);
-        final IFragment fragment = fragmentBuilder.withFragment(FragmentUtil.toPartFragment(toPart))
-            .withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
+        if(expectationTerm.getSubtermCount() == 2) {
+            final IStrategoTerm toPart = expectationTerm.getSubterm(1);
+            final String lang = FragmentUtil.toPartLangName(toPart);
+            final ISourceRegion langRegion = fragmentUtil.toPartLangNameRegion(toPart);
+            final IFragment fragment = fragmentBuilder.withFragment(FragmentUtil.toPartFragment(toPart))
+                .withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
+            return new TransformExpectation(region, goal, fragment, lang, langRegion);
+        } else {
+            return new TransformExpectation(region, goal, null, null, null);
+        }
 
-        return new TransformExpectation(region, goal, fragment, lang, langRegion);
     }
 }

@@ -127,26 +127,32 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             IStrategoTerm result =
                 transform(input, expectation.goal(), ctx, test, messages, useAnalysis, transformService);
             if(result != null) {
-                // do stuff to the output fragment
-                final ILanguageImpl toLang;
-                if(expectation.outputLanguage() == null) {
-                    toLang = input.getLanguageUnderTest();
+                if(expectation.outputFragment() == null) {
+                    success = true;
                 } else {
-                    toLang = fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl();
-                }
-                final IStrategoTerm out = doFragment(expectation.outputFragment(), toLang, test, messages,
-                    fragmentResults, useAnalysis, input.getFragmentParserConfig());
-                if(out != null) {
-                    // check the equality
-                    if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
-                        termFactoryService.get(lut, test.getProject(), false))) {
-                        success = true;
+                    // we need to compare to an output fragment
+                    // do stuff to the output fragment
+                    final ILanguageImpl toLang;
+                    if(expectation.outputLanguage() == null) {
+                        toLang = input.getLanguageUnderTest();
                     } else {
-                        messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                            String.format(
-                                "The result of transformation %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
-                                expectation.goal(), out, result),
-                            null));
+                        toLang = fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl();
+                    }
+                    final IStrategoTerm out = doFragment(expectation.outputFragment(), toLang, test, messages,
+                        fragmentResults, useAnalysis, input.getFragmentParserConfig());
+                    if(out != null) {
+                        // check the equality
+                        if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
+                            termFactoryService.get(lut, test.getProject(), false))) {
+                            success = true;
+                        } else {
+                            messages
+                                .add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                                    String.format(
+                                        "The result of transformation %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
+                                        expectation.goal(), out, result),
+                                    null));
+                        }
                     }
                 }
             } else {
