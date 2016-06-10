@@ -93,23 +93,36 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
 
         // Check message locations
         final List<ISourceRegion> selections = test.getFragment().getSelections();
+        final List<Integer> processedSelections = Lists.newArrayList();
         for(int i : selectionRefs) {
             if(i > selections.size()) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Not enough selections in the fragment to resolve #" + i, null));
             } else {
                 ISourceRegion selection = selections.get(i - 1);
-                boolean found = false;
-                for(IMessage error : interestingMessages) {
-                    if(error.region() != null && selection.contains(error.region())) {
-                        found = true;
-                        break;
+                // we have to make sure that `2 errors at #1,#1` will look for BOTH errors at location #1
+                int countRequired = 1;
+                for(int j : processedSelections) {
+                    if(i == j) {
+                        countRequired++;
                     }
                 }
-                if(!found) {
-                    messages.add(MessageFactory.newAnalysisError(test.getResource(), selection,
-                        "Expected a " + severity + " at this selection, but didn't find one.", null));
+                int found = 0;
+                for(IMessage error : interestingMessages) {
+                    if(error.region() != null && selection.contains(error.region())) {
+                        found++;
+                        if(found >= countRequired) {
+                            break;
+                        }
+                    }
                 }
+                if(found < countRequired) {
+                    messages.add(MessageFactory.newAnalysisError(test.getResource(), selection,
+                        String.format("Expected %s %s%s at this selection, but found %s.", countRequired, severity,
+                            countRequired == 1 ? "" : "s", found),
+                        null));
+                }
+                processedSelections.add(i);
             }
         }
 

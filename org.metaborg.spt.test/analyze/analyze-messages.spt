@@ -1,0 +1,99 @@
+module analyze-messages
+
+language MiniSQL
+
+fixture [[
+  // there will be a note on the name
+  CREATE TABLE Note (i int);
+  // there will be a warning on the name
+  CREATE TABLE mytable (i int);
+  CREATE TABLE T (i int);
+
+  [[...]]
+]]
+
+test error only in fragment (positive) [[
+  CREATE TABLE T (i int);
+]] 1 error
+
+test error only in fragment (negative) [[
+  CREATE TABLE T (i int);
+]] 2 errors
+
+test warning only in fragment (positive) [[
+  CREATE TABLE mytable (i int);
+]] 1 warning
+
+test warning only in fragment (negative) [[
+  CREATE TABLE mytable (i int);
+]] 2 warnings
+
+test note only in fragment (positive) [[
+  CREATE TABLE Note (i int);
+]] 1 note
+
+test note only in fragment (negative) [[
+  CREATE TABLE Note (i int);
+]] 2 notes
+
+test warnings and notes allowed with error (positive) [[
+  CREATE TABLE Note(i int);
+  CREATE TABLE woop(i int);
+]] 1 error
+
+test errors and notes allowed with warning (positive) [[
+  CREATE TABLE Note(i int);
+  CREATE TABLE woop(i int);
+]] 1 warning
+
+test errors and warnings allowed with notes (positive) [[
+  CREATE TABLE Note(i int);
+  CREATE TABLE woop(i int);
+]] 1 note
+
+test too few error locations (positive) [[
+  CREATE TABLE [[T]](i int);
+  CREATE TABLE T(i int);
+]] 2 errors at #1
+
+test multiple note locations at same spot (positive) [[
+  CREATE TABLE [[DoubleNote]](i int);
+  CREATE TABLE T(i int);
+]] 2 notes at #1,#1
+
+test multiple note locations at same spot (negative) [[
+  CREATE TABLE [[Note]](i int);
+  CREATE TABLE T(i int);
+]] 1 notes at #1,#1
+
+test error location ignores warning (negative) [[
+  CREATE TABLE T(i int);
+  CREATE TABLE [[w]](i int);
+]] 1 error at #1
+
+test error location ignores note (negative) [[
+  CREATE TABLE T(i int);
+  CREATE TABLE [[DoubleNote]](i int);
+]] 1 error at #1
+
+test warning location ignores error (negative) [[
+  CREATE TABLE [[T]](i int);
+  CREATE TABLE w(i int);
+]] 1 warning at #1
+
+test warning location ignores note (negative) [[
+  CREATE TABLE [[DoubleNote]](i int);
+  CREATE TABLE w(i int);
+]] 1 warning at #1
+
+test note location ignores error (negative) [[
+  CREATE TABLE DoubleNote(i int);
+  CREATE TABLE [[T]](i int);
+]] 2 notes at #1
+
+test note location ignores warning (negative) [[
+  CREATE TABLE DoubleNote(i int);
+  CREATE TABLE [[woop]](i int);
+]] 2 notes at #1
+
+
