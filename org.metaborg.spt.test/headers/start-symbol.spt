@@ -1,0 +1,10 @@
+module start-symbol
+language MiniSQL
+
+start symbol ColDef
+
+test start symbol is language based (positive) [[
+  i int
+]] parse to [[
+  i int
+]]
