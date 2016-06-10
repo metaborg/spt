@@ -26,6 +26,8 @@ import com.google.common.collect.Lists;
 
 public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator<AnalysisMessageExpectation> {
 
+    // private static final ILogger logger = LoggerUtils.logger(AnalyzeExpectationEvaluator.class);
+
     @Override public Collection<Integer> usesSelections(IFragment fragment, AnalysisMessageExpectation expectation) {
         return Lists.newArrayList(expectation.selections());
     }

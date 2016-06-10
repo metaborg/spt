@@ -1,4 +1,4 @@
-package org.metaborg.spt.core.extract;
+package org.metaborg.spt.core.extract.expectations;
 
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.mbt.core.model.IFragment;
@@ -6,6 +6,7 @@ import org.metaborg.mbt.core.model.expectations.HasOriginExpectation;
 import org.metaborg.mbt.core.model.expectations.ITestExpectation;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
+import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;

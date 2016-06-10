@@ -22,6 +22,7 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.RunStrategoToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -34,7 +35,6 @@ import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;
-import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -177,7 +177,7 @@ public class RunStrategoToAtermExpectationEvaluator
                 }
                 // the strategy was successfull
                 // compare the ASTs
-                if(TermEqualityUtil.equalsIgnoreAnnos(expectation.expectedResult(), runtime.current(),
+                if(SPTUtil.checkATermMatch(runtime.current(), expectation.expectedResult(),
                     termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
                     success = true;
                 } else {

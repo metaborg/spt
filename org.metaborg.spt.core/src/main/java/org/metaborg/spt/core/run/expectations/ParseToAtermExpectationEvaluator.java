@@ -16,6 +16,7 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.ParseToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -25,7 +26,6 @@ import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -77,7 +77,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         boolean success = false;
         String latestMessage = "The fragment was empty.";
         for(IStrategoTerm term : terms) {
-            if(TermEqualityUtil.equalsIgnoreAnnos(term, expectation.expectedResult(),
+            if(SPTUtil.checkATermMatch(term, expectation.expectedResult(),
                 termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
                 success = true;
                 break;

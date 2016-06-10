@@ -29,7 +29,7 @@ syntax
 
 context-free syntax
   TestSuite.TestSuite = <
-    <{Header "\n"}*>
+    <{Header "\n"}+>
     <TestFixture?>
     <{TestDecl "\n\n"}*>
   >
