@@ -10,7 +10,6 @@ import org.metaborg.core.language.FacetContribution;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
-import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
@@ -135,13 +134,8 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         } else {
             // the input should be the selected term
             ISourceRegion selection = selections.get(expectation.selection() - 1);
-            for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
-                ISourceLocation loc = traceService.location(possibleSelection);
-                // the region should match exactly
-                if(loc != null && loc.region().startOffset() == selection.startOffset()
-                    && loc.region().endOffset() == selection.endOffset()) {
-                    terms.add(possibleSelection);
-                }
+            for(IStrategoTerm possibleSelection : traceService.fragmentsWithin(analysisResult, selection)) {
+                terms.add(possibleSelection);
             }
             if(terms.isEmpty()) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), selection,

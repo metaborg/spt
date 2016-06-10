@@ -259,5 +259,4 @@ public class SPTUtil {
         }
         return b;
     }
-
 }

@@ -9,7 +9,6 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.FacetContribution;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
-import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
@@ -136,15 +135,8 @@ public class RunStrategoToAtermExpectationEvaluator
         } else {
             // the input should be the selected term
             ISourceRegion selection = selections.get(expectation.selection() - 1);
-            for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
-                ISourceLocation loc = traceService.location(possibleSelection);
-                // logger.debug("Checking possible selected term {} with location {}", possibleSelection, loc);
-                // the region should match exactly
-                if(loc != null && loc.region().startOffset() == selection.startOffset()
-                    && loc.region().endOffset() == selection.endOffset()) {
-                    // logger.debug("Matched, adding it as input node to the strategy");
-                    terms.add(possibleSelection);
-                }
+            for(IStrategoTerm possibleSelection : traceService.fragmentsWithin(analysisResult, selection)) {
+                terms.add(possibleSelection);
             }
             if(terms.isEmpty()) {
                 logger.debug("Could not resolve this selection to an AST node.");
