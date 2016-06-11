@@ -1,0 +1,42 @@
+module run-input
+language MiniSQL
+
+fixture [[
+  CREATE TABLE T(
+    j int,
+    [[...]]
+  );
+]]
+
+test run only on fragment (positive) [[
+  i int
+]] run is-coldef
+
+test run to only on fragment (positive) [[
+  i int
+]] run my-id to ColDef("i", INT())
+
+test run to only on fragment (negative) [[
+  i int
+]] run my-id to Module([TableDef("T", [ColDef("i", INT())])])
+
+test run on all outer nodes of fragment (positive) [[
+  i int,
+  h int
+]] run my-id to ColDef("h", INT())
+   run my-id to ColDef("i", INT())
+
+test run only on selection (positive) [[
+  [[i int]],
+  h int
+]] run my-id on #1 to ColDef("i", INT())
+
+test run only on selection (negative) [[
+  [[i int]],
+  h int
+]] run my-id on #1 to ColDef("h", INT())
+
+test run on empty fragment should fail (negative) [[
+
+]] run my-id
+

@@ -97,17 +97,17 @@ rules
       i := <dec-string-to-int> n      
       
   // Desugar our ATerms
-  desugar-term-before:
-    Anno(term, annos) -> term{annos}
+  // desugar-term-before:
+  //   Anno(term, annos) -> term{annos}
 
-  desugar-term-before:
-    Appl(cons, children) -> cons#(children)
+  // desugar-term-before:
+  //   Appl(cons, children) -> cons#(children)
 
-  desugar-term-before:
-    List(l) -> l
+  // desugar-term-before:
+  //   List(l) -> l
+    
+  // desugar-term-before:
+  //   Int(n) -> <dec-string-to-int> n
     
   desugar-term-before:
-    Int(n) -> <dec-string-to-int> n
-    
-  desugar-term-before:
-    String(s) -> <un-double-quote> s
+    String(s) -> String(<un-double-quote> s)

@@ -103,7 +103,9 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
         // Try resolving selection at index num1
         Resolution r = null;
         try {
-            r = resolverService.resolve(selections.get(num1).startOffset(), analysisResult);
+            final ISourceRegion sel = selections.get(num1);
+            int midOffset = sel.startOffset() + ((sel.endOffset() - sel.startOffset()) / 2);
+            r = resolverService.resolve(midOffset, analysisResult);
         } catch(MetaborgException e) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Reference resolution caused an unexpected error.", e));

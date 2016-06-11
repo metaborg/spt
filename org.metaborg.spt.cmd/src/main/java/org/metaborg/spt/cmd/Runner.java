@@ -88,6 +88,7 @@ public class Runner {
             }
 
             for(FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
+                logger.info("Processing test suite {}", testSuite);
                 final String text;
                 try(InputStream in = testSuite.getContent().getInputStream()) {
                     text = IOUtils.toString(in);
@@ -124,7 +125,7 @@ public class Runner {
                         }
                     }
                 } else {
-                    logger.error("Failed to run tests at {}. Extraction of tests failed.", testsPath);
+                    logger.error("Failed to run tests at {}. Extraction of tests failed.", testSuite);
                 }
 
                 for(IMessage m : extractionResult.getAllMessages()) {

@@ -10,6 +10,7 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.project.IProject;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
@@ -74,6 +75,28 @@ public class SpoofaxTestCaseRunner
                 }
             }
         }
+
+        // ensure there is an error on the test description if the test failed
+        if(!success) {
+            boolean errorOnName = false;
+            for(ISpoofaxTestExpectationOutput output : expectationOutputs) {
+                for(IMessage message : output.getMessages()) {
+                    if(message.severity() == MessageSeverity.ERROR && message.region() != null
+                        && message.region().contains(test.getDescriptionRegion())) {
+                        errorOnName = true;
+                        break;
+                    }
+                }
+                if(errorOnName) {
+                    break;
+                }
+            }
+            if(!errorOnName) {
+                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                    "Test failed, see errors in the fragment.", null));
+            }
+        }
+
         return new SpoofaxTestResult(test, success, messages,
             new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes, null), expectationOutputs);
     }

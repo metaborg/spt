@@ -29,7 +29,7 @@ syntax
 
 context-free syntax
   TestSuite.TestSuite = <
-    <{Header "\n"}*>
+    <{Header "\n"}+>
     <TestFixture?>
     <{TestDecl "\n\n"}*>
   >
@@ -108,6 +108,7 @@ context-free syntax
   Expectation.RunToAterm = <run <STRAT> <OnPart?> <ToAterm>>
   
   // transformations
+  Expectation.Transform = <transform <STRING>>
   Expectation.Transform = <transform <STRING> <ToPart>>
   Expectation.TransformToAterm = <transform <STRING> <ToAterm>>
 

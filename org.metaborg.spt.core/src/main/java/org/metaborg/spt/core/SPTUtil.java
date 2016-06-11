@@ -1,9 +1,13 @@
 package org.metaborg.spt.core;
 
+import java.util.Iterator;
+
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoAnnotation;
 import org.spoofax.terms.Term;
 
@@ -81,4 +85,178 @@ public class SPTUtil {
         return b;
     }
 
+    private static final String ANNO = "Anno";
+    private static final String LIST = "List";
+    private static final String APPL = "Appl";
+    private static final String INT = "Int";
+    private static final String STRING = "String";
+    private static final String WLD = "Wld";
+
+    /**
+     * Check if the given AST matches the given SPT ATerm match pattern.
+     * 
+     * @param ast
+     *            the AST to compare to the pattern.
+     * @param match
+     *            the SPT pattern to match the AST against.
+     * @param factory
+     *            required to make SPT constructors.
+     * @return true iff the AST matched against the given pattern.
+     */
+    public static boolean checkATermMatch(IStrategoTerm ast, IStrategoTerm match, ITermFactory factory) {
+        logger.debug("Checking match {} against term {}", match, ast);
+        IStrategoList matchList = null;
+        Iterator<IStrategoTerm> matchIt;
+        boolean stop;
+        final boolean result;
+        switch(SPTUtil.consName(match)) {
+            case ANNO:
+                // Anno(Match, [AnnoMatch, ...])
+                // check the term, and then check the annotations of the term
+                result = checkATermMatch(ast, match.getSubterm(0), factory) && checkATermMatch(ast.getAnnotations(),
+                    factory.makeAppl(factory.makeConstructor(LIST, 1), match.getSubterm(1)), factory);
+                break;
+            case LIST:
+                // List([Match, ...])
+                if(!Term.isTermList(ast)) {
+                    result = false;
+                    break;
+                }
+                final IStrategoList list = (IStrategoList) ast;
+                matchList = (IStrategoList) match.getSubterm(0);
+                if(matchList.size() != list.size()) {
+                    result = false;
+                    break;
+                }
+                matchIt = matchList.iterator();
+                final Iterator<IStrategoTerm> listIt = list.iterator();
+                stop = false;
+                while(matchIt.hasNext()) {
+                    if(!checkATermMatch(listIt.next(), matchIt.next(), factory)) {
+                        stop = true;
+                        break;
+                    }
+                }
+                result = !stop;
+                break;
+            case APPL:
+                // Appl("ConsName", [KidMatch, ...])
+                // we ignore any annotations on the AST
+                if(!Term.isTermAppl(ast)) {
+                    logger.debug("The term is not an application.");
+                    result = false;
+                    break;
+                }
+                if(!SPTUtil.consName(ast).equals(Term.asJavaString(match.getSubterm(0)))) {
+                    logger.debug("The constructor {}, did not match the expected constructor {}.",
+                        SPTUtil.consName(ast), match.getSubterm(0));
+                    result = false;
+                    break;
+                }
+                matchList = (IStrategoList) match.getSubterm(1);
+                if(ast.getSubtermCount() != matchList.size()) {
+                    logger.debug("The number of children {}, did not match the expected number {}",
+                        ast.getSubtermCount(), matchList.size());
+                    result = false;
+                    break;
+                }
+                matchIt = matchList.iterator();
+                stop = false;
+                for(int i = 0; i < ast.getSubtermCount(); i++) {
+                    if(!checkATermMatch(ast.getSubterm(i), matchIt.next(), factory)) {
+                        stop = true;
+                        break;
+                    }
+                }
+                result = !stop;
+                break;
+            case INT:
+                // Int("n")
+                result = Term.isTermInt(ast)
+                    && Integer.parseInt(Term.asJavaString(match.getSubterm(0))) == Term.asJavaInt(ast);
+                break;
+            case STRING:
+                // String("some string")
+                result =
+                    Term.isTermString(ast) && Term.asJavaString(match.getSubterm(0)).equals(Term.asJavaString(ast));
+                break;
+            case WLD:
+                result = true;
+                break;
+            default:
+                logger.warn("Can't check an ast against the pattern {}", match);
+                result = false;
+                break;
+        }
+        logger.debug("Result of match: {}", result);
+        return result;
+    }
+
+    /**
+     * Pretty print the given SPT ATerm pattern.
+     * 
+     * @param match
+     *            the SPT ATerm pattern to pretty print to a 'normal' ATerm.
+     * @return the pretty printed result.
+     */
+    public static String prettyPrintMatch(IStrategoTerm match) {
+        return prettyPrintMatch(match, new StringBuilder()).toString();
+    }
+
+    /**
+     * Append a pretty printed version of the given SPT pattern to the given builder.
+     * 
+     * @param match
+     *            the SPT ATerm pattern to pretty print to a 'normal' ATerm.
+     * @param b
+     *            the builder to append to.
+     * @return the given builder.
+     */
+    public static StringBuilder prettyPrintMatch(IStrategoTerm match, StringBuilder b) {
+        switch(SPTUtil.consName(match)) {
+            case ANNO:
+                // Anno(Match, [AnnoMatch, ...])
+                prettyPrintMatch(match.getSubterm(0), b).append("{");
+                prettyPrintListOfMatches((IStrategoList) match.getSubterm(1), ", ", b);
+                b.append('}');
+                return b;
+            case LIST:
+                // List([Match, ...])
+                b.append('[');
+                prettyPrintListOfMatches((IStrategoList) match.getSubterm(0), ", ", b);
+                b.append(']');
+                return b;
+            case APPL:
+                // Appl("ConsName", [KidMatch, ...])
+                b.append(Term.asJavaString(match.getSubterm(0))).append('(');
+                prettyPrintListOfMatches((IStrategoList) match.getSubterm(1), ", ", b);
+                b.append(')');
+                return b;
+            case INT:
+                // Int("n")
+                b.append(Term.asJavaInt(match.getSubterm(0)));
+                return b;
+            case STRING:
+                // String("some string")
+                b.append(Term.asJavaString(match.getSubterm(0)));
+                return b;
+            case WLD:
+                b.append('_');
+                return b;
+            default:
+                logger.warn("Can't pretty print the pattern {}", match);
+                throw new IllegalArgumentException(String.format("Can't pretty print the pattern %s.", match));
+        }
+    }
+
+    private static StringBuilder prettyPrintListOfMatches(IStrategoList matches, String join, StringBuilder b) {
+        Iterator<IStrategoTerm> matchIt = matches.iterator();
+        for(int i = 0; i < matches.size(); i++) {
+            prettyPrintMatch(matchIt.next(), b);
+            if(i < matches.size() - 1) {
+                b.append(join);
+            }
+        }
+        return b;
+    }
 }

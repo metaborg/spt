@@ -17,7 +17,7 @@ public class TransformExpectation extends AToPartExpectation {
         this(region, goal, outputFragment, null, null);
     }
 
-    public TransformExpectation(ISourceRegion region, ITransformGoal goal, IFragment outputFragment,
+    public TransformExpectation(ISourceRegion region, ITransformGoal goal, @Nullable IFragment outputFragment,
         @Nullable String langName, @Nullable ISourceRegion langRegion) {
         super(region, outputFragment, langName, langRegion);
         this.goal = goal;

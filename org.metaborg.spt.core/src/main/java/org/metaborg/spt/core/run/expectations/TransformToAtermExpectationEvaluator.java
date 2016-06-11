@@ -21,6 +21,7 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.TransformToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -30,7 +31,6 @@ import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -118,14 +118,13 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
                 // do stuff to the output fragment
                 final IStrategoTerm out = expectation.expectedResult();
                 // check the equality
-                if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
-                    termFactoryService.get(lut, test.getProject(), false))) {
+                if(SPTUtil.checkATermMatch(result, out, termFactoryService.get(lut, test.getProject(), false))) {
                     success = true;
                 } else {
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                         String.format(
                             "The result of transformation %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
-                            expectation.goal(), out, result),
+                            expectation.goal(), SPTUtil.prettyPrintMatch(out), result),
                         null));
                 }
             } else {
@@ -133,9 +132,9 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
                     String.format("Transformation %1$s failed.", expectation.goal()), null));
             }
         } catch(TransformException e) {
-            logger.debug("An exception occured while trying to transform {}.", e, expectation.goal());
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                String.format("An exception occured while trying to transform %1$s.", expectation.goal()), e));
+            logger.debug("An exception occured while trying to transform {}", e, expectation.goal());
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(), String.format(
+                "An exception occured while trying to transform %s: %s.", expectation.goal(), e.getMessage()), e));
         }
 
         if(tempCtx != null) {

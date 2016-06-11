@@ -9,7 +9,6 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.FacetContribution;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
-import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
@@ -22,6 +21,7 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.RunStrategoToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -34,7 +34,6 @@ import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;
-import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -136,15 +135,8 @@ public class RunStrategoToAtermExpectationEvaluator
         } else {
             // the input should be the selected term
             ISourceRegion selection = selections.get(expectation.selection() - 1);
-            for(IStrategoTerm possibleSelection : traceService.fragments(analysisResult, selection)) {
-                ISourceLocation loc = traceService.location(possibleSelection);
-                // logger.debug("Checking possible selected term {} with location {}", possibleSelection, loc);
-                // the region should match exactly
-                if(loc != null && loc.region().startOffset() == selection.startOffset()
-                    && loc.region().endOffset() == selection.endOffset()) {
-                    // logger.debug("Matched, adding it as input node to the strategy");
-                    terms.add(possibleSelection);
-                }
+            for(IStrategoTerm possibleSelection : traceService.fragmentsWithin(analysisResult, selection)) {
+                terms.add(possibleSelection);
             }
             if(terms.isEmpty()) {
                 logger.debug("Could not resolve this selection to an AST node.");
@@ -177,14 +169,14 @@ public class RunStrategoToAtermExpectationEvaluator
                 }
                 // the strategy was successfull
                 // compare the ASTs
-                if(TermEqualityUtil.equalsIgnoreAnnos(expectation.expectedResult(), runtime.current(),
+                if(SPTUtil.checkATermMatch(runtime.current(), expectation.expectedResult(),
                     termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
                     success = true;
                 } else {
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                         String.format(
                             "The result of running %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
-                            strategy, expectation.expectedResult(), runtime.current()),
+                            strategy, SPTUtil.prettyPrintMatch(expectation.expectedResult()), runtime.current()),
                         null);
                 }
                 if(success) {
