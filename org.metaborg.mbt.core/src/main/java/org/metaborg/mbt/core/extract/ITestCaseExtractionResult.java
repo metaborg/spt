@@ -13,6 +13,16 @@ import org.metaborg.mbt.core.model.ITestCase;
 public interface ITestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUnit> {
 
     /**
+     * The name of the test suite.
+     */
+    public String getName();
+
+    /**
+     * The name of the language under test.
+     */
+    public @Nullable String getLanguage();
+
+    /**
      * True iff there were no errors during parsing and analysis.
      */
     public boolean isSuccessful();

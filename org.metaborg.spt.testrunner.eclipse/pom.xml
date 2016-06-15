@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>org.metaborg.spt.testrunner.eclipse</artifactId>
+  <packaging>eclipse-plugin</packaging>
+  <description>UI integration for SPT</description>
+  <url>https://github.com/metaborg/spt</url>
+
+  <parent>
+    <groupId>org.metaborg</groupId>
+    <artifactId>parent.eclipse.plugin</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+    <relativePath>../../releng/parent/eclipse/plugin/pom.xml</relativePath>
+  </parent>
+
+  <developers>
+    <developer>
+      <name>Gabriël Konat</name>
+      <email>g.d.p.konat@tudelft.nl</email>
+      <organization>Delft University of Technology</organization>
+      <organizationUrl>http://www.ewi.tudelft.nl/en</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:metaborg/spt.git</connection>
+    <developerConnection>scm:git:git@github.com:metaborg/spt.git</developerConnection>
+    <url>https://github.com/metaborg/spt</url>
+  </scm>
+</project>

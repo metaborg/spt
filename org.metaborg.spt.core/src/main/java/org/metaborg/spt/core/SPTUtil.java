@@ -15,9 +15,11 @@ public class SPTUtil {
 
     private static final ILogger logger = LoggerUtils.logger(SPTUtil.class);
 
-    public static final String SOME = "Some";
+    public static final String SOME_CONS = "Some";
 
+    public static final String NAME_CONS = "Name";
     public static final String START_SYMBOL_CONS = "StartSymbol";
+    public static final String LANG_CONS = "Language";
     public static final String FIXTURE_CONS = "Fixture";
     public static final String TEST_CONS = "Test";
     public static final String SELECTION_CONS = "Selection";
@@ -85,12 +87,12 @@ public class SPTUtil {
         return b;
     }
 
-    private static final String ANNO = "Anno";
-    private static final String LIST = "List";
-    private static final String APPL = "Appl";
-    private static final String INT = "Int";
-    private static final String STRING = "String";
-    private static final String WLD = "Wld";
+    private static final String ANNO_CONS = "Anno";
+    private static final String LIST_CONS = "List";
+    private static final String APPL_CONS = "Appl";
+    private static final String INT_CONS = "Int";
+    private static final String STRING_CONS = "String";
+    private static final String WLD_CONS = "Wld";
 
     /**
      * Check if the given AST matches the given SPT ATerm match pattern.
@@ -110,13 +112,13 @@ public class SPTUtil {
         boolean stop;
         final boolean result;
         switch(SPTUtil.consName(match)) {
-            case ANNO:
+            case ANNO_CONS:
                 // Anno(Match, [AnnoMatch, ...])
                 // check the term, and then check the annotations of the term
                 result = checkATermMatch(ast, match.getSubterm(0), factory) && checkATermMatch(ast.getAnnotations(),
-                    factory.makeAppl(factory.makeConstructor(LIST, 1), match.getSubterm(1)), factory);
+                    factory.makeAppl(factory.makeConstructor(LIST_CONS, 1), match.getSubterm(1)), factory);
                 break;
-            case LIST:
+            case LIST_CONS:
                 // List([Match, ...])
                 if(!Term.isTermList(ast)) {
                     result = false;
@@ -139,7 +141,7 @@ public class SPTUtil {
                 }
                 result = !stop;
                 break;
-            case APPL:
+            case APPL_CONS:
                 // Appl("ConsName", [KidMatch, ...])
                 // we ignore any annotations on the AST
                 if(!Term.isTermAppl(ast)) {
@@ -170,17 +172,17 @@ public class SPTUtil {
                 }
                 result = !stop;
                 break;
-            case INT:
+            case INT_CONS:
                 // Int("n")
                 result = Term.isTermInt(ast)
                     && Integer.parseInt(Term.asJavaString(match.getSubterm(0))) == Term.asJavaInt(ast);
                 break;
-            case STRING:
+            case STRING_CONS:
                 // String("some string")
                 result =
                     Term.isTermString(ast) && Term.asJavaString(match.getSubterm(0)).equals(Term.asJavaString(ast));
                 break;
-            case WLD:
+            case WLD_CONS:
                 result = true;
                 break;
             default:
@@ -214,33 +216,33 @@ public class SPTUtil {
      */
     public static StringBuilder prettyPrintMatch(IStrategoTerm match, StringBuilder b) {
         switch(SPTUtil.consName(match)) {
-            case ANNO:
+            case ANNO_CONS:
                 // Anno(Match, [AnnoMatch, ...])
                 prettyPrintMatch(match.getSubterm(0), b).append("{");
                 prettyPrintListOfMatches((IStrategoList) match.getSubterm(1), ", ", b);
                 b.append('}');
                 return b;
-            case LIST:
+            case LIST_CONS:
                 // List([Match, ...])
                 b.append('[');
                 prettyPrintListOfMatches((IStrategoList) match.getSubterm(0), ", ", b);
                 b.append(']');
                 return b;
-            case APPL:
+            case APPL_CONS:
                 // Appl("ConsName", [KidMatch, ...])
                 b.append(Term.asJavaString(match.getSubterm(0))).append('(');
                 prettyPrintListOfMatches((IStrategoList) match.getSubterm(1), ", ", b);
                 b.append(')');
                 return b;
-            case INT:
+            case INT_CONS:
                 // Int("n")
-                b.append(Term.asJavaInt(match.getSubterm(0)));
+                b.append(Term.asJavaString(match.getSubterm(0)));
                 return b;
-            case STRING:
+            case STRING_CONS:
                 // String("some string")
                 b.append(Term.asJavaString(match.getSubterm(0)));
                 return b;
-            case WLD:
+            case WLD_CONS:
                 b.append('_');
                 return b;
             default:

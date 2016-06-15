@@ -52,7 +52,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
     @Override public ISpoofaxTestCaseExtractionResult extract(ISpoofaxInputUnit input, IProject project) {
         final FileObject testSuite = input.source();
         if(testSuite == null) {
-            return new SpoofaxTestCaseExtractionResult(null, null,
+            return new SpoofaxTestCaseExtractionResult("", null, null, null,
                 Iterables2.singleton(MessageBuilder.create()
                     // @formatter:off
                     .asInternal()
@@ -68,8 +68,8 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
             p = parseService.parse(input);
             if(!p.valid()) {
                 // parse failed and couldn't recover
-                return new SpoofaxTestCaseExtractionResult(p, null, Iterables2.<IMessage>empty(),
-                    Iterables2.<ITestCase>empty());
+                return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, p, null,
+                    Iterables2.<IMessage>empty(), Iterables2.<ITestCase>empty());
             }
         } catch(ParseException pe) {
             // @formatter:off
@@ -81,8 +81,8 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                 .withMessage(pe.getMessage())
                 .build();
             // @formatter:on
-            return new SpoofaxTestCaseExtractionResult(null, null, Iterables2.singleton(error),
-                Iterables2.<ITestCase>empty());
+            return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, null, null,
+                Iterables2.singleton(error), Iterables2.<ITestCase>empty());
         }
 
         return extract(p, project);
@@ -92,7 +92,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
 
         final FileObject testSuite = p.input().source();
         if(testSuite == null) {
-            return new SpoofaxTestCaseExtractionResult(null, null,
+            return new SpoofaxTestCaseExtractionResult("", null, null, null,
                 Iterables2.singleton(MessageBuilder.create()
                     // @formatter:off
                     .asInternal()
@@ -119,13 +119,13 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                 .withMessage(ae.getMessage())
                 .build();
             // @formatter:on
-            return new SpoofaxTestCaseExtractionResult(p, null, Iterables2.singleton(error),
-                Iterables2.<ITestCase>empty());
+            return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, p, null,
+                Iterables2.singleton(error), Iterables2.<ITestCase>empty());
         }
 
         // Retrieve the AST from the analysis result
         if(a == null || !a.valid() || !a.hasAst()) {
-            return new SpoofaxTestCaseExtractionResult(p, a,
+            return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, p, a,
                 Iterables2.singleton(MessageBuilder.create()
                     // @formatter:off
                     .asInternal()
@@ -142,18 +142,25 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
         // for now, we will consider these missing expectations to be an error
         final List<IMessage> extraMessages = new LinkedList<>();
         final List<ITestCase> tests = new ArrayList<>();
+        final List<String> suiteNameContainer = new ArrayList<>();
+        final List<String> langNameContainer = new ArrayList<>();
         final List<String> startSymbolContainer = new ArrayList<>();
         new TermVisitor() {
             IStrategoTerm fixtureTerm = null;
 
             @Override public void preVisit(IStrategoTerm term) {
                 if(Term.isTermAppl(term)) {
-                    if(SPTUtil.START_SYMBOL_CONS.equals(SPTUtil.consName(term))) {
+                    final String cons = SPTUtil.consName(term);
+                    if(SPTUtil.START_SYMBOL_CONS.equals(cons)) {
                         startSymbolContainer.add(Term.asJavaString(term.getSubterm(0)));
-                    } else if(SPTUtil.FIXTURE_CONS.equals(SPTUtil.consName(term))) {
+                    } else if(SPTUtil.LANG_CONS.equals(cons)) {
+                        langNameContainer.add(Term.asJavaString(term.getSubterm(0)));
+                    } else if(SPTUtil.NAME_CONS.equals(cons)) {
+                        suiteNameContainer.add(Term.asJavaString(term.getSubterm(0)));
+                    } else if(SPTUtil.FIXTURE_CONS.equals(cons)) {
                         fixtureTerm = term;
                         logger.debug("Using test fixture: {}", fixtureTerm);
-                    } else if(SPTUtil.TEST_CONS.equals(SPTUtil.consName(term))) {
+                    } else if(SPTUtil.TEST_CONS.equals(cons)) {
                         // TODO: this doesn't seem like a proper use of builders
                         // are we allowed to reuse a builder like this?
                         ITestCase test = testBuilder.withProject(project).withResource(testSuite)
@@ -194,8 +201,60 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
             // @formatter:on
             extraMessages.add(m);
         }
-        String startSymbol = startSymbolContainer.isEmpty() ? null : startSymbolContainer.get(0);
+        final String startSymbol = startSymbolContainer.isEmpty() ? null : startSymbolContainer.get(0);
 
-        return new SpoofaxTestCaseExtractionResult(p, a, extraMessages, tests, startSymbol);
+        if(suiteNameContainer.size() > 1) {
+            // @formatter:off
+            IMessage m = MessageBuilder.create()
+                .asAnalysis()
+                .asWarning()
+                .withSource(testSuite)
+                .withMessage(
+                    "Found more than 1 module name. We will just use the first one. " + suiteNameContainer)
+                .build();
+            // @formatter:on
+            extraMessages.add(m);
+        }
+        if(suiteNameContainer.isEmpty()) {
+            return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, p, a,
+                Iterables2.singleton(MessageBuilder.create()
+                    // @formatter:off
+                    .asInternal()
+                    .asError()
+                    .withSource(testSuite)
+                    .withMessage("Found no module name. The test suite should have a name.")
+                    .build()
+                    // @formatter:on
+                ), Iterables2.<ITestCase>empty());
+        }
+        final String suiteName = suiteNameContainer.get(0);
+
+        if(langNameContainer.size() > 1) {
+            // @formatter:off
+            IMessage m = MessageBuilder.create()
+                .asAnalysis()
+                .asWarning()
+                .withSource(testSuite)
+                .withMessage(
+                    "Found more than 1 language under test. We will just use the first one. " + langNameContainer)
+                .build();
+            // @formatter:on
+            extraMessages.add(m);
+        }
+        if(langNameContainer.isEmpty()) {
+            return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, p, a,
+                Iterables2.singleton(MessageBuilder.create()
+                    // @formatter:off
+                    .asInternal()
+                    .asError()
+                    .withSource(testSuite)
+                    .withMessage("Found no language header. The test suite should have a header for the language under test.")
+                    .build()
+                    // @formatter:on
+                ), Iterables2.<ITestCase>empty());
+        }
+        final String langName = langNameContainer.get(0);
+
+        return new SpoofaxTestCaseExtractionResult(suiteName, langName, p, a, extraMessages, tests, startSymbol);
     }
 }

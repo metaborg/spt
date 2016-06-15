@@ -16,6 +16,8 @@ import com.google.common.collect.Iterables;
 public class TestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUnit>
     implements ITestCaseExtractionResult<P, A> {
 
+    private final String name;
+    private final String language;
     private final boolean success;
     private final P p;
     private final A a;
@@ -23,8 +25,10 @@ public class TestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUn
     private final List<IMessage> allMessages = new LinkedList<>();
     private final Iterable<ITestCase> tests;
 
-    public TestCaseExtractionResult(P parseResult, @Nullable A analysisResult, Iterable<IMessage> extraMessages,
-        Iterable<ITestCase> testCases) {
+    public TestCaseExtractionResult(String name, @Nullable String language, P parseResult, @Nullable A analysisResult,
+        Iterable<IMessage> extraMessages, Iterable<ITestCase> testCases) {
+        this.name = name;
+        this.language = language;
         this.p = parseResult;
         this.a = analysisResult;
         this.extraMessages = extraMessages;
@@ -46,6 +50,14 @@ public class TestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUn
             }
         }
         this.success = suc;
+    }
+
+    @Override public String getName() {
+        return name;
+    }
+
+    @Override public @Nullable String getLanguage() {
+        return language;
     }
 
     @Override public boolean isSuccessful() {
