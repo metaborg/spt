@@ -80,7 +80,8 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         // collect the messages of the given severity and proper location
         List<IMessage> interestingMessages = Lists.newLinkedList();
         for(IMessage message : analysisMessages) {
-            if(severity == message.severity() && test.getFragment().getRegion().contains(message.region())) {
+            if(severity == message.severity()
+                && (message.region() == null || test.getFragment().getRegion().contains(message.region()))) {
                 interestingMessages.add(message);
             }
         }
