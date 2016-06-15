@@ -1,5 +1,7 @@
 package org.metaborg.spt.core.extract;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.mbt.core.extract.TestCaseExtractionResult;
 import org.metaborg.mbt.core.model.ITestCase;
@@ -11,14 +13,15 @@ public class SpoofaxTestCaseExtractionResult extends TestCaseExtractionResult<IS
 
     private final String startSymbol;
 
-    public SpoofaxTestCaseExtractionResult(ISpoofaxParseUnit parseResult, ISpoofaxAnalyzeUnit analysisResult,
-        Iterable<IMessage> extraMessages, Iterable<ITestCase> testCases) {
-        this(parseResult, analysisResult, extraMessages, testCases, null);
+    public SpoofaxTestCaseExtractionResult(String name, @Nullable String language, ISpoofaxParseUnit parseResult,
+        ISpoofaxAnalyzeUnit analysisResult, Iterable<IMessage> extraMessages, Iterable<ITestCase> testCases) {
+        this(name, language, parseResult, analysisResult, extraMessages, testCases, null);
     }
 
-    public SpoofaxTestCaseExtractionResult(ISpoofaxParseUnit parseResult, ISpoofaxAnalyzeUnit analysisResult,
-        Iterable<IMessage> extraMessages, Iterable<ITestCase> testCases, String startSymbol) {
-        super(parseResult, analysisResult, extraMessages, testCases);
+    public SpoofaxTestCaseExtractionResult(String name, @Nullable String language, ISpoofaxParseUnit parseResult,
+        ISpoofaxAnalyzeUnit analysisResult, Iterable<IMessage> extraMessages, Iterable<ITestCase> testCases,
+        String startSymbol) {
+        super(name, language, parseResult, analysisResult, extraMessages, testCases);
         this.startSymbol = startSymbol;
     }
 

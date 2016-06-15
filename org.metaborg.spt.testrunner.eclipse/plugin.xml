@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.metaborg.spt.testrunner.eclipse.TestRunViewPart"
+            id="org.metaborg.spt.testrunner.eclipse.testrunviewpart"
+            name="SPT Test Runner">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="true"
+            locationURI="popup:org.metaborg.spoofax.eclipse.menu.project?after=additions">
+         <command
+               commandId="org.metaborg.spt.testrunner.eclipse.command.runall"
+               label="Run All SPT Tests"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.metaborg.spt.testrunner.eclipse.RunAllHandler"
+            id="org.metaborg.spt.testrunner.eclipse.command.runall"
+            name="Run All SPT Tests">
+      </command>
+   </extension>
+</plugin>

@@ -61,7 +61,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
         final IStrategoTerm onTerm = expectationTerm.getSubterm(1);
         final Integer selection;
         final ISourceRegion selectionRegion;
-        if(SPTUtil.SOME.equals(SPTUtil.consName(onTerm))) {
+        if(SPTUtil.SOME_CONS.equals(SPTUtil.consName(onTerm))) {
             selection = Term.asJavaInt(onTerm.getSubterm(0));
             final ISourceLocation selLoc = traceService.location(onTerm);
             if(selLoc == null) {
