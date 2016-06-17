@@ -11,7 +11,7 @@ TermList.List = <[<{Term ", "}*>]>
 
 Term.Appl = <<ID>(<{MidTerm ", "}*>)>
 Term.Int = <<INT>>
-Term.String = <<STRING>>
+Term.String = <<ASTRING>>
 Term.Wld = <_>
 
 PreTerm = TermList
@@ -24,3 +24,10 @@ MidTerm = TermAnno
 ATerm = TermAnno
 ATerm = Term
 ATerm = <!ATerm <TermList>>
+
+lexical syntax
+
+  ASTRING         = "\"" AStringChar* "\"" 
+  AStringChar     = ~[\"] 
+  AStringChar     = "\\\"" 
+  AStringChar     = BackSlashChar 

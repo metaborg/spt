@@ -24,4 +24,9 @@ test output fragment not combined with fixture (positive) [[
   i int
 ]] transform "Print id" to [[CREATE TABLE T(i int);]]
 
+test allow newlines in ATerm strings (positive) [[
+  i int
+]] transform "Newline String" to "<newline>
+</newline>"
+
 
