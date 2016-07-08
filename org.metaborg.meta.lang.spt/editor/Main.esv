@@ -1,23 +1,11 @@
 module Main
 
-imports
-
-  Menus
-  Colorer
-  Syntax
-
 language
-
-  extensions : spt
-
+  
   table         : target/metaborg/sdf.tbl
   start symbols : TestSuite
   
-  provider : target/metaborg/stratego.jar
-  provider : target/metaborg/stratego-javastrat.jar
+  provider : target/metaborg/stratego.ctree
   observer : editor-analyze
   
-references
-                
-  reference _ : editor-resolve
-  hover _     : editor-hover
+  context: legacy

@@ -1,31 +1,31 @@
 ---
 id: org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
-name: Spoofax-Testing
-metaborgVersion: 2.0.0-beta1
+name: SPT
+metaborgVersion: 2.0.0-SNAPSHOT
 dependencies:
   compile:
   - org.metaborg:org.metaborg.meta.lang.esv:${metaborgVersion}
   - org.metaborg:org.metaborg.meta.lang.template:${metaborgVersion}
-  - org.metaborg:org.metaborg.meta.lang.nabl:${metaborgVersion}
-  - org.metaborg:org.metaborg.meta.lang.ts:${metaborgVersion}
   source:
   - org.metaborg:org.metaborg.meta.lib.analysis:${metaborgVersion}
-  java:
-  - org.metaborg:org.metaborg.meta.lang.spt.listener:${metaborgVersion}
 pardonedLanguages:
 - EditorService
 - Stratego-Sugar
 - SDF
+exports:
+- language: EditorService
+  directory: src-gen
+- language: TemplateLang
+  directory: syntax
+- language: SDF
+  directory: src-gen/syntax
+- language: Stratego-Sugar
+  directory: trans
+- language: Stratego-Sugar
+  directory: src-gen
 language:
-  sdf:
-    version: sdf2
-    args:
-    - -Idef
-    - ${path:root}/lib/ATerm.def
-    - -Idef
-    - ${path:root}/lib/Stratego-Sugar.def
   stratego:
-    format: jar
+    format: ctree
     args:
     - -la
     - stratego-lib
@@ -41,5 +41,3 @@ language:
     - stratego-sdf
     - -la
     - strc
-    - -la
-    - stratego-sdf

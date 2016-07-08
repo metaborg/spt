@@ -1,0 +1,13 @@
+module parse-to-aterm-list
+
+language MiniSQL
+
+fixture [[
+  CREATE TABLE MyTable (
+    [[...]]
+  );
+]]
+
+test parse to list (positive) [[
+  i int
+]] parse to !ATerm [ColDef("i", INT())]
