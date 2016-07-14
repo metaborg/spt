@@ -3,7 +3,6 @@ package org.metaborg.mbt.core.run;
 import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.syntax.IParseUnit;
-import org.metaborg.util.iterators.Iterables2;
 
 public class TestExpectationOutput<P extends IParseUnit, A extends IAnalyzeUnit>
     implements ITestExpectationOutput<P, A> {
@@ -14,7 +13,7 @@ public class TestExpectationOutput<P extends IParseUnit, A extends IAnalyzeUnit>
 
     public TestExpectationOutput(boolean success, Iterable<IMessage> messages, Iterable<IFragmentResult<P, A>> fs) {
         this.success = success;
-        this.messages = Iterables2.from(messages);
+        this.messages = messages;
         this.fs = fs;
     }
 
