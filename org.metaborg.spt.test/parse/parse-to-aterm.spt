@@ -1,0 +1,27 @@
+module parse-to-aterm
+language MiniSQL
+
+fixture [[
+  CREATE TABLE MyTable (
+    j int,
+    [[...]]
+  );
+]]
+
+test parse to only fragment (positive) [[
+  i int
+]] parse to ColDef("i", INT())
+
+
+test parse to only fragment (negative) [[
+  i int
+]] parse to Module([TableDef("MyTable", [ColDef("i", INT())])])
+
+test parse to nested wildcard (positive) [[
+  i int
+]] parse to ColDef(_, _)
+
+test parse to wildcard (positive) [[
+  i int
+]] parse to _
+

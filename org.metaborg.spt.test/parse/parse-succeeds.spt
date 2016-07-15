@@ -1,0 +1,19 @@
+module parse-succeeds
+
+language MiniSQL
+
+test no expectation = parse succeeds (positive) [[
+    CREATE TABLE MyTable(i int);
+]]
+
+test no expectation = parse succeeds (negative) [[
+    CREATE TUBLIBOOBLI MyTable(i int);
+]]
+
+test parse succeeds (positive) [[
+    CREATE TABLE MyTable(i int);
+]] parse succeeds
+
+test parse succeeds (negative) [[
+    CREATE TUBLIBOOBLI MyTable(i int);
+]] parse succeeds

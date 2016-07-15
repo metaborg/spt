@@ -1,0 +1,10 @@
+module parse-fails
+language MiniSQL
+
+test fail (positive) [[
+  CREATE TOOBLIBOOBLI MyTable(i int);
+]] parse fails
+
+test fail (negative) [[
+  CREATE TABLE MyTable(i int);
+]] parse fails

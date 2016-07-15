@@ -1,0 +1,33 @@
+module spt/ATerm
+
+imports spt/Common
+
+context-free syntax
+
+// Anno's can't be annotated again
+TermAnno.Anno = <<PreTerm>{<{PreTerm ", "}*>}>
+// Lists conflict with fragment markers, so they can't be ATerm in our grammar
+TermList.List = <[<{Term ", "}*>]>
+
+Term.Appl = <<ID>(<{MidTerm ", "}*>)>
+Term.Int = <<INT>>
+Term.String = <<ASTRING>>
+Term.Wld = <_>
+
+PreTerm = TermList
+PreTerm = Term
+
+MidTerm = Term
+MidTerm = TermList
+MidTerm = TermAnno
+
+ATerm = TermAnno
+ATerm = Term
+ATerm = <!ATerm <TermList>>
+
+lexical syntax
+
+  ASTRING         = "\"" AStringChar* "\"" 
+  AStringChar     = ~[\"] 
+  AStringChar     = "\\\"" 
+  AStringChar     = BackSlashChar 
