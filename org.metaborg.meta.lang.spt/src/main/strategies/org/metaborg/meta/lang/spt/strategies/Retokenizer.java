@@ -126,7 +126,7 @@ public class Retokenizer {
 		// assign the tokens of the fragment to the new tokenizer
 		reassignTokenRange(fragmentTokenizer, startIndex, endIndex);
 		ImploderAttachment old = ImploderAttachment.get(parsedFragment);
-		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, endToken, false, false, false);
+		ImploderAttachment.putImploderAttachment(parsedFragment, parsedFragment.isList(), old.getSort(), startToken, endToken, false, false, false, false);
 		
 		// mark the token of the parsed fragment at the offset of the opening bracket of a selection.
 		// this token is a layout token (a space), because of the way we whiteout fragments in FragmentParser
@@ -156,7 +156,7 @@ public class Retokenizer {
 		//       (breaks some editor services)
 		new TermVisitor() {
 			public void preVisit(IStrategoTerm term) {
-				ImploderAttachment.putImploderAttachment(term, false, getSort(term), startToken, endToken, false, false, false);
+				ImploderAttachment.putImploderAttachment(term, false, getSort(term), startToken, endToken, false, false, false, false);
 			}
 		}.visit(tree);
 	}
