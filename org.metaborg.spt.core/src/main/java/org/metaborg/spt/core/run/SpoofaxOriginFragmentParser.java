@@ -143,19 +143,22 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
                 return r;
             }
         });
-        int lastOffset = tokens.get(tokens.size() - 1).getEndOffset();
-        eof.setStartOffset(lastOffset + 1);
-        eof.setEndOffset(lastOffset);
-        tokens.add(eof);
+        // Only post process tokens when there are tokens, and when there is an end-of-file token.
+        if(!tokens.isEmpty() && eof != null) {
+            int lastOffset = tokens.get(tokens.size() - 1).getEndOffset();
+            eof.setStartOffset(lastOffset + 1);
+            eof.setEndOffset(lastOffset);
+            tokens.add(eof);
 
-        Tokenizer newTokenizer = new Tokenizer(itokenizer.getInput(), itokenizer.getFilename(), null, false);
-        for(Token token : tokens) {
-            // NOTE: this will break if run with assertions turned on
-            // but as this entire approach is one big hack, I don't really care at the moment
-            newTokenizer.reassignToken(token);
+            Tokenizer newTokenizer = new Tokenizer(itokenizer.getInput(), itokenizer.getFilename(), null, false);
+            for(Token token : tokens) {
+                // NOTE: this will break if run with assertions turned on
+                // but as this entire approach is one big hack, I don't really care at the moment
+                newTokenizer.reassignToken(token);
+            }
+            newTokenizer.setAst(ast);
+            newTokenizer.initAstNodeBinding();
         }
-        newTokenizer.setAst(ast);
-        newTokenizer.initAstNodeBinding();
 
         // now the offsets of the tokens are updated
         // changing the state like this should update the offsets of the ast nodes automatically
