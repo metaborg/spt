@@ -2,10 +2,10 @@ module spt_interactive
 
 imports
   
-  completion
-  pp
-  outline
   analysis
+  spt/completion
+  spt/outline
+  spt/pp
 
 rules // Debugging
   

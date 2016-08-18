@@ -8,4 +8,4 @@ language
   provider : target/metaborg/stratego.ctree
   observer : editor-analyze
   
-  context: legacy
+  context : legacy
