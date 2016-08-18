@@ -13,8 +13,6 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.IFragment.FragmentPiece;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
-import org.metaborg.util.log.ILogger;
-import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
@@ -28,9 +26,6 @@ import com.google.inject.Inject;
  * Uses the ISpoofaxTracingService to construct the regions for the selections of a Fragment.
  */
 public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
-
-//    private static final ILogger logger = LoggerUtils.logger(SpoofaxTracingFragmentBuilder.class);
-    
     private final ISpoofaxTracingService traceService;
 
     private IStrategoTerm fixtureTerm = null;

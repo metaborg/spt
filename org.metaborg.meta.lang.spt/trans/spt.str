@@ -2,6 +2,4 @@ module spt
 
 imports
     
-  spt/pp
-  spt/desugar
-  spt/analysis
+  spt/-

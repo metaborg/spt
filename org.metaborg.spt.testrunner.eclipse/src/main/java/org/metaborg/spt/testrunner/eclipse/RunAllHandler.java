@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
  * The handler for the 'Run All SPT tests' command that is executed from a project's Spoofax context menu.
  */
 public class RunAllHandler extends AbstractHandler {
-
     protected static TestRunner runner = null;
 
     @Override public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -39,7 +38,7 @@ public class RunAllHandler extends AbstractHandler {
                         final URI uri = c.getLocationURI();
                         testLocations.add(uri);
                     } else if(seg instanceof IJavaProject) {
-                        final IContainer c = (IContainer) ((IJavaProject) seg).getProject();
+                        final IContainer c = ((IJavaProject) seg).getProject();
                         final URI uri = c.getLocationURI();
                         testLocations.add(uri);
                     } else {
@@ -59,5 +58,4 @@ public class RunAllHandler extends AbstractHandler {
         }
         return null;
     }
-
 }

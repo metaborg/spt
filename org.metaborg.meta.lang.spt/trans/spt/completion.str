@@ -1,0 +1,9 @@
+module spt/completion
+
+imports
+  
+  spt/pp
+  
+rules
+  
+  pp-completion = pp-partial-SPT-string
