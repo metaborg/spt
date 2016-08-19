@@ -1,19 +1,25 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContext;
+import org.metaborg.core.context.IContextService;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.unit.IUnit;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.model.expectations.MessageUtil;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
+import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
@@ -35,28 +41,38 @@ import com.google.inject.Inject;
 
 public class RunStrategoToAtermExpectationEvaluator
     implements ISpoofaxExpectationEvaluator<RunStrategoToAtermExpectation> {
-
     private static final ILogger logger = LoggerUtils.logger(RunStrategoToAtermExpectationEvaluator.class);
 
-    private final IStrategoCommon stratego;
+    private final IContextService contextService;
     private final ISpoofaxTracingService traceService;
+    private final ISpoofaxAnalysisService analysisService;
     private final ITermFactoryService termFactoryService;
+    private final IStrategoCommon stratego;
 
-    @Inject public RunStrategoToAtermExpectationEvaluator(IStrategoCommon stratego, ISpoofaxTracingService traceService,
-        ITermFactoryService termFactoryService) {
-        this.stratego = stratego;
+
+    @Inject public RunStrategoToAtermExpectationEvaluator(IContextService contextService,
+        ISpoofaxTracingService traceService, ISpoofaxAnalysisService analysisService,
+        ITermFactoryService termFactoryService, IStrategoCommon stratego) {
+        this.contextService = contextService;
         this.traceService = traceService;
+        this.analysisService = analysisService;
         this.termFactoryService = termFactoryService;
+        this.stratego = stratego;
     }
 
-    @SuppressWarnings("unchecked") @Override public Collection<Integer> usesSelections(IFragment fragment,
-        RunStrategoToAtermExpectation expectation) {
-        return expectation.selection() == null ? Collections.EMPTY_LIST : Lists.newArrayList(expectation.selection());
+
+    @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoToAtermExpectation expectation) {
+        return expectation.selection() == null ? Lists.<Integer>newArrayList()
+            : Lists.newArrayList(expectation.selection());
     }
 
     @Override public TestPhase getPhase(IContext languageUnderTestCtx, RunStrategoToAtermExpectation expectation) {
-        // until we support running on raw ASTs
-        return TestPhase.ANALYSIS;
+        final ILanguageImpl langImpl = languageUnderTestCtx.language();
+        if(analysisService.available(langImpl)) {
+            return TestPhase.ANALYSIS;
+        } else {
+            return TestPhase.PARSING;
+        }
     }
 
     @Override public ISpoofaxTestExpectationOutput evaluate(
@@ -72,53 +88,40 @@ public class RunStrategoToAtermExpectationEvaluator
 
         String strategy = expectation.strategy();
 
-        // we need an analysis result with an AST (until we allow running on raw ASTs)
-        ISpoofaxAnalyzeUnit analysisResult = input.getFragmentResult().getAnalysisResult();
-        if(analysisResult == null) {
-            logger.debug("Expected analysis to succeed");
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "Expected analysis to succeed", null));
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
-        }
-        if(!analysisResult.valid() || !analysisResult.hasAst()) {
-            logger.debug("Analysis did not return a valid AST.");
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "Analysis did not return a valid AST.", null));
-            MessageUtil.propagateMessages(analysisResult.messages(), messages, test.getDescriptionRegion(),
-                test.getFragment().getRegion());
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+        // the result of performing an analysis or parse action on the fragment
+        final IUnit actionResult;
+        @Nullable IContext context;
+        final ISpoofaxAnalyzeUnit analysisResult = input.getFragmentResult().getAnalysisResult();
+        if(analysisResult != null) {
+            if(!analysisResult.valid() || !analysisResult.hasAst()) {
+                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                    "Analysis did not return a valid AST.", null));
+                MessageUtil.propagateMessages(analysisResult.messages(), messages, test.getDescriptionRegion(),
+                    test.getFragment().getRegion());
+                return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            }
+            actionResult = analysisResult;
+            context = analysisResult.context();
+        } else {
+            final ISpoofaxParseUnit parseResult = input.getFragmentResult().getParseResult();
+            if(!parseResult.valid()) {
+                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                    "Parsing did not return a valid AST.", null));
+                MessageUtil.propagateMessages(parseResult.messages(), messages, test.getDescriptionRegion(),
+                    test.getFragment().getRegion());
+                return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            }
+            actionResult = parseResult;
+            try {
+                context = contextService.get(test.getResource(), test.getProject(), input.getLanguageUnderTest());
+            } catch(ContextException e) {
+                // Ignore error, just set context to null
+                context = null;
+            }
         }
 
-        /*
-         * Obtain the AST nodes to try to run on.
-         * 
-         * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,
-         * starting on the outermost term, until we processed them all or one of them passed successfully.
-         */
-        List<IStrategoTerm> terms = Lists.newLinkedList();
-        if(expectation.selection() == null) {
-            // no selections, so we run on the entire ast
-            // but only on the part that is inside the actual fragment, not the fixture
-            for(IStrategoTerm term : traceService.fragmentsWithin(analysisResult, test.getFragment().getRegion())) {
-                terms.add(term);
-            }
-        } else if(expectation.selection() > selections.size()) {
-            // not enough selections to resolve this selection
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
-                "Not enough selections to resolve #" + expectation.selection(), null));
-        } else {
-            // the input should be the selected term
-            ISourceRegion selection = selections.get(expectation.selection() - 1);
-            for(IStrategoTerm possibleSelection : traceService.fragmentsWithin(analysisResult, selection)) {
-                terms.add(possibleSelection);
-            }
-            if(terms.isEmpty()) {
-                logger.debug("Could not resolve this selection to an AST node.");
-                messages.add(MessageFactory.newAnalysisError(test.getResource(), selection,
-                    "Could not resolve this selection to an AST node.", null));
-            }
-        }
-        terms = Lists.reverse(terms);
+        // Obtain the AST nodes to try to run on.
+        final List<IStrategoTerm> terms = runOnTerms(test, expectation, actionResult, selections, messages);
 
         // before we try to run anything, make sure we have a runtime and something to execute on
         if(terms.isEmpty()) {
@@ -134,7 +137,8 @@ public class RunStrategoToAtermExpectationEvaluator
             lastMessage = null;
             try {
                 final IStrategoTerm result =
-                    stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term, strategy);
+                    context == null ? stratego.invoke(input.getLanguageUnderTest(), test.getResource(), term, strategy)
+                        : stratego.invoke(input.getLanguageUnderTest(), context, term, strategy);
                 // if the strategy failed, try the next input term
                 if(result == null) {
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
@@ -170,4 +174,49 @@ public class RunStrategoToAtermExpectationEvaluator
         return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
     }
 
+
+    /*
+     * Obtain the AST nodes to try to run on.
+     * 
+     * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,
+     * starting on the outermost term, until we processed them all or one of them passed successfully.
+     */
+    private List<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoToAtermExpectation expectation,
+        final IUnit result, List<ISourceRegion> selections, List<IMessage> outMessages) {
+        final List<IStrategoTerm> terms = Lists.newLinkedList();
+        if(expectation.selection() == null) {
+            // no selections, so we run on the entire ast
+            // but only on the part that is inside the actual fragment, not the fixture
+            final Iterable<IStrategoTerm> fragments;
+            if(result instanceof ISpoofaxParseUnit) {
+                fragments = traceService.fragmentsWithin((ISpoofaxParseUnit) result, test.getFragment().getRegion());
+            } else {
+                fragments = traceService.fragmentsWithin((ISpoofaxAnalyzeUnit) result, test.getFragment().getRegion());
+            }
+            for(IStrategoTerm term : fragments) {
+                terms.add(term);
+            }
+        } else if(expectation.selection() > selections.size()) {
+            // not enough selections to resolve it
+            outMessages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
+                "Not enough selections to resolve #" + expectation.selection(), null));
+        } else {
+            // the input should be the selected term
+            ISourceRegion selection = selections.get(expectation.selection() - 1);
+            final Iterable<IStrategoTerm> fragments;
+            if(result instanceof ISpoofaxParseUnit) {
+                fragments = traceService.fragmentsWithin((ISpoofaxParseUnit) result, selection);
+            } else {
+                fragments = traceService.fragmentsWithin((ISpoofaxAnalyzeUnit) result, selection);
+            }
+            for(IStrategoTerm possibleSelection : fragments) {
+                terms.add(possibleSelection);
+            }
+            if(terms.isEmpty()) {
+                outMessages.add(MessageFactory.newAnalysisError(test.getResource(), selection,
+                    "Could not resolve this selection to an AST node.", null));
+            }
+        }
+        return Lists.reverse(terms);
+    }
 }

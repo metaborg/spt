@@ -1,8 +1,8 @@
-module outline
+module spt/outline
 
 imports
   
-  signatures/SPT-Interactive-sig
+  signatures/spt/-
   runtime/editor/outline-library
   runtime/editor/origins
 
