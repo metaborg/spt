@@ -9,7 +9,6 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
-import org.metaborg.core.language.FacetContribution;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
@@ -21,8 +20,7 @@ import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.model.expectations.MessageUtil;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
-import org.metaborg.spoofax.core.stratego.IStrategoRuntimeService;
-import org.metaborg.spoofax.core.stratego.StrategoRuntimeFacet;
+import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
@@ -36,10 +34,7 @@ import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.core.InterpreterException;
-import org.spoofax.interpreter.core.UndefinedStrategyException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.HybridInterpreter;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -52,17 +47,17 @@ public class RunStrategoToAtermExpectationEvaluator
     private final ISpoofaxTracingService traceService;
     private final ISpoofaxAnalysisService analysisService;
     private final ITermFactoryService termFactoryService;
-    private final IStrategoRuntimeService runtimeService;
+    private final IStrategoCommon stratego;
 
 
     @Inject public RunStrategoToAtermExpectationEvaluator(IContextService contextService,
         ISpoofaxTracingService traceService, ISpoofaxAnalysisService analysisService,
-        ITermFactoryService termFactoryService, IStrategoRuntimeService runtimeService) {
+        ITermFactoryService termFactoryService, IStrategoCommon stratego) {
         this.contextService = contextService;
         this.traceService = traceService;
         this.analysisService = analysisService;
         this.termFactoryService = termFactoryService;
-        this.runtimeService = runtimeService;
+        this.stratego = stratego;
     }
 
 
@@ -93,8 +88,8 @@ public class RunStrategoToAtermExpectationEvaluator
 
         String strategy = expectation.strategy();
 
-
-        final IUnit result;
+        // the result of performing an analysis or parse action on the fragment
+        final IUnit actionResult;
         @Nullable IContext context;
         final ISpoofaxAnalyzeUnit analysisResult = input.getFragmentResult().getAnalysisResult();
         if(analysisResult != null) {
@@ -105,7 +100,7 @@ public class RunStrategoToAtermExpectationEvaluator
                     test.getFragment().getRegion());
                 return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
             }
-            result = analysisResult;
+            actionResult = analysisResult;
             context = analysisResult.context();
         } else {
             final ISpoofaxParseUnit parseResult = input.getFragmentResult().getParseResult();
@@ -116,7 +111,7 @@ public class RunStrategoToAtermExpectationEvaluator
                     test.getFragment().getRegion());
                 return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
             }
-            result = parseResult;
+            actionResult = parseResult;
             try {
                 context = contextService.get(test.getResource(), test.getProject(), input.getLanguageUnderTest());
             } catch(ContextException e) {
@@ -125,35 +120,11 @@ public class RunStrategoToAtermExpectationEvaluator
             }
         }
 
-
-        // Create the runtime for stratego
-        HybridInterpreter runtime = null;
-        FacetContribution<StrategoRuntimeFacet> facetContrib =
-            input.getLanguageUnderTest().facetContribution(StrategoRuntimeFacet.class);
-        if(facetContrib == null) {
-            logger.debug("Unable to load the StrategoRuntimeFacet for the language under test.");
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "Unable to load the StrategoRuntimeFacet for the language under test.", null));
-        } else {
-            try {
-                if(context != null) {
-                    runtime = runtimeService.runtime(facetContrib.contributor, context, false);
-                } else {
-                    runtime = runtimeService.runtime(facetContrib.contributor, test.getResource(), false);
-                }
-            } catch(MetaborgException e) {
-                logger.debug("Unable to load required files for the Stratego runtime.");
-                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                    "Unable to load required files for the Stratego runtime.", e));
-            }
-        }
-
-
         // Obtain the AST nodes to try to run on.
-        final List<IStrategoTerm> terms = runOnTerms(test, expectation, result, selections, messages);
+        final List<IStrategoTerm> terms = runOnTerms(test, expectation, actionResult, selections, messages);
 
         // before we try to run anything, make sure we have a runtime and something to execute on
-        if(runtime == null || terms.isEmpty()) {
+        if(terms.isEmpty()) {
             logger.debug("Returning early, as there is either no runtime or nothing to run on.");
             return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
@@ -164,10 +135,12 @@ public class RunStrategoToAtermExpectationEvaluator
         for(IStrategoTerm term : terms) {
             // reset the last message
             lastMessage = null;
-            runtime.setCurrent(term);
             try {
+                final IStrategoTerm result =
+                    context == null ? stratego.invoke(input.getLanguageUnderTest(), test.getResource(), term, strategy)
+                        : stratego.invoke(input.getLanguageUnderTest(), context, term, strategy);
                 // if the strategy failed, try the next input term
-                if(!runtime.invoke(strategy)) {
+                if(result == null) {
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                         String.format("The given strategy %1$s failed during execution.", expectation.strategy()),
                         null);
@@ -175,25 +148,20 @@ public class RunStrategoToAtermExpectationEvaluator
                 }
                 // the strategy was successfull
                 // compare the ASTs
-                if(SPTUtil.checkATermMatch(runtime.current(), expectation.expectedResult(),
+                if(SPTUtil.checkATermMatch(result, expectation.expectedResult(),
                     termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
                     success = true;
                 } else {
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                         String.format(
                             "The result of running %1$s did not match the expected result.\nExpected: %2$s\nGot: %3$s",
-                            strategy, SPTUtil.prettyPrintMatch(expectation.expectedResult()), runtime.current()),
+                            strategy, SPTUtil.prettyPrintMatch(expectation.expectedResult()), result),
                         null);
                 }
                 if(success) {
                     break;
                 }
-            } catch(UndefinedStrategyException e) {
-                lastMessage = MessageFactory.newAnalysisError(test.getResource(), expectation.strategyRegion(),
-                    "No such strategy found: " + strategy, e);
-                // this exception does not depend on the input so we can stop trying
-                break;
-            } catch(InterpreterException e) {
+            } catch(MetaborgException e) {
                 // who knows what caused this, but we will just keep trying on the other terms
                 lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Encountered an error while executing the given strategy.", e);

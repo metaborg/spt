@@ -96,4 +96,56 @@ test note location ignores warning (negative) [[
   CREATE TABLE [[woop]](i int);
 ]] 2 notes at #1
 
+test error with operators (positive) [[
+  CREATE TABLE T ();
+]] 
+<= 1 errors
+= 1 error
+>= 1 error
 
+test error with > (positive) [[
+  CREATE TABLE T ();
+  CREATE TABLE T ();
+]] > 1 error
+
+test error with > (negative) [[
+  CREATE TABLE T ();
+]] > 1 error
+
+test warning with < (positive) [[
+  CREATE TABLE mytable ();
+]] < 2 warnings
+
+test warning with < (negative) [[
+  CREATE TABLE mytable ();
+  CREATE TABLE mytable ();
+]] < 2 warnings
+
+test note with <= (negative) [[
+  CREATE TABLE Note();
+  CREATE TABLE Note();
+]] <= 1 notes
+
+test note with >= (negative) [[
+  CREATE TABLE Note();
+]] >= 2 notes
+
+test exact content of note (positive) [[
+  CREATE TABLE Note();
+]] note like "This is a note."
+
+test location and content of note (positive) [[
+  CREATE TABLE [[Note]]();
+]] note like "is a note" at #1
+
+test location and content of error (positive) [[
+  CREATE TABLE D();
+  CREATE TABLE [[D]]();
+  CREATE TABLE Note();
+]] error like "Duplicate  Table   D"
+
+test wrong location of error (negative) [[
+  CREATE TABLE D();
+  CREATE TABLE [[D]]();
+  CREATE TABLE Note();
+]] error like "Duplicate  Table   Note" at #1

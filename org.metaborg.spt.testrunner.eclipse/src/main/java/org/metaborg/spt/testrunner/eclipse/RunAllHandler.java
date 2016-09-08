@@ -1,6 +1,7 @@
 package org.metaborg.spt.testrunner.eclipse;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -12,8 +13,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.ui.handlers.HandlerUtil;
-
-import com.google.common.collect.Lists;
 
 /**
  * The handler for the 'Run All SPT tests' command that is executed from a project's Spoofax context menu.
@@ -29,7 +28,7 @@ public class RunAllHandler extends AbstractHandler {
         final ISelection sel = HandlerUtil.getCurrentSelectionChecked(event);
         if(sel instanceof ITreeSelection) {
             final ITreeSelection tree = (ITreeSelection) sel;
-            final List<URI> testLocations = Lists.newArrayList();
+            final List<URI> testLocations = new ArrayList<>();
             for(TreePath p : tree.getPaths()) {
                 for(int i = 0; i < p.getSegmentCount(); i++) {
                     final Object seg = p.getSegment(i);

@@ -102,7 +102,7 @@ public class TestRunner {
         for(FileObject testSuite : allSuites) {
             final String text;
             try(InputStream in = testSuite.getContent().getInputStream()) {
-                text = IOUtils.toString(in);
+                text = IOUtils.toString(in, (String) null);
             } catch(IOException e) {
                 logger.error("Unable to process file {}", e, testSuite);
                 continue;
