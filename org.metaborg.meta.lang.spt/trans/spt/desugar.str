@@ -10,6 +10,15 @@ signature constructors
   Fixture : String * String * String * String * String * String -> Fixture
   // ParseTo(language_name, open_marker, fragment, close_marker)
   ToPart : String * String * Fragment * String -> ParseTo
+  // For analyze messages
+  Error : String -> Error
+  Warning : String -> Warning
+  Note : String -> Note
+  Equal : Equal
+  Less : Less
+  LessOrEqual : LessOrEqual
+  More : More
+  MoreOrEqual : MoreOrEqual
 
 rules
   desugar-before = topdown(try(desugar-term-before))
@@ -38,31 +47,26 @@ rules
     cons#([lang_name, open_marker, fragment, close_marker]) -> ToPart(lang_name, open_marker, fragment, close_marker)
     where
       <eq> (cons, "ToPart2") + <eq> (cons, "ToPart3") + <eq> (cons, "ToPart4")
-      
-  // Desugar the One(Error | Warning | Note) constructors
-  desugar-term-before:
-    OneError() -> Errors(1)
-  desugar-term-before:
-    OneWarning() -> Warnings(1)
-  desugar-term-before:
-    OneNote() -> Notes(1)
   
-  // Desugar the 'n messages at ' expectations
+  // Desugar 'n errors' expectation
   desugar-term-before:
-    OneErrorAt(selref) -> ErrorsAt(1, [<desugar-selection-ref> selref])
+    AnalyzeMessages(op, n, sev, atpart) -> AnalyzeMessages(<desugar-message-op> op, <dec-string-to-int> n, <desugar-severity> sev, atpart)
   desugar-term-before:
-    OneWarningAt(selref) -> WarningsAt(1, [<desugar-selection-ref> selref])
-  desugar-term-before:
-    OneNoteAt(selref) -> NotesAt(1, [<desugar-selection-ref> selref])
-  desugar-term-before:
-    ErrorsAt(n, at) -> ErrorsAt(<dec-string-to-int> n, <all(desugar-selection-ref)> at)
-  desugar-term-before:
-    WarningsAt(n, at) -> WarningsAt(<dec-string-to-int> n, <all(desugar-selection-ref)> at)
-  desugar-term-before:
-    NotesAt(n, at) -> NotesAt(<dec-string-to-int> n, <all(desugar-selection-ref)> at)
-    
-    
+    AnalyzeMessagePattern(sev, content, atpart) -> AnalyzeMessagePattern(<desugar-severity> sev, <un-double-quote> content, atpart)
+  desugar-severity = ?sev ; (?"error" + ?"errors") ; !Error(sev)
+  desugar-severity = ?sev ; (?"warning" + ?"warnings") ; !Warning(sev)
+  desugar-severity = ?sev ; (?"note" + ?"notes") ; !Note(sev)
+  desugar-message-op = ?None
+  desugar-message-op : Some("=") -> Some(Equal())
+  desugar-message-op : Some("<") -> Some(Less())
+  desugar-message-op : Some("<=") -> Some(LessOrEqual())
+  desugar-message-op : Some(">") -> Some(More())
+  desugar-message-op : Some(">=") -> Some(MoreOrEqual())  
+  
+  
   // Desugar from a SelectionRef(string) to an int
+  desugar-term-before:
+    AtPart(selrefs) -> AtPart(<map(desugar-selection-ref)> selrefs)
   desugar-selection-ref:
     SelectionRef(n) -> i
     with

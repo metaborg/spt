@@ -1,0 +1,6 @@
+module description
+language MiniSQL
+
+test    	layout before description (positive) [[
+  CREATE TABLE T(i int);
+]]
