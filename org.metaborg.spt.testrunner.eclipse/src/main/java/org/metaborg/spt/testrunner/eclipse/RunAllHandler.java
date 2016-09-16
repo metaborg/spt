@@ -49,9 +49,16 @@ public class RunAllHandler extends AbstractHandler {
                 Activator.logError("SPT Run had no locations to execute on.");
             }
 
-            for(URI uri : testLocations) {
-                runner.runAll(uri);
-            }
+            Runnable runTests = new Runnable() {
+
+                @Override public void run() {
+                    for(URI uri : testLocations) {
+                        runner.runAll(uri);
+                    }
+                }
+            };
+            new Thread(runTests).start();
+
         } else {
             Activator.logError("SPT Run can't handle a selection of type " + sel.getClass());
         }
