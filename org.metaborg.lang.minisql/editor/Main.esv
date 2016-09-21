@@ -1,0 +1,25 @@
+module Main
+
+imports
+
+  Colorer
+  Menus
+  Syntax
+  Views
+
+language
+  
+  name : MiniSQL
+  
+  extensions : dummy
+
+  table         : target/metaborg/sdf.tbl
+  start symbols : Start
+  
+  provider : target/metaborg/stratego.ctree
+  observer : editor-analyze (multifile)
+  
+references
+
+  reference _ : editor-resolve
+  hover _     : editor-hover

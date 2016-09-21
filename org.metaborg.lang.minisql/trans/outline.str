@@ -1,0 +1,12 @@
+module outline
+
+imports
+  
+  signatures/MiniSQL-sig
+  runtime/editor/outline-library
+  runtime/editor/origins
+
+rules
+  
+  to-outline-label = fail
+  

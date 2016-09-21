@@ -1,0 +1,176 @@
+module test_test-test
+
+language MiniSQL
+
+test parse expected to succeed and succeeds[[
+  CREATE TABLE [[MyTable]] (
+    intCol int
+  );
+]] parse succeeds
+
+test parse comment [[/* comment */]] parse succeeds
+
+test parse expected to succeed, but fails  [[
+  CREATE TABLE [[MyTable]] (
+    intCol lint
+  );
+]] parse succeeds
+
+test parse expected to fail, but succeeds [[//lol
+/* comment */
+  CREATE TABLE [[MyTable]] (
+// comment
+    intCol int
+  );
+]] parse fails
+
+test parse expected to fail and fails [[
+  CREATE TABLE [[MyTable]] (
+    intCol lint
+  );
+]] parse fails
+
+test parse to ATerms [[
+  CREATE TABLE MyTable (
+    intCol int
+  );
+]] parse to Module([TableDef("MyTable", [ColDef("intCol", INT())])])
+
+test parse to concrete syntax [[
+  CREATE TABLE MyTable (
+    intCol int
+  );
+  SELECT t.intCol
+  FROM MyTable t
+  WHERE t.intcol = 5 * 5 + 5;
+]] parse to MiniSQL [[
+  CREATE TABLE MyTable (
+    intCol int
+  );
+  SELECT t.intCol
+  FROM MyTable t
+  WHERE t.intcol = (5 * 5) + 5;
+]]
+
+test expecting and selecting an error on duplicate tables [[
+  CREATE TABLE [[MyTable]] (
+    intCol int
+  );
+  CREATE TABLE [[MyTable]] (
+    intCol int
+  );
+]] 2 errors
+
+test expecting a wrong number of errors [[
+  CREATE TABLE MyTable (
+    intCol int
+  );
+  CREATE TABLE MyTable (
+    intCol int
+  );
+]] 1 error
+
+test expecting and selecting a warning on lowercase table name [[
+  CREATE TABLE [[myTable]] (
+    intCol int
+  );
+]] 1 warning
+
+test expecting a warning, but selecting the wrong location [[
+  CREATE TABLE myTable (
+    [[intCol]] int
+  );
+]] 1 warning
+
+test check table name resolution [[
+  CREATE TABLE [[MyTable]] (
+    intCol int
+  );
+  SELECT t.intCol
+  FROM [[MyTable]] t;
+]] resolve #2
+
+test check table name resolution and resolution result [[
+  CREATE TABLE [[MyTable]] (
+    intCol int
+  );
+  SELECT t.intCol
+  FROM [[MyTable]] t;
+]] resolve #2 to #1
+
+test table name resolution to wrong result [[
+  CREATE [[TABLE MyTable]] (
+    intCol int
+  );
+  SELECT t.intCol
+  FROM [[MyTable]] t;
+]] resolve #2 to #1
+
+test selection index out of bounds [[
+  CREATE [[TABLE MyTable]] (
+    intCol int
+  );
+  SELECT t.intCol
+  FROM [[MyTable]] t;
+]] resolve #2 to #3
+
+test no selection with resolve expectation [[
+  CREATE TABLE MyTable (
+    intCol int
+  );
+  SELECT t.intCol
+  FROM MyTable t;
+]] resolve #1
+
+test run a simple strategy and pass [[
+  CREATE TABLE MyTable (
+    [[intCol int]]
+  );
+]] run is-coldef
+
+test run a simple strategy and fail [[
+  CREATE TABLE MyTable (
+    [[intCol]] int
+  );
+  SELECT t.intCol
+  FROM MyTable t;
+]] run is-coldef
+
+test run a strategy to inner selected node [[
+  CREATE TABLE MyTable (
+    col VARCHAR
+  );
+  SELECT t.col
+  FROM MyTable t
+  WHERE t.col = [["somestring"]];
+]] run my-id to "somestring"
+
+test run a strategy to outer selected node [[
+  CREATE TABLE MyTable (
+    col VARCHAR
+  );
+  SELECT t.col
+  FROM MyTable t
+  WHERE t.col = [["somestring"]];
+]] run my-id to String("somestring")
+
+test run a strategy to something and fail [[
+  CREATE TABLE [[MyTable]] (
+    col VARCHAR
+  );
+]] run my-id to 5
+
+test transformation [[
+  CREATE TABLE MyTable (
+    col int
+  );
+]] transform "Transform -> Print 1 on parse" to 1
+
+test origin locations [[
+  CREATE TABLE MyTable (
+    col int
+  );
+  SELECT t.col
+  FROM MyTable t
+  WHERE t.col = [["somestring"]];
+]] has origin locations
