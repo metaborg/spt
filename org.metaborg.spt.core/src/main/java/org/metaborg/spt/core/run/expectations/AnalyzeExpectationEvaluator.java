@@ -175,17 +175,17 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
             } else {
                 // check only the selected message
                 if(!lastSelectedMsg.message().contains(content)) {
-                    logger.error("Not equal: ");
+                    logger.warn("Not equal: ");
                     String s = "";
                     for(byte b : content.getBytes()) {
                         s = (s.equals("") ? Byte.toString(b) : s + ", " + b);
                     }
-                    logger.error("Content: {}", s);
+                    logger.warn("Content: {}", s);
                     s = "";
                     for(byte b : lastSelectedMsg.message().getBytes()) {
                         s = (s.equals("") ? Byte.toString(b) : s + ", " + b);
                     }
-                    logger.error("Message: {}", s);
+                    logger.warn("Message: {}", s);
                     messages
                         .add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                             String.format("Expected a %s containing the text \"%s\", but found one with text \"%s\".",

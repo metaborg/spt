@@ -1,5 +1,7 @@
 package org.metaborg.spt.core.extract.expectations;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
@@ -18,8 +20,9 @@ import com.google.inject.Inject;
  */
 public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpectationProvider {
 
-    // RunToAterm("strategy", ToAterm(ast))
+    // RunToAterm("strategy", optional onPart(int), ToAterm(ast))
     private static final String RUN_TO = "RunToAterm";
+    private static final String TO_ATERM = "ToAterm";
 
     private final ISpoofaxTracingService traceService;
 
@@ -29,35 +32,87 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
     }
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        String cons = SPTUtil.consName(expectationTerm);
-        return Term.isTermString(expectationTerm.getSubterm(0)) && RUN_TO.equals(cons)
-            && expectationTerm.getSubtermCount() == 3 && expectationTerm.getSubterm(2).getSubtermCount() == 1;
+        return checkRunToAterm(expectationTerm);
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
         ISourceLocation loc = traceService.location(expectationTerm);
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
-        final IStrategoTerm stratTerm = expectationTerm.getSubterm(0);
+        final IStrategoTerm stratTerm = getStrategyTerm(expectationTerm);
         final String strategy = Term.asJavaString(stratTerm);
-        final IStrategoTerm onTerm = expectationTerm.getSubterm(1);
+
+        final @Nullable IStrategoTerm onTerm = SPTUtil.getOptionValue(getOptionalOnPartTerm(expectationTerm));
         final Integer selection;
         final ISourceRegion selectionRegion;
-        if(SPTUtil.SOME_CONS.equals(SPTUtil.consName(onTerm))) {
-            selection = Term.asJavaInt(onTerm.getSubterm(0));
+        if(onTerm == null) {
+            // the optional onPart was None()
+            selection = null;
+            selectionRegion = null;
+        } else {
+            // the optional onPart was Some(onTerm)
+            selection = Term.asJavaInt(onTerm);
             final ISourceLocation selLoc = traceService.location(onTerm);
             if(selLoc == null) {
                 selectionRegion = region;
             } else {
                 selectionRegion = selLoc.region();
             }
-        } else {
-            selection = null;
-            selectionRegion = null;
         }
-        final IStrategoTerm toAtermPart = expectationTerm.getSubterm(2);
+        final IStrategoTerm toAtermPart = getToAtermTerm(expectationTerm);
         return new RunStrategoToAtermExpectation(region, strategy, loc.region(), selection, selectionRegion,
             toAtermPart.getSubterm(0));
+    }
+
+    private IStrategoTerm getStrategyTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(0);
+    }
+
+    private IStrategoTerm getOptionalOnPartTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(1);
+    }
+
+    private IStrategoTerm getToAtermTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(2);
+    }
+
+    /**
+     * Check if the given term is a RunToAterm term that we can handle.
+     */
+    private boolean checkRunToAterm(IStrategoTerm expectationTerm) {
+        // RunToAterm("strategy", optional onPart(int), ToAterm(ast))
+        if(!RUN_TO.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 3) {
+            return false;
+        }
+
+        // check strategy name
+        if(!Term.isTermString(getStrategyTerm(expectationTerm))) {
+            return false;
+        }
+
+        // check optional OnPart
+        if(!RunStrategoExpectationProvider.checkOptionalOnPart(getOptionalOnPartTerm(expectationTerm))) {
+            return false;
+        }
+
+        if(!checkToAterm(getToAtermTerm(expectationTerm))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the given term is a ToAterm term.
+     * 
+     * For now we do not check the entire term, only the constructor.
+     */
+    protected static boolean checkToAterm(IStrategoTerm toAterm) {
+        // I don't feel like checking the entire ATerm AST.
+        if(!TO_ATERM.equals(SPTUtil.consName(toAterm)) || toAterm.getSubtermCount() != 1) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -36,7 +36,6 @@ test run only on selection (negative) [[
   h int
 ]] run my-id on #1 to ColDef("h", INT())
 
-test run on empty fragment should fail (negative) [[
-
-]] run my-id
-
+test run without onpart to fragment (positive) [[
+  i int
+]] run table-T-with-int-col-i to [[CREATE TABLE T(i int);]]

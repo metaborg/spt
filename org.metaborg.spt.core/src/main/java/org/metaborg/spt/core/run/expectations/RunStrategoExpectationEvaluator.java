@@ -181,14 +181,17 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                                 strategy, analyzedFragment == null ? "null" : analyzedFragment.ast(), result),
                             null);
                     }
-                    fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(),
-                        analyzedFragment.input(), analyzedFragment, null));
+                    if(analyzedFragment != null) {
+                        fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(),
+                            analyzedFragment.input(), analyzedFragment, null));
+                    }
                 }
                 if(success) {
                     break;
                 }
             } catch(MetaborgException e) {
                 // who knows what caused this, but we will just keep trying on the other terms
+                logger.warn("Encountered an error while executing the given strategy", e);
                 lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Encountered an error while executing the given strategy.", e);
             }

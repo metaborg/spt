@@ -37,6 +37,8 @@ import com.google.inject.Inject;
  */
 public class FragmentUtil {
 
+    public static final String TO_PART_CONS = "ToPart";
+
     private final ISpoofaxFragmentParser fragmentParser;
     private final ILanguageService langService;
     private final ISpoofaxTracingService traceService;
@@ -53,30 +55,161 @@ public class FragmentUtil {
     }
 
     /**
-     * Get the AST node of the fragment of the given ToPart.
+     * Check if this term is a ToPart.
+     * 
+     * @param toPart
+     *            the term to check.
+     * @return true iff this is a ToPart term that we know how to process.
      */
-    public static IStrategoTerm toPartFragment(IStrategoTerm toPart) {
+    public static boolean checkToPart(IStrategoTerm toPart) {
+        final String cons = SPTUtil.consName(toPart);
+        if(TO_PART_CONS.equals(cons)) {
+            // ToPart(optional_lang_name, open_marker, fragment, close_marker)
+            if(toPart.getSubtermCount() != 4) {
+                return false;
+            }
+
+            // check the Option for the language name
+            final IStrategoTerm optLang = getToPartOptLangTerm(toPart);
+            if(!SPTUtil.checkOption(optLang)) {
+                return false;
+            }
+            final IStrategoTerm langName = SPTUtil.getOptionValue(optLang);
+            if(langName != null && !Term.isTermString(langName)) {
+                return false;
+            }
+
+            // check the open marker
+            if(!Term.isTermString(getToPartOpenMarkerTerm(toPart))) {
+                return false;
+            }
+
+            // check the fragment
+            if(!checkFragment(getToPartFragmentTerm(toPart))) {
+                return false;
+            }
+
+            // check the close marker
+            if(!Term.isTermString(getToPartCloseMarkerTerm(toPart))) {
+                return false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the given term is a proper Framgent term.
+     * 
+     * @param fragment
+     *            the term to check.
+     * @return true iff this is a Fragment term that we can handle.
+     */
+    public static boolean checkFragment(IStrategoTerm fragment) {
+        // Fragment(<String>, TailPart)
+        final String cons = SPTUtil.consName(fragment);
+        if(!SPTUtil.FRAGMENT_CONS.equals(cons) || fragment.getSubtermCount() != 2) {
+            return false;
+        }
+        if(!Term.isTermString(fragment.getSubterm(0))) {
+            return false;
+        }
+        if(!checkTailPart(fragment.getSubterm(1))) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check if the given term is a proper TailPart term.
+     * 
+     * @param tailPart
+     *            the term to check.
+     * @return true iff this is a TailPart term that we can handle.
+     */
+    public static boolean checkTailPart(IStrategoTerm tailPart) {
+        // Done or More(Selection(open_bracket, <String>, close_bracket), <String>, TailPart)
+        final String cons = SPTUtil.consName(tailPart);
+        switch(cons) {
+            case SPTUtil.TAILPART_DONE_CONS:
+                // Done()
+                return tailPart.getSubtermCount() == 0;
+            case SPTUtil.TAILPART_MORE_CONS:
+                // More(Selection(marker, string, marker), string, TailPart)
+                if(tailPart.getSubtermCount() != 3) {
+                    return false;
+                }
+
+                // check Selection(open marker, string, close marker)
+                final IStrategoTerm selection = tailPart.getSubterm(0);
+                if(!SPTUtil.SELECTION_CONS.equals(SPTUtil.consName(selection)) || selection.getSubtermCount() != 3) {
+                    return false;
+                }
+                if(!Term.isTermString(selection.getSubterm(0)) || !Term.isTermString(selection.getSubterm(1))
+                    || !Term.isTermString(selection.getSubterm(2))) {
+                    return false;
+                }
+
+                // check string part
+                if(!Term.isTermString(tailPart.getSubterm(1))) {
+                    return false;
+                }
+
+                // check recursive tail part
+                if(!checkTailPart(tailPart.getSubterm(2))) {
+                    return false;
+                }
+
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // Get the AST node corresponding to the optional language name of a ToPart.
+    private static IStrategoTerm getToPartOptLangTerm(IStrategoTerm toPart) {
+        return toPart.getSubterm(0);
+    }
+
+    // Get the AST node corresponding to the open marker of a ToPart.
+    private static IStrategoTerm getToPartOpenMarkerTerm(IStrategoTerm toPart) {
+        return toPart.getSubterm(1);
+    }
+
+    // Get the AST node corresponding to the fragment of a ToPart.
+    private static IStrategoTerm getToPartFragmentTerm(IStrategoTerm toPart) {
         return toPart.getSubterm(2);
+    }
+
+    // Get the AST node corresponding to the close marker of a ToPart.
+    private static IStrategoTerm getToPartCloseMarkerTerm(IStrategoTerm toPart) {
+        return toPart.getSubterm(3);
     }
 
     /**
      * Get the name of the language of the given ToPart.
      */
     public static @Nullable String toPartLangName(IStrategoTerm toPart) {
-        IStrategoTerm langOption = toPart.getSubterm(0);
-        if("None".equals(SPTUtil.consName(langOption))) {
-            return null;
-        } else {
-            return Term.asJavaString(langOption.getSubterm(0));
-        }
+        final IStrategoTerm langOption = SPTUtil.getOptionValue(getToPartOptLangTerm(toPart));
+
+        return langOption == null ? null : Term.asJavaString(langOption);
+    }
+
+    /**
+     * Get the AST node of the fragment of the given ToPart.
+     */
+    public static IStrategoTerm toPartFragment(IStrategoTerm toPart) {
+        return getToPartFragmentTerm(toPart);
     }
 
     /**
      * Try to get the region of the language name of the given ToPart.
      */
     public @Nullable ISourceRegion toPartLangNameRegion(IStrategoTerm toPart) {
-        final IStrategoTerm langNameTerm = toPart.getSubterm(0);
-        ISourceLocation loc = traceService.location(langNameTerm);
+        final IStrategoTerm langNameTerm = getToPartOptLangTerm(toPart);
+        final ISourceLocation loc = traceService.location(langNameTerm);
         return loc == null ? null : loc.region();
     }
 
