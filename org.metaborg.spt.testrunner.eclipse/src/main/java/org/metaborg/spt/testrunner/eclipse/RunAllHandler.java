@@ -8,6 +8,11 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ITreeSelection;
@@ -49,19 +54,31 @@ public class RunAllHandler extends AbstractHandler {
                 Activator.logError("SPT Run had no locations to execute on.");
             }
 
-            Runnable runTests = new Runnable() {
-
-                @Override public void run() {
-                    for(URI uri : testLocations) {
-                        runner.runAll(uri);
-                    }
-                }
-            };
-            new Thread(runTests).start();
+            RunTestsJob job = new RunTestsJob(testLocations);
+            job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+            job.schedule();
 
         } else {
             Activator.logError("SPT Run can't handle a selection of type " + sel.getClass());
         }
         return null;
+    }
+
+    private class RunTestsJob extends Job {
+
+        private final List<URI> testLocations;
+
+        public RunTestsJob(List<URI> testLocations) {
+            super(RunTestsJob.class.getSimpleName());
+            this.testLocations = testLocations;
+        }
+
+        @Override protected IStatus run(IProgressMonitor monitor) {
+            for(URI uri : testLocations) {
+                runner.runAll(uri);
+            }
+            return Status.OK_STATUS;
+        }
+
     }
 }
