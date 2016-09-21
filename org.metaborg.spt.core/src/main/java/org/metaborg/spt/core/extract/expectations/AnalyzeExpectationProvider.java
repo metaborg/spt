@@ -28,13 +28,12 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
 
     private static final ILogger logger = LoggerUtils.logger(AnalyzeExpectationProvider.class);
 
-    // AnalyzeMessages(Some(<operation>), <number>, <severity>, Some(AtPart([SelectionRef(<i>), SelectionRef(<j>)])))
+    // AnalyzeMessages(Some(<operation>), <number>, <severity>, Some(AtPart([<i>, <j>])))
     private static final String CONS = "AnalyzeMessages";
     // AnalyzeMessagePattern(severity, content, optional at part)
     private static final String LIKE = "AnalyzeMessagePattern";
 
     private static final String AT_PART = "AtPart";
-    private static final String SEL_REF = "SelectionRef";
 
     private static final String ERR = "Error";
     private static final String WARN = "Warning";
@@ -259,10 +258,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
 
     // check if the given term is a valid severity
     private static boolean checkSeverity(IStrategoTerm sev) {
-        if(!Term.isTermString(sev)) {
-            return false;
-        }
-        switch(Term.asJavaString(sev)) {
+        switch(SPTUtil.consName(sev)) {
             case ERR:
             case WARN:
             case NOTE:
@@ -289,7 +285,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
         }
     }
 
-    // AtPart([SelectionRef(<i>), SelectionRef(<j>), ...])
+    // AtPart([<i>, <j>, ...])
     private static boolean checkOptionalAtPart(IStrategoTerm optAtPart) {
         if(!SPTUtil.checkOption(optAtPart)) {
             return false;
@@ -311,9 +307,8 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             }
             final IStrategoList selectionsList = (IStrategoList) selections;
             for(IStrategoTerm selectionRef : selectionsList) {
-                // should be SelectionRef(int)
-                if(!SEL_REF.equals(SPTUtil.consName(selectionRef)) || selectionRef.getSubtermCount() != 1
-                    || !Term.isTermInt(selectionRef.getSubterm(0))) {
+                // should be an int
+                if(!Term.isTermInt(selectionRef)) {
                     return false;
                 }
             }

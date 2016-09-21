@@ -115,8 +115,13 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
                 numOk = false;
         }
         if(!numOk) {
-            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                "Expected " + expectedNumMessages + " " + severity + "s, but got " + interestingMessages.size(), null));
+            messages
+                .add(
+                    MessageFactory
+                        .newAnalysisError(
+                            test.getResource(), test.getDescriptionRegion(), "Expected " + errorStr(operation) + " "
+                                + expectedNumMessages + " " + severity + "s, but got " + interestingMessages.size(),
+                            null));
         }
 
         // Check message locations
@@ -201,6 +206,23 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
             MessageUtil.propagateMessages(analysisMessages, messages, test.getDescriptionRegion(),
                 test.getFragment().getRegion());
             return false;
+        }
+    }
+
+    private String errorStr(Operation op) {
+        switch(op) {
+            case EQUAL:
+                return "";
+            case LESS:
+                return "less than";
+            case LESS_OR_EQUAL:
+                return "at most";
+            case MORE:
+                return "more than";
+            case MORE_OR_EQUAL:
+                return "at least";
+            default:
+                throw new IllegalArgumentException("No such operation: " + op);
         }
     }
 }
