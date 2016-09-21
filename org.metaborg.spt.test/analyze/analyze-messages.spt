@@ -1,151 +1,265 @@
 module analyze-messages
 
-language MiniSQL
+language SPT-Interactive
 
-fixture [[
-  // there will be a note on the name
-  CREATE TABLE Note (i int);
-  // there will be a warning on the name
-  CREATE TABLE mytable (i int);
-  CREATE TABLE T (i int);
+fixture [[[
+  module analyze-messages
+  language MiniSQL
 
-  [[...]]
-]]
+  fixture [[
+    // there will be a note on the name
+    CREATE TABLE Note (i int);
+    // there will be a warning on the name
+    CREATE TABLE mytable (i int);
+    CREATE TABLE T (i int);
 
-test error only in fragment (positive) [[
-  CREATE TABLE T (i int);
-]] 1 error
+    [[...]]
+  ]]
+  
+  [[[...]]]
+]]]
 
-test error only in fragment (negative) [[
-  CREATE TABLE T (i int);
-]] 2 errors
+test error only in fragment (positive) [[[
+  test error only in fragment (positive) [[
+    CREATE TABLE T (i int);
+  ]] 1 error
+]]] analysis succeeds
 
-test warning only in fragment (positive) [[
-  CREATE TABLE mytable (i int);
-]] 1 warning
+test error only in fragment (negative) [[[
+  test error only in fragment (negative) [[
+    CREATE TABLE T (i int);
+  ]] 2 errors
+]]] analysis fails
 
-test warning only in fragment (negative) [[
-  CREATE TABLE mytable (i int);
-]] 2 warnings
 
-test note only in fragment (positive) [[
-  CREATE TABLE Note (i int);
-]] 1 note
+test warning only in fragment (positive) [[[
+  test warning only in fragment (positive) [[
+    CREATE TABLE mytable (i int);
+  ]] 1 warning
+]]] analysis succeeds
 
-test note only in fragment (negative) [[
-  CREATE TABLE Note (i int);
-]] 2 notes
+test warning only in fragment (negative) [[[
+  test warning only in fragment (negative) [[
+    CREATE TABLE mytable (i int);
+  ]] 2 warnings
+]]] analysis fails
 
-test warnings and notes allowed with error (positive) [[
-  CREATE TABLE Note(i int);
-  CREATE TABLE woop(i int);
-]] 1 error
+test note only in fragment (positive) [[[
+  test note only in fragment (positive) [[
+    CREATE TABLE Note (i int);
+  ]] 1 note
+]]] analysis succeeds
 
-test errors and notes allowed with warning (positive) [[
-  CREATE TABLE Note(i int);
-  CREATE TABLE woop(i int);
-]] 1 warning
+test note only in fragment (negative) [[[
+  test note only in fragment (negative) [[
+    CREATE TABLE Note (i int);
+  ]] 2 notes
+]]] analysis fails
 
-test errors and warnings allowed with notes (positive) [[
-  CREATE TABLE Note(i int);
-  CREATE TABLE woop(i int);
-]] 1 note
+test warnings and notes allowed with error (positive) [[[
+  test warnings and notes allowed with error (positive) [[
+    CREATE TABLE Note(i int);
+    CREATE TABLE woop(i int);
+  ]] 1 error
+]]] analysis succeeds
 
-test too few error locations (positive) [[
-  CREATE TABLE [[T]](i int);
-  CREATE TABLE T(i int);
-]] 2 errors at #1
+test errors and notes allowed with warning (positive) [[[
+  test errors and notes allowed with warning (positive) [[
+    CREATE TABLE Note(i int);
+    CREATE TABLE woop(i int);
+  ]] 1 warning
+]]] analysis succeeds
 
-test multiple note locations at same spot (positive) [[
-  CREATE TABLE [[DoubleNote]](i int);
-  CREATE TABLE T(i int);
-]] 2 notes at #1,#1
+test errors and warnings allowed with notes (positive) [[[
+  test errors and warnings allowed with notes (positive) [[
+    CREATE TABLE Note(i int);
+    CREATE TABLE woop(i int);
+  ]] 1 note
+]]] analysis succeeds
 
-test multiple note locations at same spot (negative) [[
-  CREATE TABLE [[Note]](i int);
-  CREATE TABLE T(i int);
-]] 1 notes at #1,#1
+test too few error locations (positive) [[[
+  test too few error locations (positive) [[
+    CREATE TABLE [[T]](i int);
+    CREATE TABLE T(i int);
+  ]] 2 errors at #1
+]]] analysis succeeds
 
-test error location ignores warning (negative) [[
-  CREATE TABLE T(i int);
-  CREATE TABLE [[w]](i int);
-]] 1 error at #1
+test multiple note locations at same spot (positive) [[[
+  test multiple note locations at same spot (positive) [[
+    CREATE TABLE [[DoubleNote]](i int);
+    CREATE TABLE T(i int);
+  ]] 2 notes at #1,#1
+]]] analysis succeeds
 
-test error location ignores note (negative) [[
-  CREATE TABLE T(i int);
-  CREATE TABLE [[DoubleNote]](i int);
-]] 1 error at #1
+test multiple note locations at same spot (negative) [[[
+  test multiple note locations at same spot (negative) [[
+    CREATE TABLE [[Note]](i int);
+    CREATE TABLE T(i int);
+  ]] 1 notes at #1,#1
+]]] analysis fails
 
-test warning location ignores error (negative) [[
-  CREATE TABLE [[T]](i int);
-  CREATE TABLE w(i int);
-]] 1 warning at #1
+test error location ignores warning (negative) [[[
+  test error location ignores warning (negative) [[
+    CREATE TABLE T(i int);
+    CREATE TABLE [[w]](i int);
+  ]] 1 error at #1
+]]] analysis fails
 
-test warning location ignores note (negative) [[
-  CREATE TABLE [[DoubleNote]](i int);
-  CREATE TABLE w(i int);
-]] 1 warning at #1
+test error location ignores note (negative) [[[
+  test error location ignores note (negative) [[
+    CREATE TABLE T(i int);
+    CREATE TABLE [[DoubleNote]](i int);
+  ]] 1 error at #1
+]]] analysis fails
 
-test note location ignores error (negative) [[
-  CREATE TABLE DoubleNote(i int);
-  CREATE TABLE [[T]](i int);
-]] 2 notes at #1
+test warning location ignores error (negative) [[[
+  test warning location ignores error (negative) [[
+    CREATE TABLE [[T]](i int);
+    CREATE TABLE w(i int);
+  ]] 1 warning at #1
+]]] analysis fails
 
-test note location ignores warning (negative) [[
-  CREATE TABLE DoubleNote(i int);
-  CREATE TABLE [[woop]](i int);
-]] 2 notes at #1
+test warning location ignores note (negative) [[[
+  test warning location ignores note (negative) [[
+    CREATE TABLE [[DoubleNote]](i int);
+    CREATE TABLE w(i int);
+  ]] 1 warning at #1
+]]] analysis fails
 
-test error with operators (positive) [[
-  CREATE TABLE T ();
-]] 
-<= 1 errors
-= 1 error
->= 1 error
+test note location ignores error (negative) [[[
+  test note location ignores error (negative) [[
+    CREATE TABLE DoubleNote(i int);
+    CREATE TABLE [[T]](i int);
+  ]] 2 notes at #1
+]]] analysis fails
 
-test error with > (positive) [[
-  CREATE TABLE T ();
-  CREATE TABLE T ();
-]] > 1 error
+test note location ignores warning (negative) [[[
+  test note location ignores warning (negative) [[
+    CREATE TABLE DoubleNote(i int);
+    CREATE TABLE [[woop]](i int);
+  ]] 2 notes at #1
+]]] analysis fails
 
-test error with > (negative) [[
-  CREATE TABLE T ();
-]] > 1 error
+test error with operators (positive) [[[
+  test error with operators (positive) [[
+    CREATE TABLE T ();
+  ]] 
+  <= 1 errors
+  = 1 error
+  >= 1 error
+]]] analysis succeeds
 
-test warning with < (positive) [[
-  CREATE TABLE mytable ();
-]] < 2 warnings
+test error with > (positive) [[[
+  test error with > (positive) [[
+    CREATE TABLE T ();
+    CREATE TABLE T ();
+  ]] > 1 error
+]]] analysis succeeds
 
-test warning with < (negative) [[
-  CREATE TABLE mytable ();
-  CREATE TABLE mytable ();
-]] < 2 warnings
+test error with > (negative) [[[
+  test error with > (negative) [[
+    CREATE TABLE T ();
+  ]] > 1 error
+]]] analysis fails
 
-test note with <= (negative) [[
-  CREATE TABLE Note();
-  CREATE TABLE Note();
-]] <= 1 notes
+test warning with < (positive) [[[
+  test warning with < (positive) [[
+    CREATE TABLE mytable ();
+  ]] < 2 warnings
+]]] analysis succeeds
 
-test note with >= (negative) [[
-  CREATE TABLE Note();
-]] >= 2 notes
+test warning with < (negative) [[[
+  test warning with < (negative) [[
+    CREATE TABLE mytable ();
+    CREATE TABLE mytable ();
+  ]] < 2 warnings
+]]] analysis fails
 
-test exact content of note (positive) [[
-  CREATE TABLE Note();
-]] note like "This is a note."
+test note with <= (negative) [[[
+  test note with <= (negative) [[
+    CREATE TABLE Note();
+    CREATE TABLE Note();
+  ]] <= 1 notes
+]]] analysis fails
 
-test location and content of note (positive) [[
-  CREATE TABLE [[Note]]();
-]] note like "is a note" at #1
+test note with >= (negative) [[[
+  test note with >= (negative) [[
+    CREATE TABLE Note();
+  ]] >= 2 notes
+]]] analysis fails
 
-test location and content of error (positive) [[
-  CREATE TABLE D();
-  CREATE TABLE [[D]]();
-  CREATE TABLE Note();
-]] error like "Duplicate  Table   D"
+test exact content of note (positive) [[[
+  test exact content of note (positive) [[
+    CREATE TABLE Note();
+  ]] note like "This is a note."
+]]] analysis succeeds
 
-test wrong location of error (negative) [[
-  CREATE TABLE D();
-  CREATE TABLE [[D]]();
-  CREATE TABLE Note();
-]] error like "Duplicate  Table   Note" at #1
+test location and content of note (positive) [[[
+  test location and content of note (positive) [[
+    CREATE TABLE [[Note]]();
+  ]] note like "is a note" at #1
+]]] analysis succeeds
+
+test location and content of error (positive) [[[
+  test location and content of error (positive) [[
+    CREATE TABLE D();
+    CREATE TABLE [[D]]();
+    CREATE TABLE Note();
+  ]] error like "Duplicate  Table   D"
+]]] analysis succeeds
+
+test wrong location of error (negative) [[[
+  test wrong location of error (negative) [[
+    CREATE TABLE D();
+    CREATE TABLE [[D]]();
+    CREATE TABLE Note();
+  ]] error like "Duplicate  Table   Note" at #1
+]]] analysis fails
+
+test use of analysis succeeds (positive) [[[
+  test use of analysis succeeds (positive) [[
+    CREATE TABLE X();
+  ]] analysis succeeds
+]]] analysis succeeds
+
+test use of analysis succeeds with notes allowed (positive) [[[
+  test use of analysis succeeds (positive) [[
+    CREATE TABLE DoubleNote();
+  ]] analysis succeeds
+]]] analysis succeeds
+
+test use of analysis succeeds with warnings allowed (positive) [[[
+  test use of analysis succeeds (positive) [[
+    CREATE TABLE t();
+  ]] analysis succeeds
+]]] analysis succeeds
+
+test use of analysis succeeds with errors (negative) [[[
+  test use of analysis succeeds (positive) [[
+    CREATE TABLE T();
+  ]] analysis succeeds
+]]] analysis fails
+
+test use of analysis fails (positive) [[[
+  test use of analysis succeeds (positive) [[
+    CREATE TABLE T();
+  ]] analysis succeeds
+]]] analysis fails
+
+test use of analysis fails with only notes should fail (negative) [[[
+  test use of analysis fails with only notes should fail (negative) [[
+    CREATE TABLE DoubleNote();
+  ]] analysis fails
+]]] analysis fails
+
+test use of analysis fails with only warnings should fail (negative) [[[
+  test use of analysis fails with only warnings should fail (negative) [[
+    CREATE TABLE t();
+  ]] analysis fails
+]]] analysis fails
+
+test use of analysis fails (positive) [[[
+  test use of analysis fails (positive) [[
+    CREATE TABLE T();
+  ]] analysis fails
+]]] analysis succeeds

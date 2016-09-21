@@ -1,13 +1,21 @@
 module parse-to-aterm-list
+language SPT-Interactive
 
-language MiniSQL
+fixture [[[
+  module parse-to-aterm-list
+  language MiniSQL
 
-fixture [[
-  CREATE TABLE MyTable (
-    [[...]]
-  );
-]]
+  fixture [[
+    CREATE TABLE MyTable (
+      [[...]]
+    );
+  ]]
 
-test parse to list (positive) [[
-  i int
-]] parse to !ATerm [ColDef("i", INT())]
+  [[[...]]]
+]]]
+
+test parse to list (positive) [[[
+  test parse to list (positive) [[
+    i int
+  ]] parse to !ATerm [ColDef("i", INT())]
+]]] analysis succeeds

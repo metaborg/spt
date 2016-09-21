@@ -1,32 +1,48 @@
 module transform
+language SPT-Interactive
 
-language MiniSQL
+fixture [[[
+  module transform
+  language MiniSQL
 
-fixture [[
-  CREATE TABLE T(
-    [[...]]
-  );
-]]
+  fixture [[
+    CREATE TABLE T(
+      [[...]]
+    );
+  ]]
 
-test run transform on entire AST (positive) [[
-  i int
-]] transform "Print id" to Module([TableDef("T",[ColDef("i", INT())])])
+  [[[...]]]
+]]]
 
-test run transform on entire AST (negative) [[
-  i int
-]] transform "Print id" to ColDef("i", INT())
+test run transform on entire AST (positive) [[[
+  test run transform on entire AST (positive) [[
+    i int
+  ]] transform "Print id" to Module([TableDef("T",[ColDef("i", INT())])])
+]]] analysis succeeds
 
-test to part of transform optional (positive) [[
-  i int
-]] transform "Print 1 on parse"
+test run transform on entire AST (negative) [[[
+  test run transform on entire AST (negative) [[
+    i int
+  ]] transform "Print id" to ColDef("i", INT())
+]]] analysis fails
 
-test output fragment not combined with fixture (positive) [[
-  i int
-]] transform "Print id" to [[CREATE TABLE T(i int);]]
+test to part of transform optional (positive) [[[
+  test to part of transform optional (positive) [[
+    i int
+  ]] transform "Print 1 on parse"
+]]] analysis succeeds
 
-test allow newlines in ATerm strings (positive) [[
-  i int
-]] transform "Newline String" to "<newline>
+test output fragment not combined with fixture (positive) [[[
+  test output fragment not combined with fixture (positive) [[
+    i int
+  ]] transform "Print id" to [[CREATE TABLE T(i int);]]
+]]] analysis succeeds
+
+test allow newlines in ATerm strings (positive) [[[
+  test allow newlines in ATerm strings (positive) [[
+    i int
+  ]] transform "Newline String" to "<newline>
 </newline>"
+]]] analysis succeeds
 
 
