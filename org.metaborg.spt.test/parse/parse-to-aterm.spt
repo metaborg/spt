@@ -1,27 +1,42 @@
 module parse-to-aterm
-language MiniSQL
+language SPT-Interactive
 
-fixture [[
-  CREATE TABLE MyTable (
-    j int,
-    [[...]]
-  );
-]]
+fixture [[[
+  module parse-to-aterm
+  language MiniSQL
 
-test parse to only fragment (positive) [[
-  i int
-]] parse to ColDef("i", INT())
+  fixture [[
+    CREATE TABLE MyTable (
+      j int,
+      [[...]]
+    );
+  ]]
+
+  [[[...]]]
+]]]
+
+test parse to only fragment (positive) [[[
+  test parse to only fragment (positive) [[
+    i int
+  ]] parse to ColDef("i", INT())
+]]] analysis succeeds
 
 
-test parse to only fragment (negative) [[
-  i int
-]] parse to Module([TableDef("MyTable", [ColDef("i", INT())])])
+test parse to only fragment (negative) [[[
+  test parse to only fragment (negative) [[
+    i int
+  ]] parse to Module([TableDef("MyTable", [ColDef("i", INT())])])
+]]] analysis fails
 
-test parse to nested wildcard (positive) [[
-  i int
-]] parse to ColDef(_, _)
+test parse to nested wildcard (positive) [[[
+  test parse to nested wildcard (positive) [[
+    i int
+  ]] parse to ColDef(_, _)
+]]] analysis succeeds
 
-test parse to wildcard (positive) [[
-  i int
-]] parse to _
+test parse to wildcard (positive) [[[
+  test parse to wildcard (positive) [[
+    i int
+  ]] parse to _
+]]] analysis succeeds
 

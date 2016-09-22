@@ -31,27 +31,58 @@ public class ResolveExpectationProvider implements ISpoofaxTestExpectationProvid
     }
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        String cons = SPTUtil.consName(expectationTerm);
-        return RESOLVE.equals(cons) && expectationTerm.getSubtermCount() == 1
-            && Term.isTermInt(expectationTerm.getSubterm(0))
-            || TO.equals(cons) && expectationTerm.getSubtermCount() == 2
-                && Term.isTermInt(expectationTerm.getSubterm(0)) && Term.isTermInt(expectationTerm.getSubterm(1));
+        return checkResolve(expectationTerm) || checkResolveTo(expectationTerm);
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        ISourceLocation loc = traceService.location(expectationTerm);
-        ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
+        final ISourceLocation loc = traceService.location(expectationTerm);
+        final ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
-        String cons = SPTUtil.consName(expectationTerm);
-        int num1 = Term.asJavaInt(expectationTerm.getSubterm(0));
-        ISourceLocation loc1 = traceService.location(expectationTerm.getSubterm(0));
+        final String cons = SPTUtil.consName(expectationTerm);
+        final IStrategoTerm refTerm = getReferenceTerm(expectationTerm);
+        final ISourceLocation refLoc = traceService.location(refTerm);
         if(RESOLVE.equals(cons)) {
-            return new ResolveExpectation(region, num1, loc1.region());
+            return new ResolveExpectation(region, Term.asJavaInt(refTerm), refLoc.region());
         } else {
-            ISourceLocation loc2 = traceService.location(expectationTerm.getSubterm(1));
-            return new ResolveExpectation(region, num1, loc1.region(), Term.asJavaInt(expectationTerm.getSubterm(1)),
-                loc2.region());
+            final IStrategoTerm defTerm = getDefinitionTerm(expectationTerm);
+            final ISourceLocation defLoc = traceService.location(defTerm);
+            return new ResolveExpectation(region, Term.asJavaInt(refTerm), refLoc.region(), Term.asJavaInt(defTerm),
+                defLoc.region());
         }
     }
 
+    // Resolve(int) or ResolveTo(int, int)
+    private IStrategoTerm getReferenceTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(0);
+    }
+
+    // ResolveTo(int, int)
+    private IStrategoTerm getDefinitionTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(1);
+    }
+
+    // Resolve(int)
+    private boolean checkResolve(IStrategoTerm expectationTerm) {
+        if(!RESOLVE.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 1) {
+            return false;
+        }
+        if(!Term.isTermInt(getReferenceTerm(expectationTerm))) {
+            return false;
+        }
+        return true;
+    }
+
+    // ResolveTo(int, int)
+    private boolean checkResolveTo(IStrategoTerm expectationTerm) {
+        if(!TO.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 2) {
+            return false;
+        }
+        if(!Term.isTermInt(getReferenceTerm(expectationTerm))) {
+            return false;
+        }
+        if(!Term.isTermInt(getDefinitionTerm(expectationTerm))) {
+            return false;
+        }
+        return true;
+    }
 }

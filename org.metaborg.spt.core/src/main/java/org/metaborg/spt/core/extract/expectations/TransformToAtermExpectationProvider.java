@@ -30,18 +30,15 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
     }
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        String cons = SPTUtil.consName(expectationTerm);
-        return cons != null && TRANSFORM.equals(cons) && expectationTerm.getSubtermCount() == 2
-            && Term.isTermString(expectationTerm.getSubterm(0))
-            && TransformExpectationProvider.goalNames(Term.asJavaString(expectationTerm.getSubterm(0))).size() > 0;
+        return checkTransformToAterm(expectationTerm);
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        ISourceLocation loc = traceService.location(expectationTerm);
-        ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
+        final ISourceLocation loc = traceService.location(expectationTerm);
+        final ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
         // It's a Transform("goal", ToPart(...))
-        String unQuotedGoalStr = Term.asJavaString(expectationTerm.getSubterm(0));
+        String unQuotedGoalStr = Term.asJavaString(getGoalTerm(expectationTerm));
         if(unQuotedGoalStr.length() > 2 && unQuotedGoalStr.startsWith("\"") && unQuotedGoalStr.endsWith("\"")) {
             unQuotedGoalStr = unQuotedGoalStr.substring(1, unQuotedGoalStr.length() - 1);
         }
@@ -57,7 +54,41 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
             goal = new EndNamedGoal(goalNames.get(0));
         }
 
-        final IStrategoTerm toAtermPart = expectationTerm.getSubterm(1);
+        final IStrategoTerm toAtermPart = getToAtermTerm(expectationTerm);
         return new TransformToAtermExpectation(region, goal, toAtermPart.getSubterm(0));
+    }
+
+    private IStrategoTerm getGoalTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(0);
+    }
+
+    private IStrategoTerm getToAtermTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(1);
+    }
+
+    /**
+     * Check if the given term is a TransformToAterm term that we can handle.
+     */
+    private boolean checkTransformToAterm(IStrategoTerm expectationTerm) {
+        // TransformToAterm("goal", ToAterm(ast))
+        if(!TRANSFORM.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 2) {
+            return false;
+        }
+
+        // check the goal term
+        final IStrategoTerm goalTerm = getGoalTerm(expectationTerm);
+        if(!Term.isTermString(goalTerm)) {
+            return false;
+        }
+        if(TransformExpectationProvider.goalNames(Term.asJavaString(goalTerm)).size() <= 0) {
+            return false;
+        }
+
+        // shallow check of the ToAterm term
+        if(!RunStrategoToAtermExpectationProvider.checkToAterm(getToAtermTerm(expectationTerm))) {
+            return false;
+        }
+
+        return true;
     }
 }

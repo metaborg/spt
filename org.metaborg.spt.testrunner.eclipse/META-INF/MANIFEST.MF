@@ -23,3 +23,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Export-Package: org.metaborg.spt.testrunner.eclipse,
+ org.metaborg.spt.testrunner.eclipse.model,
+ org.eclipse.jdt.internal.junit.ui

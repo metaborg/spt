@@ -60,12 +60,25 @@ public class Runner {
     public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath, String startSymbol)
         throws MetaborgException, FileSystemException {
         final FileObject sptLocation = resourceService.resolve(sptPath);
+        if(!sptLocation.exists()) {
+            throw new IllegalArgumentException("The location for SPT does not exist: " + sptPath);
+        }
         final FileObject lutLocation = resourceService.resolve(lutPath);
+        if(!lutLocation.exists()) {
+            throw new IllegalArgumentException("The location for the language under test does not exist: " + lutPath);
+        }
         final List<FileObject> languageLocations = Lists.newLinkedList();
         for(String languagePath : languagePaths) {
-            languageLocations.add(resourceService.resolve(languagePath));
+            FileObject loc = resourceService.resolve(languagePath);
+            languageLocations.add(loc);
+            if(!loc.exists()) {
+                throw new IllegalArgumentException("The location " + languagePath + " does not exist");
+            }
         }
         final FileObject testsLocation = resourceService.resolve(testsPath);
+        if(!testsLocation.exists()) {
+            throw new IllegalArgumentException("The folder with tests " + testsPath + " does not exist");
+        }
         final IProject project = projectService.create(testsLocation);
         try {
             // get SPT

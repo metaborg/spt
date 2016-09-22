@@ -48,6 +48,12 @@ rules
     where
       <eq> (cons, "ToPart2") + <eq> (cons, "ToPart3") + <eq> (cons, "ToPart4")
   
+  // Desugar analysis succeeds/fails
+  desugar-term-before:
+    AnalyzeSucceeds() -> AnalyzeMessages(Some(Equal()), 0, Error("errors"), None())
+  desugar-term-before:
+    AnalyzeFails() -> AnalyzeMessages(Some(More()), 0, Error("errors"), None())
+  
   // Desugar 'n errors' expectation
   desugar-term-before:
     AnalyzeMessages(op, n, sev, atpart) -> AnalyzeMessages(<desugar-message-op> op, <dec-string-to-int> n, <desugar-severity> sev, atpart)

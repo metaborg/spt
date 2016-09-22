@@ -127,9 +127,7 @@ public class TestRunViewPart extends ViewPart {
                     offset = tcr.test.getDescriptionRegion().startOffset();
                 } else if(selectObject instanceof TestSuiteRun) {
                     TestSuiteRun tsr = ((TestSuiteRun) selectObject);
-                    if(!tsr.tests.isEmpty()) {
-                        file = tsr.tests.get(0).test.getResource();
-                    }
+                    file = tsr.file;
                 }
 
                 if(file != null) {

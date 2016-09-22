@@ -84,6 +84,10 @@ context-free syntax
   AtPart.AtPart = <at <{SelectionRef ", "}+>>
   Expectation.AnalyzeMessages = <<MessageOp?> <INT> <Severity> <AtPart?>>
   Expectation.AnalyzeMessagePattern = <<Severity> like <STRING> <AtPart?>>
+  // desugared to 0 errors
+  Expectation.AnalyzeSucceeds = <analysis succeeds>
+  // desugared to > 0 errors
+  Expectation.AnalyzeFails = <analysis fails>
   
   
   // reference resolution expectations

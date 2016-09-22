@@ -1,19 +1,33 @@
 module parse-succeeds
+language SPT-Interactive
 
-language MiniSQL
+fixture [[[
+  module parse-succeeds
+  language MiniSQL
+  
+  [[[...]]]
+]]]
 
-test no expectation = parse succeeds (positive) [[
+test no expectation = parse succeeds (positive) [[[
+  test no expectation = parse succeeds (positive) [[
     CREATE TABLE MyTable(i int);
-]]
+  ]]
+]]] analysis succeeds
 
-test no expectation = parse succeeds (negative) [[
+test no expectation = parse succeeds (negative) [[[
+  test no expectation = parse succeeds (negative) [[
     CREATE TUBLIBOOBLI MyTable(i int);
-]]
+  ]]
+]]] analysis fails
 
-test parse succeeds (positive) [[
+test parse succeeds (positive) [[[
+  test parse succeeds (positive) [[
     CREATE TABLE MyTable(i int);
-]] parse succeeds
+  ]] parse succeeds
+]]] analysis succeeds
 
-test parse succeeds (negative) [[
+test parse succeeds (negative) [[[
+  test parse succeeds (negative) [[
     CREATE TUBLIBOOBLI MyTable(i int);
-]] parse succeeds
+  ]] parse succeeds
+]]] analysis fails

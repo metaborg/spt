@@ -1,10 +1,20 @@
 module start-symbol
-language MiniSQL
 
-start symbol ColDef
+language SPT-Interactive
 
-test start symbol is language based (positive) [[
-  i int
-]] parse to [[
-  i int
-]]
+fixture [[[
+  module start-symbol
+  language MiniSQL
+
+  start symbol ColDef
+  
+  [[[...]]]
+]]]
+
+test start symbol is language based (positive) [[[
+  test start symbol is language based (positive) [[
+    i int
+  ]] parse to [[
+    i int
+  ]]
+]]] analysis succeeds

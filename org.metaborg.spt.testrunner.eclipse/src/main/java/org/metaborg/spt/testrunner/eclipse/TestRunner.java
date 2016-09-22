@@ -111,6 +111,7 @@ public class TestRunner {
             final ISpoofaxTestCaseExtractionResult extractionResult = extractor.extract(input, project);
             extractionMap.put(testSuite, extractionResult);
         }
+        logger.debug("Extracted all tests");
 
         // get the testrunner view and prepare for this test run
         resetView();
@@ -123,7 +124,7 @@ public class TestRunner {
             final ISpoofaxTestCaseExtractionResult ext = extractionMap.get(suite);
             final String suiteName = ext.getName();
             if(ext.isSuccessful()) {
-                final TestSuiteRun tsr = new TestSuiteRun(run, suiteName);
+                final TestSuiteRun tsr = new TestSuiteRun(suite, run, suiteName);
                 suiteRuns.put(suite, tsr);
                 run.suites.add(tsr);
                 for(ITestCase test : ext.getTests()) {
@@ -143,6 +144,7 @@ public class TestRunner {
 
         // load the data in the view
         setData(run);
+        logger.debug("Loaded all tests into the view Java model");
 
         // run the tests
         for(FileObject suite : allSuites) {

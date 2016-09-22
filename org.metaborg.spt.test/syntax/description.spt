@@ -1,6 +1,15 @@
 module description
-language MiniSQL
+language SPT-Interactive
 
-test    	layout before description (positive) [[
-  CREATE TABLE T(i int);
-]]
+fixture [[[
+  module description
+  language MiniSQL
+
+  [[[...]]]
+]]]
+
+test    	layout before description (positive) [[[
+  test    	layout before description (positive) [[
+    CREATE TABLE T(i int);
+  ]]
+]]] analysis succeeds
