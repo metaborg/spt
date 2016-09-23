@@ -37,7 +37,16 @@ public class TestRunLabelProvider extends LabelProvider
     }
 
     @Override public Color getForeground(Object element, int columnIndex) {
-        if(element instanceof TestCaseRun) {
+        if(element instanceof TestSuiteRun) {
+            TestSuiteRun tsr = (TestSuiteRun) element;
+            if(tsr.ext != null && tsr.ext.isSuccessful()) {
+                // use default color;
+                return null;
+            } else {
+                // use red
+                return new Color(Display.getCurrent(), 159, 63, 63);
+            }
+        } else if(element instanceof TestCaseRun) {
             TestCaseRun tcr = (TestCaseRun) element;
             if(tcr.result() != null) {
                 return tcr.result().isSuccessful() ? new Color(Display.getCurrent(), 10, 100, 10)
