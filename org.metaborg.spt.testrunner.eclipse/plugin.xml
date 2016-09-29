@@ -9,24 +9,66 @@
             name="SPT Test Runner">
       </view>
    </extension>
+   
+   <!-- Menu bar entry to run the currently open SPT file -->
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="true"
-            locationURI="popup:org.metaborg.spoofax.eclipse.menu.project?after=additions">
+            locationURI="menu:org.metaborg.spoofax.eclipse.meta.menu.main?after=additions">
          <command
-               commandId="org.metaborg.spt.testrunner.eclipse.command.runall"
-               label="Run All SPT Tests"
+               commandId="org.metaborg.spt.testrunner.eclipse.command.runone"
+               label="Run tests of SPT file"
                style="push">
          </command>
       </menuContribution>
    </extension>
+   
+   <!-- Menu bar entry to run all the SPT tests inside a selected directory or file -->
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="true"
+            locationURI="menu:org.metaborg.spoofax.eclipse.meta.menu.main?after=additions">
+         <command
+               commandId="org.metaborg.spt.testrunner.eclipse.command.runall"
+               label="Run all selected tests"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   
+   <!-- Project context menu entry to run all tests in the project -->
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="true"
+            locationURI="popup:org.metaborg.spoofax.eclipse.meta.menu.project?after=additions">
+         <command
+               commandId="org.metaborg.spt.testrunner.eclipse.command.runall"
+               label="Run all SPT tests"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   
+   <!-- Command to run all spt files in a selection -->
    <extension
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="org.metaborg.spt.testrunner.eclipse.RunAllHandler"
             id="org.metaborg.spt.testrunner.eclipse.command.runall"
             name="Run All SPT Tests">
+      </command>
+   </extension>
+   
+   <!-- Command to run a single spt file that is open in the editor -->
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.metaborg.spt.testrunner.eclipse.RunOneHandler"
+            id="org.metaborg.spt.testrunner.eclipse.command.runone"
+            name="Run One SPT Test">
       </command>
    </extension>
 </plugin>

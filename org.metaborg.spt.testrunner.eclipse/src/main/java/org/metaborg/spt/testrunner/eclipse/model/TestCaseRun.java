@@ -32,7 +32,6 @@ public class TestCaseRun {
         this.parent = parent;
         this.test = test;
         this.start = System.currentTimeMillis();
-        parent.tests.add(this);
     }
 
     /**
@@ -55,6 +54,13 @@ public class TestCaseRun {
     public void finish(ISpoofaxTestResult res) {
         this.duration = System.currentTimeMillis() - start;
         this.res = res;
+        if(parent != null && res != null) {
+            if(res.isSuccessful()) {
+                parent.pass();
+            } else {
+                parent.fail();
+            }
+        }
     }
 
     /**
