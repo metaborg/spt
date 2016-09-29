@@ -1,0 +1,20 @@
+module parse-no-fixture
+language SPT-Interactive
+
+fixture [[[
+  module parse-no-fixture
+  language MiniSQL
+  [[[...]]]
+]]]
+
+test parse to outer AST (positive) [[[
+  test parse to outer AST (positive) [[
+    CREATE TABLE T();
+  ]] parse to Module([TableDef("T", [])])
+]]] analysis succeeds
+
+test parse to inner AST (negative) [[[
+  test parse to inner AST (negative) [[
+    CREATE TABLE T();
+  ]] parse to TableDef("T", [])
+]]] analysis fails
