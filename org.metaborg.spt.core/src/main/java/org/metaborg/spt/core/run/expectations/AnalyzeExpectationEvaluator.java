@@ -87,14 +87,23 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         int expectedNumMessages, Iterable<Integer> selectionRefs, Operation operation, @Nullable String content,
         Collection<IMessage> messages) {
         // collect the messages of the given severity and proper location
+        boolean hiddenMessages = false;
         List<IMessage> interestingMessages = Lists.newLinkedList();
         for(IMessage message : analysisMessages) {
-            if(severity == message.severity()
-                && (message.region() == null || test.getFragment().getRegion().contains(message.region()))) {
-                interestingMessages.add(message);
+            if(severity == message.severity()) {
+                if(message.region() == null || test.getFragment().getRegion().contains(message.region())) {
+                    interestingMessages.add(message);
+                } else {
+                    hiddenMessages = true;
+                }
             }
         }
 
+        if(hiddenMessages) {
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                "Found unexpected matching messages outside the test region", null));
+        }
+        
         // check the number of messages
         final boolean numOk;
         switch(operation) {
