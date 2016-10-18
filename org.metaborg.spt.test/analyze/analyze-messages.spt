@@ -6,65 +6,41 @@ fixture [[[
   module analyze-messages
   language MiniSQL
 
-  fixture [[
-    // there will be a note on the name
-    CREATE TABLE Note (i int);
-    // there will be a warning on the name
-    CREATE TABLE mytable (i int);
-    CREATE TABLE T (i int);
-
-    [[...]]
-  ]]
-  
   [[[...]]]
 ]]]
 
-test error only in fragment (positive) [[[
+test errors only in fragment (positive) [[[
   test error only in fragment (positive) [[
-    CREATE TABLE T (i int);
-  ]] 1 error
+    CREATE TABLE U (i int);
+    CREATE TABLE U (i int);
+  ]] 2 error
 ]]] analysis succeeds
 
-test error only in fragment (negative) [[[
-  test error only in fragment (negative) [[
-    CREATE TABLE T (i int);
-  ]] 2 errors
-]]] analysis fails
-
-
-test warning only in fragment (positive) [[[
+test warnings only in fragment (positive) [[[
   test warning only in fragment (positive) [[
-    CREATE TABLE mytable (i int);
+    CREATE TABLE mytable2 (i int);
   ]] 1 warning
 ]]] analysis succeeds
 
-test warning only in fragment (negative) [[[
-  test warning only in fragment (negative) [[
-    CREATE TABLE mytable (i int);
-  ]] 2 warnings
-]]] analysis fails
-
-test note only in fragment (positive) [[[
+test notes only in fragment (positive) [[[
   test note only in fragment (positive) [[
     CREATE TABLE Note (i int);
   ]] 1 note
 ]]] analysis succeeds
 
-test note only in fragment (negative) [[[
-  test note only in fragment (negative) [[
-    CREATE TABLE Note (i int);
-  ]] 2 notes
-]]] analysis fails
-
 test warnings and notes allowed with error (positive) [[[
   test warnings and notes allowed with error (positive) [[
+    CREATE TABLE U (i int);
+    CREATE TABLE U (i int);
     CREATE TABLE Note(i int);
     CREATE TABLE woop(i int);
-  ]] 1 error
+  ]] 2 errors
 ]]] analysis succeeds
 
 test errors and notes allowed with warning (positive) [[[
   test errors and notes allowed with warning (positive) [[
+    CREATE TABLE U (i int);
+    CREATE TABLE U (i int);
     CREATE TABLE Note(i int);
     CREATE TABLE woop(i int);
   ]] 1 warning
@@ -72,6 +48,8 @@ test errors and notes allowed with warning (positive) [[[
 
 test errors and warnings allowed with notes (positive) [[[
   test errors and warnings allowed with notes (positive) [[
+    CREATE TABLE U (i int);
+    CREATE TABLE U (i int);
     CREATE TABLE Note(i int);
     CREATE TABLE woop(i int);
   ]] 1 note
@@ -143,10 +121,11 @@ test note location ignores warning (negative) [[[
 test error with operators (positive) [[[
   test error with operators (positive) [[
     CREATE TABLE T ();
+    CREATE TABLE T ();
   ]] 
-  <= 1 errors
-  = 1 error
-  >= 1 error
+  <= 2 errors
+  = 2 error
+  >= 2 error
 ]]] analysis succeeds
 
 test error with > (positive) [[[
@@ -237,11 +216,13 @@ test use of analysis succeeds with warnings allowed (positive) [[[
 test use of analysis succeeds with errors (negative) [[[
   test use of analysis succeeds (positive) [[
     CREATE TABLE T();
+    CREATE TABLE T();
   ]] analysis succeeds
 ]]] analysis fails
 
 test use of analysis fails (positive) [[[
   test use of analysis succeeds (positive) [[
+    CREATE TABLE T();
     CREATE TABLE T();
   ]] analysis succeeds
 ]]] analysis fails
@@ -260,6 +241,7 @@ test use of analysis fails with only warnings should fail (negative) [[[
 
 test use of analysis fails (positive) [[[
   test use of analysis fails (positive) [[
+    CREATE TABLE T();
     CREATE TABLE T();
   ]] analysis fails
 ]]] analysis succeeds
