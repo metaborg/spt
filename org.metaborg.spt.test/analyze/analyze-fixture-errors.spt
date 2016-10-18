@@ -1,0 +1,42 @@
+module analyze-fixture-errors
+
+language SPT-Interactive
+
+fixture [[[
+  module analyze-fixture-errors
+  language MiniSQL
+
+  fixture [[
+    CREATE TABLE T (i int);
+    CREATE TABLE T (i int);
+
+    [[...]]
+  ]]
+  
+  [[[...]]]
+]]]
+
+
+test errors in fixture and fragment, expect only fragment errors (negative) [[[
+  test errors in fixture and fragment, expect only fragment errors (negative) [[
+    CREATE TABLE T (i int);
+  ]] 1 errors
+]]] analysis fails
+
+test errors in fixture and fragment, expect all errors (negative) [[[
+  test errors in fixture and fragment, expect all errors (negative) [[
+    CREATE TABLE T (i int);
+  ]] 3 errors
+]]] analysis fails
+
+test errors in fixture ignored with warnings (positive) [[[
+  test errors in fixture ignored with warnings (positive) [[
+    CREATE TABLE mytable (i int);
+  ]] 1 warning
+]]] analysis succeeds
+
+test errors in fixture ignored with notes (positive) [[[
+  test errors in fixture ignored with notes (positive) [[
+    CREATE TABLE Note (i int);
+  ]] 1 note
+]]] analysis succeeds
