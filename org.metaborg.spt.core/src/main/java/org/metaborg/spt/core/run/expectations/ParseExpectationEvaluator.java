@@ -77,41 +77,49 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
             // this is 'parse to'
             logger.debug("Evaluating a parse to expectation (expect success: {}, lang: {}, fragment: {}).",
                 expectation.successExpected(), expectation.outputLanguage(), expectation.outputFragment());
+
             if(!p.success()) {
+                // The input fragment should parse properly
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Expected parsing to succeed", null));
                 // propagate the parse messages
                 MessageUtil.propagateMessages(p.messages(), messages, test.getDescriptionRegion(),
                     test.getFragment().getRegion());
-            }
-
-            // parse the output fragment
-            final ISpoofaxParseUnit parsedFragment;
-            if(expectation.outputLanguage() == null) {
-                // this implicitly means we parse with the LUT
-                parsedFragment = fragmentUtil.parseFragment(expectation.outputFragment(), input.getLanguageUnderTest(),
-                    messages, test, input.getFragmentParserConfig());
-            } else {
-                // parse with the given language
-                parsedFragment = fragmentUtil.parseFragment(expectation.outputFragment(), expectation.outputLanguage(),
-                    messages, test, input.getFragmentParserConfig());
-            }
-            fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(), parsedFragment, null, null));
-
-            // compare the results and set the success boolean
-            if(parsedFragment == null) {
                 success = false;
             } else {
-                ILanguage outputLang = expectation.outputLanguage() == null ? input.getLanguageUnderTest().belongsTo()
-                    : fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test);
-                if(outputLang != null && !TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),
-                    termFactoryService.get(outputLang.activeImpl(), test.getProject(), false))) {
-                    // TODO: add a nice diff of the two parse results or something
-                    messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                        "The expected parse result did not match the actual parse result", null));
+                // parse the output fragment
+                final ISpoofaxParseUnit parsedFragment;
+                if(expectation.outputLanguage() == null) {
+                    // this implicitly means we parse with the LUT
+                    parsedFragment = fragmentUtil.parseFragment(expectation.outputFragment(),
+                        input.getLanguageUnderTest(), messages, test, input.getFragmentParserConfig());
+                } else {
+                    // parse with the given language
+                    parsedFragment = fragmentUtil.parseFragment(expectation.outputFragment(),
+                        expectation.outputLanguage(), messages, test, input.getFragmentParserConfig());
                 }
-                success = messages.isEmpty();
+                fragmentResults
+                    .add(new SpoofaxFragmentResult(expectation.outputFragment(), parsedFragment, null, null));
+
+                // compare the results and set the success boolean
+                if(parsedFragment == null) {
+                    messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                        "Expected the output fragment to parse succesfully", null));
+                    success = false;
+                } else {
+                    ILanguage outputLang =
+                        expectation.outputLanguage() == null ? input.getLanguageUnderTest().belongsTo()
+                            : fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test);
+                    if(outputLang != null && !TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),
+                        termFactoryService.get(outputLang.activeImpl(), test.getProject(), false))) {
+                        // TODO: add a nice diff of the two parse results or something
+                        messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+                            "The expected parse result did not match the actual parse result", null));
+                    }
+                    success = messages.isEmpty();
+                }
             }
+
         }
 
         return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);

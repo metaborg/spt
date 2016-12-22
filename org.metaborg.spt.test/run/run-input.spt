@@ -1,42 +1,62 @@
 module run-input
-language MiniSQL
+language SPT-Interactive
 
-fixture [[
-  CREATE TABLE T(
-    j int,
-    [[...]]
-  );
-]]
+fixture [[[
+  module run-input
+  language MiniSQL
 
-test run only on fragment (positive) [[
-  i int
-]] run is-coldef
+  fixture [[
+    CREATE TABLE T(
+      j int,
+      [[...]]
+    );
+  ]]
 
-test run to only on fragment (positive) [[
-  i int
-]] run my-id to ColDef("i", INT())
+  [[[...]]]
+]]]
 
-test run to only on fragment (negative) [[
-  i int
-]] run my-id to Module([TableDef("T", [ColDef("i", INT())])])
+test run only on fragment (positive) [[[
+  test run only on fragment (positive) [[
+    i int
+  ]] run is-coldef
+]]] analysis succeeds
 
-test run on all outer nodes of fragment (positive) [[
-  i int,
-  h int
-]] run my-id to ColDef("h", INT())
-   run my-id to ColDef("i", INT())
+test run to only on fragment (positive) [[[
+  test run to only on fragment (positive) [[
+    i int
+  ]] run my-id to ColDef("i", INT())
+]]] analysis succeeds
 
-test run only on selection (positive) [[
-  [[i int]],
-  h int
-]] run my-id on #1 to ColDef("i", INT())
+test run to only on fragment (negative) [[[
+  test run to only on fragment (negative) [[
+    i int
+  ]] run my-id to Module([TableDef("T", [ColDef("i", INT())])])
+]]] analysis fails
 
-test run only on selection (negative) [[
-  [[i int]],
-  h int
-]] run my-id on #1 to ColDef("h", INT())
+test run on all outer nodes of fragment (positive) [[[
+  test run on all outer nodes of fragment (positive) [[
+    i int,
+    h int
+  ]] run my-id to ColDef("h", INT())
+     run my-id to ColDef("i", INT())
+]]] analysis succeeds
 
-test run on empty fragment should fail (negative) [[
+test run only on selection (positive) [[[
+  test run only on selection (positive) [[
+    [[i int]],
+    h int
+  ]] run my-id on #1 to ColDef("i", INT())
+]]] analysis succeeds
 
-]] run my-id
+test run only on selection (negative) [[[
+  test run only on selection (negative) [[
+    [[i int]],
+    h int
+  ]] run my-id on #1 to ColDef("h", INT())
+]]] analysis fails
 
+test run without onpart to fragment (positive) [[[
+  test run without onpart to fragment (positive) [[
+    i int
+  ]] run table-T-with-int-col-i to [[CREATE TABLE T(i int);]]
+]]] analysis succeeds

@@ -1,5 +1,8 @@
 package org.metaborg.spt.testrunner.eclipse;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.apache.commons.vfs2.FileObject;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -9,16 +12,26 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IEditorPart;
@@ -29,6 +42,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.eclipse.SpoofaxPlugin;
 import org.metaborg.spoofax.eclipse.resource.IEclipseResourceService;
@@ -56,8 +70,15 @@ public class TestRunViewPart extends ViewPart {
     private final FormToolkit toolkit = new FormToolkit(Display.getCurrent());
     private Label lblRatio;
     private final static int LBLRATIO_WIDTHHINT = 65;
+    private final static int TREE_MINWIDTH = 100;
+    private final static int CONS_MINWIDTH = 100;
+    private final static int SASH_WIDTH = 5;
     private JUnitProgressBar pb;
+    private Composite parent;
+    private Composite top;
     private TreeViewer treeViewer;
+    private SashForm sashForm;
+    private Text cons;
     private Action onlyFailedTestsAction;
     private ViewerFilter failedTestsFilter;
 
@@ -70,86 +91,105 @@ public class TestRunViewPart extends ViewPart {
      * 
      * @param parent
      */
-    @Override public void createPartControl(Composite parent) {
+    @Override public void createPartControl(Composite prnt) {
+        this.parent = prnt;
         GridData gd = null;
 
-        GridLayout layout = new GridLayout(3, false);
+        GridLayout layout = new GridLayout(1, false);
         parent.setLayout(layout);
+        top = new Composite(parent, SWT.NONE);
+        gd = new GridData();
+        gd.horizontalAlignment = SWT.FILL;
+        gd.verticalAlignment = SWT.TOP;
+        gd.grabExcessHorizontalSpace = true;
+        top.setLayoutData(gd);
 
-        pb = new JUnitProgressBar(parent);
+        layout = new GridLayout(3, false);
+        top.setLayout(layout);
+
+        pb = new JUnitProgressBar(top);
         gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
         gd.grabExcessHorizontalSpace = true;
         gd.verticalAlignment = SWT.TOP;
         pb.setLayoutData(gd);
 
-        Label lblTests = new Label(parent, SWT.NONE);
+        Label lblTests = new Label(top, SWT.NONE);
         lblTests.setText("Tests");
         gd = new GridData();
         gd.horizontalAlignment = SWT.BEGINNING;
         lblTests.setLayoutData(gd);
 
-        lblRatio = new Label(parent, SWT.RIGHT);
+        lblRatio = new Label(top, SWT.RIGHT);
         gd = new GridData();
         gd.horizontalAlignment = SWT.END;
         gd.widthHint = LBLRATIO_WIDTHHINT;
         lblRatio.setLayoutData(gd);
 
-        treeViewer = new TreeViewer(parent, SWT.BORDER);
-        Tree tv = treeViewer.getTree();
+        // bottom = new Composite(parent, SWT.NONE);
+        // bottom.setBackground(new Color(Display.getCurrent(), 100, 0, 0));
+        sashForm = new SashForm(parent, SWT.HORIZONTAL);
+        sashForm.setSashWidth(SASH_WIDTH);
         gd = new GridData();
+        gd.horizontalAlignment = SWT.FILL;
+        gd.verticalAlignment = SWT.FILL;
         gd.grabExcessHorizontalSpace = true;
+        gd.grabExcessVerticalSpace = true;
+        gd.horizontalSpan = 3;
+        // bottom.setLayoutData(gd);
+        sashForm.setLayoutData(gd);
+        layout = new GridLayout(2, false);
+        // bottom.setLayout(layout);
+        sashForm.setLayout(layout);
+
+        treeViewer = new TreeViewer(sashForm, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        final Tree tree = treeViewer.getTree();
+        gd = new GridData();
+        // gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = true;
         gd.horizontalAlignment = SWT.FILL;
         gd.verticalAlignment = SWT.FILL;
-        gd.horizontalSpan = 3;
-        tv.setLayoutData(gd);
+        gd.minimumWidth = TREE_MINWIDTH;
+        tree.setLayoutData(gd);
 
         TreeColumn column = new TreeColumn(treeViewer.getTree(), SWT.NONE);
-
         column.setText("");
         column.pack();
 
         treeViewer.setContentProvider(new TestRunContentProvider());
         treeViewer.setLabelProvider(new TestRunLabelProvider());
         treeViewer.setSorter(new ViewerSorter());
-        treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+        treeViewer.addDoubleClickListener(new JumpToFileListener());
+        treeViewer.addSelectionChangedListener(new UpdateConsoleListener());
+        tree.addControlListener(new ControlListener() {
 
-            public void doubleClick(DoubleClickEvent event) {
-                Object selectObject = ((IStructuredSelection) treeViewer.getSelection()).getFirstElement();
+            @Override public void controlResized(ControlEvent e) {
+                packColumns();
+            }
 
-                FileObject file = null;
-                int offset = 0;
-
-                if(selectObject instanceof TestCaseRun) {
-                    TestCaseRun tcr = (TestCaseRun) selectObject;
-                    file = tcr.test.getResource();
-                    offset = tcr.test.getDescriptionRegion().startOffset();
-                } else if(selectObject instanceof TestSuiteRun) {
-                    TestSuiteRun tsr = ((TestSuiteRun) selectObject);
-                    if(!tsr.tests.isEmpty()) {
-                        file = tsr.tests.get(0).test.getResource();
-                    }
-                }
-
-                if(file != null) {
-                    // GROSS!
-                    final Spoofax spoofax = SpoofaxPlugin.spoofax();
-                    IEclipseResourceService r = spoofax.injector.getInstance(IEclipseResourceService.class);
-                    IPath p = r.unresolve(file).getFullPath();
-                    IFile f = ResourcesPlugin.getWorkspace().getRoot().getFile(p);
-                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                    try {
-                        IEditorPart ep = IDE.openEditor(page, f);
-                        if(ep instanceof ITextEditor) {
-                            ((ITextEditor) ep).selectAndReveal(offset, 0);
-                        }
-                    } catch(PartInitException e) {
-                        // whatever
-                    }
-                }
+            @Override public void controlMoved(ControlEvent e) {
             }
         });
+        tree.addTreeListener(new TreeListener() {
+
+            @Override public void treeExpanded(TreeEvent e) {
+                packColumns();
+            }
+
+            @Override public void treeCollapsed(TreeEvent e) {
+            }
+        });
+
+        cons = new Text(sashForm, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        gd = new GridData();
+        gd.grabExcessHorizontalSpace = true;
+        gd.grabExcessVerticalSpace = true;
+        gd.horizontalAlignment = SWT.FILL;
+        gd.verticalAlignment = SWT.FILL;
+        gd.minimumWidth = CONS_MINWIDTH;
+        cons.setLayoutData(gd);
+
+        sashForm.setWeights(new int[] { 40, 60 });
 
         createActions();
         createFilters();
@@ -165,12 +205,23 @@ public class TestRunViewPart extends ViewPart {
 
     }
 
+    private void packColumns() {
+        final Tree tree = treeViewer.getTree();
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run() {
+                for(TreeColumn c : tree.getColumns()) {
+                    c.pack();
+                }
+            }
+        });
+    }
+
     private void updateHeader() {
         int nrTests = run.numTests();
         if(nrTests == 0) {
             lblRatio.setText("0 / 0");
         } else {
-            lblRatio.setText(String.format("%d / %d    ", (nrTests - nrFailedTests), nrTests));
+            lblRatio.setText(String.format("%d / %d    ", run.numPassed(), nrTests));
         }
         pb.setMaximum(nrTests);
     }
@@ -223,18 +274,10 @@ public class TestRunViewPart extends ViewPart {
 
     private void refresh() {
         updateHeader();
-        treeViewer.refresh();
-        pb.redraw();
         treeViewer.expandAll();
-
-        final Tree tree = treeViewer.getTree();
-        Display.getCurrent().asyncExec(new Runnable() {
-            public void run() {
-                for(TreeColumn tc : tree.getColumns()) {
-                    tc.pack();
-                }
-            }
-        });
+        pb.redraw();
+        treeViewer.refresh();
+        packColumns();
     }
 
     public void setData(MultiTestSuiteRun run) {
@@ -264,5 +307,114 @@ public class TestRunViewPart extends ViewPart {
         refreshDisabled = b;
         if(!b)
             refresh();
+    }
+
+    /**
+     * A listener that (on a double click event) tries to open the file corresponding to the clicked TestCaseRun or
+     * TestSuiteRun.
+     */
+    private class JumpToFileListener implements IDoubleClickListener {
+
+        public void doubleClick(DoubleClickEvent event) {
+            Object selectObject = ((IStructuredSelection) treeViewer.getSelection()).getFirstElement();
+
+            FileObject file = null;
+            int offset = 0;
+
+            if(selectObject instanceof TestCaseRun) {
+                TestCaseRun tcr = (TestCaseRun) selectObject;
+                file = tcr.test.getResource();
+                offset = tcr.test.getDescriptionRegion().startOffset();
+            } else if(selectObject instanceof TestSuiteRun) {
+                TestSuiteRun tsr = ((TestSuiteRun) selectObject);
+                file = tsr.file;
+            }
+
+            if(file != null) {
+                // GROSS!
+                final Spoofax spoofax = SpoofaxPlugin.spoofax();
+                IEclipseResourceService r = spoofax.injector.getInstance(IEclipseResourceService.class);
+                IPath p = r.unresolve(file).getFullPath();
+                IFile f = ResourcesPlugin.getWorkspace().getRoot().getFile(p);
+                IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                try {
+                    IEditorPart ep = IDE.openEditor(page, f);
+                    if(ep instanceof ITextEditor) {
+                        ((ITextEditor) ep).selectAndReveal(offset, 0);
+                    }
+                } catch(PartInitException e) {
+                    // whatever
+                }
+            }
+        }
+    }
+
+    /**
+     * Listener that updates the console part if a TestCaseRun or TestSuiteRun is selected.
+     */
+    private class UpdateConsoleListener implements ISelectionChangedListener {
+
+        @Override public void selectionChanged(SelectionChangedEvent event) {
+            final ISelection generalSel = event.getSelection();
+            if(generalSel.isEmpty()) {
+                cons.setText("");
+                return;
+            }
+            if(generalSel instanceof ITreeSelection) {
+                final Object selObj = ((ITreeSelection) generalSel).getFirstElement();
+                if(selObj instanceof TestSuiteRun) {
+                    final TestSuiteRun tsr = (TestSuiteRun) selObj;
+                    if(tsr.ext == null) {
+                        cons.setText("Failed to load the contents of this test suite due to an IO error.");
+                    } else if(tsr.ext.isSuccessful()) {
+                        cons.setText("");
+                    } else {
+                        final StringWriter strW = new StringWriter();
+                        final PrintWriter pw = new PrintWriter(strW);
+                        pw.print("Failed to extract test cases from this test suite:\n");
+                        for(IMessage m : tsr.ext.getAllMessages()) {
+                            printMessage(m, pw);
+                            pw.println();
+                        }
+                        pw.flush();
+                        pw.close();
+                        cons.setText(strW.toString());
+                    }
+                } else if(selObj instanceof TestCaseRun) {
+                    final TestCaseRun tcr = (TestCaseRun) selObj;
+                    if(tcr.result() == null) {
+                        cons.setText(
+                            "This test case has not yet been executed.\nPlease select it again when it's done.");
+                    } else if(tcr.result().isSuccessful()) {
+                        cons.setText("");
+                    } else {
+                        final StringWriter sw = new StringWriter();
+                        final PrintWriter pw = new PrintWriter(sw);
+                        pw.println("This test cased failed:");
+                        for(IMessage m : tcr.result().getAllMessages()) {
+                            printMessage(m, pw);
+                            pw.println();
+                        }
+                        pw.flush();
+                        pw.close();
+                        cons.setText(sw.toString());
+                    }
+                }
+            }
+            return;
+        }
+
+        private void printMessage(IMessage m, PrintWriter pw) {
+            pw.print(m.severity());
+            if(m.region() != null) {
+                pw.append(" @ (").append(Integer.toString(m.region().startOffset())).append(", ")
+                    .append(Integer.toString(m.region().endOffset())).append(")");
+            }
+            pw.append(" : ").append(m.message());
+            if(m.exception() != null) {
+                pw.println();
+                m.exception().printStackTrace(pw);
+            }
+        }
     }
 }

@@ -62,7 +62,7 @@ public class TestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUn
 
     @Override public boolean isSuccessful() {
         return success;
-    };
+    }
 
     @Override public P getParseResult() {
         return p;

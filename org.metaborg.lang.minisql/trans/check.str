@@ -1,0 +1,26 @@
+module check
+
+imports
+  signatures/MiniSQL-sig
+  
+  runtime/task/messages
+
+rules
+  nabl-constraint(|ctx):
+    TableDef(name, _) -> <fail>
+    where
+      [<is-lower>|_] := <explode-string> name;
+      <task-create-warning(|ctx, "Table names usually start with a capital.")> name
+      
+  nabl-constraint(|ctx):
+    TableDef(name, _) -> <fail>
+    where
+      "Note" := name;
+      <task-create-note(|ctx, "This is a note.")> name
+    
+  nabl-constraint(|ctx):
+    TableDef(name, _) -> <fail>
+    where
+      "DoubleNote" := name;
+      <task-create-note(|ctx, "This is a first note.")> name;
+      <task-create-note(|ctx, "This is a second note.")> name

@@ -1,0 +1,7 @@
+module parserregressions
+language MiniSQL
+
+start symbol ID
+
+// https://github.com/metaborg/jsglr/pull/4
+test repeated parsing of the final character of a string [[a/]] parse fails

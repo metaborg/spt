@@ -81,18 +81,14 @@ context-free syntax
   
   // analysis expectations
   SelectionRef.SelectionRef = <#<INT>>
-  Expectation.Errors = <<INT> errors>
-  Expectation.ErrorsAt = <<INT> errors at <{SelectionRef ", "}+>>
-  Expectation.OneError = <1 error>
-  Expectation.OneErrorAt = <1 error at <SelectionRef>>
-  Expectation.Warnings = <<INT> warnings>
-  Expectation.WarningsAt = <<INT> warnings at <{SelectionRef ", "}+>>
-  Expectation.OneWarning = <1 warning>
-  Expectation.OneWarningAt = <1 warning at <SelectionRef>>
-  Expectation.Notes = <<INT> notes>
-  Expectation.NotesAt = <<INT> notes at <{SelectionRef ", "}+>>
-  Expectation.OneNote = <1 note>
-  Expectation.OneNoteAt = <1 note at <SelectionRef>>
+  AtPart.AtPart = <at <{SelectionRef ", "}+>>
+  Expectation.AnalyzeMessages = <<MessageOp?> <INT> <Severity> <AtPart?>>
+  Expectation.AnalyzeMessagePattern = <<Severity> like <STRING> <AtPart?>>
+  // desugared to 0 errors
+  Expectation.AnalyzeSucceeds = <analysis succeeds>
+  // desugared to > 0 errors
+  Expectation.AnalyzeFails = <analysis fails>
+  
   
   // reference resolution expectations
   Expectation.Resolve = <resolve #<INT>>
@@ -113,6 +109,19 @@ context-free syntax
   Expectation.TransformToAterm = <transform <STRING> <ToAterm>>
 
 lexical syntax
+  // syntax for the analyze expectation
+  Severity.Error = "error"
+  Severity.Error = "errors"
+  Severity.Warning = "warning"
+  Severity.Warning = "warnings"
+  Severity.Note = "note"
+  Severity.Note = "notes"
+  MessageOp.Equal = "="
+  MessageOp.Less = "<"
+  MessageOp.LessOrEqual = "<="
+  MessageOp.More = ">"
+  MessageOp.MoreOrEqual = ">="
+
   // NOTE: everything until the opening marker or newline is the description 
   // update this when a new type of opening marker is introduced
   Description = (~[\n\r\[])+
@@ -133,6 +142,9 @@ lexical syntax
   StringPart4 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2 | OpenBracket3 | CloseBracket3)*
   
 lexical restrictions  
+  MessageOp -/- [\=]
+  Severity -/- [a-z]
+
   // NOTE: everything until the opening marker or newline is the description
   // update this when a new opening marker is introduced
   Description -/- [\ \t]
@@ -149,6 +161,7 @@ lexical restrictions
   
   // NOTE: everything until the marker is part of the StringPart of a fragment
   // update these when a new opening or closing marker is introduced
+  // TODO: shouldn't be required anymore
   StringPart2 -/- ~[\[\]]
   StringPart3 -/- ~[\[\]]
   StringPart4 -/- ~[\[\]]

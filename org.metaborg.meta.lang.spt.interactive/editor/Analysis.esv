@@ -4,11 +4,6 @@ language
 
   observer : editor-analyze
   context  : legacy
-  
-references
-
-  reference _ : editor-resolve
-  hover _     : editor-hover
 
 menus
   

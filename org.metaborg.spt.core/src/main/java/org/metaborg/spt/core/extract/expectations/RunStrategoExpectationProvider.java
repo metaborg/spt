@@ -1,5 +1,7 @@
 package org.metaborg.spt.core.extract.expectations;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
@@ -42,9 +44,12 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
         String cons = SPTUtil.consName(expectationTerm);
         switch(cons) {
             case RUN:
-                return expectationTerm.getSubtermCount() == 2 && Term.isTermString(expectationTerm.getSubterm(0));
+                return expectationTerm.getSubtermCount() == 2 && Term.isTermString(getStrategyTerm(expectationTerm))
+                    && checkOptionalOnPart(getOnPartTerm(expectationTerm));
             case RUN_TO:
-                return expectationTerm.getSubtermCount() == 3 && Term.isTermString(expectationTerm.getSubterm(0));
+                return expectationTerm.getSubtermCount() == 3 && Term.isTermString(getStrategyTerm(expectationTerm))
+                    && checkOptionalOnPart(getOnPartTerm(expectationTerm))
+                    && FragmentUtil.checkToPart(getToPartTerm(expectationTerm));
             default:
                 return false;
         }
@@ -54,15 +59,17 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
         ISourceLocation loc = traceService.location(expectationTerm);
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
+        // Run(strat, optional onPart) or RunTo(strat, optOnPart, toPart)
         final String cons = SPTUtil.consName(expectationTerm);
-        final IStrategoTerm stratTerm = expectationTerm.getSubterm(0);
+        final IStrategoTerm stratTerm = getStrategyTerm(expectationTerm);
         final String strategy = Term.asJavaString(stratTerm);
         final ISourceLocation stratLoc = traceService.location(stratTerm);
-        final IStrategoTerm onTerm = expectationTerm.getSubterm(1);
+        final @Nullable IStrategoTerm onTerm = SPTUtil.getOptionValue(getOnPartTerm(expectationTerm));
         final Integer selection;
         final ISourceRegion selectionRegion;
-        if(SPTUtil.SOME_CONS.equals(SPTUtil.consName(onTerm))) {
-            selection = Term.asJavaInt(onTerm.getSubterm(0));
+        if(onTerm != null) {
+            // on #<int> was present
+            selection = Term.asJavaInt(onTerm);
             final ISourceLocation selLoc = traceService.location(onTerm);
             if(selLoc == null) {
                 selectionRegion = region;
@@ -70,20 +77,52 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
                 selectionRegion = selLoc.region();
             }
         } else {
+            // the onPart was None()
             selection = null;
             selectionRegion = null;
         }
 
         if(RUN.equals(cons)) {
+            // This is a Run term
             return new RunStrategoExpectation(region, strategy, stratLoc.region(), selection, selectionRegion);
         } else {
-            final IStrategoTerm toPart = expectationTerm.getSubterm(1);
+            // This is a RunTo term
+            final IStrategoTerm toPart = getToPartTerm(expectationTerm);
             final String langName = FragmentUtil.toPartLangName(toPart);
             final ISourceRegion langRegion = fragmentUtil.toPartLangNameRegion(toPart);
             final IFragment outputFragment = fragmentBuilder.withFragment(FragmentUtil.toPartFragment(toPart))
                 .withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
             return new RunStrategoExpectation(region, strategy, stratLoc.region(), selection, selectionRegion,
                 outputFragment, langName, langRegion);
+        }
+    }
+
+    private IStrategoTerm getStrategyTerm(IStrategoTerm expectation) {
+        return expectation.getSubterm(0);
+    }
+
+    private IStrategoTerm getOnPartTerm(IStrategoTerm expectation) {
+        return expectation.getSubterm(1);
+    }
+
+    private IStrategoTerm getToPartTerm(IStrategoTerm expectation) {
+        return expectation.getSubterm(2);
+    }
+
+    // Check if the given term is an optional OnPart
+    // i.e. None() or Some(<int>)
+    protected static boolean checkOptionalOnPart(IStrategoTerm term) {
+        if(SPTUtil.checkOption(term)) {
+            final IStrategoTerm onPart = SPTUtil.getOptionValue(term);
+            if(onPart == null) {
+                // it's a None()
+                return true;
+            } else {
+                // it's a Some(int)
+                return Term.isTermInt(onPart);
+            }
+        } else {
+            return false;
         }
     }
 

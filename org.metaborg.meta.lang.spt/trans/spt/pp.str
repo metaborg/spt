@@ -3,6 +3,7 @@ module spt/pp
 imports
 
   libstratego-gpp
+  libspoofax/sdf/pp
   pp/SPT-parenthesize
   pp/SPT-pp
 

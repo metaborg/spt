@@ -1,10 +1,20 @@
 module parse-fails
-language MiniSQL
+language SPT-Interactive
 
-test fail (positive) [[
-  CREATE TOOBLIBOOBLI MyTable(i int);
-]] parse fails
+fixture [[[
+  module parse-fails
+  language MiniSQL
+  [[[...]]]
+]]]
 
-test fail (negative) [[
-  CREATE TABLE MyTable(i int);
-]] parse fails
+test fail (positive) [[[
+  test fail (positive) [[
+    CREATE TOOBLIBOOBLI MyTable(i int);
+  ]] parse fails
+]]] analysis succeeds
+
+test fail (negative) [[[
+  test fail (negative) [[
+    CREATE TABLE MyTable(i int);
+  ]] parse fails
+]]] analysis fails

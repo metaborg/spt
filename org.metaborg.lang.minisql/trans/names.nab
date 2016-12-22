@@ -1,0 +1,11 @@
+module names
+
+namespaces
+  Table
+  
+binding rules
+  TableDef(name, _) :
+    defines Table name
+  
+  FroDef(tname, alias):
+    refers to Table tname

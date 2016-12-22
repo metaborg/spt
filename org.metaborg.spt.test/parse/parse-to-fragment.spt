@@ -1,35 +1,49 @@
 module parse-to-fragment
+language SPT-Interactive
 
-language MiniSQL
+fixture [[[
+  module parse-to-fragment
+  language MiniSQL
 
-fixture [[
-  CREATE TABLE MyTable(
-    [[...]]
-  );
-]]
+  fixture [[
+    CREATE TABLE MyTable(
+      [[...]]
+    );
+  ]]
 
-test parse to fragment requires full output fragment (positive) [[
-  i int
-]] parse to [[
-  CREATE TABLE MyTable(
+  [[[...]]]
+]]]
+
+test parse to fragment requires full output fragment (positive) [[[
+  test parse to fragment requires full output fragment (positive) [[
     i int
-  );
-]]
+  ]] parse to [[
+    CREATE TABLE MyTable(
+      i int
+    );
+  ]]
+]]] analysis succeeds
 
-test parse to fragment requires full output fragment (negative) [[
-  i int
-]] parse to [[
-  i int
-]]
+test parse to fragment requires full output fragment (negative) [[[
+  test parse to fragment requires full output fragment (negative) [[
+    i int
+  ]] parse to [[
+    i int
+  ]]
+]]] analysis fails
 
-test parse to fragment can take a language (positive) [[
-  i int
-]] parse to MiniSQL [[
-  CREATE TABLE MyTable (i int);
-]]
+test parse to fragment can take a language (positive) [[[
+  test parse to fragment can take a language (positive) [[
+    i int
+  ]] parse to MiniSQL [[
+    CREATE TABLE MyTable (i int);
+  ]]
+]]] analysis succeeds
 
-test parse to fragment can take a language (negative) [[
-  i int
-]] parse to SPT [[
-  CREATE TABLE MyTable (i int);
-]]
+test parse to fragment can take a language (negative) [[[
+  test parse to fragment can take a language (negative) [[
+    i int
+  ]] parse to SPT [[
+    CREATE TABLE MyTable (i int);
+  ]]
+]]] analysis fails

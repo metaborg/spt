@@ -1,0 +1,57 @@
+module MiniSQL
+
+imports
+
+    Common
+
+context-free start-symbols
+
+    Start 
+    // for testing of SPT
+    ColDef
+
+context-free syntax
+
+    Start.Module = <
+        <{Statement "\n\n"}*>
+    >
+
+    Statement.TableDef = <
+        CREATE TABLE <ID> (
+            <{ColDef ",\n"}*>
+        );
+    >
+
+    ColDef.ColDef = <<ID> <Type>>
+
+    Type.INT = <int>
+    Type.VARCHAR = <VARCHAR>
+
+    Statement.Query = <
+        SELECT <{Exp ", "}+>
+        FROM <FromExp>
+        <WhereClause?>
+        ;
+    >
+    WhereClause.Where = <WHERE <Exp>>
+
+    Exp = <(<Exp>)> {bracket}
+    Exp.ColRef = <<ID>.<ID>>
+    Exp.Int = <<INT>>
+    Exp.String = <<STRING>>
+    Exp.Equals = <<Exp> = <Exp>> {left}
+    Exp.And = <<Exp> AND <Exp>> {left}
+    Exp = <(<Exp>)> {bracket}
+    Exp.Add = <<Exp> + <Exp>> {left}
+    Exp.Mul = <<Exp> * <Exp>> {left}
+
+    TableAlias.FroDef = <<ID> <ID>>
+    FromExp = TableAlias
+    FromExp.Join = <
+        <FromExp>
+        JOIN <TableAlias>
+        ON <Exp>
+    > {left}
+
+context-free priorities
+    Exp.Mul > Exp.Add > Exp.Equals > Exp.And

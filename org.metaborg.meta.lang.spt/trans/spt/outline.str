@@ -1,10 +1,9 @@
-module outline
+module spt/outline
 
 imports
   
-  signatures/SPT-Interactive-sig
-  runtime/editor/outline-library
-  runtime/editor/origins
+  signatures/spt/-
+  libspoofax/editor/outline
 
 rules
   

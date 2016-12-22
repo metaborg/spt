@@ -20,6 +20,7 @@ import org.metaborg.core.syntax.IParseUnit;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
+import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
@@ -70,7 +71,9 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
             context = contextService.getTemporary(test.getResource(), project, languageUnderTest);
             TestPhase phase = requiredPhase(test, context);
             if(phase.ordinal() > TestPhase.PARSING.ordinal()) {
-                analysisRes = analysisService.analyze(parseRes, context).result();
+                try(IClosableLock lock = context.read()) {
+                    analysisRes = analysisService.analyze(parseRes, context).result();
+                }
             }
         } catch(ContextException | AnalysisException e) {
             if(context != null) {

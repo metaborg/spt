@@ -1,0 +1,28 @@
+module trans
+
+imports
+  signatures/MiniSQL-sig
+
+rules
+  is-coldef = ?ColDef(_, _)
+
+  my-id = id
+  
+  table-T-with-int-col-i = !Module([TableDef("T", [ColDef("i", INT())])])
+  
+rules
+  transformation-one :
+  (node, _, _, path, project-path) -> (filename, 1)
+    with
+      filename := <guarantee-extension(|"aterm")> path
+
+  transformation-id :
+  (node, _, _, path, project-path) -> (filename, node)
+    with
+      filename := <guarantee-extension(|"aterm")> path
+      
+  transformation-newlinestring :
+  (node, _, _, path, project-path) -> (filename, "<newline>
+</newline>")
+    with
+      filename := <guarantee-extension(|"aterm")> path

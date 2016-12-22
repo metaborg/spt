@@ -61,6 +61,11 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 
 public class SPTModule extends MBTModule {
+    @Override protected void configure() {
+        super.configure();
+        
+        bind(SPTRunner.class).in(Singleton.class);
+    }
 
     @Override protected void configureExpectationProviders() {
         super.configureExpectationProviders();

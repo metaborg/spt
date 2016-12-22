@@ -131,21 +131,28 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
                 for(ISourceLocation loc : r.targets) {
                     if(loc.region().startOffset() == selection.startOffset() // match start offset
                         && loc.region().endOffset() == selection.endOffset() // match end offset
-                        && (loc.resource() == null && test.getResource() == null // match resource
-                            || loc.resource() != null && loc.resource().equals(test.getResource()))) {
+                        && loc.resource() != null // match resource
+                        && loc.resource().compareTo(test.getResource()) == 0) {
                         found = true;
                         break;
                     }
                 }
                 success = found;
                 if(!found) {
-                    ISourceRegion target = r.targets.iterator().next().region();
-                    String targetStr = new StringBuilder().append("(").append(target.startOffset()).append(", ")
-                        .append(target.endOffset()).append(")").toString();
-                    String msg = new StringBuilder().append("Resolved to region ").append(targetStr)
-                        .append(" instead of selection #").append(num2 + 1).append(" at region (")
-                        .append(selection.startOffset()).append(", ").append(selection.endOffset()).append(")")
-                        .toString();
+                    ISourceLocation target = r.targets.iterator().next();
+                    ISourceRegion targetRegion = target.region();
+                    final String msg;
+                    if(targetRegion.startOffset() != selection.startOffset()
+                        || targetRegion.endOffset() != selection.endOffset()) {
+                        msg = new StringBuilder().append("Resolved to region (").append(targetRegion.startOffset())
+                            .append(", ").append(targetRegion.endOffset()).append(") instead of selection #")
+                            .append(num2 + 1).append(" at region (").append(selection.startOffset()).append(", ")
+                            .append(selection.endOffset()).append(")").toString();
+                    } else if(target.resource() == null) {
+                        msg = "Resolved to a location in an unknown file.";
+                    } else {
+                        msg = "Resolved to a region in a different file: " + target.toString();
+                    }
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), selections.get(num1), msg, null));
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                         "Resolved to the wrong location.", null));

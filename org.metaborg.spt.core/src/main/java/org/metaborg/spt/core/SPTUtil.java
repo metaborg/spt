@@ -2,6 +2,8 @@ package org.metaborg.spt.core;
 
 import java.util.Iterator;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -16,6 +18,7 @@ public class SPTUtil {
     private static final ILogger logger = LoggerUtils.logger(SPTUtil.class);
 
     public static final String SOME_CONS = "Some";
+    public static final String NONE_CONS = "None";
 
     public static final String NAME_CONS = "Name";
     public static final String START_SYMBOL_CONS = "StartSymbol";
@@ -40,10 +43,59 @@ public class SPTUtil {
         }
     }
 
+    /**
+     * Check if the term is an Option type.
+     * 
+     * @param term
+     *            the term to check.
+     * @return true iff the term is a Some with 1 child or a None().
+     */
+    public static boolean checkOption(IStrategoTerm term) {
+        switch(consName(term)) {
+            case SOME_CONS:
+                return term.getSubtermCount() == 1;
+            case NONE_CONS:
+                return term.getSubtermCount() == 0;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Get the value from an Option.
+     * 
+     * @param term
+     *            the Option term (see {@link #checkOption(IStrategoTerm)}).
+     * @return the term inside the Option if it was Some, null otherwise.
+     */
+    public static @Nullable IStrategoTerm getOptionValue(IStrategoTerm term) {
+        if(checkOption(term)) {
+            return term.getSubtermCount() == 0 ? null : term.getSubterm(0);
+        } else {
+            throw new IllegalArgumentException("The term " + noAnnosString(term) + " is not an Option.");
+        }
+    }
+
+    /**
+     * Create a String representation of an IStrategoTerm, ignoring any annotations on the term.
+     * 
+     * @param term
+     *            the term to print.
+     * @return a String representation of the term, without any annotations.
+     */
     public static String noAnnosString(IStrategoTerm term) {
         return buildNoAnnosString(term, new StringBuilder()).toString();
     }
 
+    /**
+     * Build a String representation of an IStrategoTerm, ignoring any annotations on the term.
+     * 
+     * @param term
+     *            the term to print.
+     * @param b
+     *            a StringBuilder to append the String to.
+     * @return a String representation of the term, without any annotations.
+     */
     public static StringBuilder buildNoAnnosString(IStrategoTerm term, StringBuilder b) {
         while(term instanceof StrategoAnnotation) {
             term = ((StrategoAnnotation) term).getWrapped();

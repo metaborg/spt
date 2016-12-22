@@ -1,29 +1,33 @@
 package org.metaborg.mbt.core.model.expectations;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.source.ISourceRegion;
 
 /**
- * Generic expectation for:
- * 
- * <ul>
- * <li>n errors</li>
- * <li>n warnings</li>
- * <li>n notes</li>
- * </ul>
+ * Generic expectation for analysis message test expectations.
+ *
+ * This covers both the '= 3 errors at #1, #2, #3' expectations, and the 'warning like "some message" at #1'
+ * expectations.
  */
 public class AnalysisMessageExpectation extends ATestExpectation {
 
     private final int num;
     private final MessageSeverity severity;
     private final Iterable<Integer> selections;
+    private final Operation op;
+    // the string contents of the 'like' expectation
+    private final String content;
 
     public AnalysisMessageExpectation(ISourceRegion region, int num, MessageSeverity severity,
-        Iterable<Integer> selections) {
+        Iterable<Integer> selections, Operation op, @Nullable String content) {
         super(region);
         this.num = num;
         this.severity = severity;
         this.selections = selections;
+        this.op = op;
+        this.content = content;
     }
 
     /**
@@ -47,5 +51,26 @@ public class AnalysisMessageExpectation extends ATestExpectation {
      */
     public Iterable<Integer> selections() {
         return selections;
+    }
+
+    /**
+     * The operation that should be used to check against the expected number of messages.
+     */
+    public Operation operation() {
+        return op;
+    }
+
+    /**
+     * The contents that are supposed to be part of a message.
+     */
+    public @Nullable String content() {
+        return content;
+    }
+
+    /**
+     * The operation for the amount of expected errors.
+     */
+    public static enum Operation {
+        EQUAL, LESS, LESS_OR_EQUAL, MORE, MORE_OR_EQUAL;
     }
 }
