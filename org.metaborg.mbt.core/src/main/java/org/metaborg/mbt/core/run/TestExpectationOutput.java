@@ -9,9 +9,9 @@ public class TestExpectationOutput<P extends IParseUnit, A extends IAnalyzeUnit>
 
     private final boolean success;
     private final Iterable<IMessage> messages;
-    private final Iterable<IFragmentResult<P, A>> fs;
+    private final Iterable<? extends IFragmentResult<P, A>> fs;
 
-    public TestExpectationOutput(boolean success, Iterable<IMessage> messages, Iterable<IFragmentResult<P, A>> fs) {
+    public TestExpectationOutput(boolean success, Iterable<IMessage> messages, Iterable<? extends IFragmentResult<P, A>> fs) {
         this.success = success;
         this.messages = messages;
         this.fs = fs;
