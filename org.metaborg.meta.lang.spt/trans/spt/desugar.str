@@ -76,7 +76,7 @@ rules
   desugar-selection-ref:
     SelectionRef(n) -> i
     with
-      i := <dec-string-to-int> n
+      i := <spt-string-to-int> n
       
   // Desugar from a string to an int inside Errors|Warnings|Notes
   desugar-term-before:
@@ -84,27 +84,27 @@ rules
     where
       <eq> (cons, "Warnings") + <eq> (cons, "Errors") + <eq> (cons, "Notes")
       with
-        i := <dec-string-to-int> n
+        i := <spt-string-to-int> n
         
 
   // Desugar from a string to an int inside Resolve|ResolveTo
   desugar-term-before:
     Resolve(n) -> Resolve(i)
     with
-      i := <dec-string-to-int> n
+      i := <spt-string-to-int> n
 
   desugar-term-before:
     ResolveTo(x,y) -> ResolveTo(i, j)
     with
-      i := <dec-string-to-int> x;
-      j := <dec-string-to-int> y
+      i := <spt-string-to-int> x;
+      j := <spt-string-to-int> y
       
       
   // Desugar OnPart to int
   desugar-term-before:
     OnPart(n) -> i
     with
-      i := <dec-string-to-int> n      
+      i := <spt-string-to-int> n      
       
   // Desugar our ATerms
   // desugar-term-before:
@@ -121,3 +121,7 @@ rules
     
   desugar-term-before:
     String(s) -> String(<un-double-quote> s)
+    
+rules
+
+  spt-string-to-int = origin-track-forced(dec-string-to-int)
