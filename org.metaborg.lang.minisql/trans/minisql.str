@@ -1,8 +1,8 @@
 module minisql
 
 imports
-  
-  runtime/editor/outline-library
+
+  libspoofax/editor/outline
   names/names
   check
   pp
@@ -16,7 +16,7 @@ rules // Editor services
     (_, _, ast, path, project-path) -> outline
     where
       outline := <simple-label-outline(to-outline-label)> ast
-  
+
   editor-format:
     (node, _, ast, path, project-path) -> (filename, result)
     with
@@ -25,10 +25,9 @@ rules // Editor services
     ; result   := <pp-debug> node
 
 rules // Debugging
-  
+
   debug-show-aterm:
     (node, _, _, path, project-path) -> (filename, result)
     with
       filename := <guarantee-extension(|"aterm")> path
     ; result   := node
-    

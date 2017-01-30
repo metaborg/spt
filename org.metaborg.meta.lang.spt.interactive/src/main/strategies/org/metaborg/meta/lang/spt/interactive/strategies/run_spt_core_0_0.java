@@ -46,6 +46,8 @@ import com.google.common.collect.Maps;
 import com.google.inject.Injector;
 
 public class run_spt_core_0_0 extends Strategy {
+    public static final run_spt_core_0_0 instance = new run_spt_core_0_0();
+
     private static final ILogger logger = LoggerUtils.logger(run_spt_core_0_0.class);
 
     private static final String MESSAGE = "MESSAGE";

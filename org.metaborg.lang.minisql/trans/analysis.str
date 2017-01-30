@@ -1,17 +1,15 @@
 module analysis
 
 imports
-  
-  stratego/metaborg
-  
-//  runtime/index/-
-//  runtime/nabl/-
-//  runtime/properties/-
-//  runtime/types/-
-//  runtime/task/-
+
+  runtime/index/-
+  runtime/nabl/-
+  runtime/properties/-
+  runtime/types/-
+  runtime/task/-
   runtime/analysis/-
-//  runtime/editor/-
-  
+  runtime/editor/properties
+
   pp
 
 rules // Analysis
@@ -31,16 +29,16 @@ rules // Editor services
       label := <get-editor-properties(pp-partial-MiniSQL-string|<language>, project-path); properties-to-html> node
 
 rules // Debugging
-  
+
   debug-show-analyzed:
     (_, _, ast, path, _) -> (filename, result)
     with
       filename := <guarantee-extension(|"analyzed.aterm")> path;
       result   := ast
-  
+
   debug-index-project =
     analysis-debug-index-project(|<language>)
-  debug-index-project-resolve = 
+  debug-index-project-resolve =
     analysis-debug-index-project-resolve(|<language>)
   debug-index-partition =
     analysis-debug-index-partition(|<language>)
@@ -53,7 +51,7 @@ rules // Debugging
     analysis-debug-task-selection(|<language>)
   debug-index-partition-resolve =
     analysis-debug-index-partition-resolve(|<language>)
-    
+
   debug-project =
     analysis-debug-project(|<language>)
   debug-partition =
