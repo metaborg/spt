@@ -28,7 +28,7 @@
   <extension point="org.eclipse.ui.menus">
     <menuContribution
       allPopups="true"
-      locationURI="menu:org.metaborg.spoofax.eclipse.meta.menu.main?after=org.metaborg.spoofax.eclipse.meta.separator"
+      locationURI="menu:org.metaborg.spoofax.eclipse.meta.menu.main?after=org.metaborg.spoofax.eclipse.meta.separator.additions"
     >
       <command
         commandId="org.metaborg.spt.testrunner.eclipse.command.runone"
@@ -40,7 +40,7 @@
         label="Run all selected tests"
         style="push"
       />
-      <separator name="org.metaborg.spt.testrunner.eclipse.separator" visible="true "/>
+      <separator name="org.metaborg.spt.testrunner.eclipse.separator" visible="true" />
     </menuContribution>
   </extension>
 
