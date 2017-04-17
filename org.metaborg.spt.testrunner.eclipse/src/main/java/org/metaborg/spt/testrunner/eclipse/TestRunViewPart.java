@@ -60,7 +60,8 @@ import org.metaborg.spt.testrunner.eclipse.model.TestSuiteRun;
  * <ul>
  * <li>call {@link #reset()} to reset the view.</li>
  * <li>call {@link #setData(MultiTestSuiteRun)} with the model of all the suites and tests you want to display.</li>
- * <li>call {@link #finish(TestCaseRun, ISpoofaxTestResult)} for each TestCaseRun that finished running.</li>
+ * <li>call {@link #refresh()} if the model is updated.</li>
+ * <li>call {@link #setTestResult(TestCaseRun, ISpoofaxTestResult)} for each TestCaseRun that finished running.</li>
  * </ul>
  */
 public class TestRunViewPart extends ViewPart {
@@ -272,9 +273,8 @@ public class TestRunViewPart extends ViewPart {
             refresh();
     }
 
-    private void refresh() {
+    public void refresh() {
         updateHeader();
-        treeViewer.expandAll();
         pb.redraw();
         treeViewer.refresh();
         packColumns();
@@ -291,7 +291,7 @@ public class TestRunViewPart extends ViewPart {
         }
     }
 
-    public void finish(TestCaseRun t, ISpoofaxTestResult res) {
+    public void setTestResult(TestCaseRun t, ISpoofaxTestResult res) {
         t.finish(res);
         if(!res.isSuccessful()) {
             nrFailedTests++;

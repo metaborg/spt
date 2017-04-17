@@ -46,4 +46,5 @@ public class TestRunContentProvider implements ITreeContentProvider {
     @Override public boolean hasChildren(Object element) {
         return getChildren(element).length > 0;
     }
+
 }

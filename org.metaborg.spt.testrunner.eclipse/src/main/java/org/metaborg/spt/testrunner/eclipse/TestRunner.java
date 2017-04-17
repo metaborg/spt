@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.metaborg.core.language.ILanguage;
@@ -110,6 +111,9 @@ public class TestRunner {
         // create the data model for this test run
         final MultiTestSuiteRun run = new MultiTestSuiteRun();
 
+        // load the data in the view
+        setRuns(run);
+
         // start adding the test suites that we found to the object model
         for(int i = 0; i < allSuites.size(); i++) {
             final List<FileObject> suites = allSuites.get(i);
@@ -147,8 +151,8 @@ public class TestRunner {
                     }
                 }
 
-                // load the data in the view
-                setData(run);
+                // refresh the view for new runs
+                refresh();
             }
         }
 
@@ -188,11 +192,13 @@ public class TestRunner {
                 for(TestCaseRun tcr : tsr.tests) {
                     tcr.start();
                     final ISpoofaxTestResult result = runner.run(project, tcr.test, lut, null, cfg);
-                    finish(tcr, result);
+                    setTestResult(tcr, result);
                 }
             }
         }
 
+        // get the testrunner view and prepare for this test run
+        finish();
     }
 
     private ISpoofaxTestCaseExtractionResult extractSuite(FileObject testSuite, IProject project, ILanguageImpl spt,
@@ -209,23 +215,25 @@ public class TestRunner {
         return extractionResult;
     }
 
-    private TestRunViewPart getViewPart() {
-        try {
-            TestRunViewPart v = (TestRunViewPart) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-                .showView(TestRunViewPart.VIEW_ID);
-            return v;
-        } catch(PartInitException e) {
-            Activator.logError("Could not open view", e);
-            return null;
+    private TestRunViewPart getViewPart(boolean show) {
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        if(show) {
+            try {
+                return (TestRunViewPart) page.showView(TestRunViewPart.VIEW_ID);
+            } catch(PartInitException e) {
+                Activator.logError("Could not open view", e);
+                return null;
+            }
+        } else {
+            return (TestRunViewPart) page.findView(TestRunViewPart.VIEW_ID);
         }
-
     }
 
     // reset the view
     private void resetView() {
         Display.getDefault().syncExec(new Runnable() {
             public void run() {
-                TestRunViewPart vp = getViewPart();
+                TestRunViewPart vp = getViewPart(true);
                 if(vp != null) {
                     vp.reset();
                 }
@@ -234,23 +242,46 @@ public class TestRunner {
 
     }
 
-    private void setData(final MultiTestSuiteRun run) {
+    private void setRuns(final MultiTestSuiteRun run) {
         Display.getDefault().syncExec(new Runnable() {
             public void run() {
-                final TestRunViewPart vp = getViewPart();
+                final TestRunViewPart vp = getViewPart(false);
                 if(vp != null) {
+                    vp.showBusy(true);
                     vp.setData(run);
                 }
             }
         });
     }
 
-    private void finish(final TestCaseRun t, final ISpoofaxTestResult res) {
+    private void refresh() {
         Display.getDefault().syncExec(new Runnable() {
             public void run() {
-                final TestRunViewPart vp = getViewPart();
+                final TestRunViewPart vp = getViewPart(false);
                 if(vp != null) {
-                    vp.finish(t, res);
+                    vp.refresh();;
+                }
+            }
+        });
+    }
+
+    private void setTestResult(final TestCaseRun t, final ISpoofaxTestResult res) {
+        Display.getDefault().syncExec(new Runnable() {
+            public void run() {
+                final TestRunViewPart vp = getViewPart(false);
+                if(vp != null) {
+                    vp.setTestResult(t, res);
+                }
+            }
+        });
+    }
+
+    private void finish() {
+        Display.getDefault().syncExec(new Runnable() {
+            public void run() {
+                final TestRunViewPart vp = getViewPart(false);
+                if(vp != null) {
+                    vp.showBusy(false);
                 }
             }
         });

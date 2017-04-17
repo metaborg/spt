@@ -5,6 +5,6 @@ import org.strategoxt.lang.Strategy;
 
 public class InteropRegisterer extends JavaInteropRegisterer {
     public InteropRegisterer() {
-        super(new Strategy[] { new run_spt_core_0_0() });
+        super(new Strategy[] { run_spt_core_0_0.instance });
     }
 }
