@@ -28,6 +28,9 @@ public class Arguments {
     @Parameter(names = { "--lang", "-ol" }, description = "Location of any other language that should be loaded",
         required = false) public List<String> targetLanguageLocation = Lists.newLinkedList();
 
+    @Parameter(names = { "--reporter", "-C" }, description = "Class name of custom reporter to use",
+            required = false) public String customReporter;
+
 
     @Parameter(names = { "--exit" }, description = "Immediately exit, used for testing purposes",
         hidden = true) public boolean exit;

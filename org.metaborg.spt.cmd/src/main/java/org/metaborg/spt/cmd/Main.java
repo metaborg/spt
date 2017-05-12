@@ -31,12 +31,13 @@ public class Main {
         }
 
         if(arguments.exit) {
-            logger.info("Exitting immediately for testing purposes");
+            logger.info("Exiting immediately for testing purposes");
             System.exit(0);
         }
 
-        final Module module = new Module();
+        final Module module = new Module(arguments.customReporter);
         try(final Spoofax spoofax = new Spoofax(module, new SPTModule())) {
+
 
             final Injector injector = spoofax.injector;
 

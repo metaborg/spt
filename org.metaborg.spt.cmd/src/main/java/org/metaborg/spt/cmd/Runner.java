@@ -13,6 +13,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.*;
 import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.testing.ITestReporterService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
@@ -43,11 +44,12 @@ public class Runner {
     private final ISpoofaxInputUnitService inputService;
     private final ISpoofaxTestCaseExtractor extractor;
     private final ISpoofaxTestCaseRunner executor;
+    private final ITestReporterService testReporter;
 
 
     @Inject
     public Runner(IResourceService resourceService, ISimpleProjectService projectService,
-                  ISpoofaxInputUnitService inputService,
+                  ISpoofaxInputUnitService inputService, ITestReporterService testReporter,
                   ILanguageService languageService,
                   ISpoofaxTestCaseExtractor extractor, ISpoofaxTestCaseRunner executor,
                   ILanguageComponentFactory languageComponentFactory) {
@@ -59,11 +61,14 @@ public class Runner {
         this.inputService = inputService;
         this.extractor = extractor;
         this.executor = executor;
+        this.testReporter = testReporter;
     }
 
 
     public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath, String startSymbol)
             throws MetaborgException, FileSystemException {
+
+        testReporter.sessionStarted();
 
         final FileObject testsLocation = resourceService.resolve(testsPath);
         if (!testsLocation.exists()) {
@@ -87,12 +92,12 @@ public class Runner {
             }
 
             for (FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
-                logger.info("Processing test suite {}", testSuite);
+                testReporter.testSuiteStarted(testSuite.toString());
                 final String text;
                 try (InputStream in = testSuite.getContent().getInputStream()) {
                     text = IOUtils.toString(in);
                 } catch (IOException e) {
-                    logger.error("Unable to process file {}", e, testSuite);
+                    testReporter.getLogger().error("Unable to process file {}", e, testSuite);
                     continue;
                 }
                 ISpoofaxInputUnit input = inputService.inputUnit(testSuite, text, spt, null);
@@ -111,33 +116,40 @@ public class Runner {
                     logger.debug("Using the following start symbol for this suite: {}", moduleFragmentConfig == null
                             ? null : moduleFragmentConfig.getParserConfigForLanguage(lut).overridingStartSymbol);
                     for (ITestCase test : tests) {
-                        logger.info("Running test '{}' of suite {}.", test.getDescription(), testSuite);
+                        String testName = test.getDescription();
+                        testReporter.testStarted(testName);
                         ISpoofaxTestResult res = executor.run(project, test, lut, null, moduleFragmentConfig);
-                        logger.info("Test passed: {}", res.isSuccessful());
+                        if (res.isSuccessful()) {
+                            testReporter.testPassed(testName);
+                        } else {
+                            testReporter.testFailed(testName, null, null);
+                        }
                         for (IMessage m : res.getAllMessages()) {
                             if (m.region() == null) {
-                                logger.info("\t{} : {}", m.severity(), m.message());
+                                testReporter.getLogger().info("\t{} : {}", m.severity(), m.message());
                             } else {
-                                logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
+                                testReporter.getLogger().info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
                                         m.severity(), m.message());
                             }
                         }
                     }
                 } else {
-                    logger.error("Failed to run tests at {}. Extraction of tests failed.", testSuite);
+                    testReporter.getLogger().error("Failed to run tests at {}. Extraction of tests failed.", testSuite);
                 }
 
                 for (IMessage m : extractionResult.getAllMessages()) {
                     if (m.region() == null) {
-                        logger.info("\t{} : {}", m.severity(), m.message());
+                        testReporter.getLogger().info("\t{} : {}", m.severity(), m.message());
                     } else {
-                        logger.info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
+                        testReporter.getLogger().info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
                                 m.severity(), m.message());
                     }
                 }
+                testReporter.testSuiteFinished(testSuite.toString());
             }
         } finally {
             projectService.remove(project);
+            testReporter.sessionFinished();
         }
     }
 
