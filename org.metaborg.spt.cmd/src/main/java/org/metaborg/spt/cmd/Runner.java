@@ -28,6 +28,7 @@ import org.metaborg.spt.core.run.ISpoofaxTestCaseRunner;
 import org.metaborg.spt.core.run.ISpoofaxTestResult;
 import org.metaborg.spt.core.run.SpoofaxFragmentParserConfig;
 import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.Level;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
 
@@ -120,17 +121,22 @@ public class Runner {
                         testReporter.testStarted(testName);
                         ISpoofaxTestResult res = executor.run(project, test, lut, null, moduleFragmentConfig);
                         if (res.isSuccessful()) {
+                            for (IMessage m : res.getAllMessages()) {
+                                logMessage(m);
+                            }
                             testReporter.testPassed(testName);
                         } else {
-                            testReporter.testFailed(testName, null, null);
-                        }
-                        for (IMessage m : res.getAllMessages()) {
-                            if (m.region() == null) {
-                                testReporter.getLogger().info("\t{} : {}", m.severity(), m.message());
-                            } else {
-                                testReporter.getLogger().info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
-                                        m.severity(), m.message());
+                            StringBuilder details = new StringBuilder();
+                            IMessage firstMessage = null;
+                            for (IMessage m : res.getAllMessages()) {
+                                if (firstMessage == null) {
+                                    firstMessage = m;
+                                } else {
+                                    details.append(formatMessage(m));
+                                }
                             }
+                            String failureReason = firstMessage != null ? formatMessage(firstMessage) : "Test failed.";
+                            testReporter.testFailed(testName, failureReason, details.toString());
                         }
                     }
                 } else {
@@ -138,18 +144,37 @@ public class Runner {
                 }
 
                 for (IMessage m : extractionResult.getAllMessages()) {
-                    if (m.region() == null) {
-                        testReporter.getLogger().info("\t{} : {}", m.severity(), m.message());
-                    } else {
-                        testReporter.getLogger().info("\t@({}, {}) {} : {}", m.region().startOffset(), m.region().endOffset(),
-                                m.severity(), m.message());
-                    }
+                    logMessage(m);
                 }
                 testReporter.testSuiteFinished(testSuite.toString());
             }
         } finally {
             projectService.remove(project);
             testReporter.sessionFinished();
+        }
+    }
+
+    private void logMessage(IMessage m) {
+        testReporter.getLogger().log(getMessageLevel(m), formatMessage(m));
+    }
+
+    private String formatMessage(IMessage m) {
+        if (m.region() == null) {
+            return String.format("%s", m.message());
+        } else {
+            return String.format("@(%d, %d) %s", m.region().startOffset(), m.region().endOffset(), m.message());
+        }
+    }
+
+    private Level getMessageLevel(IMessage m) {
+        switch (m.severity()) {
+            case WARNING:
+                return Level.Warn;
+            case ERROR:
+                return Level.Error;
+            case NOTE:
+            default:
+                return Level.Info;
         }
     }
 
