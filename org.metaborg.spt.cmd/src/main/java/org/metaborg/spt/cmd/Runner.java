@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -93,7 +94,6 @@ public class Runner {
             }
 
             for (FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
-                testReporter.testSuiteStarted(testSuite.toString());
                 final String text;
                 try (InputStream in = testSuite.getContent().getInputStream()) {
                     text = IOUtils.toString(in);
@@ -113,6 +113,8 @@ public class Runner {
                 }
 
                 if (extractionResult.isSuccessful()) {
+                    String testSuiteName = extractionResult.getName();
+                    testReporter.testSuiteStarted(testSuiteName);
                     Iterable<ITestCase> tests = extractionResult.getTests();
                     logger.debug("Using the following start symbol for this suite: {}", moduleFragmentConfig == null
                             ? null : moduleFragmentConfig.getParserConfigForLanguage(lut).overridingStartSymbol);
@@ -139,6 +141,7 @@ public class Runner {
                             testReporter.testFailed(testName, failureReason, details.toString());
                         }
                     }
+                    testReporter.testSuiteFinished(testSuiteName);
                 } else {
                     testReporter.getLogger().error("Failed to run tests at {}. Extraction of tests failed.", testSuite);
                 }
@@ -146,7 +149,6 @@ public class Runner {
                 for (IMessage m : extractionResult.getAllMessages()) {
                     logMessage(m);
                 }
-                testReporter.testSuiteFinished(testSuite.toString());
             }
         } finally {
             projectService.remove(project);
@@ -181,8 +183,13 @@ public class Runner {
     private ILanguageImpl getLanguageImplFromPath(String name, String path) throws FileSystemException, MetaborgException {
         Collection<ILanguageComponent> components = loadLanguagesFromPath(name, path);
 
-        // FIXME: Will this always pick the right language? Can the iterator ever be empty?
-        return LanguageUtils.toImpls(components).iterator().next();
+        Set<ILanguageImpl> languages = LanguageUtils.toImpls(components);
+        if (languages.size() > 1) {
+            throw new IllegalArgumentException("Found more than one language for " + name + " at: " + path);
+        } else if (languages.isEmpty()) {
+            throw new IllegalArgumentException("Found no language for " + name + " at: " + path);
+        }
+        return languages.iterator().next();
     }
 
     private Collection<ILanguageComponent> loadLanguagesFromPath(String name, String path) throws FileSystemException, MetaborgException {
@@ -202,7 +209,15 @@ public class Runner {
             throw new IllegalArgumentException("The location for " + name + " does not exist: " + path);
         }
 
-        Collection<IComponentCreationConfigRequest> requests = languageComponentFactory.requestAllInDirectory(location);
+        Collection<IComponentCreationConfigRequest> requests;
+        if (location.isFile()) {
+            // Hopefully a language artifact.
+            requests = Lists.newArrayList(languageComponentFactory.requestFromArchive(location));
+        } else {
+            // Directory hopefully contains some languages.
+            requests = languageComponentFactory.requestAllInDirectory(location);
+        }
+
         Collection<IComponentCreationConfigRequest> validRequests = requests.stream()
                 .filter(IComponentCreationConfigRequest::valid)
                 .collect(Collectors.toList());
