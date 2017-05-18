@@ -73,7 +73,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 
 [1]: https://github.com/metaborg/spoofax-intellij
-[2]: https://github.com/metaborg/spt/issues
+[2]: http://yellowgrass.org/
 [3]: https://github.com/metaborg/spt/pulls
 [4]: https://github.com/metaborg/spoofax
 [5]: https://github.com/metaborg/spt/tree/master/org.metaborg.spt.cmd
