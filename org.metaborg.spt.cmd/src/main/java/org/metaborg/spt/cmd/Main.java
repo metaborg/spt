@@ -4,10 +4,12 @@ import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spt.core.SPTModule;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.metaborg.core.testing.ITestReporterService;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.inject.Injector;
+import javax.annotation.Nullable;
 
 public class Main {
     private static final ILogger logger = LoggerUtils.logger(Main.class);
@@ -35,9 +37,9 @@ public class Main {
             System.exit(0);
         }
 
-        final Module module = new Module(arguments.customReporter);
+        Class<? extends ITestReporterService> customReporterClass = getClassByName("test reporter", arguments.customReporter);
+        final Module module = new Module(customReporterClass);
         try(final Spoofax spoofax = new Spoofax(module, new SPTModule())) {
-
 
             final Injector injector = spoofax.injector;
 
@@ -51,6 +53,21 @@ public class Main {
         } catch(Exception e) {
             logger.error("Error while running tests", e);
             System.exit(1);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    private static <T> Class<? extends T> getClassByName(String subject, @Nullable String className) {
+        if (className == null)
+            return null;
+
+        try {
+            return (Class<? extends T>)Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            logger.error("Class for " + subject + " not found: " + className, e);
+            // Fallback to default.
+            return null;
         }
     }
 }
