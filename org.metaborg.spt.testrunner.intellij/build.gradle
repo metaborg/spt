@@ -1,9 +1,4 @@
 buildscript {
-    ext.kotlinVersion = '1.1.2-2'
-    ext.javaVersion = '1.8'
-    ext.metaborgVersion = '2.3.0-SNAPSHOT'
-    ext.guiceVersion = '4.0'
-
     repositories {
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
@@ -25,9 +20,9 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 
 group "org.metaborg"
-version "$metaborgVersion"
+version = version
 sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
+targetCompatibility = javaTargetVersion
 
 repositories {
     mavenLocal()
@@ -47,7 +42,17 @@ repositories {
 }
 
 intellij {
-    localPath = "/home/daniel/apps/idea-IC-171.4249.39"
+    version ideaVersion
+    pluginName 'SPT'
+    downloadSources Boolean.valueOf(sources)
+    sameSinceUntilBuild Boolean.valueOf(isEAP)
+    alternativeIdePath localIdePath
+}
+
+publishPlugin {
+    username publishUsername
+    password publishPassword
+    channels publishChannel
 }
 
 dependencies {
@@ -64,10 +69,7 @@ dependencies {
         exclude group: "org.slf4j"
         exclude group: "com.google.guava"
     }
-//    compile     ("org.metaborg:org.metaborg.spt.core:$metaborgVersion") {
-//        exclude group: "org.slf4j"
-//        exclude group: "com.google.guava"
-//    }
+
     compile     "com.google.guava:guava:17.0"
     compile     "org.slf4j:slf4j-api:1.7.10"
     compile     "com.google.code.findbugs:jsr305:3.0.0"
