@@ -1,0 +1,24 @@
+<idea-plugin version="2">
+    <id>org.metaborg.spt</id><!-- See: SptPlugin object -->
+    <name>SPT</name>
+    <version>2.3.0-SNAPSHOT</version>
+    <vendor email="info@metaborg.org" url="https://spoofax.readthedocs.io/">Metaborg</vendor>
+
+    <description><![CDATA[
+      SPT plugin for IntelliJ IDEA.
+    ]]></description>
+
+    <change-notes><![CDATA[
+      Bug fixes and improvements.
+    ]]>
+    </change-notes>
+
+    <!-- See http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
+    <idea-version since-build="143.381.42" until-build="171.*"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Testing -->
+        <configurationType implementation="org.metaborg.spt.testrunner.intellij.SptTestConfigurationType"/>
+    </extensions>
+
+</idea-plugin>

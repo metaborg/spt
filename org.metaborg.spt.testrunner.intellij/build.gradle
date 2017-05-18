@@ -1,0 +1,86 @@
+buildscript {
+    ext.kotlinVersion = '1.1.2-2'
+    ext.javaVersion = '1.8'
+    ext.metaborgVersion = '2.3.0-SNAPSHOT'
+    ext.guiceVersion = '4.0'
+
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.2.9"
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+
+group "org.metaborg"
+version "$metaborgVersion"
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "http://artifacts.metaborg.org/content/repositories/releases/"
+    }
+    maven {
+        url "http://artifacts.metaborg.org/content/repositories/snapshots/"
+    }
+    maven {
+        url "https://raw.githubusercontent.com/pluto-build/pluto-build.github.io/master/mvnrepository/"
+    }
+    maven {
+        url "http://sugar-lang.github.io/mvnrepository/"
+    }
+}
+
+intellij {
+    localPath = "/home/daniel/apps/idea-IC-171.4249.39"
+}
+
+dependencies {
+    compile     "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
+    compile     ("org.metaborg:org.metaborg.core:$metaborgVersion") {
+        exclude group: "org.slf4j"
+        exclude group: "com.google.guava"
+    }
+    compile     ("org.metaborg:org.metaborg.spoofax.core:$metaborgVersion") {
+        exclude group: "org.slf4j"
+        exclude group: "com.google.guava"
+    }
+    compile     ("org.metaborg:org.metaborg.spoofax.meta.core:$metaborgVersion") {
+        exclude group: "org.slf4j"
+        exclude group: "com.google.guava"
+    }
+//    compile     ("org.metaborg:org.metaborg.spt.core:$metaborgVersion") {
+//        exclude group: "org.slf4j"
+//        exclude group: "com.google.guava"
+//    }
+    compile     "com.google.guava:guava:17.0"
+    compile     "org.slf4j:slf4j-api:1.7.10"
+    compile     "com.google.code.findbugs:jsr305:3.0.0"
+    compile     "org.apache.commons:commons-lang3:3.4"
+    compile     "org.apache.commons:commons-vfs2:2.1"
+    compile     "com.google.inject:guice:$guiceVersion"
+    compile     "com.google.inject.extensions:guice-assistedinject:$guiceVersion"
+    compile     "com.google.inject.extensions:guice-multibindings:$guiceVersion"
+    compile     "org.javassist:javassist:3.20.0-GA"
+
+    runtime     "org.metaborg:org.metaborg.meta.lang.spt:$metaborgVersion@spoofax-language"
+    runtime     "org.metaborg:org.metaborg.spt.cmd:$metaborgVersion"
+
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+    testCompile "junit:junit:4.12"
+}

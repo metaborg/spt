@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.metaborg.spt.testrunner.intellij.SptTestConfigurationEditor">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="500" height="287"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <component id="2fdc8" class="com.intellij.execution.ui.CommonJavaParametersPanel" binding="commonJavaParametersPanel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <vspacer id="e3ad0">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="10"/>
+          </grid>
+        </constraints>
+      </vspacer>
+      <component id="9b09" class="com.intellij.openapi.ui.LabeledComponent" binding="lutModulePicker">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <componentClass value="com.intellij.application.options.ModulesComboBox"/>
+          <labelLocation value="West"/>
+          <text value="Language Module"/>
+        </properties>
+      </component>
+      <component id="9cee8" class="com.intellij.execution.ui.JrePathEditor" binding="jrePathEditor">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <vspacer id="41261">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <component id="72e14" class="com.intellij.openapi.ui.LabeledComponent" binding="testPathPicker">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <componentClass value="com.intellij.openapi.ui.TextFieldWithBrowseButton"/>
+          <labelLocation value="West"/>
+          <text value="Test folder"/>
+        </properties>
+      </component>
+      <vspacer id="296a5">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="10"/>
+          </grid>
+        </constraints>
+      </vspacer>
+    </children>
+  </grid>
+</form>
