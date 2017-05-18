@@ -1,20 +1,20 @@
-[![Maintenance](https://img.shields.io/maintenance/yes/2017.svg)]()
-
 # SPT Test Runner for IntelliJ
 This plugin adds a test runner for SPT tests to IntelliJ IDEA. (It however does not add syntax highlighting. Use the [Spoofax for IntelliJ][1] plugin for that.)
 
-![Screenshot of the SPT Test Runner for IntelliJ](https://raw.githubusercontent.com/Virtlink/spt-intellij/master/docs/intellij-testing.png)
+![Screenshot of the SPT Test Runner for IntelliJ](https://raw.githubusercontent.com/metaborg/spt/master/org.metaborg.spt.testrunner.intellij/docs/intellij-testing.png)
 
 
 
 ## Installation
 To install the SPT test runner in your IntelliJ installation:
 
-1. Clone the repository and run `./gradlew runIdea` to download and run a sandbox IntelliJ instance with the plugin loaded into it.
+1. Clone the repository and run `./gradlew runIde` to download and run a sandbox IntelliJ instance with the plugin loaded into it.
 
-   ```
-   https://github.com/Virtlink/spt-intellij.git
-   ```
+    ```
+    git clone https://github.com/metaborg/spt.git
+    cd org.metaborg.spt.testrunner.intellij/
+    ./gradlew runIde
+    ```
 
 This plugin has no dependencies on other plugins, i.e. it can be used without the [Spoofax for IntelliJ][1] plugin, although you won't have syntax highlighting.
 
@@ -73,8 +73,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 
 [1]: https://github.com/metaborg/spoofax-intellij
-[2]: https://github.com/Virtlink/spt-intellij/issues
-[3]: https://github.com/Virtlink/spt-intellij/pulls
+[2]: https://github.com/metaborg/spt/issues
+[3]: https://github.com/metaborg/spt/pulls
 [4]: https://github.com/metaborg/spoofax
 [5]: https://github.com/metaborg/spt/tree/master/org.metaborg.spt.cmd
 [6]: https://github.com/metaborg/spt/tree/master/org.metaborg.meta.lang.spt
