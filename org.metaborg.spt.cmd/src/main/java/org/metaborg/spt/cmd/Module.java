@@ -5,11 +5,22 @@ import org.metaborg.core.editor.NullEditorRegistry;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
 import org.metaborg.core.project.SimpleProjectService;
+import org.metaborg.core.testing.ITestReporterService;
 import org.metaborg.spoofax.core.SpoofaxModule;
 
 import com.google.inject.Singleton;
 
+import javax.annotation.Nullable;
+
 public class Module extends SpoofaxModule {
+
+    @Nullable
+    private final Class<? extends ITestReporterService> customReporterClass;
+
+    public Module(@Nullable Class<? extends ITestReporterService> customReporterClass) {
+        this.customReporterClass = customReporterClass;
+    }
+
     @Override protected void configure() {
         super.configure();
 
@@ -24,5 +35,16 @@ public class Module extends SpoofaxModule {
 
     @Override protected void bindEditor() {
         bind(IEditorRegistry.class).to(NullEditorRegistry.class).in(Singleton.class);
+    }
+
+    @Override
+    protected void bindTestReporter() {
+        if (this.customReporterClass != null) {
+            // Bind the custom reporter.
+            bind(ITestReporterService.class).to(this.customReporterClass).in(Singleton.class);
+        } else {
+            // Bind the default reporter.
+            super.bindTestReporter();
+        }
     }
 }
