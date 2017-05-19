@@ -43,7 +43,7 @@ repositories {
 
 intellij {
     version ideaVersion
-    pluginName 'SPT'
+    pluginName 'org.metaborg.spt.testrunner.intellij'
     downloadSources Boolean.valueOf(sources)
     sameSinceUntilBuild Boolean.valueOf(isEAP)
     alternativeIdePath localIdePath
