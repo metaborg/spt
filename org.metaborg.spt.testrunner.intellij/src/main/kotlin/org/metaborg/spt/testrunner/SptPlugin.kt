@@ -43,5 +43,5 @@ object SptPlugin {
    *
    * @return The version of the plugin.
    */
-  val version = this.plugin.version
+  val version = this.plugin.version!!
 }

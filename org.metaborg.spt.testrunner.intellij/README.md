@@ -46,6 +46,16 @@ To start a sandbox IntelliJ instance with the plugin loaded into it, run this co
     ./gradlew runIde
 
 
+## Publishing
+To publish the plugin in the JetBrains plugin repository, use the following command where you replace the username and password by your own:
+
+    ./gradlew publishPlugin \
+        -DpublishUsername=yourusername \
+        -DpublishPassword=yourpassword \
+        -DpublishChannel=Nightly
+
+
+
 
 ## Overview
 This plugin contains just the parts that are necessary to add a run configuration to IntelliJ. It has three main dependencies:
