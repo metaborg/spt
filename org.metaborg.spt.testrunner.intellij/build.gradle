@@ -47,12 +47,12 @@ intellij {
     downloadSources Boolean.valueOf(sources)
     sameSinceUntilBuild Boolean.valueOf(isEAP)
     alternativeIdePath localIdePath
-}
 
-publishPlugin {
-    username publishUsername
-    password publishPassword
-    channels publishChannel
+    publishPlugin {
+        username publishUsername
+        password publishPassword
+        channels publishChannel
+    }
 }
 
 dependencies {
