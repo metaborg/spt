@@ -20,7 +20,7 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
-group "org.metaborg"
+group = projectGroup
 version = projectVersion
 sourceCompatibility = javaVersion
 targetCompatibility = javaTargetVersion
