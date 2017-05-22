@@ -1,20 +1,15 @@
 <idea-plugin>
     <id>org.metaborg.spt</id><!-- See: SptPlugin object -->
     <name>SPT</name>
-    <version>2.3.0-SNAPSHOT</version>
     <vendor email="intellij@metaborg.org" url="http://www.metaborg.org/">Metaborg</vendor>
 
-    <description><![CDATA[
-      SPT test runner for IntelliJ IDEA.
-    ]]></description>
-
-    <change-notes><![CDATA[
-      Bug fixes and improvements.
-    ]]>
-    </change-notes>
-
-    <!-- See http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
-    <idea-version since-build="171" until-build="171.*"/>
+    <!-- See `build.gradle` for these options:
+         - version
+         - description
+         - change-log
+         - idea-version since-build
+         - idea-version until-build
+    -->
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Testing -->

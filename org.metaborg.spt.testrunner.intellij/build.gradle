@@ -20,7 +20,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 
 group "org.metaborg"
-version = version
+version = projectVersion
 sourceCompatibility = javaVersion
 targetCompatibility = javaTargetVersion
 
@@ -42,11 +42,18 @@ repositories {
 }
 
 intellij {
-    version ideaVersion
-    pluginName 'org.metaborg.spt.testrunner.intellij'
-    downloadSources Boolean.valueOf(sources)
-    sameSinceUntilBuild Boolean.valueOf(isEAP)
-    alternativeIdePath localIdePath
+    version intellijVersion
+    pluginName projectName
+    downloadSources Boolean.valueOf(intellijSources)
+    sameSinceUntilBuild Boolean.valueOf(intellijEAP)
+    alternativeIdePath intellijLocalPath
+
+    patchPluginXml {
+        sinceBuild intellijSinceBuild
+        untilBuild intellijUntilBuild
+        pluginDescription projectDescription
+        changeNotes projectChangeNotes
+    }
 
     publishPlugin {
         username publishUsername
