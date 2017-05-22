@@ -11,6 +11,7 @@ buildscript {
 
 plugins {
     id "org.jetbrains.intellij" version "0.2.9"
+    id "de.fuerstenau.buildconfig" version "1.1.8"
 }
 
 apply plugin: 'java'
@@ -60,6 +61,17 @@ intellij {
         password publishPassword
         channels publishChannel
     }
+}
+
+buildConfig {
+    appName = project.name
+    version = project.version
+
+    clsName = 'BuildConfig'
+    packageName = 'org.metaborg.spt.testrunner.intellij'
+    charset = 'UTF-8'
+
+    buildConfigField 'String', 'METABORG_VERSION', metaborgVersion
 }
 
 dependencies {

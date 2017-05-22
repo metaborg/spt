@@ -2,6 +2,7 @@ package org.metaborg.spt.testrunner
 
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.extensions.PluginId
+import org.metaborg.spt.testrunner.intellij.BuildConfig
 import java.io.File
 
 /**
@@ -44,4 +45,11 @@ object SptPlugin {
    * @return The version of the plugin.
    */
   val version = this.plugin.version!!
+
+  /**
+   * Gets the Metaborg version, defined by the build script.
+   *
+   * @return The Metaborg version.
+   */
+  val metaborgVersion = BuildConfig.METABORG_VERSION
 }

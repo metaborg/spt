@@ -37,8 +37,8 @@ open class SptCommandLineState(environment: ExecutionEnvironment,
     : JavaCommandLineState(environment) {
 
     private val SPT_CMD_MAIN  = "org.metaborg.spt.cmd.Main"
-    private val SPT_CMD_PATH  = File(SptPlugin.libPath, "org.metaborg.spt.cmd-${SptPlugin.version}.jar").absolutePath
-    private val SPT_LANG_PATH = File(SptPlugin.libPath, "org.metaborg.meta.lang.spt-${SptPlugin.version}.spoofax-language").absolutePath
+    private val SPT_CMD_PATH  = File(SptPlugin.libPath, "org.metaborg.spt.cmd-${SptPlugin.metaborgVersion}.jar").absolutePath
+    private val SPT_LANG_PATH = File(SptPlugin.libPath, "org.metaborg.meta.lang.spt-${SptPlugin.metaborgVersion}.spoofax-language").absolutePath
 
     override fun createJavaParameters(): JavaParameters? {
         val languageUnderTest = LanguageUtils.getLanguageRoot(this.module) ?: return null
