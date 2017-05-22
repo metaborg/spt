@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>org.metaborg.spt</id><!-- See: SptPlugin object -->
+    <id>org.metaborg.spt.testrunner.intellij</id><!-- See: SptPlugin object -->
     <name>SPT</name>
     <vendor email="intellij@metaborg.org" url="http://www.metaborg.org/">Metaborg</vendor>
 

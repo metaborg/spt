@@ -15,8 +15,8 @@ object SptPlugin {
    *
    * @return The ID of the plugin.
    */
-  // This must match the ID in plugin.xml
-  val id = PluginId.getId("org.metaborg.spt")
+  // Defined in plugin.xml
+  val id = PluginId.getId("org.metaborg.spt.testrunner.intellij")
 
   /**
    * Gets the plugin object.
@@ -44,6 +44,7 @@ object SptPlugin {
    *
    * @return The version of the plugin.
    */
+  // Defined in gradle.properties
   val version = this.plugin.version!!
 
   /**
@@ -51,5 +52,6 @@ object SptPlugin {
    *
    * @return The Metaborg version.
    */
+  // Defined in gradle.properties
   val metaborgVersion = BuildConfig.METABORG_VERSION
 }
