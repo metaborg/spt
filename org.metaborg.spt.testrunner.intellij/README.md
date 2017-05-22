@@ -8,13 +8,10 @@ This plugin adds a test runner for SPT tests to IntelliJ IDEA. (It however does 
 ## Installation
 To install the SPT test runner in your IntelliJ installation:
 
-1. Clone the repository and run `./gradlew runIde` to download and run a sandbox IntelliJ instance with the plugin loaded into it.
-
-    ```
-    git clone https://github.com/metaborg/spt.git
-    cd org.metaborg.spt.testrunner.intellij/
-    ./gradlew runIde
-    ```
+1. In IntelliJ, go to _File_ → _Settings_ menu.
+2. Go to the _Plugins_ tab, and click the _Browse repositories..._ button.
+3. Search for `SPT` and install the _SPT_ plugin by _Metaborg_.
+4. Restart IntelliJ to load the plugin.
 
 This plugin has no dependencies on other plugins, i.e. it can be used without the [Spoofax for IntelliJ][1] plugin, although you won't have syntax highlighting.
 
