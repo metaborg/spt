@@ -2,7 +2,7 @@
     <id>org.metaborg.spt</id><!-- See: SptPlugin object -->
     <name>SPT</name>
     <version>2.3.0-SNAPSHOT</version>
-    <vendor email="info@metaborg.org" url="https://spoofax.readthedocs.io/">Metaborg</vendor>
+    <vendor email="intellij@metaborg.org" url="http://www.metaborg.org/">Metaborg</vendor>
 
     <description><![CDATA[
       SPT test runner for IntelliJ IDEA.
