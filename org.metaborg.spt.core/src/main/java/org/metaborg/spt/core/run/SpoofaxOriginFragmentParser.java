@@ -26,7 +26,7 @@ import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
@@ -93,8 +93,8 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         }
 
         // start changing the offsets by changing the offsets of the tokens
-        ITokenizer itokenizer = ImploderAttachment.getTokenizer(ast);
-        if(itokenizer == null) {
+        ITokens originalTokens = ImploderAttachment.getTokenizer(ast);
+        if(originalTokens == null) {
             logger.warn("Found a fragment with no tokenizer! Can't update the offsets. \"{}\"", textStr);
             return p;
         }
@@ -102,15 +102,15 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         // adjust the tokens for each piece of the fragment
         // this makes NO assumptions about the order of the startOffsets of the token stream
         // it DOES assume that the pieces of text of the fragment are ordered based on the correct order of text
-        int[] startOffsets = new int[itokenizer.getTokenCount()];
-        int[] endOffsets = new int[itokenizer.getTokenCount()];
+        int[] startOffsets = new int[originalTokens.getTokenCount()];
+        int[] endOffsets = new int[originalTokens.getTokenCount()];
         int currStartOffsetOfPiece = 0;
         int currEndOffsetOfPiece = 0;
         for(FragmentPiece piece : fragmentPieces) {
             int pieceLength = piece.text.length();
             currEndOffsetOfPiece = currStartOffsetOfPiece + pieceLength - 1;
             int adjustment = piece.startOffset - currStartOffsetOfPiece;
-            for(IToken itoken : itokenizer) {
+            for(IToken itoken : originalTokens) {
                 int startOffset = itoken.getStartOffset();
                 if(startOffset >= currStartOffsetOfPiece && startOffset <= currEndOffsetOfPiece) {
                     Token token = (Token) itoken;
@@ -124,7 +124,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         // Do post processing to ensure the token stream is ordered by offsets again
         final List<Token> tokens = Lists.newArrayList();
         Token eof = null;
-        for(IToken itoken : itokenizer) {
+        for(IToken itoken : originalTokens) {
             if(IToken.TK_EOF == itoken.getKind()) {
                 eof = (Token) itoken;
             } else {
@@ -150,7 +150,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
             eof.setEndOffset(lastOffset);
             tokens.add(eof);
 
-            Tokenizer newTokenizer = new Tokenizer(itokenizer.getInput(), itokenizer.getFilename(), null, false);
+            Tokenizer newTokenizer = new Tokenizer(originalTokens.getInput(), originalTokens.getFilename(), null, false);
             for(Token token : tokens) {
                 // NOTE: this will break if run with assertions turned on
                 // but as this entire approach is one big hack, I don't really care at the moment
