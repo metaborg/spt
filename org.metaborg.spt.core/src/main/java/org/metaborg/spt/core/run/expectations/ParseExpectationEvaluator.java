@@ -113,8 +113,11 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
                     if(outputLang != null && !TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),
                         termFactoryService.get(outputLang.activeImpl(), test.getProject(), false))) {
                         // TODO: add a nice diff of the two parse results or something
+                        String message = String.format(
+                            "The expected parse result did not match the actual parse result.\nParse result was: %1$s\nExpected result was: %2$s",
+                            p.ast(), parsedFragment.ast());
                         messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                            "The expected parse result did not match the actual parse result", null));
+                            message, null));
                     }
                     success = messages.isEmpty();
                 }

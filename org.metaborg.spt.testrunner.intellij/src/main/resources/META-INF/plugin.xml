@@ -1,0 +1,19 @@
+<idea-plugin>
+    <id>org.metaborg.spt.testrunner.intellij</id><!-- See: SptPlugin object -->
+    <name>SPT</name>
+    <vendor email="intellij@metaborg.org" url="http://www.metaborg.org/">Metaborg</vendor>
+
+    <!-- See `build.gradle` for these options:
+         - version
+         - description
+         - change-log
+         - idea-version since-build
+         - idea-version until-build
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Testing -->
+        <configurationType implementation="org.metaborg.spt.testrunner.intellij.SptTestConfigurationType"/>
+    </extensions>
+
+</idea-plugin>
