@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -55,7 +56,7 @@ public class TestRunner {
      * It uses {@link FileObject#findFiles(org.apache.commons.vfs2.FileSelector)} to get all SPT files if the given
      * FileObject isn't a file.
      */
-    public void runAll(FileObject... fobs) {
+    public void runAll(IProgressMonitor monitor, FileObject... fobs) throws InterruptedException {
         final Spoofax spoofax = SpoofaxPlugin.spoofax();
         final ILanguageService langService = spoofax.languageService;
         final ISpoofaxInputUnitService inputService = spoofax.injector.getInstance(ISpoofaxInputUnitService.class);
@@ -119,6 +120,9 @@ public class TestRunner {
             final List<FileObject> suites = allSuites.get(i);
             final IProject project = projects[i];
             for(FileObject suite : suites) {
+                if(monitor.isCanceled()) {
+                    throw new InterruptedException();
+                }
                 // may be null
                 final ISpoofaxTestCaseExtractionResult ext = extractSuite(suite, project, spt, inputService, extractor);
                 final TestSuiteRun tsr;
@@ -190,6 +194,9 @@ public class TestRunner {
                 // run the test cases
                 final IProject project = tsr.project;
                 for(TestCaseRun tcr : tsr.tests) {
+                    if(monitor.isCanceled()) {
+                        throw new InterruptedException();
+                    }
                     tcr.start();
                     final ISpoofaxTestResult result = runner.run(project, tcr.test, lut, null, cfg);
                     setTestResult(tcr, result);

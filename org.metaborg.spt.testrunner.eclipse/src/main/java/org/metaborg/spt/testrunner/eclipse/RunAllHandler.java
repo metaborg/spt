@@ -100,7 +100,11 @@ public class RunAllHandler extends AbstractHandler {
         }
 
         @Override protected IStatus run(IProgressMonitor monitor) {
-            runner.runAll(testLocations.toArray(new FileObject[testLocations.size()]));
+            try {
+                runner.runAll(monitor, testLocations.toArray(new FileObject[testLocations.size()]));
+            } catch(InterruptedException e) {
+                return Status.CANCEL_STATUS;
+            }
             return Status.OK_STATUS;
         }
     }

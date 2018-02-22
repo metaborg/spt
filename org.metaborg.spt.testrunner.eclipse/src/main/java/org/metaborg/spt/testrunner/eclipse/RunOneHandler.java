@@ -63,7 +63,11 @@ public class RunOneHandler extends AbstractHandler {
         }
 
         @Override protected IStatus run(IProgressMonitor monitor) {
-            runner.runAll(file);
+            try {
+                runner.runAll(monitor, file);
+            } catch(InterruptedException e) {
+                return Status.CANCEL_STATUS;
+            }
             return Status.OK_STATUS;
         }
     }
