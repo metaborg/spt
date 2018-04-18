@@ -5,7 +5,6 @@ import com.intellij.execution.configurations.JavaCommandLineState
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
-import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -42,6 +41,7 @@ open class SptCommandLineState(environment: ExecutionEnvironment,
 
     override fun createJavaParameters(): JavaParameters? {
         val languageUnderTest = LanguageUtils.getLanguageRoot(this.module) ?: return null
+        val testPath = configuration.getTestPath()
         val params = JavaParameters().apply {
             // Set up the class path
             classPath.add(SPT_CMD_PATH)
@@ -52,8 +52,10 @@ open class SptCommandLineState(environment: ExecutionEnvironment,
             programParametersList.add("--lut", languageUnderTest.path)
             // The SPT language artifact/directory
             programParametersList.add("--spt", SPT_LANG_PATH)
-            // The directory with the SPT tests
-            programParametersList.add("--tests", configuration.getTestPath())
+            if (testPath != null) {
+                // The directory with the SPT tests
+                programParametersList.add("--tests", testPath)
+            }
             // The test reporter to use (so IntelliJ can display the results)
             programParametersList.add("--reporter", TeamCityTestReporterService::class.java.name)
         }
