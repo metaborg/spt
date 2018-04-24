@@ -47,9 +47,9 @@ To start a sandbox IntelliJ instance with the plugin loaded into it, run this co
 To publish the plugin in the JetBrains plugin repository, use the following command where you replace the username and password by your own:
 
     ./gradlew publishPlugin \
-        -DpublishUsername=yourusername \
-        -DpublishPassword=yourpassword \
-        -DpublishChannel=Nightly
+        -PpublishUsername=<your username> \
+        -PpublishPassword=<your password> \
+        -PpublishChannel=Nightly
 
 
 
