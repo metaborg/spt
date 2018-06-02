@@ -19,8 +19,12 @@ import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.Tools;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoString;
+import org.spoofax.terms.TermFactory;
 import com.google.inject.Inject;
 
 public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
@@ -84,7 +88,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
             // if(trace.location(expectation) == null) {
             // logger.warn("No origin information on test expectation {}", expectation);
             // }
-            expectationTerms.add(expectation);
+        	expectationTerms.add(unescapeExpectation(expectation));
         }
 
         // setup the fragment builder
@@ -92,6 +96,45 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
         fragmentBuilder.withFragment(fragmentTerm);
 
         return this;
+    }
+    
+    /**
+     * Unescape string terms of expectations by replacing \" with ".
+     */
+    private IStrategoTerm unescapeExpectation(IStrategoTerm expectation) {
+    	ITermFactory factory = new TermFactory();
+    	
+    	switch(expectation.getTermType()) {
+	        case IStrategoTerm.APPL:
+	        	IStrategoAppl appl = (IStrategoAppl) expectation;
+	        	IStrategoTerm[] kids;
+	        	
+	        	if ("String".equals(appl.getConstructor().getName()) ) {
+	        		StrategoString escapedString = (StrategoString) appl.getSubterm(0);
+	        		IStrategoString unescapedString = factory.makeString(escapedString.stringValue().replace("\\\"", "\""));
+	        		
+	        		kids = new IStrategoTerm[] {unescapedString};
+	        	} else {
+	        		kids = unescapeExpectationKids(expectation);
+	        	}
+		        
+	        	return factory.makeAppl(appl.getConstructor(), kids, expectation.getAnnotations());
+	        case IStrategoTerm.LIST:
+	        	return factory.makeList(unescapeExpectationKids(expectation), expectation.getAnnotations());
+	        case IStrategoTerm.TUPLE:
+	        	return factory.makeTuple(unescapeExpectationKids(expectation), expectation.getAnnotations());
+	        default:
+	            return expectation;
+	    }
+    }
+    
+    private IStrategoTerm[] unescapeExpectationKids(IStrategoTerm expectation) {
+    	IStrategoTerm[] kids = new IStrategoTerm[expectation.getSubtermCount()];
+    	
+    	for (int i = 0; i < expectation.getSubtermCount(); i++)
+    		kids[i] = unescapeExpectation(expectation.getSubterm(i));
+    	
+    	return kids;
     }
 
     @Override public ITestCase build() {
