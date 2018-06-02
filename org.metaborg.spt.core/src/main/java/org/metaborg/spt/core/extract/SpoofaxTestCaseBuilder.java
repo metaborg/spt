@@ -23,6 +23,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 import com.google.inject.Inject;
@@ -104,6 +105,8 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
     private IStrategoTerm unescapeExpectation(IStrategoTerm expectation) {
     	ITermFactory factory = new TermFactory();
     	
+    	IStrategoTerm unescapedExpectation;
+    	
     	switch(expectation.getTermType()) {
 	        case IStrategoTerm.APPL:
 	        	IStrategoAppl appl = (IStrategoAppl) expectation;
@@ -118,14 +121,20 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 	        		kids = unescapeExpectationKids(expectation);
 	        	}
 		        
-	        	return factory.makeAppl(appl.getConstructor(), kids, expectation.getAnnotations());
+	        	unescapedExpectation = factory.makeAppl(appl.getConstructor(), kids, expectation.getAnnotations()); break;
 	        case IStrategoTerm.LIST:
-	        	return factory.makeList(unescapeExpectationKids(expectation), expectation.getAnnotations());
+	        	unescapedExpectation = factory.makeList(unescapeExpectationKids(expectation), expectation.getAnnotations()); break;
 	        case IStrategoTerm.TUPLE:
-	        	return factory.makeTuple(unescapeExpectationKids(expectation), expectation.getAnnotations());
+	        	unescapedExpectation = factory.makeTuple(unescapeExpectationKids(expectation), expectation.getAnnotations()); break;
 	        default:
 	            return expectation;
 	    }
+    	
+    	ImploderAttachment attachment = expectation.getAttachment(ImploderAttachment.TYPE);
+    	
+    	unescapedExpectation.putAttachment(attachment);
+    	
+    	return unescapedExpectation;
     }
     
     private IStrategoTerm[] unescapeExpectationKids(IStrategoTerm expectation) {
