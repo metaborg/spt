@@ -53,6 +53,9 @@ context-free syntax
   
   // Expectations
   Expectations = <<{Expectation "\n"}*>>
+  
+  // generic negative expectation
+  Expectation.Not = <not <Expectation>>
 
   // a term for the 'to' part that many expectations use
   ToPart.ToPart2 = <

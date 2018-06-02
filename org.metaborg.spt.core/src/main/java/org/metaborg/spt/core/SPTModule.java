@@ -7,6 +7,7 @@ import org.metaborg.mbt.core.extract.ITestCaseExtractor;
 import org.metaborg.mbt.core.extract.ITestExpectationProvider;
 import org.metaborg.mbt.core.model.expectations.AnalysisMessageExpectation;
 import org.metaborg.mbt.core.model.expectations.HasOriginExpectation;
+import org.metaborg.mbt.core.model.expectations.NotExpectation;
 import org.metaborg.mbt.core.model.expectations.ParseExpectation;
 import org.metaborg.mbt.core.model.expectations.ResolveExpectation;
 import org.metaborg.mbt.core.model.expectations.RunStrategoExpectation;
@@ -30,6 +31,7 @@ import org.metaborg.spt.core.extract.SpoofaxTestCaseExtractor;
 import org.metaborg.spt.core.extract.SpoofaxTracingFragmentBuilder;
 import org.metaborg.spt.core.extract.expectations.AnalyzeExpectationProvider;
 import org.metaborg.spt.core.extract.expectations.HasOriginExpectationProvider;
+import org.metaborg.spt.core.extract.expectations.NotExpectationProvider;
 import org.metaborg.spt.core.extract.expectations.ParseExpectationProvider;
 import org.metaborg.spt.core.extract.expectations.ParseToAtermExpectationProvider;
 import org.metaborg.spt.core.extract.expectations.ResolveExpectationProvider;
@@ -52,6 +54,7 @@ import org.metaborg.spt.core.run.expectations.ParseToAtermExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.ResolveExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.RunStrategoExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.RunStrategoToAtermExpectationEvaluator;
+import org.metaborg.spt.core.run.expectations.SpoofaxNotExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.TransformExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.TransformToAtermExpectationEvaluator;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -63,7 +66,7 @@ import com.google.inject.multibindings.Multibinder;
 public class SPTModule extends MBTModule {
     @Override protected void configure() {
         super.configure();
-        
+
         bind(SPTRunner.class).in(Singleton.class);
     }
 
@@ -76,6 +79,7 @@ public class SPTModule extends MBTModule {
         expectationBinder.addBinding().to(ResolveExpectationProvider.class);
         expectationBinder.addBinding().to(RunStrategoExpectationProvider.class);
         expectationBinder.addBinding().to(TransformExpectationProvider.class);
+        expectationBinder.addBinding().to(NotExpectationProvider.class);
         Multibinder<ISpoofaxTestExpectationProvider> expectationBinder2 =
             Multibinder.newSetBinder(binder(), ISpoofaxTestExpectationProvider.class);
         expectationBinder2.addBinding().to(ParseExpectationProvider.class);
@@ -84,6 +88,7 @@ public class SPTModule extends MBTModule {
         expectationBinder2.addBinding().to(RunStrategoExpectationProvider.class);
         expectationBinder2.addBinding().to(TransformExpectationProvider.class);
         expectationBinder2.addBinding().to(HasOriginExpectationProvider.class);
+        expectationBinder2.addBinding().to(NotExpectationProvider.class);
         // Spoofax specific binders
         expectationBinder2.addBinding().to(ParseToAtermExpectationProvider.class);
         expectationBinder2.addBinding().to(RunStrategoToAtermExpectationProvider.class);
@@ -97,6 +102,12 @@ public class SPTModule extends MBTModule {
         bind(new TypeLiteral<IExpectationEvaluatorService<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit>>() {})
             .to(SpoofaxExpectationEvaluatorService.class);
         bind(ISpoofaxExpectationEvaluatorService.class).to(SpoofaxExpectationEvaluatorService.class);
+
+        // not
+        bind(new TypeLiteral<ITestExpectationEvaluator<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, NotExpectation>>() {})
+            .to(SpoofaxNotExpectationEvaluator.class);
+        bind(new TypeLiteral<ISpoofaxExpectationEvaluator<NotExpectation>>() {})
+            .to(SpoofaxNotExpectationEvaluator.class);
 
         // parsing
         bind(new TypeLiteral<ITestExpectationEvaluator<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, ParseExpectation>>() {})
