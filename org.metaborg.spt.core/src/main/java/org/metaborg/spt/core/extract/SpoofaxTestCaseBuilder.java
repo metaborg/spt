@@ -26,6 +26,9 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
+
 import com.google.inject.Inject;
 
 public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
@@ -130,9 +133,12 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 	            return expectation;
 	    }
     	
-    	ImploderAttachment attachment = expectation.getAttachment(ImploderAttachment.TYPE);
-    	
-    	unescapedExpectation.putAttachment(attachment);
+    	// Maintain all attachments
+    	for (TermAttachmentType<?> attachmentType : TermAttachmentType.getKnownTypes()) {
+        	ITermAttachment attachment = expectation.getAttachment(attachmentType);
+
+        	unescapedExpectation.putAttachment(attachment);	
+    	}
     	
     	return unescapedExpectation;
     }
