@@ -128,7 +128,8 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
                 // check if it resolved to the proper term
                 boolean found = false;
                 ISourceRegion selection = selections.get(num2);
-                for(ISourceLocation loc : r.targets) {
+                for(Resolution.Target target : r.targets) {
+                    ISourceLocation loc = target.location;
                     if(loc.region().startOffset() == selection.startOffset() // match start offset
                         && loc.region().endOffset() == selection.endOffset() // match end offset
                         && loc.resource() != null // match resource
@@ -139,7 +140,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
                 }
                 success = found;
                 if(!found) {
-                    ISourceLocation target = r.targets.iterator().next();
+                    ISourceLocation target = r.targets.iterator().next().location;
                     ISourceRegion targetRegion = target.region();
                     final String msg;
                     if(targetRegion.startOffset() != selection.startOffset()
