@@ -10,6 +10,7 @@ import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.tracing.Resolution;
+import org.metaborg.core.tracing.ResolutionTarget;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
@@ -128,7 +129,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
                 // check if it resolved to the proper term
                 boolean found = false;
                 ISourceRegion selection = selections.get(num2);
-                for(Resolution.Target target : r.targets) {
+                for(ResolutionTarget target : r.targets) {
                     ISourceLocation loc = target.location;
                     if(loc.region().startOffset() == selection.startOffset() // match start offset
                         && loc.region().endOffset() == selection.endOffset() // match end offset
