@@ -47,9 +47,9 @@ To start a sandbox IntelliJ instance with the plugin loaded into it, run this co
 To publish the plugin in the JetBrains plugin repository, use the following command where you replace the username and password by your own:
 
     ./gradlew publishPlugin \
-        -DpublishUsername=yourusername \
-        -DpublishPassword=yourpassword \
-        -DpublishChannel=Nightly
+        -PpublishUsername=<your username> \
+        -PpublishPassword=<your password> \
+        -PpublishChannel=Nightly
 
 
 
@@ -72,7 +72,7 @@ The main resources useful for working on this plugin are:
 
 
 ## License
-Copyright 2017 Daniel Pelsmaeker
+Copyright 2017-2018 Daniel Pelsmaeker
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
 

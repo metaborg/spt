@@ -292,7 +292,7 @@ public class SPTUtil {
                 return b;
             case STRING_CONS:
                 // String("some string")
-                b.append(Term.asJavaString(match.getSubterm(0)));
+                b.append("\"" + Term.asJavaString(match.getSubterm(0)).replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
                 return b;
             case WLD_CONS:
                 b.append('_');
