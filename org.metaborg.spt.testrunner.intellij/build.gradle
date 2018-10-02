@@ -48,6 +48,10 @@ intellij {
     downloadSources Boolean.valueOf(intellijSources)
     sameSinceUntilBuild Boolean.valueOf(intellijEAP)
     alternativeIdePath intellijLocalPath
+    // WORKAROUND: For Java 9/10, instrumentation fails with the error:
+    //     Class not found: javax.swing.JPanel
+    // https://github.com/JetBrains/gradle-intellij-plugin/issues/235
+    instrumentCode false
 
     patchPluginXml {
         sinceBuild intellijSinceBuild
