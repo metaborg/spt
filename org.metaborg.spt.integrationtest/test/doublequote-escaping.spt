@@ -1,0 +1,7 @@
+module doublequote-escaping
+
+language spt-integrationtest
+
+start symbol Start
+
+test some string [["string"]] parse to String("\"string\"")
