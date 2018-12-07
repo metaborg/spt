@@ -120,7 +120,7 @@ rules
   //   Int(n) -> <dec-string-to-int> n
     
   desugar-term-before:
-    String(s) -> String(<un-double-quote> s)
+    String(s) -> String(<try(un-double-quote);string-replace(|"\\\"", "\"")> s)
     
 rules
 
