@@ -1,0 +1,21 @@
+module spt-integrationtest
+
+lexical syntax
+
+  STRING         = "\"" StringChar* "\"" 
+  StringChar     = ~[\"\n] 
+  StringChar     = "\\\"" 
+  StringChar     = BackSlashChar 
+  BackSlashChar  = "\\" 
+
+context-free start-symbols
+  
+  Start
+
+context-free syntax
+  
+  Start.String = STRING
+
+lexical restrictions
+
+  BackSlashChar -/- [\"]

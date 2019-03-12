@@ -34,9 +34,9 @@ context-free syntax
     <{TestDecl "\n\n"}*>
   >
 
-  Header.Name = <module <MODULE>>
+  Header.Name = <module <MODULE-PATH>>
   // the start symbol is not supported yet by the SPT implementation
-  Header.StartSymbol = <start symbol <ID>>
+  Header.StartSymbol = <start symbol <SORT>>
   Header.Language = <language <LANG>>
 
   TailPart2.Done = <>

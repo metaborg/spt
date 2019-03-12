@@ -6,6 +6,8 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.FileTypeSelector;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
@@ -44,7 +46,8 @@ public class SPTRunner {
 
     public void test(IProject project, ILanguageImpl sptLang, ILanguageImpl testLang) throws MetaborgException {
         try {
-            final FileObject[] sptFiles = project.location().findFiles(FileSelectorUtils.extension("spt"));
+            final FileObject[] sptFiles = project.location().findFiles(
+                    FileSelectorUtils.and(FileSelectorUtils.extension("spt"), new FileTypeSelector(FileType.FILE)));
             if(sptFiles == null || sptFiles.length == 0) {
                 return;
             }
