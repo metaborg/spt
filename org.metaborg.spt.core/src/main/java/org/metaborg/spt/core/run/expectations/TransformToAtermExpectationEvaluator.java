@@ -60,8 +60,8 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
         return Lists.newLinkedList();
     }
 
-    @Override public TestPhase getPhase(IContext languageUnderTestCtx, TransformToAtermExpectation expectation) {
-        return transformService.requiresAnalysis(languageUnderTestCtx, expectation.goal()) ? TestPhase.ANALYSIS
+    @Override public TestPhase getPhase(ILanguageImpl language, TransformToAtermExpectation expectation) {
+        return transformService.requiresAnalysis(language, expectation.goal()) ? TestPhase.ANALYSIS
             : TestPhase.PARSING;
     }
 
@@ -89,7 +89,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
         }
 
         // check if the transformation exists for this language
-        if(!transformService.available(ctx, expectation.goal())) {
+        if(!transformService.available(lut, expectation.goal())) {
             if(logger.debugEnabled()) {
                 Iterable<ActionFacet> facets = lut.facets(ActionFacet.class);
                 for(ActionFacet facet : facets) {
@@ -108,7 +108,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
             return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
         }
 
-        boolean useAnalysis = transformService.requiresAnalysis(ctx, expectation.goal());
+        boolean useAnalysis = transformService.requiresAnalysis(lut, expectation.goal());
 
         try {
             // transform the input fragment

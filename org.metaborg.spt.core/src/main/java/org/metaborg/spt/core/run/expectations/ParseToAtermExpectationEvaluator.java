@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.metaborg.core.context.IContext;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.source.ISourceRegion;
@@ -50,7 +50,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         return Lists.newLinkedList();
     }
 
-    @Override public TestPhase getPhase(IContext languageUnderTestCtx, ParseToAtermExpectation expectation) {
+    @Override public TestPhase getPhase(ILanguageImpl language, ParseToAtermExpectation expectation) {
         return TestPhase.PARSING;
     }
 

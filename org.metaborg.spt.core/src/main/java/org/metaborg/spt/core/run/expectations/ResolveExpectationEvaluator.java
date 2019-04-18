@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.core.context.IContext;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.source.ISourceLocation;
@@ -47,7 +47,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
         return used;
     }
 
-    @Override public TestPhase getPhase(IContext languageUnderTestCtx, ResolveExpectation expectation) {
+    @Override public TestPhase getPhase(ILanguageImpl language, ResolveExpectation expectation) {
         return TestPhase.ANALYSIS;
     }
 

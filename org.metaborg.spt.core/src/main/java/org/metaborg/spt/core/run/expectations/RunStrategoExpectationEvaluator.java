@@ -68,9 +68,8 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
             : Lists.newArrayList(expectation.selection());
     }
 
-    @Override public TestPhase getPhase(IContext languageUnderTestCtx, RunStrategoExpectation expectation) {
-        final ILanguageImpl langImpl = languageUnderTestCtx.language();
-        if(analysisService.available(langImpl)) {
+    @Override public TestPhase getPhase(ILanguageImpl language, RunStrategoExpectation expectation) {
+        if(analysisService.available(language)) {
             return TestPhase.ANALYSIS;
         } else {
             return TestPhase.PARSING;

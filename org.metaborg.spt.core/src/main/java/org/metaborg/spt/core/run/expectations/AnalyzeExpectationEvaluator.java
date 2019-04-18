@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.metaborg.core.context.IContext;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.core.messages.MessageSeverity;
@@ -39,7 +39,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
     }
 
     @Override
-    public TestPhase getPhase(IContext unused, AnalysisMessageExpectation expectation) {
+    public TestPhase getPhase(ILanguageImpl language, AnalysisMessageExpectation expectation) {
         return TestPhase.ANALYSIS;
     }
 
