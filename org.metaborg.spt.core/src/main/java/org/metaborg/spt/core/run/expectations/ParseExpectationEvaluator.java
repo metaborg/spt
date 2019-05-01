@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguage;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
 import org.metaborg.mbt.core.model.IFragment;
@@ -46,7 +46,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         return Lists.newLinkedList();
     }
 
-    @Override public TestPhase getPhase(IContext languageUnderTestCtx, ParseExpectation expectation) {
+    @Override public TestPhase getPhase(ILanguageImpl language, ParseExpectation expectation) {
         return TestPhase.PARSING;
     }
 

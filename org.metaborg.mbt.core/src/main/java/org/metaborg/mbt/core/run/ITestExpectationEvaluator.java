@@ -3,7 +3,7 @@ package org.metaborg.mbt.core.run;
 import java.util.Collection;
 
 import org.metaborg.core.analysis.IAnalyzeUnit;
-import org.metaborg.core.context.IContext;
+import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.syntax.IParseUnit;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.TestPhase;
@@ -35,10 +35,10 @@ public interface ITestExpectationEvaluator<P extends IParseUnit, A extends IAnal
      * 
      * It is used to determine what we should do with the input fragment (e.g., parse or analyze it).
      * 
-     * @param languageUnderTestCtx
+     * @param languageUnderTest
      *            the context of the language under test for which you want to evaluate this expectation.
      */
-    public TestPhase getPhase(IContext languageUnderTestCtx, E expectation);
+    public TestPhase getPhase(ILanguageImpl language, E expectation);
 
     /**
      * Evaluate the test expectation for the given input.

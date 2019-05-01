@@ -66,9 +66,8 @@ public class RunStrategoToAtermExpectationEvaluator
             : Lists.newArrayList(expectation.selection());
     }
 
-    @Override public TestPhase getPhase(IContext languageUnderTestCtx, RunStrategoToAtermExpectation expectation) {
-        final ILanguageImpl langImpl = languageUnderTestCtx.language();
-        if(analysisService.available(langImpl)) {
+    @Override public TestPhase getPhase(ILanguageImpl language, RunStrategoToAtermExpectation expectation) {
+        if(analysisService.available(language)) {
             return TestPhase.ANALYSIS;
         } else {
             return TestPhase.PARSING;

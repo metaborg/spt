@@ -108,7 +108,7 @@ public class SpoofaxTestCaseRunner
                 // the error will be generated during evaluation, so we just ignore it here
             } else {
                 // TODO: if we get more parse phases, we can't shortcut like this
-                TestPhase phase = evaluator.getPhase(languageUnderTestCtx, expectation);
+                TestPhase phase = evaluator.getPhase(languageUnderTestCtx.language(), expectation);
                 if(TestPhase.PARSING.ordinal() < phase.ordinal()) {
                     return phase;
                 }
