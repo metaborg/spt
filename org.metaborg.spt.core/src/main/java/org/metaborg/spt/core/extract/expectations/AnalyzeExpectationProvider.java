@@ -306,7 +306,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
                 return false;
             }
             final IStrategoList selectionsList = (IStrategoList) selections;
-            for(IStrategoTerm selectionRef : selectionsList) {
+            for(IStrategoTerm selectionRef : selectionsList.getSubterms()) {
                 // should be an int
                 if(!Term.isTermInt(selectionRef)) {
                     return false;
@@ -326,7 +326,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
         if(atPart != null) {
             // Some(AtPart([SelectionRef(i), ...]))
             final IStrategoList list = (IStrategoList) getAtPartSelectionsTerm(atPart);
-            for(IStrategoTerm sel : list) {
+            for(IStrategoTerm sel : list.getSubterms()) {
                 selections.add(Term.asJavaInt(sel));
             }
         }
