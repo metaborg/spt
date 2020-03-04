@@ -182,8 +182,8 @@ public class SPTUtil {
                     result = false;
                     break;
                 }
-                matchIt = matchList.getSubterms().iterator();
-                final Iterator<IStrategoTerm> listIt = list.getSubterms().iterator();
+                matchIt = matchList.iterator();
+                final Iterator<IStrategoTerm> listIt = list.iterator();
                 stop = false;
                 while(matchIt.hasNext()) {
                     if(!checkATermMatch(listIt.next(), matchIt.next(), factory)) {
@@ -214,7 +214,7 @@ public class SPTUtil {
                     result = false;
                     break;
                 }
-                matchIt = matchList.getSubterms().iterator();
+                matchIt = matchList.iterator();
                 stop = false;
                 for(int i = 0; i < ast.getSubtermCount(); i++) {
                     if(!checkATermMatch(ast.getSubterm(i), matchIt.next(), factory)) {
@@ -304,7 +304,7 @@ public class SPTUtil {
     }
 
     private static StringBuilder prettyPrintListOfMatches(IStrategoList matches, String join, StringBuilder b) {
-        Iterator<IStrategoTerm> matchIt = matches.getSubterms().iterator();
+        Iterator<IStrategoTerm> matchIt = matches.iterator();
         for(int i = 0; i < matches.size(); i++) {
             prettyPrintMatch(matchIt.next(), b);
             if(i < matches.size() - 1) {
