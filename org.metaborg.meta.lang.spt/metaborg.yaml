@@ -17,13 +17,15 @@ exports:
   directory: src-gen
 - language: TemplateLang
   directory: syntax
-- language: SDF
+- language: ATerm
   directory: src-gen/syntax
 - language: Stratego-Sugar
   directory: trans
 - language: Stratego-Sugar
   directory: src-gen
 language:
+  sdf:
+    sdf2table: java
   stratego:
     format: ctree
     args:
