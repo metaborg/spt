@@ -125,7 +125,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         final List<Token> tokens = Lists.newArrayList();
         Token eof = null;
         for(IToken itoken : originalTokens) {
-            if(IToken.TK_EOF == itoken.getKind()) {
+            if(IToken.Kind.TK_EOF == itoken.getKind()) {
                 eof = (Token) itoken;
             } else {
                 Token token = (Token) itoken;
