@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoAnnotation;
 import org.spoofax.terms.Term;
+import org.spoofax.terms.util.StringUtils;
 import org.spoofax.terms.util.TermUtils;
 
 public class SPTUtil {
