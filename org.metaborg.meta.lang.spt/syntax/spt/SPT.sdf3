@@ -102,6 +102,12 @@ context-free syntax
   Expectation.Run = <run <STRAT> <OnPart?>>
   Expectation.RunTo = <run <STRAT> <OnPart?> <ToPart>>
   Expectation.RunToAterm = <run <STRAT> <OnPart?> <ToAterm>>
+  Expectation.RunToAtermWithArgs = <run <STRAT>(|<{Arg ","}*> ) <OnPart?> <ToAterm>>
+  
+  // strategy arguments
+  Arg = INT
+  Arg = STRING
+  Arg = SelectionRef
   
   // transformations
   Expectation.Transform = <transform <STRING>>
