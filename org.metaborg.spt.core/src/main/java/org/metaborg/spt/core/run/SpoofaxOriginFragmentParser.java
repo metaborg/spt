@@ -2,7 +2,9 @@ package org.metaborg.spt.core.run;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -102,8 +104,8 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         // adjust the tokens for each piece of the fragment
         // this makes NO assumptions about the order of the startOffsets of the token stream
         // it DOES assume that the pieces of text of the fragment are ordered based on the correct order of text
-        int[] startOffsets = new int[originalTokens.getTokenCount()];
-        int[] endOffsets = new int[originalTokens.getTokenCount()];
+        Map<Token, Integer> startOffsets = new HashMap<>(originalTokens.getTokenCount());
+        Map<Token, Integer> endOffsets = new HashMap<>(originalTokens.getTokenCount());
         int currStartOffsetOfPiece = 0;
         int currEndOffsetOfPiece = 0;
         for(FragmentPiece piece : fragmentPieces) {
@@ -114,8 +116,8 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
                 int startOffset = itoken.getStartOffset();
                 if(startOffset >= currStartOffsetOfPiece && startOffset <= currEndOffsetOfPiece) {
                     Token token = (Token) itoken;
-                    startOffsets[token.getIndex()] = startOffset + adjustment;
-                    endOffsets[token.getIndex()] = token.getEndOffset() + adjustment;
+                    startOffsets.put(token,  startOffset + adjustment);
+                    endOffsets.put(token, token.getEndOffset() + adjustment);
                 }
             }
             currStartOffsetOfPiece += pieceLength;
@@ -129,8 +131,8 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
                 eof = (Token) itoken;
             } else {
                 Token token = (Token) itoken;
-                token.setStartOffset(startOffsets[token.getIndex()]);
-                token.setEndOffset(endOffsets[token.getIndex()]);
+                token.setStartOffset(startOffsets.get(token));
+                token.setEndOffset(endOffsets.get(token));
                 tokens.add(token);
             }
         }
