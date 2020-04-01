@@ -19,19 +19,11 @@ import org.metaborg.mbt.core.model.expectations.MessageUtil;
 import org.metaborg.mbt.core.run.IFragmentParserConfig;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
-import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
-import org.metaborg.spoofax.core.unit.ParseContrib;
+import org.metaborg.spoofax.core.unit.*;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr.client.imploder.Token;
-import org.spoofax.jsglr.client.imploder.Tokenizer;
+import org.spoofax.jsglr.client.imploder.*;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -112,11 +104,11 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
             int pieceLength = piece.text.length();
             currEndOffsetOfPiece = currStartOffsetOfPiece + pieceLength - 1;
             int adjustment = piece.startOffset - currStartOffsetOfPiece;
-            for(IToken itoken : originalTokens) {
+            for(IToken itoken : originalTokens.ambiguousTokens()) {
                 int startOffset = itoken.getStartOffset();
                 if(startOffset >= currStartOffsetOfPiece && startOffset <= currEndOffsetOfPiece) {
                     Token token = (Token) itoken;
-                    startOffsets.put(token,  startOffset + adjustment);
+                    startOffsets.put(token, startOffset + adjustment);
                     endOffsets.put(token, token.getEndOffset() + adjustment);
                 }
             }
@@ -126,13 +118,18 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         // Do post processing to ensure the token stream is ordered by offsets again
         final List<Token> tokens = Lists.newArrayList();
         Token eof = null;
-        for(IToken itoken : originalTokens) {
+        for(IToken itoken : originalTokens.ambiguousTokens()) {
             if(IToken.Kind.TK_EOF == itoken.getKind()) {
                 eof = (Token) itoken;
             } else {
                 Token token = (Token) itoken;
-                token.setStartOffset(startOffsets.get(token));
-                token.setEndOffset(endOffsets.get(token));
+                if(startOffsets.containsKey(token)) {
+                    // Need to get offset before setting a new one, else equals/hashCode gives a different result
+                    int startOffset = startOffsets.get(token);
+                    int endOffset = endOffsets.get(token);
+                    token.setStartOffset(startOffset);
+                    token.setEndOffset(endOffset);
+                }
                 tokens.add(token);
             }
         }
@@ -144,7 +141,8 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
             eof.setEndOffset(lastOffset);
             tokens.add(eof);
 
-            Tokenizer newTokenizer = new Tokenizer(originalTokens.getInput(), originalTokens.getFilename(), null, false);
+            Tokenizer newTokenizer =
+                new Tokenizer(originalTokens.getInput(), originalTokens.getFilename(), null, false);
             for(Token token : tokens) {
                 // NOTE: this will break if run with assertions turned on
                 // but as this entire approach is one big hack, I don't really care at the moment
