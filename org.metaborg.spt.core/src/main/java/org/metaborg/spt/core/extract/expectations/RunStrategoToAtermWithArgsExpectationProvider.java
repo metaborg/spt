@@ -88,7 +88,7 @@ public class RunStrategoToAtermWithArgsExpectationProvider implements ISpoofaxTe
      */
     private boolean checkRunToAterm(IStrategoTerm expectationTerm) {
         // RunToAterm("strategy", optional onPart(int), ToAterm(ast))
-        if(!RUN_TO.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 3) {
+        if(!RUN_TO.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 4) {
             return false;
         }
 
