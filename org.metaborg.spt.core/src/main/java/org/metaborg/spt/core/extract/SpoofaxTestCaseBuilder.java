@@ -18,9 +18,9 @@ import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 
@@ -62,14 +62,14 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 
     @Override public ISpoofaxTestCaseBuilder withTest(IStrategoTerm test) {
         // Expected a Test<n> node
-        if(!Tools.isTermAppl(test) || !SPTUtil.TEST_CONS.equals(SPTUtil.consName(test))) {
+        if(!TermUtils.isAppl(test) || !SPTUtil.TEST_CONS.equals(SPTUtil.consName(test))) {
             throw new IllegalArgumentException("Expected a Test constructor, but got " + test);
         }
 
         // It's a Test(desc, marker, fragment, marker, expectations)
         // record the test's description
-        IStrategoTerm descriptionTerm = Tools.stringAt(test, 0);
-        description = Tools.asJavaString(descriptionTerm);
+        IStrategoTerm descriptionTerm = TermUtils.toStringAt(test, 0);
+        description = TermUtils.toJavaString(descriptionTerm);
         ISourceLocation descriptionLocation = trace.location(descriptionTerm);
         if(descriptionLocation == null) {
             throw new IllegalArgumentException(
@@ -79,7 +79,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 
         // collect the AST nodes for the test expectations
         expectationTerms = new ArrayList<>();
-        for(IStrategoTerm expectation : Tools.listAt(test, 4).getAllSubterms()) {
+        for(IStrategoTerm expectation : TermUtils.toListAt(test, 4).getAllSubterms()) {
             // if(trace.location(expectation) == null) {
             // logger.warn("No origin information on test expectation {}", expectation);
             // }

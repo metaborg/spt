@@ -19,6 +19,7 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * A builder for IFragments from the AST nodes of a Spoofax SPT test suite specification.
@@ -96,7 +97,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
              * this visit.
              */
             @Override public void preVisit(IStrategoTerm term) {
-                if(Tools.isTermAppl(term)) {
+                if(TermUtils.isAppl(term)) {
                     ISourceLocation loc = null;
                     String consName = SPTUtil.consName(term);
                     switch(consName) {
