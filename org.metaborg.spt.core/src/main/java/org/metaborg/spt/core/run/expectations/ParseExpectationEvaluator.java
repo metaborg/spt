@@ -111,7 +111,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
                         expectation.outputLanguage() == null ? input.getLanguageUnderTest().belongsTo()
                             : fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test);
                     if(outputLang != null && !TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),
-                        termFactoryService.get(outputLang.activeImpl(), test.getProject(), false))) {
+                        termFactoryService.get(outputLang.activeImpl(), test.getProject()))) {
                         // TODO: add a nice diff of the two parse results or something
                         String message = String.format(
                             "The expected parse result did not match the actual parse result.\nParse result was: %1$s\nExpected result was: %2$s",

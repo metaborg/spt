@@ -148,7 +148,7 @@ public class RunStrategoToAtermExpectationEvaluator
                 // the strategy was successfull
                 // compare the ASTs
                 if(SPTUtil.checkATermMatch(result, expectation.expectedResult(),
-                    termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
+                    termFactoryService.get(input.getLanguageUnderTest(), test.getProject()))) {
                     success = true;
                 } else {
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
