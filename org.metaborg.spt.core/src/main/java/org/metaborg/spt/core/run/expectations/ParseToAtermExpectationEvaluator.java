@@ -78,7 +78,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         String latestMessage = "The fragment was empty.";
         for(IStrategoTerm term : terms) {
             if(SPTUtil.checkATermMatch(term, expectation.expectedResult(),
-                termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
+                termFactoryService.get(input.getLanguageUnderTest(), test.getProject()))) {
                 success = true;
                 break;
             } else {

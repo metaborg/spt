@@ -171,7 +171,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                         toLang = fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl();
                     }
                     if(analyzedFragment != null && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(), result,
-                        termFactoryService.get(toLang, test.getProject(), false))) {
+                        termFactoryService.get(toLang, test.getProject()))) {
                         success = true;
                     } else {
                         lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
