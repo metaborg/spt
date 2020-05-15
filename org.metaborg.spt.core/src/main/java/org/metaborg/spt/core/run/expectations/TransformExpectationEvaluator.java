@@ -143,7 +143,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
                     if(out != null) {
                         // check the equality
                         if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
-                            termFactoryService.get(lut, test.getProject()))) {
+                            termFactoryService.getGeneric())) {
                             success = true;
                         } else {
                             messages

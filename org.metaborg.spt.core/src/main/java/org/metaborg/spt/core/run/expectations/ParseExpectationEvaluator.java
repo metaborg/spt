@@ -107,11 +107,8 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
                         "Expected the output fragment to parse succesfully", null));
                     success = false;
                 } else {
-                    ILanguage outputLang =
-                        expectation.outputLanguage() == null ? input.getLanguageUnderTest().belongsTo()
-                            : fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test);
-                    if(outputLang != null && !TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),
-                        termFactoryService.get(outputLang.activeImpl(), test.getProject()))) {
+                    if(!TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),
+                        termFactoryService.getGeneric())) {
                         // TODO: add a nice diff of the two parse results or something
                         String message = String.format(
                             "The expected parse result did not match the actual parse result.\nParse result was: %1$s\nExpected result was: %2$s",
