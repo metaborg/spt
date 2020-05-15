@@ -164,14 +164,8 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                             expectation.outputLanguage(), messages, test, input.getFragmentParserConfig());
                     }
                     // compare the ASTs
-                    final ILanguageImpl toLang;
-                    if(expectation.outputLanguage() == null) {
-                        toLang = input.getLanguageUnderTest();
-                    } else {
-                        toLang = fragmentUtil.getLanguage(expectation.outputLanguage(), messages, test).activeImpl();
-                    }
                     if(analyzedFragment != null && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(), result,
-                        termFactoryService.get(toLang, test.getProject()))) {
+                        termFactoryService.getGeneric())) {
                         success = true;
                     } else {
                         lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
