@@ -17,7 +17,6 @@ import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.action.ActionFacet;
-import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -31,6 +30,7 @@ import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -47,13 +47,13 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
 
     private final ISpoofaxTransformService transformService;
     private final IContextService contextService;
-    private final ITermFactoryService termFactoryService;
+    private final ITermFactory termFactory;
 
     @Inject public TransformToAtermExpectationEvaluator(ISpoofaxTransformService transformService,
-        IContextService contextService, ITermFactoryService termFactoryService) {
+        IContextService contextService, ITermFactory termFactory) {
         this.transformService = transformService;
         this.contextService = contextService;
-        this.termFactoryService = termFactoryService;
+        this.termFactory = termFactory;
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, TransformToAtermExpectation expectation) {
@@ -118,7 +118,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
                 // do stuff to the output fragment
                 final IStrategoTerm out = expectation.expectedResult();
                 // check the equality
-                if(SPTUtil.checkATermMatch(result, out, termFactoryService.getGeneric())) {
+                if(SPTUtil.checkATermMatch(result, out, termFactory)) {
                     success = true;
                 } else {
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

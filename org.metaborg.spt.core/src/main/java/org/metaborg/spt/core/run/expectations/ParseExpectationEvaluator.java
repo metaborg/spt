@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.metaborg.core.language.ILanguage;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
@@ -14,7 +13,6 @@ import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.model.expectations.MessageUtil;
 import org.metaborg.mbt.core.model.expectations.ParseExpectation;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
-import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.run.FragmentUtil;
@@ -25,6 +23,7 @@ import org.metaborg.spt.core.run.SpoofaxFragmentResult;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
@@ -35,11 +34,11 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
     private static final ILogger logger = LoggerUtils.logger(ParseExpectationEvaluator.class);
 
     private final FragmentUtil fragmentUtil;
-    private final ITermFactoryService termFactoryService;
+    private final ITermFactory termFactory;
 
-    @Inject public ParseExpectationEvaluator(FragmentUtil fragmentUtil, ITermFactoryService termFactoryService) {
+    @Inject public ParseExpectationEvaluator(FragmentUtil fragmentUtil, ITermFactory termFactory) {
         this.fragmentUtil = fragmentUtil;
-        this.termFactoryService = termFactoryService;
+        this.termFactory = termFactory;
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, ParseExpectation expectation) {
@@ -108,7 +107,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
                     success = false;
                 } else {
                     if(!TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),
-                        termFactoryService.getGeneric())) {
+                        termFactory)) {
                         // TODO: add a nice diff of the two parse results or something
                         String message = String.format(
                             "The expected parse result did not match the actual parse result.\nParse result was: %1$s\nExpected result was: %2$s",
