@@ -22,7 +22,6 @@ import org.metaborg.mbt.core.model.expectations.RunStrategoExpectation;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -35,6 +34,7 @@ import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
@@ -46,18 +46,18 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
     private final IContextService contextService;
     private final ISpoofaxTracingService traceService;
     private final ISpoofaxAnalysisService analysisService;
-    private final ITermFactoryService termFactoryService;
+    private final ITermFactory termFactory;
     private final FragmentUtil fragmentUtil;
     private final IStrategoCommon stratego;
 
 
     @Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
-        ISpoofaxAnalysisService analysisService, ITermFactoryService termFactoryService, FragmentUtil fragmentUtil,
+        ISpoofaxAnalysisService analysisService, ITermFactory termFactory, FragmentUtil fragmentUtil,
         IStrategoCommon stratego) {
         this.contextService = contextService;
         this.traceService = traceService;
         this.analysisService = analysisService;
-        this.termFactoryService = termFactoryService;
+        this.termFactory = termFactory;
         this.fragmentUtil = fragmentUtil;
         this.stratego = stratego;
     }
@@ -165,7 +165,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     }
                     // compare the ASTs
                     if(analyzedFragment != null && TermEqualityUtil.equalsIgnoreAnnos(analyzedFragment.ast(), result,
-                        termFactoryService.getGeneric())) {
+                        termFactory)) {
                         success = true;
                     } else {
                         lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

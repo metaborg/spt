@@ -12,7 +12,6 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
-import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -26,6 +25,7 @@ import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -37,12 +37,12 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
 
     private static final ILogger logger = LoggerUtils.logger(ParseToAtermExpectationEvaluator.class);
 
-    private final ITermFactoryService termFactoryService;
+    private final ITermFactory termFactory;
     private final ISpoofaxTracingService traceService;
 
-    @Inject public ParseToAtermExpectationEvaluator(ITermFactoryService termFactoryService,
+    @Inject public ParseToAtermExpectationEvaluator(ITermFactory termFactory,
         ISpoofaxTracingService traceService) {
-        this.termFactoryService = termFactoryService;
+        this.termFactory = termFactory;
         this.traceService = traceService;
     }
 
@@ -78,7 +78,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         String latestMessage = "The fragment was empty.";
         for(IStrategoTerm term : terms) {
             if(SPTUtil.checkATermMatch(term, expectation.expectedResult(),
-                termFactoryService.getGeneric())) {
+                termFactory)) {
                 success = true;
                 break;
             } else {
