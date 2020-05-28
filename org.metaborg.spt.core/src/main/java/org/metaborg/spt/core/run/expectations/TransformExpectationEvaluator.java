@@ -24,7 +24,6 @@ import org.metaborg.mbt.core.model.expectations.TransformExpectation;
 import org.metaborg.mbt.core.run.IFragmentParserConfig;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.action.ActionFacet;
-import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -38,6 +37,7 @@ import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
@@ -55,15 +55,15 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     private final ISpoofaxTransformService transformService;
     private final IContextService contextService;
-    private final ITermFactoryService termFactoryService;
+    private final ITermFactory termFactory;
 
     private final FragmentUtil fragmentUtil;
 
     @Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
-        IContextService contextService, ITermFactoryService termFactoryService, FragmentUtil fragmentUtil) {
+        IContextService contextService, ITermFactory termFactory, FragmentUtil fragmentUtil) {
         this.transformService = transformService;
         this.contextService = contextService;
-        this.termFactoryService = termFactoryService;
+        this.termFactory = termFactory;
 
         this.fragmentUtil = fragmentUtil;
     }
@@ -143,7 +143,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
                     if(out != null) {
                         // check the equality
                         if(TermEqualityUtil.equalsIgnoreAnnos(result, out,
-                            termFactoryService.get(lut, test.getProject(), false))) {
+                            termFactory)) {
                             success = true;
                         } else {
                             messages
