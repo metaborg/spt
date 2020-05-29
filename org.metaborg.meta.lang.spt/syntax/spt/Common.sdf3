@@ -6,8 +6,8 @@ lexical syntax
   MODULE-ID      = [a-zA-Z] [a-zA-Z0-9\-\_]*
   MODULE-PATH    = {MODULE-ID "/"}+
   LANG           = [a-zA-Z] [a-zA-Z0-9\-\_]*
-  SORT           = [a-zA-Z] [a-zA-Z0-9\-]*
-  STRAT          = [a-zA-Z] [a-zA-Z0-9\-\']*
+  SORT           = [a-zA-Z] [a-zA-Z0-9\-\_]*
+  STRAT          = [a-zA-Z] [a-zA-Z0-9\-\_\']*
   INT            = "-"? [0-9]+ 
   STRING         = "\"" StringChar* "\"" 
   StringChar     = ~[\"\n] 
