@@ -1,0 +1,23 @@
+  module run-input
+  language MiniSQL
+
+  fixture [[
+    CREATE TABLE T(
+      j int,
+      [[...]]
+    );
+  ]]
+
+
+
+  test run only on fragment (positive) [[
+    i int
+  ]] run is-coldef
+
+
+  test run with args on fragment (positive) [[
+    i int
+  ]] run is-coldef(|1) to [[
+  	i int
+  ]]
+

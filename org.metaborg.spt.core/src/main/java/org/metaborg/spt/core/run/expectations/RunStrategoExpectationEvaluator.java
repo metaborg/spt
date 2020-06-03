@@ -128,7 +128,8 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         if(terms.isEmpty()) {
             return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
-
+        
+        List<IStrategoTerm> arguments = expectation.getArguments();
         // run the strategy until we are done
         boolean success = false;
         IMessage lastMessage = null;
@@ -137,9 +138,20 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
             // reset the last message
             lastMessage = null;
             try {
-                final IStrategoTerm result =
-                    context == null ? stratego.invoke(input.getLanguageUnderTest(), test.getResource(), term, strategy)
-                        : stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term, strategy);
+                final IStrategoTerm result; 
+                    if (context == null) {
+                    	if (arguments == null) {
+                    		result = stratego.invoke(input.getLanguageUnderTest(), test.getResource(), term, strategy);
+                    	} else {
+                    		result = stratego.invoke(input.getLanguageUnderTest(), test.getResource(), term, strategy, arguments);
+                    	}
+                    } else {
+                    	if (arguments == null) {
+                    		result = stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term, strategy);
+                    	} else {
+                    		result = stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term, strategy, arguments);
+                    	}
+                    }
                 // if the strategy failed, try the next input term
                 if(result == null) {
                     lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),

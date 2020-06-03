@@ -120,7 +120,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
                 }
             }
             if(!found) {
-                logger.warn("Unable to find a provider for {}", expectationTerm);
+                logger.warn("POOP Unable to find a provider for {}", expectationTerm);
                 // TODO: for now we add this specific expectation if we couldn't find a proper one.
                 // We might want to have a way to make it less dirty.
                 // The main reason for this is that the builder can't give back any messages, so we rely on someone

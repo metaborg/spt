@@ -1,9 +1,12 @@
 package org.metaborg.mbt.core.model.expectations;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * An expectation for running Stratego strategies.
@@ -17,20 +20,22 @@ public class RunStrategoExpectation extends AToPartExpectation {
     private final ISourceRegion stratRegion;
     @Nullable private final Integer selection;
     @Nullable private final ISourceRegion selectionRegion;
+    @Nullable private final List<IStrategoTerm> termArguments;
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
         @Nullable Integer selection, @Nullable ISourceRegion selectionRegion) {
-        this(region, stratName, stratRegion, selection, selectionRegion, null, null, null);
+        this(region, stratName, stratRegion, selection, selectionRegion, null, null, null, null);
     }
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
         @Nullable Integer selection, @Nullable ISourceRegion selectionRegion, IFragment outputFragment,
-        @Nullable String langName, @Nullable ISourceRegion langRegion) {
+        @Nullable String langName, @Nullable ISourceRegion langRegion, List<IStrategoTerm> termArguments) {
         super(region, outputFragment, langName, langRegion);
         this.strategy = stratName;
         this.stratRegion = stratRegion;
         this.selection = selection;
         this.selectionRegion = selectionRegion;
+        this.termArguments = termArguments;
     }
 
     /**
@@ -66,4 +71,13 @@ public class RunStrategoExpectation extends AToPartExpectation {
     public @Nullable ISourceRegion selectionRegion() {
         return selectionRegion;
     }
+    
+	/**
+	 * The term arguments the strategy is called with
+	 * 
+	 * Maybe null if the strategy doesn't take any term arguments
+	 */
+	public @Nullable List<IStrategoTerm> getArguments() {
+		return termArguments;
+	}
 }

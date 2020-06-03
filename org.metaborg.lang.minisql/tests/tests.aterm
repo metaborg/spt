@@ -1,0 +1,19 @@
+TestSuite(
+  [Name("run-input"), Language("MiniSQL")]
+, Some(Fixture2("[[", "\n    CREATE TABLE T(\n      j int,\n      ", "[[", "]]", "\n    );\n  ", "]]"))
+, [ Test2(
+      "run only on fragment (positive) "
+    , "[["
+    , Fragment("\n    i int\n  ", Done())
+    , "]]"
+    , [Run("is-coldef", None())]
+    )
+  , Test2(
+      "run with args on fragment (positive) "
+    , "[["
+    , Fragment("\n    i int\n  ", Done())
+    , "]]"
+    , [Run("example", None())]
+    )
+  ]
+)

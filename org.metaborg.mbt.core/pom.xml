@@ -19,6 +19,12 @@
       <artifactId>org.metaborg.core</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.metaborg.spoofax.core</artifactId>
+      <version>${metaborg-version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

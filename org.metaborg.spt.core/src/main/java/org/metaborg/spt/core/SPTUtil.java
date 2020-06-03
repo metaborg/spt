@@ -53,6 +53,7 @@ public class SPTUtil {
      * @return true iff the term is a Some with 1 child or a None().
      */
     public static boolean checkOption(IStrategoTerm term) {
+    	logger.warn("term: " + term);
         switch(consName(term)) {
             case SOME_CONS:
                 return term.getSubtermCount() == 1;

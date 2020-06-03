@@ -21,6 +21,15 @@ test run only on fragment (positive) [[[
   ]] run is-coldef
 ]]] analysis succeeds
 
+test run only on fragment (positive) [[[
+  test run only on fragment (positive) [[
+    i int
+  ]] run is-coldef(|1) to [[
+  	i int
+  ]]
+]]] analysis succeeds
+
+
 test run to only on fragment (positive) [[[
   test run to only on fragment (positive) [[
     i int
