@@ -182,7 +182,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
             }
         }
         return unitService.parseUnit(input,
-            new ParseContrib(p.valid(), p.success(), p.ast(), changedMessages, p.duration()));
+            new ParseContrib(p.valid(), p.success(), p.isAmbiguous(), p.ast(), changedMessages, p.duration()));
     }
 
     @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, ILanguageImpl dialect,
