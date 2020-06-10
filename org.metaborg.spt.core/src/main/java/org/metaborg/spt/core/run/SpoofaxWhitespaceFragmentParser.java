@@ -13,6 +13,8 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
 import com.google.inject.Inject;
 
+import javax.annotation.Nullable;
+
 /**
  * Use this parser to parse fragments with Spoofax languages.
  * 
@@ -29,8 +31,8 @@ public class SpoofaxWhitespaceFragmentParser extends WhitespaceFragmentParser<IS
         this.inputService = inputService;
     }
 
-    @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, ILanguageImpl dialect,
-        IFragmentParserConfig config) throws ParseException {
+    @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, @Nullable ILanguageImpl dialect,
+                                             @Nullable IFragmentParserConfig config) throws ParseException {
         if(!(config instanceof ISpoofaxFragmentParserConfig)) {
             return super.parse(fragment, language, dialect, config);
         } else {
@@ -38,10 +40,10 @@ public class SpoofaxWhitespaceFragmentParser extends WhitespaceFragmentParser<IS
         }
     }
 
-    @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, ILanguageImpl dialect,
-        ISpoofaxFragmentParserConfig config) throws ParseException {
+    @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, @Nullable ILanguageImpl dialect,
+                                             @Nullable ISpoofaxFragmentParserConfig config) throws ParseException {
         JSGLRParserConfiguration parseConfig = config == null ? null : config.getParserConfigForLanguage(language);
-        if(parseConfig == null) {
+        if (parseConfig == null) {
             return super.parse(fragment, language, dialect, config);
         } else {
             String text = super.getWhitespacedFragmentText(fragment);
