@@ -161,7 +161,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             }
         } catch(TransformException e) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(), String.format(
-                "An exception occured while trying to transform %s: %s", expectation.goal(), e.getMessage()), e));
+                "An exception occurred while trying to transform %s: %s", expectation.goal(), e.getMessage()), e));
         }
 
         if(tempCtx != null) {

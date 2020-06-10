@@ -55,7 +55,7 @@ public interface IFragmentBuilder<F, TF> {
     /**
      * Create the actual fragment.
      * 
-     * We expect at least one call to withFragmet prior to calling this method.
+     * We expect at least one call to withFragment prior to calling this method.
      */
     public IFragment build();
 }

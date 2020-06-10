@@ -35,7 +35,7 @@ public interface ITestExpectationEvaluator<P extends IParseUnit, A extends IAnal
      * 
      * It is used to determine what we should do with the input fragment (e.g., parse or analyze it).
      * 
-     * @param languageUnderTest
+     * @param language
      *            the context of the language under test for which you want to evaluate this expectation.
      */
     public TestPhase getPhase(ILanguageImpl language, E expectation);

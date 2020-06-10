@@ -145,7 +145,7 @@ public class RunStrategoToAtermExpectationEvaluator
                         null);
                     continue;
                 }
-                // the strategy was successfull
+                // the strategy was successful
                 // compare the ASTs
                 if(SPTUtil.checkATermMatch(result, expectation.expectedResult(),
                     termFactory)) {

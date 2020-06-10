@@ -101,7 +101,7 @@ public class FragmentUtil {
     }
 
     /**
-     * Check if the given term is a proper Framgent term.
+     * Check if the given term is a proper Fragment term.
      * 
      * @param fragment
      *            the term to check.
@@ -311,7 +311,7 @@ public class FragmentUtil {
      * 
      * @param fragment
      *            the fragment to parse.
-     * @param langName
+     * @param lang
      *            the language to analyze it with.
      * @param messages
      *            where we collect messages.

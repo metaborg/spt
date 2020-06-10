@@ -44,7 +44,7 @@ public interface ITestCaseBuilder<T, TF> {
     /**
      * Use this test for the test case creation.
      * 
-     * Consecutive calls of this method will simply override eachother.
+     * Consecutive calls of this method will simply override each other.
      * 
      * @param test
      *            the SPT AST term of the test case.

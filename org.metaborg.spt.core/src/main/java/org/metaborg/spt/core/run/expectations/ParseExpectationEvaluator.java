@@ -103,7 +103,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
                 // compare the results and set the success boolean
                 if(parsedFragment == null) {
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                        "Expected the output fragment to parse succesfully", null));
+                        "Expected the output fragment to parse successfully", null));
                     success = false;
                 } else {
                     if(!TermEqualityUtil.equalsIgnoreAnnos(p.ast(), parsedFragment.ast(),

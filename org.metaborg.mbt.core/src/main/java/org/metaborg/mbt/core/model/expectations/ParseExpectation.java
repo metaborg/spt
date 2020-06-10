@@ -6,7 +6,9 @@ import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 
 /**
- * A generic expectation for:
+ * A generic expectation.
+ *
+ * This is used for:
  * 
  * <ul>
  * <li>parse succeeds</li>
@@ -19,14 +21,14 @@ public class ParseExpectation extends AToPartExpectation {
     private final boolean successExpected;
 
 
-    public ParseExpectation(ISourceRegion region, boolean sucessExpected) {
-        this(region, sucessExpected, null, null, null);
+    public ParseExpectation(ISourceRegion region, boolean successExpected) {
+        this(region, successExpected, null, null, null);
     }
 
-    public ParseExpectation(ISourceRegion region, boolean sucessExpected, @Nullable IFragment expectedResult,
+    public ParseExpectation(ISourceRegion region, boolean successExpected, @Nullable IFragment expectedResult,
         @Nullable String expectedResultLanguage, @Nullable ISourceRegion languageRegion) {
         super(region, expectedResult, expectedResultLanguage, languageRegion);
-        this.successExpected = sucessExpected;
+        this.successExpected = successExpected;
     }
 
     /**
