@@ -18,11 +18,11 @@ syntax
   Fragment2-CF.Fragment = StringPart2-CF TailPart2-CF
   Fragment3-CF.Fragment = StringPart3-CF TailPart3-CF
   Fragment4-CF.Fragment = StringPart4-CF TailPart4-CF
-  
+
   TailPart2-CF.More = Selection2-CF StringPart2-CF TailPart2-CF
   TailPart3-CF.More = Selection3-CF StringPart3-CF TailPart3-CF
   TailPart4-CF.More = Selection4-CF StringPart4-CF TailPart4-CF
-  
+
   Selection2-CF.Selection = OpenBracket2-CF StringPart2-CF CloseBracket2-CF
   Selection3-CF.Selection = OpenBracket3-CF StringPart3-CF CloseBracket3-CF
   Selection4-CF.Selection = OpenBracket4-CF StringPart4-CF CloseBracket4-CF
@@ -50,7 +50,7 @@ context-free syntax
   CloseMarker2 = CloseBracket2
   CloseMarker3 = CloseBracket3
   CloseMarker4 = CloseBracket4
-  
+
   // Expectations
   Expectations = <<{Expectation "\n"}*>>
 
@@ -72,13 +72,13 @@ context-free syntax
   >
   // to ATerm:
   ToAterm.ToAterm = <to <ATerm>>
-  
-  // parse expectations 
+
+  // parse expectations
   Expectation.ParseSucceeds = <parse succeeds>
   Expectation.ParseFails = <parse fails>
   Expectation.ParseTo = <parse <ToPart>>
   Expectation.ParseToAterm = <parse <ToAterm>>
-  
+
   // analysis expectations
   SelectionRef.SelectionRef = <#<INT>>
   AtPart.AtPart = <at <{SelectionRef ", "}+>>
@@ -88,21 +88,21 @@ context-free syntax
   Expectation.AnalyzeSucceeds = <analysis succeeds>
   // desugared to > 0 errors
   Expectation.AnalyzeFails = <analysis fails>
-  
-  
+
+
   // reference resolution expectations
   Expectation.Resolve = <resolve #<INT>>
   Expectation.ResolveTo = <resolve #<INT> to #<INT>>
 
   // origin expectations
   Expectation.HasOrigin = <has origin locations>
-  
+
   // running stratego strategies expectations
   OnPart.OnPart = <on #<INT>>
   Expectation.Run = <run <STRAT> <OnPart?>>
   Expectation.RunTo = <run <STRAT> <OnPart?> <ToPart>>
   Expectation.RunToAterm = <run <STRAT> <OnPart?> <ToAterm>>
-  
+
   // transformations
   Expectation.Transform = <transform <STRING>>
   Expectation.Transform = <transform <STRING> <ToPart>>
@@ -122,10 +122,10 @@ lexical syntax
   MessageOp.More = ">"
   MessageOp.MoreOrEqual = ">="
 
-  // NOTE: everything until the opening marker or newline is the description 
+  // NOTE: everything until the opening marker or newline is the description
   // update this when a new type of opening marker is introduced
   Description = (~[\n\r\[])+
-  
+
   OpenBracket1 = "["
   OpenBracket2 = "[["
   OpenBracket3 = "[[["
@@ -134,21 +134,21 @@ lexical syntax
   CloseBracket2 = "]]"
   CloseBracket3 = "]]]"
   CloseBracket4 = "]]]]"
-  
+
   // everything that isn't a [[ or ]] (or more brackets) will be a stringpart2
   // update these when a new type of opening or closing marker is introduced
   StringPart2 = (~[\[\]] | OpenBracket1 | CloseBracket1)*
   StringPart3 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2)*
   StringPart4 = (~[\[] | OpenBracket1 | CloseBracket1 | OpenBracket2 | CloseBracket2 | OpenBracket3 | CloseBracket3)*
-  
-lexical restrictions  
+
+lexical restrictions
   MessageOp -/- [\=]
   Severity -/- [a-z]
 
   // NOTE: everything until the opening marker or newline is the description
   // update this when a new opening marker is introduced
   Description -/- [\ \t]
-  
+
   // update these when a new opening or closing marker is introduced
   OpenBracket1 -/- [\[]
   OpenBracket2 -/- [\[]
@@ -158,12 +158,12 @@ lexical restrictions
   CloseBracket2 -/- [\]]
   CloseBracket3 -/- [\]]
   CloseBracket4 -/- [\]]
-  
+
   // NOTE: everything until the marker is part of the StringPart of a fragment
   // update these when a new opening or closing marker is introduced
   // TODO: shouldn't be required anymore
   StringPart2 -/- ~[\[\]]
   StringPart3 -/- ~[\[\]]
   StringPart4 -/- ~[\[\]]
-  
-  
+
+
