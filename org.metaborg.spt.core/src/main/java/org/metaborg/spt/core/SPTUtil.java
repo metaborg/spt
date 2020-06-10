@@ -11,7 +11,6 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoAnnotation;
-import org.spoofax.terms.Term;
 import org.spoofax.terms.util.StringUtils;
 import org.spoofax.terms.util.TermUtils;
 
@@ -37,7 +36,7 @@ public class SPTUtil {
      * 
      * @return the constructor name, or null if this term has no constructor.
      */
-    public static String consName(IStrategoTerm term) {
+    @Nullable public static String consName(IStrategoTerm term) {
         if(TermUtils.isAppl(term)) {
             return ((IStrategoAppl) term).getConstructor().getName();
         } else {
@@ -305,7 +304,7 @@ public class SPTUtil {
         }
     }
 
-    private static StringBuilder prettyPrintListOfMatches(IStrategoList matches, String join, StringBuilder b) {
+    private static void prettyPrintListOfMatches(IStrategoList matches, String join, StringBuilder b) {
         Iterator<IStrategoTerm> matchIt = matches.iterator();
         for(int i = 0; i < matches.size(); i++) {
             prettyPrintMatch(matchIt.next(), b);
@@ -313,6 +312,5 @@ public class SPTUtil {
                 b.append(join);
             }
         }
-        return b;
     }
 }

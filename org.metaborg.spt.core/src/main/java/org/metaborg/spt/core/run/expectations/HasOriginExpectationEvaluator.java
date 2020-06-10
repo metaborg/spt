@@ -1,8 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
@@ -22,12 +21,12 @@ import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
+import org.spoofax.terms.util.TermUtils;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Check all terms (except lists) in the analyzed AST to see if there are any terms without a location.

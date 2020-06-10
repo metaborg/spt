@@ -7,6 +7,6 @@ import com.google.inject.Module;
 
 public class SpoofaxExtensionModulePlugin implements IServiceModulePlugin {
     @Override public Iterable<Module> modules() {
-        return Iterables2.<Module>from(new SpoofaxExtensionModule());
+        return Iterables2.from(new SpoofaxExtensionModule());
     }
 }

@@ -1,9 +1,6 @@
 package org.metaborg.spt.core.run;
 
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-
+import com.google.inject.Inject;
 import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContextService;
@@ -26,10 +23,10 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
-
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
 
 /**
  * A Spoofax specific utility class with some methods to deal with fragments in test expectations.
@@ -132,7 +129,7 @@ public class FragmentUtil {
      */
     public static boolean checkTailPart(IStrategoTerm tailPart) {
         // Done or More(Selection(open_bracket, <String>, close_bracket), <String>, TailPart)
-        final String cons = SPTUtil.consName(tailPart);
+        @Nullable final String cons = SPTUtil.consName(tailPart);
         switch(cons) {
             case SPTUtil.TAILPART_DONE_CONS:
                 // Done()

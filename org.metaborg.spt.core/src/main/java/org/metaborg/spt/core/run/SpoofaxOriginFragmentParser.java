@@ -134,15 +134,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
                 tokens.add(token);
             }
         }
-        Collections.sort(tokens, new Comparator<IToken>() {
-            @Override public int compare(IToken o1, IToken o2) {
-                int r = o1.getStartOffset() - o2.getStartOffset();
-                if(r == 0) {
-                    r = o1.getEndOffset() - o2.getEndOffset();
-                }
-                return r;
-            }
-        });
+        Collections.sort(tokens, Comparator.comparingInt(IToken::getStartOffset).thenComparingInt(IToken::getEndOffset));
         // Only post process tokens when there are tokens, and when there is an end-of-file token.
         if(!tokens.isEmpty() && eof != null) {
             int lastOffset = tokens.get(tokens.size() - 1).getEndOffset();
@@ -195,7 +187,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
 
     @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, ILanguageImpl dialect,
         IFragmentParserConfig config) throws ParseException {
-        if(config == null || !(config instanceof ISpoofaxFragmentParserConfig)) {
+        if(!(config instanceof ISpoofaxFragmentParserConfig)) {
             return parse(fragment, language, dialect, (ISpoofaxFragmentParserConfig) null);
         } else {
             return parse(fragment, language, dialect, (ISpoofaxFragmentParserConfig) config);

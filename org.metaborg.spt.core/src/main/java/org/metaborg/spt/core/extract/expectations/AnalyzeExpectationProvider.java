@@ -1,9 +1,7 @@
 package org.metaborg.spt.core.extract.expectations;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
@@ -18,11 +16,10 @@ import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 
 public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvider {
@@ -52,7 +49,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
     }
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        final String cons = SPTUtil.consName(expectationTerm);
+        @Nullable final String cons = SPTUtil.consName(expectationTerm);
         switch(cons) {
             case CONS:
                 // this is a check for the number of messages of a given severity
@@ -67,7 +64,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
         logger.debug("Creating an expectation object for {}", expectationTerm);
-        final String cons = SPTUtil.consName(expectationTerm);
+        @Nullable final String cons = SPTUtil.consName(expectationTerm);
         switch(cons) {
             case CONS:
                 return getNumCheckExpectation(inputFragment, expectationTerm);
@@ -121,7 +118,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             opt = Operation.EQUAL;
         } else {
             // it was a Some(optTerm)
-            final String optStr = SPTUtil.consName(optTerm);
+            @Nullable final String optStr = SPTUtil.consName(optTerm);
             switch(optStr) {
                 case EQ:
                     opt = Operation.EQUAL;

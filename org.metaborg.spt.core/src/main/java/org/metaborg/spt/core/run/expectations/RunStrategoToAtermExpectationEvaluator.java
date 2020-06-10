@@ -62,7 +62,7 @@ public class RunStrategoToAtermExpectationEvaluator
 
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoToAtermExpectation expectation) {
-        return expectation.selection() == null ? Lists.<Integer>newArrayList()
+        return expectation.selection() == null ? Lists.newArrayList()
             : Lists.newArrayList(expectation.selection());
     }
 

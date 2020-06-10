@@ -1,9 +1,6 @@
 package org.metaborg.spt.core.extract;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.project.IProject;
@@ -79,12 +76,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
 
         // collect the AST nodes for the test expectations
         expectationTerms = new ArrayList<>();
-        for(IStrategoTerm expectation : TermUtils.toListAt(test, 4).getAllSubterms()) {
-            // if(trace.location(expectation) == null) {
-            // logger.warn("No origin information on test expectation {}", expectation);
-            // }
-        	expectationTerms.add(expectation);
-        }
+        expectationTerms.addAll(Arrays.asList(TermUtils.toListAt(test, 4).getAllSubterms()));
 
         // setup the fragment builder
         IStrategoTerm fragmentTerm = test.getSubterm(2);

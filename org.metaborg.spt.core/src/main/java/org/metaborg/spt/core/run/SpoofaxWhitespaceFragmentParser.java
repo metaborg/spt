@@ -31,7 +31,7 @@ public class SpoofaxWhitespaceFragmentParser extends WhitespaceFragmentParser<IS
 
     @Override public ISpoofaxParseUnit parse(IFragment fragment, ILanguageImpl language, ILanguageImpl dialect,
         IFragmentParserConfig config) throws ParseException {
-        if(config == null || !(config instanceof ISpoofaxFragmentParserConfig)) {
+        if(!(config instanceof ISpoofaxFragmentParserConfig)) {
             return super.parse(fragment, language, dialect, config);
         } else {
             return parse(fragment, language, dialect, (ISpoofaxFragmentParserConfig) config);

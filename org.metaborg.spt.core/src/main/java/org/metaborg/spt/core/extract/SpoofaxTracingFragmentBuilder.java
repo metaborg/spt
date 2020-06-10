@@ -13,9 +13,7 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.IFragment.FragmentPiece;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
 import com.google.inject.Inject;

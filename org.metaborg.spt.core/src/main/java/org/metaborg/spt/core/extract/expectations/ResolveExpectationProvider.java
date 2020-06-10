@@ -9,9 +9,9 @@ import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * Runs the ISpoofaxResolverService at the start offset of a selection to see if it resolved properly.

@@ -64,7 +64,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
 
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoExpectation expectation) {
-        return expectation.selection() == null ? Lists.<Integer>newArrayList()
+        return expectation.selection() == null ? Lists.newArrayList()
             : Lists.newArrayList(expectation.selection());
     }
 

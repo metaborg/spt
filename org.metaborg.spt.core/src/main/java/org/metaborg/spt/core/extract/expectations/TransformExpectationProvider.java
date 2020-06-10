@@ -16,7 +16,6 @@ import org.metaborg.spt.core.extract.ISpoofaxFragmentBuilder;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;

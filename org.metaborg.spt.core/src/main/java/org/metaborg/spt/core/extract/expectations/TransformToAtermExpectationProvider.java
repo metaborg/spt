@@ -14,7 +14,6 @@ import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.TransformToAtermExpectation;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
 
 import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;

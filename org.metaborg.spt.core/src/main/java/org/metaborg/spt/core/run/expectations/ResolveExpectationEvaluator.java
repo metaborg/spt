@@ -146,10 +146,10 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
                     final String msg;
                     if(targetRegion.startOffset() != selection.startOffset()
                         || targetRegion.endOffset() != selection.endOffset()) {
-                        msg = new StringBuilder().append("Resolved to region (").append(targetRegion.startOffset())
-                            .append(", ").append(targetRegion.endOffset()).append(") instead of selection #")
-                            .append(num2 + 1).append(" at region (").append(selection.startOffset()).append(", ")
-                            .append(selection.endOffset()).append(")").toString();
+                        msg = "Resolved to region (" + targetRegion.startOffset() +
+                                ", " + targetRegion.endOffset() + ") instead of selection #" +
+                                (num2 + 1) + " at region (" + selection.startOffset() + ", " +
+                                selection.endOffset() + ")";
                     } else if(target.resource() == null) {
                         msg = "Resolved to a location in an unknown file.";
                     } else {
