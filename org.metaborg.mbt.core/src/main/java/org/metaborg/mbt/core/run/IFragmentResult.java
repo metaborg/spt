@@ -18,24 +18,24 @@ public interface IFragmentResult<P extends IParseUnit, A extends IAnalyzeUnit> {
     /**
      * The fragment on which the actions were performed.
      */
-    public IFragment getFragment();
+    IFragment getFragment();
 
     /**
      * The result of parsing the fragment with the language under test.
      */
-    public P getParseResult();
+    P getParseResult();
 
     /**
      * The result of analyzing the fragment with the language under test.
      * 
      * May be null if the expectation only requires the {@link TestPhase#PARSING} phase, or if the parsing failed.
      */
-    public @Nullable A getAnalysisResult();
+    @Nullable A getAnalysisResult();
 
     /**
      * The context that was used to analyze the input fragment.
      * 
      * May be null.
      */
-    public @Nullable IContext getContext();
+    @Nullable IContext getContext();
 }

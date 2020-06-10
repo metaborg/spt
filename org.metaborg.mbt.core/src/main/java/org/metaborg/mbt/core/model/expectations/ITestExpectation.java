@@ -10,5 +10,5 @@ import org.metaborg.core.source.ISourceRegion;
  */
 public interface ITestExpectation {
 
-    public ISourceRegion region();
+    ISourceRegion region();
 }

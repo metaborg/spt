@@ -30,6 +30,6 @@ public interface IFragmentParser<P extends IParseUnit> {
      *            optional configuration object to customize the parser's behavior.
      * @return the parse result.
      */
-    public P parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect,
-        @Nullable IFragmentParserConfig config) throws ParseException;
+    P parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect,
+            @Nullable IFragmentParserConfig config) throws ParseException;
 }

@@ -70,7 +70,7 @@ public class AnalysisMessageExpectation extends ATestExpectation {
     /**
      * The operation for the amount of expected errors.
      */
-    public static enum Operation {
-        EQUAL, LESS, LESS_OR_EQUAL, MORE, MORE_OR_EQUAL;
+    public enum Operation {
+        EQUAL, LESS, LESS_OR_EQUAL, MORE, MORE_OR_EQUAL
     }
 }

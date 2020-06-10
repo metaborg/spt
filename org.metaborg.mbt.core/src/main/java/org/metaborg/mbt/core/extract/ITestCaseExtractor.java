@@ -20,7 +20,7 @@ public interface ITestCaseExtractor<I extends IInputUnit, P extends IParseUnit, 
      * @param project
      *            the project that contains this test suite.
      */
-    public ITestCaseExtractionResult<P, A> extract(I input, IProject project);
+    ITestCaseExtractionResult<P, A> extract(I input, IProject project);
 
     /**
      * Extract the test cases from the given test suite.
@@ -32,5 +32,5 @@ public interface ITestCaseExtractor<I extends IInputUnit, P extends IParseUnit, 
      * @param project
      *            the project that contains this test suite.
      */
-    public ITestCaseExtractionResult<P, A> extract(P input, IProject project);
+    ITestCaseExtractionResult<P, A> extract(P input, IProject project);
 }

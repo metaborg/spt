@@ -11,9 +11,9 @@ import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
  */
 public interface ISpoofaxFragmentParserConfig extends IFragmentParserConfig {
 
-    public @Nullable JSGLRParserConfiguration getParserConfigForLanguage(ILanguageImpl lang);
+    @Nullable JSGLRParserConfiguration getParserConfigForLanguage(ILanguageImpl lang);
 
-    public void putConfig(ILanguageImpl lang, JSGLRParserConfiguration config);
+    void putConfig(ILanguageImpl lang, JSGLRParserConfiguration config);
 
-    public void removeConfig(ILanguageImpl lang);
+    void removeConfig(ILanguageImpl lang);
 }

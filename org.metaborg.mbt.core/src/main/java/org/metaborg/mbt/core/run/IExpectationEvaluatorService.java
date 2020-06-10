@@ -12,5 +12,5 @@ import org.metaborg.mbt.core.model.expectations.ITestExpectation;
  */
 public interface IExpectationEvaluatorService<P extends IParseUnit, A extends IAnalyzeUnit> {
 
-    public <E extends ITestExpectation> ITestExpectationEvaluator<P, A, E> lookup(E expectation);
+    <E extends ITestExpectation> ITestExpectationEvaluator<P, A, E> lookup(E expectation);
 }

@@ -29,7 +29,7 @@ public interface ITestCaseRunner<P extends IParseUnit, A extends IAnalyzeUnit> {
      *            a configuration parameter for the {@link IFragmentParser} that will be used throughout the test run.
      * @return the test result
      */
-    public ITestResult<P, A> run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
-        @Nullable ILanguageImpl dialectUnderTest, @Nullable IFragmentParserConfig fragmentParseConfig);
+    ITestResult<P, A> run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
+                          @Nullable ILanguageImpl dialectUnderTest, @Nullable IFragmentParserConfig fragmentParseConfig);
 
 }

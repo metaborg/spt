@@ -28,7 +28,7 @@ public interface ITestExpectationEvaluator<P extends IParseUnit, A extends IAnal
      *            the input fragment.
      * @return the indexes (starting at 0) of the selections we utilize.
      */
-    public Collection<Integer> usesSelections(IFragment fragment, E expectation);
+    Collection<Integer> usesSelections(IFragment fragment, E expectation);
 
     /**
      * The phase that is required to evaluate the expectation.
@@ -38,10 +38,10 @@ public interface ITestExpectationEvaluator<P extends IParseUnit, A extends IAnal
      * @param language
      *            the context of the language under test for which you want to evaluate this expectation.
      */
-    public TestPhase getPhase(ILanguageImpl language, E expectation);
+    TestPhase getPhase(ILanguageImpl language, E expectation);
 
     /**
      * Evaluate the test expectation for the given input.
      */
-    public ITestExpectationOutput<P, A> evaluate(ITestExpectationInput<P, A> input, E expectation);
+    ITestExpectationOutput<P, A> evaluate(ITestExpectationInput<P, A> input, E expectation);
 }

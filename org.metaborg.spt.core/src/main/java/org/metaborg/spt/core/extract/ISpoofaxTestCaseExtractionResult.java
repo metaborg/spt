@@ -17,5 +17,5 @@ public interface ISpoofaxTestCaseExtractionResult
     /**
      * The start symbol of the test suite specification from which you extracted.
      */
-    public @Nullable String getStartSymbol();
+    @Nullable String getStartSymbol();
 }

@@ -12,7 +12,7 @@ public interface ITestCase {
     /**
      * The description or name of the test case.
      */
-    public String getDescription();
+    String getDescription();
 
     /**
      * The source region covered by the test's description.
@@ -20,26 +20,26 @@ public interface ITestCase {
      * Use this to place messages that appear during test runs, but that have no corresponding region in the test
      * fragment.
      */
-    public ISourceRegion getDescriptionRegion();
+    ISourceRegion getDescriptionRegion();
 
     /**
      * The fragment of this test case. I.e., the piece of code written in the language under test that is being tested.
      */
-    public IFragment getFragment();
+    IFragment getFragment();
 
     /**
      * The source file (or other resource) of the test suite from which this test case was extracted.
      */
-    public FileObject getResource();
+    FileObject getResource();
 
     /**
      * The project that contains this test. It is required for analysis of fragments.
      */
-    public IProject getProject();
+    IProject getProject();
 
     /**
      * The test expectations for this test case.
      */
-    public List<ITestExpectation> getExpectations();
+    List<ITestExpectation> getExpectations();
 
 }

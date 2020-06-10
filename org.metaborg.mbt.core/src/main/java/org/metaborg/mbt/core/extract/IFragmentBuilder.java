@@ -21,7 +21,7 @@ public interface IFragmentBuilder<F, TF> {
      *            the SPT AST term of the test fixture to use.
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder<F, TF> withFixture(TF fragmentFixture);
+    IFragmentBuilder<F, TF> withFixture(TF fragmentFixture);
 
     /**
      * Use this resource as the source from which this fragment was created.
@@ -30,7 +30,7 @@ public interface IFragmentBuilder<F, TF> {
      *            the source of the fragment (usually an SPT test suite file).
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder<F, TF> withResource(FileObject resource);
+    IFragmentBuilder<F, TF> withResource(FileObject resource);
 
     /**
      * Use this project as the project from within which this fragment was created.
@@ -39,7 +39,7 @@ public interface IFragmentBuilder<F, TF> {
      *            the project.
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder<F, TF> withProject(IProject project);
+    IFragmentBuilder<F, TF> withProject(IProject project);
 
     /**
      * Use this fragment term to create an IFragment.
@@ -50,12 +50,12 @@ public interface IFragmentBuilder<F, TF> {
      *            the SPT AST term of the fragment.
      * @return the same builder for chaining calls.
      */
-    public IFragmentBuilder<F, TF> withFragment(F fragment);
+    IFragmentBuilder<F, TF> withFragment(F fragment);
 
     /**
      * Create the actual fragment.
      * 
      * We expect at least one call to withFragment prior to calling this method.
      */
-    public IFragment build();
+    IFragment build();
 }

@@ -13,24 +13,24 @@ public interface ITestResult<P extends IParseUnit, A extends IAnalyzeUnit> {
     /**
      * The test for which this is the result.
      */
-    public ITestCase getTest();
+    ITestCase getTest();
 
     /**
      * True if the test passed.
      */
-    public boolean isSuccessful();
+    boolean isSuccessful();
 
     /**
      * Any extra messages caused by running the test case, that weren't caused by evaluating expectations.
      */
-    public Iterable<IMessage> getMessages();
+    Iterable<IMessage> getMessages();
 
     /**
      * All messages caused by running the test case.
      * 
      * The combination of the extra messages and all messages from all expectation results.
      */
-    public Iterable<IMessage> getAllMessages();
+    Iterable<IMessage> getAllMessages();
 
 
     /**
@@ -38,10 +38,10 @@ public interface ITestResult<P extends IParseUnit, A extends IAnalyzeUnit> {
      * 
      * This depends on what the expectations required to happen.
      */
-    public IFragmentResult<P, A> getFragmentResult();
+    IFragmentResult<P, A> getFragmentResult();
 
     /**
      * The results of evaluating the expectations of this test.
      */
-    public Iterable<? extends ITestExpectationOutput<P, A>> getExpectationResults();
+    Iterable<? extends ITestExpectationOutput<P, A>> getExpectationResults();
 }

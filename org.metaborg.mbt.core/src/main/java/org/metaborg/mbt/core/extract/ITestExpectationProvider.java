@@ -28,7 +28,7 @@ public interface ITestExpectationProvider<I> {
      * @param expectationTerm
      *            the AST term of the expectation.
      */
-    public boolean canEvaluate(IFragment inputFragment, I expectationTerm);
+    boolean canEvaluate(IFragment inputFragment, I expectationTerm);
 
     /**
      * Creates the evaluator that will evaluate the expectation at test runtime.
@@ -38,5 +38,5 @@ public interface ITestExpectationProvider<I> {
      * @param expectationTerm
      *            the AST term of the expectation.
      */
-    public ITestExpectation createExpectation(IFragment inputFragment, I expectationTerm);
+    ITestExpectation createExpectation(IFragment inputFragment, I expectationTerm);
 }
