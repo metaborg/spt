@@ -31,6 +31,7 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
 
@@ -149,14 +150,14 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
             IStrategoTerm fixtureTerm = null;
 
             @Override public void preVisit(IStrategoTerm term) {
-                if(Term.isTermAppl(term)) {
+                if(TermUtils.isAppl(term)) {
                     final String cons = SPTUtil.consName(term);
                     if(SPTUtil.START_SYMBOL_CONS.equals(cons)) {
-                        startSymbolContainer.add(Term.asJavaString(term.getSubterm(0)));
+                        startSymbolContainer.add(TermUtils.toJavaString(term.getSubterm(0)));
                     } else if(SPTUtil.LANG_CONS.equals(cons)) {
-                        langNameContainer.add(Term.asJavaString(term.getSubterm(0)));
+                        langNameContainer.add(TermUtils.toJavaString(term.getSubterm(0)));
                     } else if(SPTUtil.NAME_CONS.equals(cons)) {
-                        suiteNameContainer.add(Term.asJavaString(term.getSubterm(0)));
+                        suiteNameContainer.add(TermUtils.toJavaString(term.getSubterm(0)));
                     } else if(SPTUtil.FIXTURE_CONS.equals(cons)) {
                         fixtureTerm = term;
                         logger.debug("Using test fixture: {}", fixtureTerm);

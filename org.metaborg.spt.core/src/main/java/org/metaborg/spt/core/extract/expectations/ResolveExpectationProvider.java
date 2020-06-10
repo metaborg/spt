@@ -42,11 +42,11 @@ public class ResolveExpectationProvider implements ISpoofaxTestExpectationProvid
         final IStrategoTerm refTerm = getReferenceTerm(expectationTerm);
         final ISourceLocation refLoc = traceService.location(refTerm);
         if(RESOLVE.equals(cons)) {
-            return new ResolveExpectation(region, Term.asJavaInt(refTerm), refLoc.region());
+            return new ResolveExpectation(region, TermUtils.toJavaInt(refTerm), refLoc.region());
         } else {
             final IStrategoTerm defTerm = getDefinitionTerm(expectationTerm);
             final ISourceLocation defLoc = traceService.location(defTerm);
-            return new ResolveExpectation(region, Term.asJavaInt(refTerm), refLoc.region(), Term.asJavaInt(defTerm),
+            return new ResolveExpectation(region, TermUtils.toJavaInt(refTerm), refLoc.region(), TermUtils.toJavaInt(defTerm),
                 defLoc.region());
         }
     }
@@ -66,7 +66,7 @@ public class ResolveExpectationProvider implements ISpoofaxTestExpectationProvid
         if(!RESOLVE.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 1) {
             return false;
         }
-        if(!Term.isTermInt(getReferenceTerm(expectationTerm))) {
+        if(!TermUtils.isInt(getReferenceTerm(expectationTerm))) {
             return false;
         }
         return true;
@@ -77,10 +77,10 @@ public class ResolveExpectationProvider implements ISpoofaxTestExpectationProvid
         if(!TO.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 2) {
             return false;
         }
-        if(!Term.isTermInt(getReferenceTerm(expectationTerm))) {
+        if(!TermUtils.isInt(getReferenceTerm(expectationTerm))) {
             return false;
         }
-        if(!Term.isTermInt(getDefinitionTerm(expectationTerm))) {
+        if(!TermUtils.isInt(getDefinitionTerm(expectationTerm))) {
             return false;
         }
         return true;

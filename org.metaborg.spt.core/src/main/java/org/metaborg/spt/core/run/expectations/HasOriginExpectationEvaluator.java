@@ -68,7 +68,7 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
         StrategoTermVisitee.bottomup(new AStrategoTermVisitor() {
             @Override public boolean visit(IStrategoTerm term) {
                 // skip lists as they never seem to have origin locations
-                if(Term.isTermList(term)) {
+                if(TermUtils.isList(term)) {
                     return false;
                 }
                 ISourceLocation loc = traceService.location(term);

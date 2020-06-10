@@ -14,6 +14,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * Runs Stratego strategies on selections or the entire test and compares results to an ATerm AST.
@@ -40,7 +41,7 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
         final IStrategoTerm stratTerm = getStrategyTerm(expectationTerm);
-        final String strategy = Term.asJavaString(stratTerm);
+        final String strategy = TermUtils.toJavaString(stratTerm);
 
         final @Nullable IStrategoTerm onTerm = SPTUtil.getOptionValue(getOptionalOnPartTerm(expectationTerm));
         final Integer selection;
@@ -51,7 +52,7 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
             selectionRegion = null;
         } else {
             // the optional onPart was Some(onTerm)
-            selection = Term.asJavaInt(onTerm);
+            selection = TermUtils.toJavaInt(onTerm);
             final ISourceLocation selLoc = traceService.location(onTerm);
             if(selLoc == null) {
                 selectionRegion = region;
@@ -86,7 +87,7 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
         }
 
         // check strategy name
-        if(!Term.isTermString(getStrategyTerm(expectationTerm))) {
+        if(!TermUtils.isString(getStrategyTerm(expectationTerm))) {
             return false;
         }
 

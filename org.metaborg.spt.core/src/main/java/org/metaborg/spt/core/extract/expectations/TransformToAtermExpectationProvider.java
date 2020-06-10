@@ -17,6 +17,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectationProvider {
 
@@ -38,7 +39,7 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
         final ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
         // It's a Transform("goal", ToPart(...))
-        String unQuotedGoalStr = Term.asJavaString(getGoalTerm(expectationTerm));
+        String unQuotedGoalStr = TermUtils.toJavaString(getGoalTerm(expectationTerm));
         if(unQuotedGoalStr.length() > 2 && unQuotedGoalStr.startsWith("\"") && unQuotedGoalStr.endsWith("\"")) {
             unQuotedGoalStr = unQuotedGoalStr.substring(1, unQuotedGoalStr.length() - 1);
         }
@@ -77,10 +78,10 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
 
         // check the goal term
         final IStrategoTerm goalTerm = getGoalTerm(expectationTerm);
-        if(!Term.isTermString(goalTerm)) {
+        if(!TermUtils.isString(goalTerm)) {
             return false;
         }
-        if(TransformExpectationProvider.goalNames(Term.asJavaString(goalTerm)).size() <= 0) {
+        if(TransformExpectationProvider.goalNames(TermUtils.toJavaString(goalTerm)).size() <= 0) {
             return false;
         }
 

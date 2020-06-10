@@ -29,6 +29,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * A Spoofax specific utility class with some methods to deal with fragments in test expectations.
@@ -75,12 +76,12 @@ public class FragmentUtil {
                 return false;
             }
             final IStrategoTerm langName = SPTUtil.getOptionValue(optLang);
-            if(langName != null && !Term.isTermString(langName)) {
+            if(langName != null && !TermUtils.isString(langName)) {
                 return false;
             }
 
             // check the open marker
-            if(!Term.isTermString(getToPartOpenMarkerTerm(toPart))) {
+            if(!TermUtils.isString(getToPartOpenMarkerTerm(toPart))) {
                 return false;
             }
 
@@ -90,7 +91,7 @@ public class FragmentUtil {
             }
 
             // check the close marker
-            if(!Term.isTermString(getToPartCloseMarkerTerm(toPart))) {
+            if(!TermUtils.isString(getToPartCloseMarkerTerm(toPart))) {
                 return false;
             }
 
@@ -113,7 +114,7 @@ public class FragmentUtil {
         if(!SPTUtil.FRAGMENT_CONS.equals(cons) || fragment.getSubtermCount() != 2) {
             return false;
         }
-        if(!Term.isTermString(fragment.getSubterm(0))) {
+        if(!TermUtils.isString(fragment.getSubterm(0))) {
             return false;
         }
         if(!checkTailPart(fragment.getSubterm(1))) {
@@ -147,13 +148,13 @@ public class FragmentUtil {
                 if(!SPTUtil.SELECTION_CONS.equals(SPTUtil.consName(selection)) || selection.getSubtermCount() != 3) {
                     return false;
                 }
-                if(!Term.isTermString(selection.getSubterm(0)) || !Term.isTermString(selection.getSubterm(1))
-                    || !Term.isTermString(selection.getSubterm(2))) {
+                if(!TermUtils.isString(selection.getSubterm(0)) || !TermUtils.isString(selection.getSubterm(1))
+                    || !TermUtils.isString(selection.getSubterm(2))) {
                     return false;
                 }
 
                 // check string part
-                if(!Term.isTermString(tailPart.getSubterm(1))) {
+                if(!TermUtils.isString(tailPart.getSubterm(1))) {
                     return false;
                 }
 
@@ -194,7 +195,7 @@ public class FragmentUtil {
     public static @Nullable String toPartLangName(IStrategoTerm toPart) {
         final IStrategoTerm langOption = SPTUtil.getOptionValue(getToPartOptLangTerm(toPart));
 
-        return langOption == null ? null : Term.asJavaString(langOption);
+        return langOption == null ? null : TermUtils.toJavaString(langOption);
     }
 
     /**

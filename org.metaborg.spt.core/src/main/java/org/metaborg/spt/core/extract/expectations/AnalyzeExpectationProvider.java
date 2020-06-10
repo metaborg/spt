@@ -22,6 +22,7 @@ import org.spoofax.terms.Term;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 
 public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvider {
@@ -89,7 +90,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
         final MessageSeverity severity = getSeverity(sevTerm);
 
         // get the contents that should be part of the message
-        final String content = Term.asJavaString(LikeCheck.getContentTerm(expectationTerm));
+        final String content = TermUtils.toJavaString(LikeCheck.getContentTerm(expectationTerm));
 
         // get the selections from the 'at' part
         final IStrategoTerm optionalAtPart = LikeCheck.getOptionalAtPartTerm(expectationTerm);
@@ -146,7 +147,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
         // get the region
         final ISourceRegion region = getRegion(inputFragment, expectationTerm);
 
-        return new AnalysisMessageExpectation(region, Term.asJavaInt(NumCheck.getNumTerm(expectationTerm)), severity,
+        return new AnalysisMessageExpectation(region, TermUtils.toJavaInt(NumCheck.getNumTerm(expectationTerm)), severity,
             selections, opt, null);
     }
 
@@ -204,7 +205,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             if(!checkOptionalOperator(getOptionalOperatorTerm(numCheck))) {
                 return false;
             }
-            if(!Term.isTermInt(getNumTerm(numCheck))) {
+            if(!TermUtils.isInt(getNumTerm(numCheck))) {
                 return false;
             }
             if(!checkSeverity(getSeverityTerm(numCheck))) {
@@ -242,7 +243,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             if(!checkSeverity(getSeverityTerm(expectationTerm))) {
                 return false;
             }
-            if(!Term.isTermString(getContentTerm(expectationTerm))) {
+            if(!TermUtils.isString(getContentTerm(expectationTerm))) {
                 return false;
             }
             if(!checkOptionalAtPart(getOptionalAtPartTerm(expectationTerm))) {
@@ -302,13 +303,13 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
 
             // check list of selections
             final IStrategoTerm selections = getAtPartSelectionsTerm(atPart);
-            if(!Term.isTermList(selections)) {
+            if(!TermUtils.isList(selections)) {
                 return false;
             }
             final IStrategoList selectionsList = (IStrategoList) selections;
             for(IStrategoTerm selectionRef : selectionsList) {
                 // should be an int
-                if(!Term.isTermInt(selectionRef)) {
+                if(!TermUtils.isInt(selectionRef)) {
                     return false;
                 }
             }
@@ -327,7 +328,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             // Some(AtPart([SelectionRef(i), ...]))
             final IStrategoList list = (IStrategoList) getAtPartSelectionsTerm(atPart);
             for(IStrategoTerm sel : list) {
-                selections.add(Term.asJavaInt(sel));
+                selections.add(TermUtils.toJavaInt(sel));
             }
         }
         return selections;

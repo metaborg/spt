@@ -20,6 +20,7 @@ import org.spoofax.terms.Term;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 public class TransformExpectationProvider implements ISpoofaxTestExpectationProvider {
 
@@ -53,10 +54,10 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
             return false;
         }
         if(expectationTerm.getSubtermCount() == 1) {
-            return Term.isTermString(expectationTerm.getSubterm(0));
+            return TermUtils.isString(expectationTerm.getSubterm(0));
         } else if(expectationTerm.getSubtermCount() == 2) {
-            return Term.isTermString(expectationTerm.getSubterm(0))
-                && goalNames(Term.asJavaString(expectationTerm.getSubterm(0))).size() > 0;
+            return TermUtils.isString(expectationTerm.getSubterm(0))
+                && goalNames(TermUtils.toJavaString(expectationTerm.getSubterm(0))).size() > 0;
         }
         return false;
     }
@@ -66,7 +67,7 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
         // It's a Transform("goal") or a Transform("goal", ToPart(...))
-        String unQuotedGoalStr = Term.asJavaString(expectationTerm.getSubterm(0));
+        String unQuotedGoalStr = TermUtils.toJavaString(expectationTerm.getSubterm(0));
         if(unQuotedGoalStr.length() > 2 && unQuotedGoalStr.startsWith("\"") && unQuotedGoalStr.endsWith("\"")) {
             unQuotedGoalStr = unQuotedGoalStr.substring(1, unQuotedGoalStr.length() - 1);
         }

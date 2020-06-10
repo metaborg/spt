@@ -16,6 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.Term;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * Runs Stratego strategies on selections or the entire test and compares results.
@@ -44,10 +45,10 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
         String cons = SPTUtil.consName(expectationTerm);
         switch(cons) {
             case RUN:
-                return expectationTerm.getSubtermCount() == 2 && Term.isTermString(getStrategyTerm(expectationTerm))
+                return expectationTerm.getSubtermCount() == 2 && TermUtils.isString(getStrategyTerm(expectationTerm))
                     && checkOptionalOnPart(getOnPartTerm(expectationTerm));
             case RUN_TO:
-                return expectationTerm.getSubtermCount() == 3 && Term.isTermString(getStrategyTerm(expectationTerm))
+                return expectationTerm.getSubtermCount() == 3 && TermUtils.isString(getStrategyTerm(expectationTerm))
                     && checkOptionalOnPart(getOnPartTerm(expectationTerm))
                     && FragmentUtil.checkToPart(getToPartTerm(expectationTerm));
             default:
@@ -62,14 +63,14 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
         // Run(strat, optional onPart) or RunTo(strat, optOnPart, toPart)
         final String cons = SPTUtil.consName(expectationTerm);
         final IStrategoTerm stratTerm = getStrategyTerm(expectationTerm);
-        final String strategy = Term.asJavaString(stratTerm);
+        final String strategy = TermUtils.toJavaString(stratTerm);
         final ISourceLocation stratLoc = traceService.location(stratTerm);
         final @Nullable IStrategoTerm onTerm = SPTUtil.getOptionValue(getOnPartTerm(expectationTerm));
         final Integer selection;
         final ISourceRegion selectionRegion;
         if(onTerm != null) {
             // on #<int> was present
-            selection = Term.asJavaInt(onTerm);
+            selection = TermUtils.toJavaInt(onTerm);
             final ISourceLocation selLoc = traceService.location(onTerm);
             if(selLoc == null) {
                 selectionRegion = region;
@@ -119,7 +120,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
                 return true;
             } else {
                 // it's a Some(int)
-                return Term.isTermInt(onPart);
+                return TermUtils.isInt(onPart);
             }
         } else {
             return false;

@@ -2,6 +2,7 @@ package org.metaborg.spt.cmd;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -96,7 +97,7 @@ public class Runner {
             for (FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
                 final String text;
                 try (InputStream in = testSuite.getContent().getInputStream()) {
-                    text = IOUtils.toString(in);
+                    text = IOUtils.toString(in, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     testReporter.getLogger().error("Unable to process file {}", e, testSuite);
                     continue;

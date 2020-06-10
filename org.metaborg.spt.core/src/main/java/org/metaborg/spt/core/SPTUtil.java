@@ -38,7 +38,7 @@ public class SPTUtil {
      * @return the constructor name, or null if this term has no constructor.
      */
     public static String consName(IStrategoTerm term) {
-        if(Term.isTermAppl(term)) {
+        if(TermUtils.isAppl(term)) {
             return ((IStrategoAppl) term).getConstructor().getName();
         } else {
             return null;
@@ -102,16 +102,16 @@ public class SPTUtil {
         while(term instanceof StrategoAnnotation) {
             term = ((StrategoAnnotation) term).getWrapped();
         }
-        if(Term.isTermAppl(term) || Term.isTermList(term) || Term.isTermTuple(term)) {
+        if(TermUtils.isAppl(term) || TermUtils.isList(term) || TermUtils.isTuple(term)) {
             // print constructor name
-            if(Term.isTermAppl(term)) {
+            if(TermUtils.isAppl(term)) {
                 b.append(((IStrategoAppl) term).getConstructor().getName());
             }
 
             // print opening brace
-            if(Term.isTermAppl(term) || Term.isTermTuple(term)) {
+            if(TermUtils.isAppl(term) || TermUtils.isTuple(term)) {
                 b.append('(');
-            } else if(Term.isTermList(term)) {
+            } else if(TermUtils.isList(term)) {
                 b.append('[');
             }
 
@@ -125,15 +125,15 @@ public class SPTUtil {
             }
 
             // print closing brace
-            if(Term.isTermAppl(term) || Term.isTermTuple(term)) {
+            if(TermUtils.isAppl(term) || TermUtils.isTuple(term)) {
                 b.append(')');
-            } else if(Term.isTermList(term)) {
+            } else if(TermUtils.isList(term)) {
                 b.append(']');
             }
-        } else if(Term.isTermString(term)) {
-            b.append(Term.asJavaString(term));
-        } else if(Term.isTermInt(term)) {
-            b.append(Term.asJavaInt(term));
+        } else if(TermUtils.isString(term)) {
+            b.append(TermUtils.toJavaString(term));
+        } else if(TermUtils.isInt(term)) {
+            b.append(TermUtils.toJavaInt(term));
         } else {
             logger.debug("Term {} is not a String or Int or thing with kids.", term.getClass());
             b.append(term.toString());
@@ -174,7 +174,7 @@ public class SPTUtil {
                 break;
             case LIST_CONS:
                 // List([Match, ...])
-                if(!Term.isTermList(ast)) {
+                if(!TermUtils.isList(ast)) {
                     result = false;
                     break;
                 }
@@ -198,12 +198,12 @@ public class SPTUtil {
             case APPL_CONS:
                 // Appl("ConsName", [KidMatch, ...])
                 // we ignore any annotations on the AST
-                if(!Term.isTermAppl(ast)) {
+                if(!TermUtils.isAppl(ast)) {
                     logger.debug("The term is not an application.");
                     result = false;
                     break;
                 }
-                if(!SPTUtil.consName(ast).equals(Term.asJavaString(match.getSubterm(0)))) {
+                if(!SPTUtil.consName(ast).equals(TermUtils.toJavaString(match.getSubterm(0)))) {
                     logger.debug("The constructor {}, did not match the expected constructor {}.",
                         SPTUtil.consName(ast), match.getSubterm(0));
                     result = false;
@@ -228,13 +228,13 @@ public class SPTUtil {
                 break;
             case INT_CONS:
                 // Int("n")
-                result = Term.isTermInt(ast)
-                    && Integer.parseInt(Term.asJavaString(match.getSubterm(0))) == Term.asJavaInt(ast);
+                result = TermUtils.isInt(ast)
+                    && Integer.parseInt(TermUtils.toJavaString(match.getSubterm(0))) == TermUtils.toJavaInt(ast);
                 break;
             case STRING_CONS:
                 // String("some string")
                 result =
-                    Term.isTermString(ast) && Term.asJavaString(match.getSubterm(0)).equals(Term.asJavaString(ast));
+                    TermUtils.isString(ast) && TermUtils.toJavaString(match.getSubterm(0)).equals(TermUtils.toJavaString(ast));
                 break;
             case WLD_CONS:
                 result = true;
@@ -284,13 +284,13 @@ public class SPTUtil {
                 return b;
             case APPL_CONS:
                 // Appl("ConsName", [KidMatch, ...])
-                b.append(Term.asJavaString(match.getSubterm(0))).append('(');
+                b.append(TermUtils.toJavaString(match.getSubterm(0))).append('(');
                 prettyPrintListOfMatches((IStrategoList) match.getSubterm(1), ", ", b);
                 b.append(')');
                 return b;
             case INT_CONS:
                 // Int("n")
-                b.append(Term.asJavaString(match.getSubterm(0)));
+                b.append(TermUtils.toJavaString(match.getSubterm(0)));
                 return b;
             case STRING_CONS:
                 // String("some string")
