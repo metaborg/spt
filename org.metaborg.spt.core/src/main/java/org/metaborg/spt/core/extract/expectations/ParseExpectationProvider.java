@@ -22,6 +22,7 @@ public class ParseExpectationProvider implements ISpoofaxTestExpectationProvider
     // private static final ILogger logger = LoggerUtils.logger(ParseExpectationProvider.class);
 
     private static final String SUC = "ParseSucceeds";
+    private static final String AMB = "ParseAmbiguous";
     private static final String FAIL = "ParseFails";
     private static final String TO = "ParseTo";
 
@@ -48,15 +49,22 @@ public class ParseExpectationProvider implements ISpoofaxTestExpectationProvider
         ISourceLocation loc = traceService.location(expectationTerm);
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
         final String cons = SPTUtil.consName(expectationTerm);
-        if(TO.equals(cons)) {
-            final IStrategoTerm toPart = expectationTerm.getSubterm(0);
-            final String lang = FragmentUtil.toPartLangName(toPart);
-            final ISourceRegion langRegion = fragmentUtil.toPartLangNameRegion(toPart);
-            final IFragment fragment = fragmentBuilder.withFragment(FragmentUtil.toPartFragment(toPart))
-                .withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
-            return new ParseExpectation(region, true, fragment, lang, langRegion);
-        } else {
-            return new ParseExpectation(region, !FAIL.equals(cons));
+        switch (cons) {
+            case TO:
+                final IStrategoTerm toPart = expectationTerm.getSubterm(0);
+                final String lang = FragmentUtil.toPartLangName(toPart);
+                final ISourceRegion langRegion = fragmentUtil.toPartLangNameRegion(toPart);
+                final IFragment fragment = fragmentBuilder.withFragment(FragmentUtil.toPartFragment(toPart))
+                        .withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
+                return new ParseExpectation(region, ParseExpectation.Result.ToFragment, fragment, lang, langRegion);
+            case SUC:
+                return new ParseExpectation(region, ParseExpectation.Result.Succeeds);
+            case FAIL:
+                return new ParseExpectation(region, ParseExpectation.Result.Fails);
+            case AMB:
+                return new ParseExpectation(region, ParseExpectation.Result.Ambiguous);
+            default:
+                throw new UnsupportedOperationException("Expectation term " + cons + " is not supported.");
         }
     }
 

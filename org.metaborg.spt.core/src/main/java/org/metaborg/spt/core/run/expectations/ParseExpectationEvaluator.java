@@ -43,18 +43,29 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         evaluate(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ParseExpectation expectation) {
         final ISpoofaxParseUnit parseUnit = input.getFragmentResult().getParseResult();
         final SpoofaxTestExpectationOutputBuilder outputBuilder = new SpoofaxTestExpectationOutputBuilder(input.getTestCase());
+        final IFragment outputFragment = expectation.outputFragment();
 
-        boolean success;
-        IFragment outputFragment = expectation.outputFragment();
-        if (outputFragment != null) {
-            // parse to [[concrete fragment]]
-            success = parseToConcreteFragment(input, expectation, parseUnit, input.getTestCase(), outputBuilder, outputFragment);
-        } else if (!expectation.successExpected()) {
-            // parse fails
-            success = parseFails(parseUnit, outputBuilder);
-        } else {
-            // parse succeeds
-            success = parseSucceeds(parseUnit, input.getTestCase(), outputBuilder);
+        final boolean success;
+
+        switch (expectation.getExpectedResult()) {
+            case Succeeds:
+                // parse succeeds
+                success = parseSucceeds(parseUnit, input.getTestCase(), outputBuilder);
+                break;
+            case Ambiguous:
+                // parse ambiguous
+                success = parseAmbiguous(parseUnit, input.getTestCase(), outputBuilder);
+                break;
+            case Fails:
+                // parse fails
+                success = parseFails(parseUnit, outputBuilder);
+                break;
+            case ToFragment:
+                // parse to [[concrete fragment]]
+                success = parseToConcreteFragment(input, expectation, parseUnit, input.getTestCase(), outputBuilder, outputFragment);
+                break;
+            default:
+                throw new UnsupportedOperationException();
         }
 
         return outputBuilder.build(success);
@@ -63,8 +74,8 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
     private boolean parseToConcreteFragment(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ParseExpectation expectation,
                                                                   ISpoofaxParseUnit parseUnit, ITestCase testCase, SpoofaxTestExpectationOutputBuilder outputBuilder, IFragment outputFragment) {
         // parse to [[concrete fragment]]
-        logger.debug("Evaluating a parse to expectation (expect success: {}, lang: {}, fragment: {}).",
-            expectation.successExpected(), expectation.outputLanguage(), outputFragment);
+        logger.debug("Evaluating a parse to expectation (expect: {}, lang: {}, fragment: {}).",
+            expectation.getExpectedResult(), expectation.outputLanguage(), outputFragment);
 
         // The input fragment should parse properly
         if (!parseSucceeds(parseUnit, testCase, outputBuilder)) return false;
@@ -95,7 +106,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
     private boolean parseFails(ISpoofaxParseUnit parseUnit, SpoofaxTestExpectationOutputBuilder outputBuilder) {
         // parse fails
         if (parseUnit.success()) {
-            final String msg = "Expected a parse failure";
+            final String msg = "Expected parsing to fail, but it succeeded" + (parseUnit.isAmbiguous() ? " with ambiguities" : "");
             outputBuilder.addAnalysisError(msg);
             return false;
         }
@@ -106,9 +117,35 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
     private boolean parseSucceeds(ISpoofaxParseUnit parseUnit, ITestCase testCase, SpoofaxTestExpectationOutputBuilder outputBuilder) {
         // parse succeeds
         if (!parseUnit.success()) {
-            final String msg = "Expected parsing to succeed";
+            final String msg = "Expected parsing to succeed, but it failed";
             outputBuilder.addAnalysisError(msg);
-                outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
+            outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
+            return false;
+        }
+
+        if (parseUnit.isAmbiguous()) {
+            final String msg = "Expected parsing to be unambiguous, but it was ambiguous";
+            outputBuilder.addAnalysisError(msg);
+            outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean parseAmbiguous(ISpoofaxParseUnit parseUnit, ITestCase testCase, SpoofaxTestExpectationOutputBuilder outputBuilder) {
+        // parse succeeds
+        if (!parseUnit.success()) {
+            final String msg = "Expected parsing to succeed, but it failed";
+            outputBuilder.addAnalysisError(msg);
+            outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
+            return false;
+        }
+
+        if (!parseUnit.isAmbiguous()) {
+            final String msg = "Expected parsing to be ambiguous, but it was unambiguous";
+            outputBuilder.addAnalysisError(msg);
+            outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
             return false;
         }
 
