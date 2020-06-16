@@ -75,6 +75,7 @@ context-free syntax
 
   // parse expectations
   Expectation.ParseSucceeds = <parse succeeds>
+  Expectation.ParseAmbiguous = <parse ambiguous>
   Expectation.ParseFails = <parse fails>
   Expectation.ParseTo = <parse <ToPart>>
   Expectation.ParseToAterm = <parse <ToAterm>>
