@@ -104,7 +104,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
             int pieceLength = piece.text.length();
             currEndOffsetOfPiece = currStartOffsetOfPiece + pieceLength - 1;
             int adjustment = piece.startOffset - currStartOffsetOfPiece;
-            for(IToken itoken : originalTokens.ambiguousTokens()) {
+            for(IToken itoken : originalTokens.allTokens()) {
                 int startOffset = itoken.getStartOffset();
                 if(startOffset >= currStartOffsetOfPiece && startOffset <= currEndOffsetOfPiece) {
                     Token token = (Token) itoken;
@@ -118,7 +118,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         // Do post processing to ensure the token stream is ordered by offsets again
         final List<Token> tokens = Lists.newArrayList();
         Token eof = null;
-        for(IToken itoken : originalTokens.ambiguousTokens()) {
+        for(IToken itoken : originalTokens.allTokens()) {
             if(IToken.Kind.TK_EOF == itoken.getKind()) {
                 eof = (Token) itoken;
             } else {
