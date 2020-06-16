@@ -44,20 +44,23 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         final ISpoofaxParseUnit parseUnit = input.getFragmentResult().getParseResult();
         final SpoofaxTestExpectationOutputBuilder outputBuilder = new SpoofaxTestExpectationOutputBuilder(input.getTestCase());
 
+        boolean success;
         IFragment outputFragment = expectation.outputFragment();
         if (outputFragment != null) {
             // parse to [[concrete fragment]]
-            return parseToConcreteFragment(input, expectation, parseUnit, input.getTestCase(), outputBuilder, outputFragment);
+            success = parseToConcreteFragment(input, expectation, parseUnit, input.getTestCase(), outputBuilder, outputFragment);
         } else if (!expectation.successExpected()) {
             // parse fails
-            return parseFails(parseUnit, outputBuilder);
+            success = parseFails(parseUnit, outputBuilder);
         } else {
             // parse succeeds
-            return parseSucceeds(parseUnit, input.getTestCase(), outputBuilder);
+            success = parseSucceeds(parseUnit, input.getTestCase(), outputBuilder);
         }
+
+        return outputBuilder.build(success);
     }
 
-    private ISpoofaxTestExpectationOutput parseToConcreteFragment(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ParseExpectation expectation,
+    private boolean parseToConcreteFragment(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ParseExpectation expectation,
                                                                   ISpoofaxParseUnit parseUnit, ITestCase testCase, SpoofaxTestExpectationOutputBuilder outputBuilder, IFragment outputFragment) {
         // parse to [[concrete fragment]]
         logger.debug("Evaluating a parse to expectation (expect success: {}, lang: {}, fragment: {}).",
@@ -68,7 +71,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
             outputBuilder.addAnalysisError("Expected parsing to succeed");
             // propagate the parse messages
             outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
-            return outputBuilder.build(false);
+            return false;
         }
 
         // parse the output fragment
@@ -79,7 +82,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         // compare the results and set the success boolean
         if(parsedFragment == null) {
             outputBuilder.addAnalysisError("Expected the output fragment to parse successfully");
-            return outputBuilder.build(false);
+            return false;
         }
 
         if(!TermEqualityUtil.equalsIgnoreAnnos(parseUnit.ast(), parsedFragment.ast(),
@@ -91,34 +94,30 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
             outputBuilder.addAnalysisError(message);
         }
 
-        if (outputBuilder.hasErrorMessages()) {
-            return outputBuilder.build(false);
-        }
-
-        return outputBuilder.build(true);
+        return !outputBuilder.hasErrorMessages();
     }
 
-    private ISpoofaxTestExpectationOutput parseFails(ISpoofaxParseUnit parseUnit, SpoofaxTestExpectationOutputBuilder outputBuilder) {
+    private boolean parseFails(ISpoofaxParseUnit parseUnit, SpoofaxTestExpectationOutputBuilder outputBuilder) {
         // parse fails
         if (parseUnit.success()) {
             final String msg = "Expected a parse failure";
             outputBuilder.addAnalysisError(msg);
-            return outputBuilder.build(false);
+            return false;
         }
 
-        return outputBuilder.build(true);
+        return true;
     }
 
-    private ISpoofaxTestExpectationOutput parseSucceeds(ISpoofaxParseUnit parseUnit, ITestCase testCase, SpoofaxTestExpectationOutputBuilder outputBuilder) {
+    private boolean parseSucceeds(ISpoofaxParseUnit parseUnit, ITestCase testCase, SpoofaxTestExpectationOutputBuilder outputBuilder) {
         // parse succeeds
         if (!parseUnit.success()) {
             final String msg = "Expected parsing to succeed";
             outputBuilder.addAnalysisError(msg);
                 outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
-            return outputBuilder.build(false);
+            return false;
         }
 
-        return outputBuilder.build(true);
+        return true;
     }
 
     private ISpoofaxParseUnit parseFragment(ILanguageImpl languageUnderTest, IFragmentParserConfig fragmentParserConfig,
