@@ -1,6 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -20,10 +21,8 @@ import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
-import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
-import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
@@ -48,7 +47,6 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         AnalysisMessageExpectation expectation) {
         List<IMessage> messages = Lists.newLinkedList();
         // analysis expectations don't have output fragments (not at the moment anyway)
-        final Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         ITestCase test = input.getTestCase();
 
@@ -62,7 +60,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         if(analysisResult == null) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected analysis to succeed", null));
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         Iterable<IMessage> analysisMessages = input.getFragmentResult().getAnalysisResult().messages();
@@ -70,7 +68,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         final boolean success = checkMessages(test, analysisMessages, expectation.severity(), expectation.num(),
             expectation.selections(), expectation.operation(), expectation.content(), messages);
 
-        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
+        return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
     }
 
     /**

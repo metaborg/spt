@@ -1,6 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.core.MetaborgException;
@@ -21,10 +22,8 @@ import org.metaborg.spoofax.core.tracing.ISpoofaxResolverService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
-import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
-import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -57,7 +56,6 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
         final boolean success;
         List<IMessage> messages = Lists.newLinkedList();
         // resolving expectations don't have output fragments
-        Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
         // indicates if, after collecting preliminary messages, we still need to try to resolve
         boolean tryResolve = true;
 
@@ -92,13 +90,13 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
         if(analysisResult == null) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected analysis to succeed", null));
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         // If the referenced selections couldn't be found, we won't need to try to resolve
         // otherwise, we may assume the selections exist
         if(!tryResolve) {
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         // Try resolving selection at index num1
@@ -166,7 +164,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
             MessageUtil.propagateMessages(analysisResult.messages(), messages, test.getDescriptionRegion(),
                 test.getFragment().getRegion());
         }
-        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
+        return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
     }
 
 }

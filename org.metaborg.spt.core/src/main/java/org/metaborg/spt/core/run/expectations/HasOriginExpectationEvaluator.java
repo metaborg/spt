@@ -16,16 +16,15 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
-import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
-import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.util.TermUtils;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,13 +53,12 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
         final ITestCase test = input.getTestCase();
         final List<IMessage> messages = Lists.newLinkedList();
-        final Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         ISpoofaxAnalyzeUnit a = input.getFragmentResult().getAnalysisResult();
         if(a == null || !a.valid() || !a.hasAst()) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "An analyzed AST is required to check origin locations.", null));
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         // check bottomup to see if there is a term without origin
@@ -80,7 +78,7 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
             }
         }, a.ast());
 
-        return new SpoofaxTestExpectationOutput(messages.isEmpty(), messages, fragmentResults);
+        return new SpoofaxTestExpectationOutput(messages.isEmpty(), messages, Collections.emptyList());
     }
 
 }
