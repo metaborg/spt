@@ -17,6 +17,7 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.expectations.MessageUtil;
 import org.metaborg.mbt.core.run.IFragmentParserConfig;
+import org.metaborg.mbt.core.run.ITestExpectationOutputBuilder;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
@@ -235,6 +236,26 @@ public class FragmentUtil {
     }
 
     /**
+     * Get the language with the given name.
+     *
+     * Collects messages if things go wrong.
+     *
+     * @param langName
+     *            the name of the language to get.
+     * @param outputBuilder
+     *            where we collect messages.
+     * @return the language, or null if things went wrong.
+     */
+    public @Nullable ILanguage getLanguage(String langName, ITestExpectationOutputBuilder<?, ?> outputBuilder) {
+        ILanguage lang = langName == null ? null : langService.getLanguage(langName);
+        if(lang == null) {
+            outputBuilder.addAnalysisError("Could not find the language " + langName);
+            return null;
+        }
+        return lang;
+    }
+
+    /**
      * Tries to parse the given fragment with the language registered for the given name.
      * 
      * Will collect messages if things go wrong.
@@ -303,6 +324,66 @@ public class FragmentUtil {
     }
 
     /**
+     * Tries to parse the given fragment with the language registered for the given name.
+     *
+     * Will collect messages if things go wrong.
+     *
+     * @param fragment
+     *            the fragment to parse.
+     * @param langName
+     *            the name of the language to parse it with.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
+     * @param outputBuilder
+     *            the output builder.
+     *
+     * @return the result of parsing the fragment. May be null if parsing failed.
+     */
+    public @Nullable ISpoofaxParseUnit parseFragment(IFragment fragment, String langName, @Nullable IFragmentParserConfig fragmentConfig, ITestExpectationOutputBuilder<?, ?> outputBuilder) {
+        ILanguage lang = getLanguage(langName, outputBuilder);
+        if(lang == null) {
+            return null;
+        }
+        return parseFragment(fragment, lang.activeImpl(), fragmentConfig, outputBuilder);
+    }
+
+    /**
+     * Tries to parse the given fragment with the given language.
+     *
+     * Will collect messages if things go wrong.
+     *
+     * @param fragment
+     *            the fragment to parse.
+     * @param lang
+     *            the language to parse it with.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
+     * @param outputBuilder
+     *            the output builder.
+     *
+     * @return the result of parsing the fragment; or {@code null} when parsing failed
+     */
+    public @Nullable ISpoofaxParseUnit parseFragment(IFragment fragment, ILanguageImpl lang, @Nullable IFragmentParserConfig fragmentConfig, ITestExpectationOutputBuilder<?, ?> outputBuilder) {
+        ITestExpectationOutputBuilder<?, ?> fragmentOutputBuilder = outputBuilder.withRegion(fragment.getRegion());
+        // parse the fragment
+        final ISpoofaxParseUnit parsedFragment;
+        try {
+            // TODO: would we ever need to use a dialect?
+            parsedFragment = fragmentParser.parse(fragment, lang, null, fragmentConfig);
+        } catch(ParseException e) {
+            fragmentOutputBuilder.addAnalysisError("Unable to parse the fragment due to an exception", e);
+            return null;
+        }
+        if(!parsedFragment.success()) {
+            fragmentOutputBuilder.addAnalysisError("Expected the fragment to parse");
+            // propagate messages
+            fragmentOutputBuilder.propagateMessages(parsedFragment.messages(), fragment.getRegion());
+            return null;
+        }
+        return parsedFragment;
+    }
+
+    /**
      * Tries to analyze the given fragment with the given name.
      * 
      * Will collect messages if things go wrong.
@@ -347,6 +428,82 @@ public class FragmentUtil {
                 "Analysis of the fragment failed with an unexpected exception.", e));
         }
         return null;
+    }
+
+    /**
+     * Tries to analyze the given fragment with the given name.
+     *
+     * Will collect messages if things go wrong.
+     *
+     * @param fragment
+     *            the fragment to parse.
+     * @param lang
+     *            the language to analyze it with.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
+     * @param test
+     *            the test that contained the fragment.
+     * @param outputBuilder
+     *            the output builder.
+     *
+     * @return the result of analyzing the fragment.
+     */
+    public @Nullable ISpoofaxAnalyzeUnit analyzeFragment(IFragment fragment, ILanguageImpl lang,
+                                                         @Nullable IFragmentParserConfig fragmentConfig,
+                                                         ITestCase test,
+                                                         ITestExpectationOutputBuilder<?, ?> outputBuilder) {
+        ISpoofaxParseUnit p = parseFragment(fragment, lang, fragmentConfig, outputBuilder);
+        if(p == null) {
+            return null;
+        }
+        ITestExpectationOutputBuilder<?, ?> fragmentOutputBuilder = outputBuilder.withRegion(fragment.getRegion());
+
+        try(ITemporaryContext ctx = contextService.getTemporary(test.getResource(), test.getProject(), lang)) {
+            ISpoofaxAnalyzeUnit a = analysisService.analyze(p, ctx).result();
+            if(a.success() && a.hasAst()) {
+                return a;
+            } else if(!a.success()) {
+                fragmentOutputBuilder.addAnalysisError("Analysis of the fragment failed.");
+            } else if(!a.hasAst()) {
+                fragmentOutputBuilder.addAnalysisError("Analysis did not return an AST.");
+            }
+        } catch(ContextException e) {
+            // not much we can do without a context
+            fragmentOutputBuilder.addAnalysisError("Failed to create a context to analyze the fragment.", e);
+        } catch(AnalysisException e) {
+            fragmentOutputBuilder.addAnalysisError("Analysis of the fragment failed with an unexpected exception.", e);
+        }
+        return null;
+    }
+
+    /**
+     * Tries to analyze the given fragment with the given name.
+     *
+     * Will collect messages if things go wrong.
+     *
+     * @param fragment
+     *            the fragment to parse.
+     * @param langName
+     *            the language to analyze it with.
+     * @param fragmentConfig
+     *            the config for the fragment parser.
+     * @param test
+     *            the test that contained the fragment.
+     * @param outputBuilder
+     *            the output builder.
+     *
+     * @return the result of analyzing the fragment.
+     */
+    public @Nullable ISpoofaxAnalyzeUnit analyzeFragment(IFragment fragment, String langName,
+                                                         @Nullable IFragmentParserConfig fragmentConfig,
+                                                         ITestCase test,
+                                                         ITestExpectationOutputBuilder<?, ?> outputBuilder) {
+        ILanguage lang = getLanguage(langName, outputBuilder);
+        if(lang == null) {
+            return null;
+        } else {
+            return analyzeFragment(fragment, lang.activeImpl(), fragmentConfig, test, outputBuilder);
+        }
     }
 
     /**
