@@ -46,23 +46,28 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
 
         IFragment outputFragment = expectation.outputFragment();
         if(outputFragment == null) {
-            // this is a parse fails or succeeds test
-            boolean success = p.success() == expectation.successExpected();
-            if(!success) {
-
-                final String msg =
-                    expectation.successExpected() ? "Expected parsing to succeed" : "Expected a parse failure";
-                outputBuilder.addAnalysisError(msg);
-                if(expectation.successExpected()) {
-                    // propagate the parse messages
-                    outputBuilder.propagateMessages(p.messages(), test.getFragment().getRegion());
+            if (expectation.successExpected()) {
+                // parse succeeds
+                if (!p.success()) {
+                    final String msg = "Expected parsing to succeed";
+                    outputBuilder.addAnalysisError(msg);
+                        outputBuilder.propagateMessages(p.messages(), test.getFragment().getRegion());
+                    return outputBuilder.build(false);
+                } else {
+                    return outputBuilder.build(true);
                 }
-                return outputBuilder.build(false);
             } else {
-                return outputBuilder.build(true);
+                // parse fails
+                if (p.success()) {
+                    final String msg = "Expected a parse failure";
+                    outputBuilder.addAnalysisError(msg);
+                    return outputBuilder.build(false);
+                } else {
+                    return outputBuilder.build(true);
+                }
             }
         } else {
-            // this is 'parse to'
+            // parse to [[concrete fragment]]
             logger.debug("Evaluating a parse to expectation (expect success: {}, lang: {}, fragment: {}).",
                 expectation.successExpected(), expectation.outputLanguage(), outputFragment);
 
