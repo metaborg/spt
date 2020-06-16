@@ -6,6 +6,7 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.model.expectations.ParseExpectation;
+import org.metaborg.mbt.core.run.IFragmentParserConfig;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -60,15 +61,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
 
             // parse the output fragment
             final ISpoofaxParseUnit parsedFragment;
-            if(expectation.outputLanguage() == null) {
-                // this implicitly means we parse with the LUT
-                parsedFragment = fragmentUtil.parseFragment(outputFragment,
-                    input.getLanguageUnderTest(), input.getFragmentParserConfig(), outputBuilder);
-            } else {
-                // parse with the given language
-                parsedFragment = fragmentUtil.parseFragment(outputFragment,
-                    expectation.outputLanguage(), input.getFragmentParserConfig(), outputBuilder);
-            }
+            parsedFragment = parseFragment(input.getLanguageUnderTest(), input.getFragmentParserConfig(), expectation, outputFragment, outputBuilder);
             outputBuilder.addFragmentResult(new SpoofaxFragmentResult(outputFragment, parsedFragment, null, null));
 
             // compare the results and set the success boolean
@@ -110,6 +103,19 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
             }
 
             return outputBuilder.build(true);
+        }
+    }
+
+    private ISpoofaxParseUnit parseFragment(ILanguageImpl languageUnderTest, IFragmentParserConfig fragmentParserConfig,
+                                            ParseExpectation expectation, IFragment outputFragment, SpoofaxTestExpectationOutputBuilder outputBuilder) {
+        if(expectation.outputLanguage() == null) {
+            // this implicitly means we parse with the LUT
+            return fragmentUtil.parseFragment(outputFragment,
+                languageUnderTest, fragmentParserConfig, outputBuilder);
+        } else {
+            // parse with the given language
+            return fragmentUtil.parseFragment(outputFragment,
+                expectation.outputLanguage(), fragmentParserConfig, outputBuilder);
         }
     }
 
