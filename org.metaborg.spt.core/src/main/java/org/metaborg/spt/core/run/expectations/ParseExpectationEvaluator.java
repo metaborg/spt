@@ -66,13 +66,8 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         logger.debug("Evaluating a parse to expectation (expect success: {}, lang: {}, fragment: {}).",
             expectation.successExpected(), expectation.outputLanguage(), outputFragment);
 
-        if(!parseUnit.success()) {
-            // The input fragment should parse properly
-            outputBuilder.addAnalysisError("Expected parsing to succeed");
-            // propagate the parse messages
-            outputBuilder.propagateMessages(parseUnit.messages(), testCase.getFragment().getRegion());
-            return false;
-        }
+        // The input fragment should parse properly
+        if (!parseSucceeds(parseUnit, testCase, outputBuilder)) return false;
 
         // parse the output fragment
         final ISpoofaxParseUnit parsedFragment;
