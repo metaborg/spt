@@ -45,28 +45,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         final SpoofaxTestExpectationOutputBuilder outputBuilder = new SpoofaxTestExpectationOutputBuilder(input.getTestCase());
 
         IFragment outputFragment = expectation.outputFragment();
-        if(outputFragment == null) {
-            if (expectation.successExpected()) {
-                // parse succeeds
-                if (!p.success()) {
-                    final String msg = "Expected parsing to succeed";
-                    outputBuilder.addAnalysisError(msg);
-                        outputBuilder.propagateMessages(p.messages(), test.getFragment().getRegion());
-                    return outputBuilder.build(false);
-                } else {
-                    return outputBuilder.build(true);
-                }
-            } else {
-                // parse fails
-                if (p.success()) {
-                    final String msg = "Expected a parse failure";
-                    outputBuilder.addAnalysisError(msg);
-                    return outputBuilder.build(false);
-                } else {
-                    return outputBuilder.build(true);
-                }
-            }
-        } else {
+        if (outputFragment != null) {
             // parse to [[concrete fragment]]
             logger.debug("Evaluating a parse to expectation (expect success: {}, lang: {}, fragment: {}).",
                 expectation.successExpected(), expectation.outputLanguage(), outputFragment);
@@ -105,6 +84,27 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
                         outputBuilder.addAnalysisError(message);
                     }
                     return outputBuilder.build(!outputBuilder.hasErrorMessages());
+                }
+            }
+        } else {
+            if (expectation.successExpected()) {
+                // parse succeeds
+                if (!p.success()) {
+                    final String msg = "Expected parsing to succeed";
+                    outputBuilder.addAnalysisError(msg);
+                        outputBuilder.propagateMessages(p.messages(), test.getFragment().getRegion());
+                    return outputBuilder.build(false);
+                } else {
+                    return outputBuilder.build(true);
+                }
+            } else {
+                // parse fails
+                if (p.success()) {
+                    final String msg = "Expected a parse failure";
+                    outputBuilder.addAnalysisError(msg);
+                    return outputBuilder.build(false);
+                } else {
+                    return outputBuilder.build(true);
                 }
             }
         }
