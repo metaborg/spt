@@ -1,10 +1,6 @@
 package org.metaborg.spt.core.run;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
@@ -24,8 +20,9 @@ import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.*;
+import org.spoofax.terms.visitor.AStrategoTermVisitor;
+import org.spoofax.terms.visitor.StrategoTermVisitee;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 /**
@@ -96,66 +93,46 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         // adjust the tokens for each piece of the fragment
         // this makes NO assumptions about the order of the startOffsets of the token stream
         // it DOES assume that the pieces of text of the fragment are ordered based on the correct order of text
-        Map<Token, Integer> startOffsets = new HashMap<>(originalTokens.getTokenCount());
-        Map<Token, Integer> endOffsets = new HashMap<>(originalTokens.getTokenCount());
+        Map<IToken, Integer> startOffsets = new HashMap<>(originalTokens.getTokenCount());
+        Map<IToken, Integer> endOffsets = new HashMap<>(originalTokens.getTokenCount());
+        IToken eof = null;
         int currStartOffsetOfPiece = 0;
         int currEndOffsetOfPiece = 0;
         for(FragmentPiece piece : fragmentPieces) {
             int pieceLength = piece.text.length();
             currEndOffsetOfPiece = currStartOffsetOfPiece + pieceLength - 1;
             int adjustment = piece.startOffset - currStartOffsetOfPiece;
-            for(IToken itoken : originalTokens.allTokens()) {
-                int startOffset = itoken.getStartOffset();
+            for(IToken token : originalTokens.allTokens()) {
+                int startOffset = token.getStartOffset();
                 if(startOffset >= currStartOffsetOfPiece && startOffset <= currEndOffsetOfPiece) {
-                    Token token = (Token) itoken;
                     startOffsets.put(token, startOffset + adjustment);
                     endOffsets.put(token, token.getEndOffset() + adjustment);
+                }
+                if(token.getKind() == IToken.Kind.TK_EOF) {
+                    eof = token;
                 }
             }
             currStartOffsetOfPiece += pieceLength;
         }
 
-        // Do post processing to ensure the token stream is ordered by offsets again
-        final List<Token> tokens = Lists.newArrayList();
-        Token eof = null;
-        for(IToken itoken : originalTokens.allTokens()) {
-            if(IToken.Kind.TK_EOF == itoken.getKind()) {
-                eof = (Token) itoken;
-            } else {
-                Token token = (Token) itoken;
-                if(startOffsets.containsKey(token)) {
-                    // Need to get offset before setting a new one, else equals/hashCode gives a different result
-                    int startOffset = startOffsets.get(token);
-                    int endOffset = endOffsets.get(token);
-                    token.setStartOffset(startOffset);
-                    token.setEndOffset(endOffset);
-                }
-                tokens.add(token);
-            }
-        }
-        Collections.sort(tokens, Comparator.comparingInt(IToken::getStartOffset).thenComparingInt(IToken::getEndOffset));
         // Only post process tokens when there are tokens, and when there is an end-of-file token.
-        if(!tokens.isEmpty() && eof != null) {
-            int lastOffset = tokens.get(tokens.size() - 1).getEndOffset();
-            eof.setStartOffset(lastOffset + 1);
-            eof.setEndOffset(lastOffset);
-            tokens.add(eof);
-
-            Tokenizer newTokenizer =
-                new Tokenizer(originalTokens.getInput(), originalTokens.getFilename(), null, false);
-            for(Token token : tokens) {
-                // NOTE: this will break if run with assertions turned on
-                // but as this entire approach is one big hack, I don't really care at the moment
-                newTokenizer.reassignToken(token);
+        if(!startOffsets.isEmpty() && eof != null) {
+            MappingTokenizer newTokenizer = new MappingTokenizer(originalTokens);
+            for(IToken token : originalTokens.allTokens()) {
+                if(token.getKind() == IToken.Kind.TK_EOF) {
+                    int lastOffset = newTokenizer.tokens.get(newTokenizer.tokens.size() - 1).getEndOffset();
+                    newTokenizer.addToken(lastOffset + 1, lastOffset, eof);
+                } else {
+                    newTokenizer.addToken(startOffsets.get(token), endOffsets.get(token), token);
+                }
             }
-            newTokenizer.setAst(ast);
-            newTokenizer.initAstNodeBinding();
+            newTokenizer.overwriteAttachments(ast);
         }
 
         // now the offsets of the tokens are updated
         // changing the state like this should update the offsets of the ast nodes automatically
         // but next, we need to update the offsets of the parse messages
-        List<IMessage> changedMessages = Lists.newLinkedList();
+        List<IMessage> changedMessages = new LinkedList<>();
         for(IMessage m : p.messages()) {
             ISourceRegion region = m.region();
             if(region == null) {
@@ -191,6 +168,87 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
             return parse(fragment, language, dialect, (ISpoofaxFragmentParserConfig) null);
         } else {
             return parse(fragment, language, dialect, (ISpoofaxFragmentParserConfig) config);
+        }
+    }
+
+    private static class MappingTokenizer implements ITokens {
+
+        private final List<IToken> tokens = new ArrayList<>();
+        private final Map<IToken, IToken> oldToNewTokens = new HashMap<>();
+        private final Map<IToken, IToken> newToOldTokens = new HashMap<>();
+        private final String input;
+        private final String filename;
+
+        private MappingTokenizer(ITokens originalTokens) {
+            this.input = originalTokens.getInput();
+            this.filename = originalTokens.getFilename();
+        }
+
+        private void addToken(int startOffset, int endOffset, IToken originalToken) {
+            Token newToken =
+                new Token(this, getFilename(), -1, -1, -1, startOffset, endOffset, originalToken.getKind());
+            newToken.setAstNode(originalToken.getAstNode());
+            tokens.add(newToken);
+            oldToNewTokens.put(originalToken, newToken);
+            newToOldTokens.put(newToken, originalToken);
+        }
+
+        private void overwriteAttachments(IStrategoTerm ast) {
+            StrategoTermVisitee.topdown(new AStrategoTermVisitor() {
+                @Override public boolean visit(IStrategoTerm term) {
+                    ImploderAttachment originalAttachment = ImploderAttachment.get(term);
+
+                    // For incremental parsing, the reused AST nodes already have updated ImploderAttachments with new
+                    // tokens. In this case, we can skip the rest of this AST as well.
+                    if(!oldToNewTokens.containsKey(originalAttachment.getLeftToken())) {
+                        return false;
+                    }
+
+                    IToken leftToken = oldToNewTokens.get(originalAttachment.getLeftToken());
+                    IToken rightToken = oldToNewTokens.get(originalAttachment.getRightToken());
+                    ImploderAttachment.putImploderAttachment(term, term instanceof ListImploderAttachment,
+                        originalAttachment.getSort(), leftToken, rightToken, originalAttachment.isBracket(),
+                        originalAttachment.isCompletion(), originalAttachment.isNestedCompletion(),
+                        originalAttachment.isSinglePlaceholderCompletion());
+                    return true;
+                }
+            }, ast);
+        }
+
+        @Override public String getInput() {
+            return input;
+        }
+
+        @Override public int getTokenCount() {
+            return tokens.size();
+        }
+
+        @Override public IToken getTokenAtOffset(int offset) {
+            for(IToken token : tokens) {
+                if(token.getStartOffset() == offset)
+                    return token;
+            }
+            return null;
+        }
+
+        @Override public String getFilename() {
+            return filename;
+        }
+
+        @Override public String toString(IToken left, IToken right) {
+            return toString(newToOldTokens.get(left).getStartOffset(), newToOldTokens.get(right).getEndOffset());
+        }
+
+        @Override public String toString(int startOffset, int endOffset) {
+            return input.substring(startOffset, endOffset);
+        }
+
+        @Override public Iterator<IToken> iterator() {
+            return new Tokenizer.AmbiguousToNonAmbiguousIterator(allTokens());
+        }
+
+        @Override public Iterable<IToken> allTokens() {
+            return Collections.unmodifiableList(tokens);
         }
     }
 
