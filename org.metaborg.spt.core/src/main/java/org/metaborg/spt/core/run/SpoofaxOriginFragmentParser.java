@@ -185,8 +185,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         }
 
         private void addToken(int startOffset, int endOffset, IToken originalToken) {
-            Token newToken =
-                new Token(this, getFilename(), -1, -1, -1, startOffset, endOffset, originalToken.getKind());
+            Token newToken = new MappedToken(this, startOffset, endOffset, originalToken);
             newToken.setAstNode(originalToken.getAstNode());
             tokens.add(newToken);
             oldToNewTokens.put(originalToken, newToken);
@@ -199,17 +198,20 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
                     ImploderAttachment originalAttachment = ImploderAttachment.get(term);
 
                     // For incremental parsing, the reused AST nodes already have updated ImploderAttachments with new
-                    // tokens. In this case, we can skip the rest of this AST as well.
-                    if(!oldToNewTokens.containsKey(originalAttachment.getLeftToken())) {
-                        return false;
-                    }
+                    // MappedTokens. In this case, we should get the original token to index the oldToNewTokens Map,
+                    // because the offsets might be updated since the previous version.
+                    IToken leftToken = oldToNewTokens.get(originalAttachment.getLeftToken() instanceof MappedToken
+                        ? ((MappedToken) originalAttachment.getLeftToken()).originalToken
+                        : originalAttachment.getLeftToken());
+                    IToken rightToken = oldToNewTokens.get(originalAttachment.getRightToken() instanceof MappedToken
+                        ? ((MappedToken) originalAttachment.getRightToken()).originalToken
+                        : originalAttachment.getRightToken());
 
-                    IToken leftToken = oldToNewTokens.get(originalAttachment.getLeftToken());
-                    IToken rightToken = oldToNewTokens.get(originalAttachment.getRightToken());
                     ImploderAttachment.putImploderAttachment(term, term instanceof ListImploderAttachment,
                         originalAttachment.getSort(), leftToken, rightToken, originalAttachment.isBracket(),
                         originalAttachment.isCompletion(), originalAttachment.isNestedCompletion(),
                         originalAttachment.isSinglePlaceholderCompletion());
+
                     return true;
                 }
             }, ast);
@@ -249,6 +251,15 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
 
         @Override public Iterable<IToken> allTokens() {
             return Collections.unmodifiableList(tokens);
+        }
+    }
+
+    private static class MappedToken extends Token {
+        private final IToken originalToken;
+
+        public MappedToken(ITokens tokens, int startOffset, int endOffset, IToken originalToken) {
+            super(tokens, tokens.getFilename(), -1, -1, -1, startOffset, endOffset, originalToken.getKind());
+            this.originalToken = originalToken;
         }
     }
 
