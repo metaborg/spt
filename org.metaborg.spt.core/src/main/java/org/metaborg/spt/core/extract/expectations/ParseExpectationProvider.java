@@ -41,7 +41,7 @@ public class ParseExpectationProvider implements ISpoofaxTestExpectationProvider
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
         String cons = SPTUtil.consName(expectationTerm);
-        return cons != null && (SUC.equals(cons) || FAIL.equals(cons) || TO.equals(cons));
+        return cons != null && (SUC.equals(cons) || AMB.equals(cons) || FAIL.equals(cons) || TO.equals(cons));
     }
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
