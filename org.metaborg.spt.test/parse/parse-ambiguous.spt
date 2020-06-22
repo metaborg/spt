@@ -1,0 +1,33 @@
+module parse-ambiguous
+language SPT-Interactive
+
+fixture [[[
+  module parse-ambiguous
+  language MiniSQL
+
+  [[[...]]]
+]]]
+
+test ambiguity with parse ambiguous (positive) [[[
+  test ambiguity with parse fails (positive) [[
+    SELECT 1 OR 2 OR 3 FROM myTable MyTable;
+  ]] parse ambiguous
+]]] analysis succeeds
+
+test ambiguity with no expectation = parse succeeds (negative) [[[
+  test ambiguity with no expectation = parse succeeds (negative) [[
+    SELECT 1 OR 2 OR 3 FROM myTable MyTable;
+  ]]
+]]] analysis fails
+
+test ambiguity with parse succeeds (negative) [[[
+  test ambiguity with parse succeeds (negative) [[
+    SELECT 1 OR 2 OR 3 FROM myTable MyTable;
+  ]] parse succeeds
+]]] analysis fails
+
+test ambiguity with parse fails (negative) [[[
+  test ambiguity with parse fails (negative) [[
+    SELECT 1 OR 2 OR 3 FROM myTable MyTable;
+  ]] parse fails
+]]] analysis fails

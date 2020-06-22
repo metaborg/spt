@@ -6,7 +6,7 @@ imports
 
 context-free start-symbols
 
-    Start 
+    Start
     // for testing of SPT
     ColDef
 
@@ -41,6 +41,7 @@ context-free syntax
     Exp.String = <<STRING>>
     Exp.Equals = <<Exp> = <Exp>> {left}
     Exp.And = <<Exp> AND <Exp>> {left}
+    Exp.Or  = <<Exp> OR <Exp>> // ambiguous on purpose
     Exp = <(<Exp>)> {bracket}
     Exp.Add = <<Exp> + <Exp>> {left}
     Exp.Mul = <<Exp> * <Exp>> {left}
