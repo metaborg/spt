@@ -1,6 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -27,10 +28,8 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.RunStrategoToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
-import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
-import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -80,7 +79,6 @@ public class RunStrategoToAtermExpectationEvaluator
 
         List<IMessage> messages = Lists.newLinkedList();
         // the 'to ATerm' variant of this expectation doesn't have a fragment
-        Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         ITestCase test = input.getTestCase();
         List<ISourceRegion> selections = test.getFragment().getSelections();
@@ -97,7 +95,7 @@ public class RunStrategoToAtermExpectationEvaluator
                     "Analysis did not return a valid AST.", null));
                 MessageUtil.propagateMessages(analysisResult.messages(), messages, test.getDescriptionRegion(),
                     test.getFragment().getRegion());
-                return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+                return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
             }
             actionResult = analysisResult;
             context = analysisResult.context();
@@ -108,7 +106,7 @@ public class RunStrategoToAtermExpectationEvaluator
                     "Parsing did not return a valid AST.", null));
                 MessageUtil.propagateMessages(parseResult.messages(), messages, test.getDescriptionRegion(),
                     test.getFragment().getRegion());
-                return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+                return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
             }
             actionResult = parseResult;
             try {
@@ -125,7 +123,7 @@ public class RunStrategoToAtermExpectationEvaluator
         // before we try to run anything, make sure we have a runtime and something to execute on
         if(terms.isEmpty()) {
             logger.debug("Returning early, as there is either no runtime or nothing to run on.");
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         // run the strategy until we are done
@@ -170,7 +168,7 @@ public class RunStrategoToAtermExpectationEvaluator
             messages.add(lastMessage);
         }
 
-        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
+        return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
     }
 
 

@@ -1,6 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.core.action.ITransformGoal;
@@ -23,10 +24,8 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.TransformToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
-import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
-import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -71,7 +70,6 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
         final ITestCase test = input.getTestCase();
         final ILanguageImpl lut = input.getLanguageUnderTest();
         final List<IMessage> messages = Lists.newLinkedList();
-        final Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         // obtain a context
         ITemporaryContext tempCtx = null;
@@ -84,7 +82,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
             } catch(ContextException e) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                     "Failed to create a context for the language under test.", e));
-                return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
+                return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
             }
         }
 
@@ -105,7 +103,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
             if(tempCtx != null) {
                 tempCtx.close();
             }
-            return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
         }
 
         boolean useAnalysis = transformService.requiresAnalysis(lut, expectation.goal());
@@ -140,7 +138,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
         if(tempCtx != null) {
             tempCtx.close();
         }
-        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
+        return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
     }
 
 }
