@@ -54,7 +54,7 @@ public final class SpoofaxTestExpectationOutput implements ISpoofaxTestExpectati
         } else if (collection.size() == 1) {
             return Collections.singletonList(collection.iterator().next());
         } else {
-            return Collections.unmodifiableList(new ArrayList<>(collection));
+            return new ArrayList<>(collection);
         }
     }
 
