@@ -123,7 +123,9 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
                     int lastOffset = newTokenizer.tokens.get(newTokenizer.tokens.size() - 1).getEndOffset();
                     newTokenizer.addToken(lastOffset + 1, lastOffset, eof);
                 } else {
-                    newTokenizer.addToken(startOffsets.get(token), endOffsets.get(token), token);
+                    newTokenizer.addToken(
+                        startOffsets.containsKey(token) ? startOffsets.get(token) : token.getStartOffset(),
+                        endOffsets.containsKey(token) ? endOffsets.get(token) : token.getEndOffset(), token);
                 }
             }
             newTokenizer.overwriteAttachments(ast);
