@@ -214,6 +214,9 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
                         originalAttachment.isCompletion(), originalAttachment.isNestedCompletion(),
                         originalAttachment.isSinglePlaceholderCompletion());
 
+                    ImploderAttachment newAttachment = ImploderAttachment.get(term);
+                    originalAttachment.getInjections().forEach(newAttachment::pushInjection);
+
                     return true;
                 }
             }, ast);
