@@ -251,7 +251,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         }
 
         @Override public Iterator<IToken> iterator() {
-            return new Tokenizer.AmbiguousToNonAmbiguousIterator(allTokens());
+            return new Tokenizer.FilteredTokenIterator(allTokens());
         }
 
         @Override public Iterable<IToken> allTokens() {
