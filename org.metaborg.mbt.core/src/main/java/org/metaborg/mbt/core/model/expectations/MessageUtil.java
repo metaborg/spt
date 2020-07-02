@@ -95,12 +95,8 @@ public class MessageUtil {
                 || region.startOffset() > bounds.endOffset()) {
                 logger.debug("Propagating '{}' at the default region due to bounds {}, not its own region {}",
                     message.message(), bounds, region);
-                messages
-                    .add(
-                        setMessage(setRegion(message, defaultRegion),
-                            message.message() + String.format(" (Relocated this message. Original location: (%s, %s))",
-                                region == null ? null : region.startOffset(),
-                                region == null ? null : region.endOffset())));
+                messages.add(setMessage(setRegion(message, defaultRegion),
+                    message.message() + " (Relocated this message. Original location: (" + region + "))"));
             } else if(region.startOffset() < bounds.startOffset() && region.endOffset() > bounds.endOffset()) {
                 logger.debug("Propagating '{}' and cutting of the beginning and end offsets", message.message());
                 messages.add(setRegion(message, new SourceRegion(bounds.startOffset(), bounds.endOffset())));

@@ -18,8 +18,10 @@ import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.*;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.*;
+import org.spoofax.terms.util.TermUtils;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
 
@@ -197,29 +199,38 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         private void overwriteAttachments(IStrategoTerm ast) {
             StrategoTermVisitee.topdown(new AStrategoTermVisitor() {
                 @Override public boolean visit(IStrategoTerm term) {
-                    ImploderAttachment originalAttachment = ImploderAttachment.get(term);
-
-                    // For incremental parsing, the reused AST nodes already have updated ImploderAttachments with new
-                    // MappedTokens. In this case, we should get the original token to index the oldToNewTokens Map,
-                    // because the offsets might be updated since the previous version.
-                    IToken leftToken = oldToNewTokens.get(originalAttachment.getLeftToken() instanceof MappedToken
-                        ? ((MappedToken) originalAttachment.getLeftToken()).originalToken
-                        : originalAttachment.getLeftToken());
-                    IToken rightToken = oldToNewTokens.get(originalAttachment.getRightToken() instanceof MappedToken
-                        ? ((MappedToken) originalAttachment.getRightToken()).originalToken
-                        : originalAttachment.getRightToken());
-
-                    ImploderAttachment.putImploderAttachment(term, term instanceof ListImploderAttachment,
-                        originalAttachment.getSort(), leftToken, rightToken, originalAttachment.isBracket(),
-                        originalAttachment.isCompletion(), originalAttachment.isNestedCompletion(),
-                        originalAttachment.isSinglePlaceholderCompletion());
-
-                    ImploderAttachment newAttachment = ImploderAttachment.get(term);
-                    originalAttachment.getInjections().forEach(newAttachment::pushInjection);
-
+                    updateImploderAttachment(term);
+                    if(TermUtils.isList(term)) {
+                        IStrategoList sublist = TermUtils.toList(term);
+                        while(!sublist.isEmpty()) {
+                            sublist = sublist.tail();
+                            updateImploderAttachment(sublist);
+                        }
+                    }
                     return true;
                 }
             }, ast);
+        }
+
+        private void updateImploderAttachment(IStrategoTerm term) {
+            ImploderAttachment originalAttachment = ImploderAttachment.get(term);
+
+            // For incremental parsing, the reused AST nodes already have updated ImploderAttachments with new
+            // MappedTokens. In this case, we should get the original token to index the oldToNewTokens Map,
+            // because the offsets might be updated since the previous version.
+            IToken leftToken = oldToNewTokens.get(originalAttachment.getLeftToken() instanceof MappedToken
+                ? ((MappedToken) originalAttachment.getLeftToken()).originalToken : originalAttachment.getLeftToken());
+            IToken rightToken = oldToNewTokens.get(originalAttachment.getRightToken() instanceof MappedToken
+                ? ((MappedToken) originalAttachment.getRightToken()).originalToken
+                : originalAttachment.getRightToken());
+
+            ImploderAttachment.putImploderAttachment(term, term instanceof ListImploderAttachment,
+                originalAttachment.getSort(), leftToken, rightToken, originalAttachment.isBracket(),
+                originalAttachment.isCompletion(), originalAttachment.isNestedCompletion(),
+                originalAttachment.isSinglePlaceholderCompletion());
+
+            ImploderAttachment newAttachment = ImploderAttachment.get(term);
+            originalAttachment.getInjections().forEach(newAttachment::pushInjection);
         }
 
         @Override public String getInput() {
@@ -246,8 +257,12 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
             return toString(newToOldTokens.get(left).getStartOffset(), newToOldTokens.get(right).getEndOffset());
         }
 
+        /**
+         * @param endOffset
+         *            The end offset is inclusive.
+         */
         @Override public String toString(int startOffset, int endOffset) {
-            return input.substring(startOffset, endOffset);
+            return input.substring(startOffset, endOffset + 1);
         }
 
         @Override public Iterator<IToken> iterator() {
