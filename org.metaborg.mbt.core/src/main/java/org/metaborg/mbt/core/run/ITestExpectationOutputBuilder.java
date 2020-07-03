@@ -7,7 +7,6 @@ import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.messages.MessageType;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.syntax.IParseUnit;
-import org.metaborg.mbt.core.model.expectations.MessageUtil;
 
 import javax.annotation.Nullable;
 

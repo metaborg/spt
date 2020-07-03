@@ -1,7 +1,11 @@
 package org.metaborg.spt.core.run;
 
 import org.apache.commons.vfs2.FileObject;
-import org.metaborg.core.messages.*;
+import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.messages.Message;
+import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.messages.MessageSeverity;
+import org.metaborg.core.messages.MessageType;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.expectations.MessageUtil;
