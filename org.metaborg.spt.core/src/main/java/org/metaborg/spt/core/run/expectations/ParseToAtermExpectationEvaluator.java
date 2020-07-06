@@ -1,6 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,20 +13,18 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
 import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.mbt.core.run.ITestExpectationInput;
-import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.ParseToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
-import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
-import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -37,12 +36,12 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
 
     private static final ILogger logger = LoggerUtils.logger(ParseToAtermExpectationEvaluator.class);
 
-    private final ITermFactoryService termFactoryService;
+    private final ITermFactory termFactory;
     private final ISpoofaxTracingService traceService;
 
-    @Inject public ParseToAtermExpectationEvaluator(ITermFactoryService termFactoryService,
+    @Inject public ParseToAtermExpectationEvaluator(ITermFactory termFactory,
         ISpoofaxTracingService traceService) {
-        this.termFactoryService = termFactoryService;
+        this.termFactory = termFactory;
         this.traceService = traceService;
     }
 
@@ -61,12 +60,11 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         ITestCase test = input.getTestCase();
 
         List<IMessage> messages = new LinkedList<>();
-        Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         if(p == null || !p.success()) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected the input fragment to parse successfully.", null));
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         // compare the parse result
@@ -78,7 +76,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
         String latestMessage = "The fragment was empty.";
         for(IStrategoTerm term : terms) {
             if(SPTUtil.checkATermMatch(term, expectation.expectedResult(),
-                termFactoryService.get(input.getLanguageUnderTest(), test.getProject(), false))) {
+                termFactory)) {
                 success = true;
                 break;
             } else {
@@ -91,7 +89,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
             messages.add(
                 MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(), latestMessage, null));
         }
-        return new SpoofaxTestExpectationOutput(success, messages, fragmentResults);
+        return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
     }
 
 }

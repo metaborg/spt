@@ -25,24 +25,24 @@ public interface IFragment {
     /**
      * The region of the entire SPT Fragment node.
      */
-    public ISourceRegion getRegion();
+    ISourceRegion getRegion();
 
     /**
      * The selections of this fragment.
      * 
      * Ordered by the order in which they appeared in the fragment.
      */
-    public List<ISourceRegion> getSelections();
+    List<ISourceRegion> getSelections();
 
     /**
      * The source file of the test suite from which this fragment was extracted.
      */
-    public FileObject getResource();
+    FileObject getResource();
 
     /**
      * The project that contains the test suite that contains this fragment. It is required for analysis.
      */
-    public IProject getProject();
+    IProject getProject();
 
     /**
      * The text of this selection. It is returned as tuples of an offset and a piece of text. The offset is the start
@@ -53,9 +53,9 @@ public interface IFragment {
      * 
      * These tuples should be used by an IFragmentParser to ensure the parse result has the correct offsets.
      */
-    public Iterable<FragmentPiece> getText();
+    Iterable<FragmentPiece> getText();
 
-    public static class FragmentPiece {
+    class FragmentPiece {
         public final int startOffset;
         public final String text;
 

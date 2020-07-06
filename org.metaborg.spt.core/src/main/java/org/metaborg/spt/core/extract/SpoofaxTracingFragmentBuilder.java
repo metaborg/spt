@@ -13,9 +13,7 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.IFragment.FragmentPiece;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
 import com.google.inject.Inject;
@@ -85,7 +83,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
             if (loc == null) {
                 throw new IllegalArgumentException("No origin info for test fixture text: " + text1Term);
             }
-            text.add(new FragmentPiece(loc.region().startOffset(), Term.asJavaString(text1Term)));
+            text.add(new FragmentPiece(loc.region().startOffset(), TermUtils.toJavaString(text1Term)));
         }
         
         // get the text and selections
@@ -120,7 +118,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
                                 throw new IllegalArgumentException(
                                     "Fragment text " + textTerm + " has no origin information.");
                             }
-                            text.add(new FragmentPiece(loc.region().startOffset(), Term.asJavaString(textTerm)));
+                            text.add(new FragmentPiece(loc.region().startOffset(), TermUtils.toJavaString(textTerm)));
                             break;
                         case SPTUtil.TAILPART_MORE_CONS:
                             // it's a More(Selection(<marker>, "sometext", <marker>), "sometext", <Tailpart>)
@@ -132,7 +130,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
                                     "Fragment text " + selectionTextTerm + " has no origin information.");
                             }
                             text.add(
-                                new FragmentPiece(loc.region().startOffset(), Term.asJavaString(selectionTextTerm)));
+                                new FragmentPiece(loc.region().startOffset(), TermUtils.toJavaString(selectionTextTerm)));
                             IStrategoTerm moreTextTerm = term.getSubterm(1);
                             loc = traceService.location(moreTextTerm);
                             if(loc == null) {
@@ -140,7 +138,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
                                 throw new IllegalArgumentException(
                                     "Fragment text " + moreTextTerm + " has no origin information.");
                             }
-                            text.add(new FragmentPiece(loc.region().startOffset(), Term.asJavaString(moreTextTerm)));
+                            text.add(new FragmentPiece(loc.region().startOffset(), TermUtils.toJavaString(moreTextTerm)));
                             break;
                         default:
                             // nothing to do
@@ -156,7 +154,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
             if (loc == null) {
                 throw new IllegalArgumentException("No origin info for test fixture text: " + text2Term);
             }
-            text.add(new FragmentPiece(loc.region().startOffset(), Term.asJavaString(text2Term)));
+            text.add(new FragmentPiece(loc.region().startOffset(), TermUtils.toJavaString(text2Term)));
         }
         
         return new Fragment(region, selections, text, resource, project);

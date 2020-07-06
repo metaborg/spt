@@ -13,7 +13,7 @@ import org.metaborg.mbt.core.model.expectations.ITestExpectation;
  * ITestExpectation.
  * 
  * Registration is done using the Guice MultiBinder.newSetBinder. The first expectation provider that claims to
- * {@link #canEvaluate(IStrategoTerm)} the AST node will be assigned to handle it.
+ * {@link #canEvaluate)} the AST node will be assigned to handle it.
  * 
  * @param <I>
  *            the type of the internal AST representation of the expectation.
@@ -28,7 +28,7 @@ public interface ITestExpectationProvider<I> {
      * @param expectationTerm
      *            the AST term of the expectation.
      */
-    public boolean canEvaluate(IFragment inputFragment, I expectationTerm);
+    boolean canEvaluate(IFragment inputFragment, I expectationTerm);
 
     /**
      * Creates the evaluator that will evaluate the expectation at test runtime.
@@ -38,5 +38,5 @@ public interface ITestExpectationProvider<I> {
      * @param expectationTerm
      *            the AST term of the expectation.
      */
-    public ITestExpectation createExpectation(IFragment inputFragment, I expectationTerm);
+    ITestExpectation createExpectation(IFragment inputFragment, I expectationTerm);
 }

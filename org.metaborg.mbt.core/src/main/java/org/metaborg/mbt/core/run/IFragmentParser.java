@@ -17,19 +17,17 @@ import org.metaborg.mbt.core.model.IFragment;
 public interface IFragmentParser<P extends IParseUnit> {
 
     /**
-     * Parse the fragment, and ensure the offsets of the parse result match with the fragment.
-     * 
-     * @param fragment
-     *            the IFragment to parse.
-     * @param fragmentLanguage
-     *            the language to parse the fragment's text with.
-     * @param dialect
-     *            TODO I don't know what it does, but it's cool and needs to be added. For now just pass null if you
-     *            also don't know what it does.
-     * @param config
-     *            optional configuration object to customize the parser's behavior.
-     * @return the parse result.
+     * Parses the given fragment using the specified language, dialect, and parser configuration.
+     *
+     * This ensures the offsets of the parse result match with the fragment.
+     *
+     * @param fragment the fragment to parse
+     * @param language the language of the fragment
+     * @param dialect the dialect of the language; or {@code null}
+     * @param config the parser configuration; or {@code null}
+     * @return the parse result
+     * @throws ParseException an exception occurred during parsing
      */
-    public P parse(IFragment fragment, ILanguageImpl fragmentLanguage, @Nullable ILanguageImpl dialect,
-        @Nullable IFragmentParserConfig config) throws ParseException;
+    P parse(IFragment fragment, ILanguageImpl language, @Nullable ILanguageImpl dialect,
+            @Nullable IFragmentParserConfig config) throws ParseException;
 }

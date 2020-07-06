@@ -2,8 +2,8 @@ package org.metaborg.spt.cmd;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,7 +12,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
-import org.metaborg.core.language.*;
+import org.metaborg.core.language.ComponentCreationConfig;
+import org.metaborg.core.language.IComponentCreationConfigRequest;
+import org.metaborg.core.language.ILanguageComponent;
+import org.metaborg.core.language.ILanguageComponentFactory;
+import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.language.ILanguageService;
+import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.testing.ITestReporterService;
 import org.metaborg.core.project.IProject;
@@ -96,7 +102,7 @@ public class Runner {
             for (FileObject testSuite : project.location().findFiles(FileSelectorUtils.extension("spt"))) {
                 final String text;
                 try (InputStream in = testSuite.getContent().getInputStream()) {
-                    text = IOUtils.toString(in);
+                    text = IOUtils.toString(in, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     testReporter.getLogger().error("Unable to process file {}", e, testSuite);
                     continue;

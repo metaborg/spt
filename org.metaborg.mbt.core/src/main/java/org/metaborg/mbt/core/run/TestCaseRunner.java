@@ -46,7 +46,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
 
     /**
      * Guaranteed to return the result provided by the subclass' implementation of
-     * {@link #evaluateExpectations(ITestCase, IParseUnit, IAnalyzeUnit, ILanguageImpl)}.
+     * {@link #evaluateExpectations}.
      */
     @Override public ITestResult<P, A> run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
         @Nullable ILanguageImpl dialectUnderTest, @Nullable IFragmentParserConfig fragmentParseConfig) {

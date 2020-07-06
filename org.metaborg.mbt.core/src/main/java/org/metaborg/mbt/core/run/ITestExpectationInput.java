@@ -19,21 +19,21 @@ public interface ITestExpectationInput<P extends IParseUnit, A extends IAnalyzeU
     /**
      * The test case for which we should evaluate the expectation.
      */
-    public ITestCase getTestCase();
+    ITestCase getTestCase();
 
     /**
      * The language implementation for the language under test that is used to run this test case.
      */
-    public ILanguageImpl getLanguageUnderTest();
+    ILanguageImpl getLanguageUnderTest();
 
     /**
      * The result of either parsing, or parsing and analyzing the fragment.
      */
-    public IFragmentResult<P, A> getFragmentResult();
+    IFragmentResult<P, A> getFragmentResult();
 
     /**
      * The configuration parameter to use during this test run for the parsing of fragments.
      */
-    public IFragmentParserConfig getFragmentParserConfig();
+    IFragmentParserConfig getFragmentParserConfig();
 
 }

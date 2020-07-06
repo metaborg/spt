@@ -1,5 +1,5 @@
 ---
-id: org.metaborg:spt.integrationtest:2.5.8
+id: org.metaborg:spt.integrationtest:2.6.0-SNAPSHOT
 name: spt-integrationtest
 dependencies:
   compile:
@@ -12,8 +12,6 @@ pardonedLanguages:
 - EditorService
 - Stratego-Sugar
 - SDF
-debug:
-  typesmart: false
 language:
   sdf:
     pretty-print: spt-integrationtest

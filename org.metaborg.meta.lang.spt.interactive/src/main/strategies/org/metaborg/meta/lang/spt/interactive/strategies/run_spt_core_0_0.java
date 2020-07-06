@@ -182,7 +182,7 @@ public class run_spt_core_0_0 extends Strategy {
          */
         final ISpoofaxInputUnit input = inputService.emptyInputUnit(testSuitePath, spt, null);
         final ISpoofaxParseUnit parseUnit =
-            unitService.parseUnit(input, new ParseContrib(true, true, baseAst, Iterables2.<IMessage>empty(), -1));
+            unitService.parseUnit(input, new ParseContrib(true, true, false, baseAst, Iterables2.<IMessage>empty(), -1));
         logger.debug("Extracting tests.");
         final ISpoofaxTestCaseExtractionResult extractionResult = extractor.extract(parseUnit, project);
         logger.debug("Finished extracting tests.");

@@ -4,25 +4,34 @@ import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.syntax.IParseUnit;
 
+import java.util.List;
+
 /**
  * Output after evaluating a test expectation.
  */
 public interface ITestExpectationOutput<P extends IParseUnit, A extends IAnalyzeUnit> {
 
     /**
-     * True if the test expectation passed.
+     * Gets whether the test expectation was met.
+     *
+     * @return {@code true} when the test expectation was met;
+     * otherwise, {@code false}
      */
-    public boolean isSuccessful();
+    boolean isSuccessful();
 
     /**
-     * Any messages returned by evaluating the test expectation.
+     * Gets any messages returned by evaluating the test expectation.
+     *
+     * @return the messages
      */
-    public Iterable<IMessage> getMessages();
+    List<IMessage> getMessages();
 
     /**
-     * Any (output) fragments that were part of the expectation and the result of whatever the execution did to them.
+     * Gets any (output) fragments that were part of the expectation
+     * and the result of whatever the execution did to them.
      * 
-     * May be empty.
+     * @return the fragment results; or an empty list
      */
-    public Iterable<? extends IFragmentResult<P, A>> getFragmentResults();
+    List<? extends IFragmentResult<P, A>> getFragmentResults();
+
 }

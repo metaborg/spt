@@ -1,8 +1,7 @@
 package org.metaborg.spt.core.run.expectations;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
@@ -17,17 +16,16 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
-import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
-import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
+import org.spoofax.terms.util.TermUtils;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Check all terms (except lists) in the analyzed AST to see if there are any terms without a location.
@@ -55,20 +53,19 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
         final ITestCase test = input.getTestCase();
         final List<IMessage> messages = Lists.newLinkedList();
-        final Iterable<ISpoofaxFragmentResult> fragmentResults = Iterables2.empty();
 
         ISpoofaxAnalyzeUnit a = input.getFragmentResult().getAnalysisResult();
         if(a == null || !a.valid() || !a.hasAst()) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "An analyzed AST is required to check origin locations.", null));
-            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         // check bottomup to see if there is a term without origin
         StrategoTermVisitee.bottomup(new AStrategoTermVisitor() {
             @Override public boolean visit(IStrategoTerm term) {
                 // skip lists as they never seem to have origin locations
-                if(Term.isTermList(term)) {
+                if(TermUtils.isList(term)) {
                     return false;
                 }
                 ISourceLocation loc = traceService.location(term);
@@ -81,7 +78,7 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
             }
         }, a.ast());
 
-        return new SpoofaxTestExpectationOutput(messages.isEmpty(), messages, fragmentResults);
+        return new SpoofaxTestExpectationOutput(messages.isEmpty(), messages, Collections.emptyList());
     }
 
 }

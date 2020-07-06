@@ -27,10 +27,10 @@ import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
 import org.spoofax.terms.TermVisitor;
 
 import com.google.inject.Inject;
+import org.spoofax.terms.util.TermUtils;
 
 public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
 
@@ -60,7 +60,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                     .withMessage("Can't extract a test without a source FileObject.")
                     .build()
                     // @formatter:on
-                ), Iterables2.<ITestCase>empty());
+                ), Iterables2.empty());
         }
 
         final ISpoofaxParseUnit p;
@@ -69,7 +69,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
             if(!p.valid()) {
                 // parse failed and couldn't recover
                 return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, p, null,
-                    Iterables2.<IMessage>empty(), Iterables2.<ITestCase>empty());
+                    Iterables2.empty(), Iterables2.empty());
             }
         } catch(ParseException pe) {
             // @formatter:off
@@ -82,7 +82,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                 .build();
             // @formatter:on
             return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, null, null,
-                Iterables2.singleton(error), Iterables2.<ITestCase>empty());
+                Iterables2.singleton(error), Iterables2.empty());
         }
 
         return extract(p, project);
@@ -100,7 +100,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                     .withMessage("Can't extract a test without a source FileObject.")
                     .build()
                     // @formatter:on
-                ), Iterables2.<ITestCase>empty());
+                ), Iterables2.empty());
         }
 
         final ISpoofaxAnalyzeUnit a;
@@ -120,7 +120,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                 .build();
             // @formatter:on
             return new SpoofaxTestCaseExtractionResult(testSuite.getName().getBaseName(), null, p, null,
-                Iterables2.singleton(error), Iterables2.<ITestCase>empty());
+                Iterables2.singleton(error), Iterables2.empty());
         }
 
         // Retrieve the AST from the analysis result
@@ -134,7 +134,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                     .withMessage("The analysis of SPT did not return an AST.")
                     .build()
                     // @formatter:on
-                ), Iterables2.<ITestCase>empty());
+                ), Iterables2.empty());
         }
         final IStrategoTerm ast = a.ast();
 
@@ -149,14 +149,14 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
             IStrategoTerm fixtureTerm = null;
 
             @Override public void preVisit(IStrategoTerm term) {
-                if(Term.isTermAppl(term)) {
+                if(TermUtils.isAppl(term)) {
                     final String cons = SPTUtil.consName(term);
                     if(SPTUtil.START_SYMBOL_CONS.equals(cons)) {
-                        startSymbolContainer.add(Term.asJavaString(term.getSubterm(0)));
+                        startSymbolContainer.add(TermUtils.toJavaString(term.getSubterm(0)));
                     } else if(SPTUtil.LANG_CONS.equals(cons)) {
-                        langNameContainer.add(Term.asJavaString(term.getSubterm(0)));
+                        langNameContainer.add(TermUtils.toJavaString(term.getSubterm(0)));
                     } else if(SPTUtil.NAME_CONS.equals(cons)) {
-                        suiteNameContainer.add(Term.asJavaString(term.getSubterm(0)));
+                        suiteNameContainer.add(TermUtils.toJavaString(term.getSubterm(0)));
                     } else if(SPTUtil.FIXTURE_CONS.equals(cons)) {
                         fixtureTerm = term;
                         logger.debug("Using test fixture: {}", fixtureTerm);
@@ -170,7 +170,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                             // TODO: not a very good way of error reporting, but it works for now
                             // also see SpoofaxTestCaseBuilder.build()
                             if(expectation instanceof NoExpectationError) {
-                                ISourceRegion region = ((NoExpectationError) expectation).region();
+                                ISourceRegion region = expectation.region();
                                 // @formatter:off
                                 IMessage m = MessageBuilder.create()
                                     .asAnalysis()
@@ -225,7 +225,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                     .withMessage("Found no module name. The test suite should have a name.")
                     .build()
                     // @formatter:on
-                ), Iterables2.<ITestCase>empty());
+                ), Iterables2.empty());
         }
         final String suiteName = suiteNameContainer.get(0);
 
@@ -251,7 +251,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                     .withMessage("Found no language header. The test suite should have a header for the language under test.")
                     .build()
                     // @formatter:on
-                ), Iterables2.<ITestCase>empty());
+                ), Iterables2.empty());
         }
         final String langName = langNameContainer.get(0);
 

@@ -26,6 +26,7 @@ import org.metaborg.util.resource.FileSelectorUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class SPTRunner {
     private static final ILogger logger = LoggerUtils.logger(SPTRunner.class);
@@ -66,7 +67,7 @@ public class SPTRunner {
             logger.info("Processing {}", testSuite);
             final String text;
             try(InputStream in = testSuite.getContent().getInputStream()) {
-                text = IOUtils.toString(in);
+                text = IOUtils.toString(in, StandardCharsets.UTF_8);
             } catch(IOException e) {
                 logger.error("Unable to process {}", e, testSuite);
                 continue;

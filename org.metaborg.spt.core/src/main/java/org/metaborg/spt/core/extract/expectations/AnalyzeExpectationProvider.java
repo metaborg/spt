@@ -1,9 +1,7 @@
 package org.metaborg.spt.core.extract.expectations;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
@@ -18,10 +16,10 @@ import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.Term;
+import org.spoofax.terms.util.TermUtils;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import javax.annotation.Nullable;
+import java.util.List;
 
 
 public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvider {
@@ -51,7 +49,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
     }
 
     @Override public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
-        final String cons = SPTUtil.consName(expectationTerm);
+        @Nullable final String cons = SPTUtil.consName(expectationTerm);
         switch(cons) {
             case CONS:
                 // this is a check for the number of messages of a given severity
@@ -66,7 +64,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
 
     @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
         logger.debug("Creating an expectation object for {}", expectationTerm);
-        final String cons = SPTUtil.consName(expectationTerm);
+        @Nullable final String cons = SPTUtil.consName(expectationTerm);
         switch(cons) {
             case CONS:
                 return getNumCheckExpectation(inputFragment, expectationTerm);
@@ -89,7 +87,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
         final MessageSeverity severity = getSeverity(sevTerm);
 
         // get the contents that should be part of the message
-        final String content = Term.asJavaString(LikeCheck.getContentTerm(expectationTerm));
+        final String content = TermUtils.toJavaString(LikeCheck.getContentTerm(expectationTerm));
 
         // get the selections from the 'at' part
         final IStrategoTerm optionalAtPart = LikeCheck.getOptionalAtPartTerm(expectationTerm);
@@ -120,7 +118,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             opt = Operation.EQUAL;
         } else {
             // it was a Some(optTerm)
-            final String optStr = SPTUtil.consName(optTerm);
+            @Nullable final String optStr = SPTUtil.consName(optTerm);
             switch(optStr) {
                 case EQ:
                     opt = Operation.EQUAL;
@@ -146,7 +144,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
         // get the region
         final ISourceRegion region = getRegion(inputFragment, expectationTerm);
 
-        return new AnalysisMessageExpectation(region, Term.asJavaInt(NumCheck.getNumTerm(expectationTerm)), severity,
+        return new AnalysisMessageExpectation(region, TermUtils.toJavaInt(NumCheck.getNumTerm(expectationTerm)), severity,
             selections, opt, null);
     }
 
@@ -204,7 +202,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             if(!checkOptionalOperator(getOptionalOperatorTerm(numCheck))) {
                 return false;
             }
-            if(!Term.isTermInt(getNumTerm(numCheck))) {
+            if(!TermUtils.isInt(getNumTerm(numCheck))) {
                 return false;
             }
             if(!checkSeverity(getSeverityTerm(numCheck))) {
@@ -242,7 +240,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             if(!checkSeverity(getSeverityTerm(expectationTerm))) {
                 return false;
             }
-            if(!Term.isTermString(getContentTerm(expectationTerm))) {
+            if(!TermUtils.isString(getContentTerm(expectationTerm))) {
                 return false;
             }
             if(!checkOptionalAtPart(getOptionalAtPartTerm(expectationTerm))) {
@@ -302,13 +300,13 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
 
             // check list of selections
             final IStrategoTerm selections = getAtPartSelectionsTerm(atPart);
-            if(!Term.isTermList(selections)) {
+            if(!TermUtils.isList(selections)) {
                 return false;
             }
             final IStrategoList selectionsList = (IStrategoList) selections;
             for(IStrategoTerm selectionRef : selectionsList) {
                 // should be an int
-                if(!Term.isTermInt(selectionRef)) {
+                if(!TermUtils.isInt(selectionRef)) {
                     return false;
                 }
             }
@@ -327,7 +325,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
             // Some(AtPart([SelectionRef(i), ...]))
             final IStrategoList list = (IStrategoList) getAtPartSelectionsTerm(atPart);
             for(IStrategoTerm sel : list) {
-                selections.add(Term.asJavaInt(sel));
+                selections.add(TermUtils.toJavaInt(sel));
             }
         }
         return selections;
