@@ -100,10 +100,17 @@ context-free syntax
 
   // running stratego strategies expectations
   OnPart.OnPart = <on #<INT>>
-  Expectation.Run = <run <STRAT> <OnPart?>>
-  Expectation.RunTo = <run <STRAT> <OnPart?> <ToPart>>
+  //Expectation.Run = <run <STRAT> <OnPart?>>
+  //Expectation.RunTo = <run <STRAT> <OnPart?> <ToPart>>
+  Expectation.Run = <run <STRAT><TermArgs?> <OnPart?> <ToPart?>>
   Expectation.RunToAterm = <run <STRAT> <OnPart?> <ToAterm>>
-
+  
+  // strategy argument
+  TermArgs.TermArgs = <(|<{Arg ","}*>)>
+  Arg.Int = INT
+  Arg.String = STRING
+  Arg = SelectionRef
+  
   // transformations
   Expectation.Transform = <transform <STRING>>
   Expectation.Transform = <transform <STRING> <ToPart>>
@@ -166,5 +173,4 @@ lexical restrictions
   StringPart2 -/- ~[\[\]]
   StringPart3 -/- ~[\[\]]
   StringPart4 -/- ~[\[\]]
-
 
