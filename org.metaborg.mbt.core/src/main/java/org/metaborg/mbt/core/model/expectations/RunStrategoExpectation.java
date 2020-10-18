@@ -21,21 +21,24 @@ public class RunStrategoExpectation extends AToPartExpectation {
     @Nullable private final Integer selection;
     @Nullable private final ISourceRegion selectionRegion;
     @Nullable private final List<IStrategoTerm> termArguments;
+    private final boolean expectedToFail;
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
         @Nullable Integer selection, @Nullable ISourceRegion selectionRegion) {
-        this(region, stratName, stratRegion, selection, selectionRegion, null, null, null, null);
+        this(region, stratName, stratRegion, selection, selectionRegion, null, null, null, null, false);
     }
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
         @Nullable Integer selection, @Nullable ISourceRegion selectionRegion, IFragment outputFragment,
-        @Nullable String langName, @Nullable ISourceRegion langRegion, List<IStrategoTerm> termArguments) {
+        @Nullable String langName, @Nullable ISourceRegion langRegion, List<IStrategoTerm> termArguments,
+        boolean expectedToFail) {
         super(region, outputFragment, langName, langRegion);
         this.strategy = stratName;
         this.stratRegion = stratRegion;
         this.selection = selection;
         this.selectionRegion = selectionRegion;
         this.termArguments = termArguments;
+        this.expectedToFail = expectedToFail;
     }
 
     /**
@@ -79,5 +82,14 @@ public class RunStrategoExpectation extends AToPartExpectation {
 	 */
 	public @Nullable List<IStrategoTerm> getArguments() {
 		return termArguments;
+	}
+	
+	/**
+	 * Flag if the strategy run is expected to fail
+	 * 
+	 * Default is false
+	 */
+	public boolean getExpectedToFail() {
+		return expectedToFail;
 	}
 }

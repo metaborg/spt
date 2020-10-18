@@ -30,6 +30,9 @@ public class SPTUtil {
     public static final String FRAGMENT_CONS = "Fragment";
     public static final String TAILPART_DONE_CONS = "Done";
     public static final String TAILPART_MORE_CONS = "More";
+    private static final String INT_CONS = "Int";
+    private static final String STRING_CONS = "String";
+    private static final String SELECTION_REF_CONS ="SelectionRef";
 
     /**
      * Get the name of the constructor of this term if it has one.
@@ -143,8 +146,6 @@ public class SPTUtil {
     private static final String ANNO_CONS = "Anno";
     private static final String LIST_CONS = "List";
     private static final String APPL_CONS = "Appl";
-    private static final String INT_CONS = "Int";
-    private static final String STRING_CONS = "String";
     private static final String WLD_CONS = "Wld";
 
     /**
@@ -312,5 +313,26 @@ public class SPTUtil {
                 b.append(join);
             }
         }
+    }
+    
+    public static boolean isStringLiteral(IStrategoTerm arg) {
+		return isStringConsEqual(arg, STRING_CONS);
+    }
+    
+    public static boolean isIntLiteral(IStrategoTerm arg) {
+		return isStringConsEqual(arg, INT_CONS);
+    }
+    
+    public static boolean isSelectionRef(IStrategoTerm arg) {
+		return isStringConsEqual(arg, SELECTION_REF_CONS);
+    }
+    
+    public static boolean isStringConsEqual(IStrategoTerm arg, String consName) {
+    	if (arg == null || consName == null) {
+    		return false;
+    	}
+    	
+		String argConsName = consName(arg);
+		return consName.equals(argConsName);
     }
 }

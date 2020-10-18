@@ -21,4 +21,8 @@ test run with one term arg [[[
   ]] run debug-test(|1)
 ]]] analysis succeeds
 
-
+test run with one term arg [[[
+  test run only on fragment (positive) [[
+    i int
+  ]] run debug-fail fails
+]]] analysis succeeds

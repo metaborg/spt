@@ -1,5 +1,6 @@
 package org.metaborg.spt.core.run.expectations;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
@@ -33,8 +35,11 @@ import org.metaborg.spt.core.run.SpoofaxFragmentResult;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoInt;
+import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
@@ -129,7 +134,10 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
             return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
         
-        List<IStrategoTerm> arguments = expectation.getArguments();
+        List<IStrategoTerm> arguments = parseArguments(test, expectation, actionResult, selections, messages);
+        if (!messages.isEmpty() ) {
+        	return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+        }
 
         // run the strategy until we are done
         boolean success = false;
@@ -153,13 +161,23 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                 		result = stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term, strategy, arguments);
                 	}
                 }
-                // if the strategy failed, try the next input term
-                if(result == null) {
-                    lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
-                        String.format("The given strategy %1$s failed during execution.", expectation.strategy()),
-                        null);
-                    continue;
+                
+                if(expectation.getExpectedToFail()) {
+                	if(result == null) {
+                		success = true;
+                	} else {
+	                    lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+		                        String.format("The given strategy %1$s is expected to fail but succeeded.", expectation.strategy()), null);
+                	}
+            		continue;
+                }  else {
+                	if(result == null) {
+                		lastMessage = MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+    	                        String.format("The given strategy %1$s failed during execution.", expectation.strategy()), null);
+                		continue;
+                	}
                 }
+                
                 // the strategy was successful
                 if(expectation.outputFragment() == null) {
                     // a successful invocation is all we need
@@ -210,7 +228,46 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
     }
 
 
-    /*
+    private List<IStrategoTerm> parseArguments(ITestCase test, RunStrategoExpectation expectation, IUnit parsedFragment,  List<ISourceRegion> selections, List<IMessage> messages) {
+    	if(test == null || expectation == null || expectation.getArguments() == null) {
+    		return null;
+    	}
+    	
+    	List<IStrategoTerm> parsedArgs = new ArrayList<>();
+    	
+    	for(IStrategoTerm arg: expectation.getArguments()) {
+    		if (SPTUtil.isStringLiteral(arg)) {
+    			IStrategoString stringTerm = TermUtils.toString(arg.getSubterm(0));
+    			parsedArgs.add(stringTerm);
+    		} else if (SPTUtil.isIntLiteral(arg)) {
+    			String stringValue = TermUtils.toString(arg.getSubterm(0)).stringValue();
+    			StrategoInt intTerm = new StrategoInt(Integer.parseInt(stringValue));
+    			parsedArgs.add(intTerm);
+    		} else if (SPTUtil.isSelectionRef(arg)) {
+	    		int index = Integer.parseInt(TermUtils.toJavaStringAt(arg, 0));
+	    		if (index > selections.size()) {
+	                messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
+	                        "Not enough selections to resolve #" + index, null));
+	                return null;
+	    		}
+	    		ISourceRegion selectedRegion = selections.get(index - 1);
+	    		
+	    		Iterable<IStrategoTerm> selectedTerms;
+	            if(parsedFragment instanceof ISpoofaxParseUnit) {
+	            	selectedTerms = traceService.fragmentsWithin((ISpoofaxParseUnit) parsedFragment, selectedRegion);
+	            } else {
+	            	selectedTerms = traceService.fragmentsWithin((ISpoofaxAnalyzeUnit) parsedFragment, selectedRegion);
+	            }
+	            selectedTerms.forEach(parsedArgs::add);
+    		}
+    	}
+    	
+    	logger.warn(parsedArgs.toString());
+		return parsedArgs;
+	}
+
+
+	/*
      * Obtain the AST nodes to try to run on.
      * 
      * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,

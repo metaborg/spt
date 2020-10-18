@@ -32,6 +32,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 	private static final ILogger logger = LoggerUtils.logger(RunStrategoExpectationProvider.class);
 
 	private static final String RUN = "Run";
+	private static final String FAILS = "Fails";
 
 	private final ISpoofaxFragmentBuilder fragmentBuilder;
 	private final ISpoofaxTracingService traceService;
@@ -75,8 +76,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 			return false;
 		}
 
-
-		if (!FragmentUtil.checkOptionalToPart(getToPart(expectationTerm))) {
+		if (!checkResult(getResultPart(expectationTerm))) {
 			return false;
 		}
 
@@ -106,7 +106,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 			}
 		} 
 
-		final @Nullable IStrategoTerm toPart = SPTUtil.getOptionValue(getToPart(expectationTerm));
+		final @Nullable IStrategoTerm toPart = getToPart(expectationTerm);
 		String langName = null;
 		ISourceRegion langRegion = null;
 		IFragment outputFragment = null;
@@ -118,15 +118,14 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 					.withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
 		}
 		
+		boolean expectedToFail = getExpectedToFail(expectationTerm);
+		
 		IStrategoTerm termArgumentsTerm = SPTUtil.getOptionValue(getTermArguments(expectationTerm));
-		logger.warn("term arguments term:" + termArgumentsTerm);
 		IStrategoTerm termArguments = termArgumentsTerm != null ? termArgumentsTerm.getSubterm(0) : null;
-		logger.warn("term arguments:" + termArguments);
 		final List<IStrategoTerm> termArgumentList = TermUtils.asJavaList(termArguments).orElse(null);
-		logger.warn("term args list: " + termArgumentList);
 
 		return new RunStrategoExpectation(region, strategyName, stratLoc.region(), selection, selectionRegion,
-				outputFragment, langName, langRegion, termArgumentList);
+				outputFragment, langName, langRegion, termArgumentList, expectedToFail);
 	}
 
 	private IStrategoTerm getStrategyName(IStrategoTerm expectation) {
@@ -141,23 +140,58 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 		return expectation.getSubterm(2);
 	}
 
-	private IStrategoTerm getToPart(IStrategoTerm expectation) {
+	private IStrategoTerm getResultPart(IStrategoTerm expectation) {
 		return expectation.getSubterm(3);
+	}
+	
+	private IStrategoTerm getToPart(IStrategoTerm expectation) {
+		IStrategoTerm result = SPTUtil.getOptionValue(getResultPart(expectation));
+		if (FragmentUtil.checkToPart(result)) {
+			return result;
+		} else {
+			return null;
+		}
+		
+	}
+	
+	private boolean getExpectedToFail(IStrategoTerm expectation) {
+		IStrategoTerm result = SPTUtil.getOptionValue(getResultPart(expectation));
+		String constructor = SPTUtil.consName(result);
+		if(FAILS.equals(constructor)) {
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	private boolean checkOptionalTermArgs(IStrategoTerm term) {
-		logger.warn("check term args: " + term);
 		if (!SPTUtil.checkOption(term)) {
 			return false;
 		}
 
 		final IStrategoTerm args = SPTUtil.getOptionValue(term);
-		logger.warn("args: " + args);
 		if (args == null) {
 			logger.warn("true");
 			return true;
 		} else {
 			return TermUtils.isList(args.getSubterm(0));
+		}
+	}
+	
+	private boolean checkResult(IStrategoTerm resultPart) {
+		if (!SPTUtil.checkOption(resultPart)) {
+			return false;
+		}
+		final IStrategoTerm result = SPTUtil.getOptionValue(resultPart);
+		if (result == null) {
+			return true;
+		}
+		String constructor = SPTUtil.consName(result);
+		if(FAILS.equals(constructor)) {
+			return true;
+		} else {
+			return FragmentUtil.checkToPart(result);
 		}
 	}
 

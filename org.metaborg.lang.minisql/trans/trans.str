@@ -13,6 +13,9 @@ rules
   debug-test : ast -> ast 
   where
   	<debug> "test"  	
+  	
+  debug-fail = fail
+    	
 
   my-id = id
   
