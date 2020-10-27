@@ -11,7 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 /**
  * An expectation for running Stratego strategies.
  * 
- * As the usage of Stratego as transformation language is kind of Spoofax specific, the expectation is not very generic. 
+ * As the usage of Stratego as transformation language is kind of Spoofax specific, the expectation is not very generic.
  * But for now it's fine where it is.
  */
 public class RunStrategoExpectation extends AToPartExpectation {

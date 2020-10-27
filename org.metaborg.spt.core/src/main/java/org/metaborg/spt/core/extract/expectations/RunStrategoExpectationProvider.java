@@ -38,8 +38,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject
-    public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder, 
+    @Inject public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder, 
         ISpoofaxTracingService traceService, FragmentUtil fragmentUtil) {
         this.fragmentBuilder = fragmentBuilder;
         this.traceService = traceService;
@@ -79,8 +78,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
         return true;
     }
 
-    @Override
-    public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
+    @Override public ITestExpectation createExpectation(IFragment inputFragment, IStrategoTerm expectationTerm) {
         ISourceLocation loc = traceService.location(expectationTerm);
         ISourceRegion region = loc == null ? inputFragment.getRegion() : loc.region();
 
