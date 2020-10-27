@@ -1,4 +1,4 @@
-package org.metaborg.mbt.core.model.expectations;
+package org.metaborg.spt.core.expectations;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
+import org.metaborg.mbt.core.model.expectations.AToPartExpectation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
