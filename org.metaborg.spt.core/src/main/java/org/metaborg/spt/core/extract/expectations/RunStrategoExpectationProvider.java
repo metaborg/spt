@@ -38,7 +38,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder, 
+    @Inject public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder,
         ISpoofaxTracingService traceService, FragmentUtil fragmentUtil) {
         this.fragmentBuilder = fragmentBuilder;
         this.traceService = traceService;
