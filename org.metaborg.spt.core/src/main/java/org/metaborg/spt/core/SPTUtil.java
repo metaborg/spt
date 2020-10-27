@@ -30,9 +30,6 @@ public class SPTUtil {
     public static final String FRAGMENT_CONS = "Fragment";
     public static final String TAILPART_DONE_CONS = "Done";
     public static final String TAILPART_MORE_CONS = "More";
-    private static final String INT_CONS = "Int";
-    private static final String STRING_CONS = "String";
-    private static final String SELECTION_REF_CONS ="SelectionRef";
 
     /**
      * Get the name of the constructor of this term if it has one.
@@ -147,6 +144,9 @@ public class SPTUtil {
     private static final String LIST_CONS = "List";
     private static final String APPL_CONS = "Appl";
     private static final String WLD_CONS = "Wld";
+    private static final String INT_CONS = "Int";
+    private static final String STRING_CONS = "String";
+    private static final String SELECTION_REF_CONS ="SelectionRef";
 
     /**
      * Check if the given AST matches the given SPT ATerm match pattern.
@@ -324,7 +324,7 @@ public class SPTUtil {
     }
     
     public static boolean isSelectionRef(IStrategoTerm arg) {
-		return isStringConsEqual(arg, SELECTION_REF_CONS);
+        return isStringConsEqual(arg, SELECTION_REF_CONS);
     }
     
     public static boolean isStringConsEqual(IStrategoTerm arg, String consName) {

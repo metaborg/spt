@@ -8,14 +8,14 @@ rules
   
   debug-test(|t) : ast -> ast 
   where
-  	<debug> t
-  	
+    <debug> t
+
   debug-test : ast -> ast 
   where
-  	<debug> "test"  	
-  	
+    <debug> "test"  	
+
   debug-fail = fail
-    	
+
 
   my-id = id
   
