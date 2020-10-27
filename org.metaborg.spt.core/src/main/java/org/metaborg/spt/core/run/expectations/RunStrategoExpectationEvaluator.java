@@ -284,9 +284,8 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
     /*
      * Obtain the AST nodes to try to run on.
      * 
-     * We collect all terms with the exact right offsets, and try to execute the
-     * strategy on each of these terms, starting on the outermost term, until we
-     * processed them all or one of them passed successfully.
+     * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,
+     * starting on the outermost term, until we processed them all or one of them passed successfully.
      */
     private List<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoExpectation expectation, final IUnit result,
         List<ISourceRegion> selections, List<IMessage> outMessages) {

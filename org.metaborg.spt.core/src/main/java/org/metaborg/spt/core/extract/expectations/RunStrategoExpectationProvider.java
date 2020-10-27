@@ -22,8 +22,7 @@ import org.spoofax.terms.util.TermUtils;
 import com.google.inject.Inject;
 
 /**
- * Runs Stratego strategies on selections or the entire test and compares
- * results.
+ * Runs Stratego strategies on selections or the entire test and compares results.
  * 
  * For now, we only run against the AST nodes of the analyzed AST.
  */
@@ -40,8 +39,8 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
     private final FragmentUtil fragmentUtil;
 
     @Inject
-    public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder, ISpoofaxTracingService traceService,
-            FragmentUtil fragmentUtil) {
+    public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder, 
+        ISpoofaxTracingService traceService, FragmentUtil fragmentUtil) {
         this.fragmentBuilder = fragmentBuilder;
         this.traceService = traceService;
         this.fragmentUtil = fragmentUtil;

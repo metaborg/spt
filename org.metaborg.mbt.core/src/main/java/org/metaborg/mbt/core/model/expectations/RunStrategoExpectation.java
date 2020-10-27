@@ -11,31 +11,27 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 /**
  * An expectation for running Stratego strategies.
  * 
- * As the usage of Stratego as transformation language is kind of Spoofax
- * specific, the expectation is not very generic. But for now it's fine where it
- * is.
+ * As the usage of Stratego as transformation language is kind of Spoofax specific, the expectation is not very generic. 
+ * But for now it's fine where it is.
  */
 public class RunStrategoExpectation extends AToPartExpectation {
 
     private final String strategy;
     private final ISourceRegion stratRegion;
-    @Nullable
-    private final Integer selection;
-    @Nullable
-    private final ISourceRegion selectionRegion;
-    @Nullable
-    private final List<IStrategoTerm> termArguments;
+    @Nullable private final Integer selection;
+    @Nullable private final ISourceRegion selectionRegion;
+    @Nullable private final List<IStrategoTerm> termArguments;
     private final boolean expectedToFail;
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
-            @Nullable Integer selection, @Nullable ISourceRegion selectionRegion) {
+        @Nullable Integer selection, @Nullable ISourceRegion selectionRegion) {
         this(region, stratName, stratRegion, selection, selectionRegion, null, null, null, null, false);
     }
 
     public RunStrategoExpectation(ISourceRegion region, String stratName, ISourceRegion stratRegion,
-            @Nullable Integer selection, @Nullable ISourceRegion selectionRegion, IFragment outputFragment,
-            @Nullable String langName, @Nullable ISourceRegion langRegion, List<IStrategoTerm> termArguments,
-            boolean expectedToFail) {
+        @Nullable Integer selection, @Nullable ISourceRegion selectionRegion, IFragment outputFragment,
+        @Nullable String langName, @Nullable ISourceRegion langRegion, List<IStrategoTerm> termArguments,
+        boolean expectedToFail) {
         super(region, outputFragment, langName, langRegion);
         this.strategy = stratName;
         this.stratRegion = stratRegion;
@@ -69,8 +65,7 @@ public class RunStrategoExpectation extends AToPartExpectation {
     }
 
     /**
-     * The region of the reference to the selection on which the strategy should be
-     * executed.
+     * The region of the reference to the selection on which the strategy should be executed.
      * 
      * I.e. the region of the '#n' part.
      * 
