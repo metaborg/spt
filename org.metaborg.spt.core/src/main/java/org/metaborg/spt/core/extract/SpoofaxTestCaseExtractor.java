@@ -23,6 +23,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.SPTUtil;
+import org.metaborg.spt.core.model.expectations.SpoofaxNoExpectationError;
 import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -170,6 +171,9 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                             // TODO: not a very good way of error reporting, but it works for now
                             // also see SpoofaxTestCaseBuilder.build()
                             if(expectation instanceof NoExpectationError) {
+                                String messageStr = expectation instanceof SpoofaxNoExpectationError
+                                        ? "Unable to evaluate this test expectation. No ITestExpectation found that can handle: " + ((SpoofaxNoExpectationError)expectation).getTerm()
+                                        : "Unable to evaluate this test expectation. No ITestExpectation found that can handle this.";
                                 ISourceRegion region = expectation.region();
                                 // @formatter:off
                                 IMessage m = MessageBuilder.create()
@@ -177,8 +181,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
                                     .asError()
                                     .withSource(test.getResource())
                                     .withRegion(region)
-                                    .withMessage(
-                                        "Unable to evaluate this test expectation. No ITestExpectation found that can handle this.")
+                                    .withMessage(messageStr)
                                     .build();
                                 // @formatter:on
                                 extraMessages.add(m);

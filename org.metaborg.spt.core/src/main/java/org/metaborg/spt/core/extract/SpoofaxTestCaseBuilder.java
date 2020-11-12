@@ -17,6 +17,7 @@ import org.metaborg.mbt.core.model.expectations.ITestExpectation;
 import org.metaborg.mbt.core.model.expectations.NoExpectationError;
 import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
+import org.metaborg.spt.core.model.expectations.SpoofaxNoExpectationError;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -122,7 +123,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
                 // The main reason for this is that the builder can't give back any messages, so we rely on someone
                 // after us to check for these things and do the error message reporting.
                 ISourceLocation loc = trace.location(expectationTerm);
-                expectations.add(new NoExpectationError(loc == null ? descriptionRegion : loc.region()));
+                expectations.add(new SpoofaxNoExpectationError(loc == null ? descriptionRegion : loc.region(), expectationTerm));
             }
         }
 
