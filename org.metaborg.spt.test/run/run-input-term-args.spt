@@ -1,0 +1,28 @@
+module run-input2
+language SPT-Interactive
+
+fixture [[[
+  module run-input
+  language MiniSQL
+
+  fixture [[
+    CREATE TABLE T(
+      j int,
+      [[...]]
+    );
+  ]]
+
+  [[[...]]]
+]]]
+
+test run with one term arg [[[
+  test run only on fragment (positive) [[
+    i int
+  ]] run debug-test(|1)
+]]] analysis succeeds
+
+test run with one term arg [[[
+  test run only on fragment (positive) [[
+    i int
+  ]] run debug-fail fails
+]]] analysis succeeds

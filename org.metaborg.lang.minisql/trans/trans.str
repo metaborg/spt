@@ -5,6 +5,17 @@ imports
 
 rules
   is-coldef = ?ColDef(_, _)
+  
+  debug-test(|t) : ast -> ast 
+  where
+    <debug> t
+
+  debug-test : ast -> ast 
+  where
+    <debug> "test"  	
+
+  debug-fail = fail
+
 
   my-id = id
   

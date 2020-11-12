@@ -98,6 +98,19 @@ public class FragmentUtil {
             return false;
         }
     }
+    
+    public static boolean checkOptionalToPart(IStrategoTerm term) {
+        if (!SPTUtil.checkOption(term)) {
+            return false;
+        }
+
+        final IStrategoTerm toPart = SPTUtil.getOptionValue(term);
+        if (toPart == null) {
+            return true;
+        } else {
+            return checkToPart(toPart);
+        }
+    }
 
     /**
      * Check if the given term is a proper Fragment term.
@@ -531,6 +544,19 @@ public class FragmentUtil {
             return null;
         } else {
             return analyzeFragment(fragment, lang.activeImpl(), messages, test, fragmentConfig);
+        }
+    }
+
+    public static boolean checkOptionalOnPart(IStrategoTerm term) {
+        if (!SPTUtil.checkOption(term)) {
+            return false;
+        }
+
+        final IStrategoTerm onPart = SPTUtil.getOptionValue(term);
+        if (onPart == null) {
+            return true;
+        } else {
+            return TermUtils.isInt(onPart);
         }
     }
 }

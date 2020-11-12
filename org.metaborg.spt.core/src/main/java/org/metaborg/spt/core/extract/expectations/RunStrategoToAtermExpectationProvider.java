@@ -10,6 +10,7 @@ import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.expectations.RunStrategoToAtermExpectation;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
+import org.metaborg.spt.core.run.FragmentUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
@@ -91,7 +92,7 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
         }
 
         // check optional OnPart
-        if(!RunStrategoExpectationProvider.checkOptionalOnPart(getOptionalOnPartTerm(expectationTerm))) {
+        if(!FragmentUtil.checkOptionalOnPart(getOptionalOnPartTerm(expectationTerm))) {
             return false;
         }
 
