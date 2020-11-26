@@ -277,7 +277,6 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
             }
         }
 
-        logger.warn(parsedArgs.toString());
         return parsedArgs;
     }
 
