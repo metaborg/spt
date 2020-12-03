@@ -35,6 +35,7 @@ import org.metaborg.spt.core.run.SpoofaxFragmentResult;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -267,13 +268,18 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     selectedTerms = traceService.fragmentsWithin((ISpoofaxAnalyzeUnit) parsedFragment, selectedRegion);
                 }
 
-                if (((Collection<?>) selectedTerms).isEmpty()) {
+                Collection<IStrategoTerm> selectedTermsCollection = (Collection<IStrategoTerm>) selectedTerms;
+                if (selectedTermsCollection.isEmpty()) {
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                             "Could not resolve this selection to an AST node.", null));
                     return null;
+                } else if (selectedTermsCollection.size() == 1) {
+                    parsedArgs.addAll(selectedTermsCollection);
+                } else {
+                    IStrategoList strategoList = termFactory.makeList(selectedTermsCollection);
+                    parsedArgs.add(strategoList);
                 }
-
-                selectedTerms.forEach(parsedArgs::add);
+                
             }
         }
 
