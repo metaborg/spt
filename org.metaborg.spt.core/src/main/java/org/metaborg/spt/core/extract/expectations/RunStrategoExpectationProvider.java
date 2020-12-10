@@ -28,8 +28,6 @@ import com.google.inject.Inject;
  */
 public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationProvider {
 
-    private static final ILogger logger = LoggerUtils.logger(RunStrategoExpectationProvider.class);
-
     private static final String RUN = "Run";
     private static final String FAILS = "Fails";
 
@@ -48,8 +46,6 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
     @Override
     public boolean canEvaluate(IFragment inputFragment, IStrategoTerm expectationTerm) {
         String constructor = SPTUtil.consName(expectationTerm);
-
-        logger.warn("expectation: " + expectationTerm);
 
         if (!RUN.equals(constructor)) {
             return false;
@@ -165,7 +161,6 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 
         final IStrategoTerm args = SPTUtil.getOptionValue(term);
         if (args == null) {
-            logger.warn("true");
             return true;
         } else {
             return TermUtils.isList(args.getSubterm(0));
