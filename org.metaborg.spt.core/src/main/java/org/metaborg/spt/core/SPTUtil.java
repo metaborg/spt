@@ -143,6 +143,7 @@ public class SPTUtil {
     private static final String ANNO_CONS = "Anno";
     private static final String LIST_CONS = "List";
     private static final String APPL_CONS = "Appl";
+    private static final String TUPLE_CONS = "Tuple";
     private static final String WLD_CONS = "Wld";
     private static final String INT_CONS = "Int";
     private static final String STRING_CONS = "String";
@@ -206,6 +207,31 @@ public class SPTUtil {
                 if(!SPTUtil.consName(ast).equals(TermUtils.toJavaString(match.getSubterm(0)))) {
                     logger.debug("The constructor {}, did not match the expected constructor {}.",
                         SPTUtil.consName(ast), match.getSubterm(0));
+                    result = false;
+                    break;
+                }
+                matchList = (IStrategoList) match.getSubterm(1);
+                if(ast.getSubtermCount() != matchList.size()) {
+                    logger.debug("The number of children {}, did not match the expected number {}",
+                        ast.getSubtermCount(), matchList.size());
+                    result = false;
+                    break;
+                }
+                matchIt = matchList.iterator();
+                stop = false;
+                for(int i = 0; i < ast.getSubtermCount(); i++) {
+                    if(!checkATermMatch(ast.getSubterm(i), matchIt.next(), factory)) {
+                        stop = true;
+                        break;
+                    }
+                }
+                result = !stop;
+                break;
+            case TUPLE_CONS:
+                // Tuple([KidMatch, ...])
+                // we ignore any annotations on the AST
+                if(!TermUtils.isTuple(ast)) {
+                    logger.debug("The term is not a tuple.");
                     result = false;
                     break;
                 }
