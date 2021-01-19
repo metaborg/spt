@@ -10,7 +10,7 @@ TermAnno.Anno = <<PreTerm>{<{PreTerm ", "}*>}>
 TermList.List = <[<{Term ", "}*>]>
 
 Term.Appl = <<ID>(<{MidTerm ", "}*>)>
-Term.Tuple = <(<MidTerm ", "}*>)>
+Term.Tuple = <(<{MidTerm ", "}*>)>
 Term.Int = <<INT>>
 Term.String = <<ASTRING>>
 Term.Wld = <_>
