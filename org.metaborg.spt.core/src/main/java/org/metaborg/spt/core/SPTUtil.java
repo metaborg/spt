@@ -143,6 +143,7 @@ public class SPTUtil {
     private static final String ANNO_CONS = "Anno";
     private static final String LIST_CONS = "List";
     private static final String APPL_CONS = "Appl";
+    private static final String TUPLE_CONS = "Tuple";
     private static final String WLD_CONS = "Wld";
     private static final String INT_CONS = "Int";
     private static final String STRING_CONS = "String";
@@ -163,7 +164,7 @@ public class SPTUtil {
         logger.debug("Checking match {} against term {}", match, ast);
         IStrategoList matchList = null;
         Iterator<IStrategoTerm> matchIt;
-        boolean stop;
+        boolean allSubtermsMatch;
         final boolean result;
         switch(SPTUtil.consName(match)) {
             case ANNO_CONS:
@@ -186,14 +187,14 @@ public class SPTUtil {
                 }
                 matchIt = matchList.iterator();
                 final Iterator<IStrategoTerm> listIt = list.iterator();
-                stop = false;
+                allSubtermsMatch = true;
                 while(matchIt.hasNext()) {
                     if(!checkATermMatch(listIt.next(), matchIt.next(), factory)) {
-                        stop = true;
+                        allSubtermsMatch = false;
                         break;
                     }
                 }
-                result = !stop;
+                result = allSubtermsMatch;
                 break;
             case APPL_CONS:
                 // Appl("ConsName", [KidMatch, ...])
@@ -217,14 +218,39 @@ public class SPTUtil {
                     break;
                 }
                 matchIt = matchList.iterator();
-                stop = false;
+                allSubtermsMatch = true;
                 for(int i = 0; i < ast.getSubtermCount(); i++) {
                     if(!checkATermMatch(ast.getSubterm(i), matchIt.next(), factory)) {
-                        stop = true;
+                        allSubtermsMatch = false;
                         break;
                     }
                 }
-                result = !stop;
+                result = allSubtermsMatch;
+                break;
+            case TUPLE_CONS:
+                // Tuple([KidMatch, ...])
+                // we ignore any annotations on the AST
+                if(!TermUtils.isTuple(ast)) {
+                    logger.debug("The term is not a tuple.");
+                    result = false;
+                    break;
+                }
+                matchList = (IStrategoList) match.getSubterm(1);
+                if(ast.getSubtermCount() != matchList.size()) {
+                    logger.debug("The number of children {}, did not match the expected number {}",
+                        ast.getSubtermCount(), matchList.size());
+                    result = false;
+                    break;
+                }
+                matchIt = matchList.iterator();
+                allSubtermsMatch = true;
+                for(int i = 0; i < ast.getSubtermCount(); i++) {
+                    if(!checkATermMatch(ast.getSubterm(i), matchIt.next(), factory)) {
+                        allSubtermsMatch = false;
+                        break;
+                    }
+                }
+                result = allSubtermsMatch;
                 break;
             case INT_CONS:
                 // Int("n")
