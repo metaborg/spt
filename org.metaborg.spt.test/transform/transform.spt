@@ -45,4 +45,16 @@ test allow newlines in ATerm strings (positive) [[[
 </newline>"
 ]]] analysis succeeds
 
+test allow tuples in ATerms (positive) [[[
+  test allow tuples in ATerms (positive) [[
+    i int
+  ]] transform "Return Tuple" to (1, 2)
+]]] analysis succeeds
+
+test allow tuples nested in ATerms (positive) [[[
+  test allow tuples nested in ATerms (positive) [[
+    i int
+  ]] transform "Return Nested Tuple" to ColDef("i", (1, 2))
+]]] analysis succeeds
+
 
