@@ -235,7 +235,7 @@ public class SPTUtil {
                     result = false;
                     break;
                 }
-                matchList = (IStrategoList) match.getSubterm(1);
+                matchList = (IStrategoList) match.getSubterm(0);
                 if(ast.getSubtermCount() != matchList.size()) {
                     logger.debug("The number of children {}, did not match the expected number {}",
                         ast.getSubtermCount(), matchList.size());
