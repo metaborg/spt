@@ -37,3 +37,13 @@ rules
 </newline>")
     with
       filename := <guarantee-extension(|"aterm")> path
+
+  transformation-tuple :
+  (_, _, _, path, _) -> (filename, (1,2))
+    with
+      filename := <guarantee-extension(|"aterm")> path
+  
+  transformation-nested-tuple :
+  (_, _, _, path, _) -> (filename, ColDef("i", (1,2)))
+    with
+      filename := <guarantee-extension(|"aterm")> path

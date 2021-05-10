@@ -34,3 +34,5 @@ menus
     submenu: "SubMenu"
       action: "Print id" = transformation-id
     end
+    action: "Return Tuple" = transformation-tuple
+    action: "Return Nested Tuple" = transformation-nested-tuple
