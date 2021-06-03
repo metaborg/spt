@@ -314,6 +314,12 @@ public class SPTUtil {
                 prettyPrintListOfMatches((IStrategoList) match.getSubterm(1), ", ", b);
                 b.append(')');
                 return b;
+            case TUPLE_CONS:
+                // Tuple([KidMatch, ...])
+                b.append('(');
+                prettyPrintListOfMatches((IStrategoList) match.getSubterm(0), ", ", b);
+                b.append(')');
+                return b;
             case INT_CONS:
                 // Int("n")
                 b.append(TermUtils.toJavaString(match.getSubterm(0)));
