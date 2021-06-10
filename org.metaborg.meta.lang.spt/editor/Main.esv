@@ -1,5 +1,9 @@
 module Main
 
+imports
+
+  libspoofax/color/default
+
 language
 
   table         : target/metaborg/sdf.tbl
