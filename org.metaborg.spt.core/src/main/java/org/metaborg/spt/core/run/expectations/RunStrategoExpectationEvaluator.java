@@ -139,10 +139,10 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                 null));
             return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
-        
+
         List<IStrategoTerm> arguments = parseArguments(test, expectation, actionResult, selections, messages);
         if (!messages.isEmpty() ) {
-        	return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
         // run the strategy until we are done
@@ -163,11 +163,9 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     }
                 } else {
                     if (arguments == null) {
-                        result = stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term,
-                                strategy);
+                        result = stratego.invoke(input.getLanguageUnderTest(), context, term, strategy);
                     } else {
-                        result = stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term, strategy,
-                                arguments);
+                        result = stratego.invoke(input.getLanguageUnderTest(), context, term, strategy, arguments);
                     }
                 }
 

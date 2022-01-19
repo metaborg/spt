@@ -98,6 +98,7 @@ dependencies {
     compile     "com.google.code.findbugs:jsr305:3.0.0"
     compile     "org.apache.commons:commons-lang3:3.4"
     compile     "org.apache.commons:commons-vfs2:2.1"
+    compile     "com.google.guava:failureaccess:1.0.1"
     compile     "com.google.inject:guice:$guiceVersion"
     compile     "com.google.inject.extensions:guice-assistedinject:$guiceVersion"
     compile     "com.google.inject.extensions:guice-multibindings:$guiceVersion"
