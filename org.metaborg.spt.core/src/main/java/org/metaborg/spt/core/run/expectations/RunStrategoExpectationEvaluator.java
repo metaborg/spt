@@ -13,6 +13,8 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.messages.MessageSeverity;
+import org.metaborg.core.messages.MessageType;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.unit.IUnit;
 import org.metaborg.mbt.core.model.IFragment;
@@ -132,12 +134,15 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
 
         // before we try to run anything, make sure we have something to execute on
         if(terms.isEmpty()) {
+            messages.add(MessageFactory.newMessage(test.getResource(), test.getDescriptionRegion(),
+                "Could not select fragment(s) to run strategy on.", MessageSeverity.ERROR, MessageType.TRANSFORMATION,
+                null));
             return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
-        
+
         List<IStrategoTerm> arguments = parseArguments(test, expectation, actionResult, selections, messages);
         if (!messages.isEmpty() ) {
-        	return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
+            return new SpoofaxTestExpectationOutput(false, messages, fragmentResults);
         }
 
         // run the strategy until we are done
@@ -158,11 +163,9 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     }
                 } else {
                     if (arguments == null) {
-                        result = stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term,
-                                strategy);
+                        result = stratego.invoke(input.getLanguageUnderTest(), context, term, strategy);
                     } else {
-                        result = stratego.invoke(input.getLanguageUnderTest(), analysisResult.context(), term, strategy,
-                                arguments);
+                        result = stratego.invoke(input.getLanguageUnderTest(), context, term, strategy, arguments);
                     }
                 }
 
