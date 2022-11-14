@@ -1,5 +1,5 @@
 ---
-id: org.metaborg:spt.integrationtest:2.6.0-SNAPSHOT
+id: org.metaborg:spt.integrationtest:2.5.18
 name: spt-integrationtest
 dependencies:
   compile:
