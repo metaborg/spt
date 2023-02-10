@@ -1,6 +1,8 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -13,6 +15,7 @@ import org.metaborg.core.context.ITemporaryContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.transform.TransformConfig;
 import org.metaborg.core.transform.TransformException;
 import org.metaborg.core.unit.IUnit;
@@ -45,7 +48,7 @@ import com.google.inject.Inject;
 
 /**
  * Covers the TransformationExpectation.
- * 
+ *
  * It parses or analyzes the input fragment and output fragment, depending on what the transformation requires. Then it
  * compares the resulting ASTs.
  */
@@ -122,10 +125,24 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
         boolean useAnalysis = transformService.requiresAnalysis(lut, expectation.goal());
 
+        final @Nullable Integer selectionIdx = expectation.selection();
+        final List<ISourceRegion> selections = test.getFragment().getSelections();
+        final @Nullable ISourceRegion selection;
+        if(selectionIdx == null) {
+            // no selection
+            selection = null;
+        } else if(selectionIdx > selections.size()) {
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
+                "Not enough selections to resolve #" + expectation.selection(), null));
+            return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
+        } else {
+            selection = selections.get(selectionIdx - 1);
+        }
+
         try {
             // transform the input fragment
             IStrategoTerm result =
-                transform(input, expectation.goal(), ctx, test, messages, useAnalysis, transformService);
+                transform(input, expectation.goal(), selection, ctx, test, messages, useAnalysis, transformService);
             if(result != null) {
                 if(expectation.outputFragment() == null) {
                     success = true;
@@ -195,9 +212,9 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     // run the transformation on either the analysis or parse result
     protected static @Nullable IStrategoTerm transform(
-        ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ITransformGoal goal, IContext ctx,
-        ITestCase test, Collection<IMessage> messages, boolean useAnalysis, ISpoofaxTransformService transformService)
-        throws TransformException {
+        ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ITransformGoal goal,
+        @Nullable ISourceRegion selection, IContext ctx, ITestCase test, Collection<IMessage> messages,
+        boolean useAnalysis, ISpoofaxTransformService transformService) throws TransformException {
 
         ISpoofaxTransformUnit<? extends IUnit> result;
         if(useAnalysis) {
@@ -208,12 +225,12 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
                     "Expected analysis to succeed before transforming.", null));
             } else {
                 Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> results =
-                    transformService.transform(a, ctx, goal, new TransformConfig(true));
+                    transformService.transform(a, ctx, goal, new TransformConfig(selection, true));
                 result = getTransformResult(goal, results, test, messages);
             }
         } else {
             Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> results = transformService
-                .transform(input.getFragmentResult().getParseResult(), ctx, goal, new TransformConfig(true));
+                .transform(input.getFragmentResult().getParseResult(), ctx, goal, new TransformConfig(selection, true));
             result = getTransformResult(goal, results, test, messages);
         }
         if(result != null && result.success()) {

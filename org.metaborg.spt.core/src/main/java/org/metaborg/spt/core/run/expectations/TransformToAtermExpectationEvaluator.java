@@ -12,6 +12,7 @@ import org.metaborg.core.context.ITemporaryContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.transform.TransformException;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
@@ -34,9 +35,11 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
+import javax.annotation.Nullable;
+
 /**
  * Covers the Spoofax specific TransformationToAtermExpectation.
- * 
+ *
  * It requires parsing or analyzing the input fragment, depending on what the transformation requires. Then it compares
  * the resulting AST with the expected ATerm result.
  */
@@ -108,10 +111,24 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
 
         boolean useAnalysis = transformService.requiresAnalysis(lut, expectation.goal());
 
+        final @Nullable Integer selectionIdx = expectation.selection();
+        final List<ISourceRegion> selections = test.getFragment().getSelections();
+        final @Nullable ISourceRegion selection;
+        if(selectionIdx == null) {
+            // no selection
+            selection = null;
+        } else if(selectionIdx > selections.size()) {
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
+                "Not enough selections to resolve #" + expectation.selection(), null));
+            return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
+        } else {
+            selection = selections.get(selectionIdx - 1);
+        }
+
         try {
             // transform the input fragment
-            IStrategoTerm result = TransformExpectationEvaluator.transform(input, expectation.goal(), ctx, test,
-                messages, useAnalysis, transformService);
+            IStrategoTerm result = TransformExpectationEvaluator.transform(input, expectation.goal(), selection, ctx,
+                test, messages, useAnalysis, transformService);
             if(result != null) {
                 // do stuff to the output fragment
                 final IStrategoTerm out = expectation.expectedResult();
