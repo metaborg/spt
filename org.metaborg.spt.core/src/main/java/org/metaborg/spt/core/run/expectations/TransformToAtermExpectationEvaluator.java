@@ -2,6 +2,7 @@ package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.metaborg.core.action.ITransformGoal;
@@ -32,7 +33,6 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
@@ -59,7 +59,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, TransformToAtermExpectation expectation) {
-        return Lists.newLinkedList();
+        return new LinkedList<>();
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, TransformToAtermExpectation expectation) {
@@ -72,7 +72,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
         boolean success = false;
         final ITestCase test = input.getTestCase();
         final ILanguageImpl lut = input.getLanguageUnderTest();
-        final List<IMessage> messages = Lists.newLinkedList();
+        final List<IMessage> messages = new LinkedList<>();
 
         // obtain a context
         ITemporaryContext tempCtx = null;

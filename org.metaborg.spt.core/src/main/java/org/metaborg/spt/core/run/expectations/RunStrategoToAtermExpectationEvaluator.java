@@ -1,7 +1,9 @@
 package org.metaborg.spt.core.run.expectations;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -61,7 +63,7 @@ public class RunStrategoToAtermExpectationEvaluator
 
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoToAtermExpectation expectation) {
-        return expectation.selection() == null ? Lists.newArrayList()
+        return expectation.selection() == null ? new ArrayList<>()
             : Lists.newArrayList(expectation.selection());
     }
 
@@ -77,7 +79,7 @@ public class RunStrategoToAtermExpectationEvaluator
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input,
         RunStrategoToAtermExpectation expectation) {
 
-        List<IMessage> messages = Lists.newLinkedList();
+        List<IMessage> messages = new LinkedList<>();
         // the 'to ATerm' variant of this expectation doesn't have a fragment
 
         ITestCase test = input.getTestCase();
@@ -180,7 +182,7 @@ public class RunStrategoToAtermExpectationEvaluator
      */
     private List<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoToAtermExpectation expectation,
         final IUnit result, List<ISourceRegion> selections, List<IMessage> outMessages) {
-        final List<IStrategoTerm> terms = Lists.newLinkedList();
+        final List<IStrategoTerm> terms = new LinkedList<>();
         if(expectation.selection() == null) {
             // no selections, so we run on the entire ast
             // but only on the part that is inside the actual fragment, not the fixture

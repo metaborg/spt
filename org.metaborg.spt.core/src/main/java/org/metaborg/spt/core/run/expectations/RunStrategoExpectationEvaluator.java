@@ -2,6 +2,7 @@ package org.metaborg.spt.core.run.expectations;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -72,7 +73,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
 
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoExpectation expectation) {
-        return expectation.selection() == null ? Lists.newArrayList()
+        return expectation.selection() == null ? new ArrayList<>()
             : Lists.newArrayList(expectation.selection());
     }
 
@@ -89,8 +90,8 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         logger.debug("Evaluating a RunStrategoExpectation (strat: {}, outputLang: {}, outputFragment: {})",
             expectation.strategy(), expectation.outputLanguage(), expectation.outputFragment());
 
-        List<IMessage> messages = Lists.newLinkedList();
-        List<ISpoofaxFragmentResult> fragmentResults = Lists.newLinkedList();
+        List<IMessage> messages = new LinkedList<>();
+        List<ISpoofaxFragmentResult> fragmentResults = new LinkedList<>();
 
         ITestCase test = input.getTestCase();
         List<ISourceRegion> selections = test.getFragment().getSelections();
@@ -297,7 +298,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
      */
     private List<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoExpectation expectation, final IUnit result,
         List<ISourceRegion> selections, List<IMessage> outMessages) {
-        final List<IStrategoTerm> terms = Lists.newLinkedList();
+        final List<IStrategoTerm> terms = new LinkedList<>();
         if(expectation.selection() == null) {
             // no selections, so we run on the entire ast
             // but only on the part that is inside the actual fragment, not the fixture
