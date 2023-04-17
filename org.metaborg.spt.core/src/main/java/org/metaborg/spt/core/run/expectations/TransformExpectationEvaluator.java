@@ -107,7 +107,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             if(logger.debugEnabled()) {
                 Iterable<ActionFacet> facets = lut.facets(ActionFacet.class);
                 for(ActionFacet facet : facets) {
-                    for(ITransformGoal availableGoal : facet.actions.keySet()) {
+                    for(ITransformGoal availableGoal : facet.goals()) {
                         logger.debug("Available transformation: {}", availableGoal);
                     }
                 }
