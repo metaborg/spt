@@ -1,10 +1,10 @@
 package org.metaborg.spt.cmd;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.google.common.collect.Lists;
 
 @Parameters(separators = "=")
 public class Arguments {
@@ -26,7 +26,7 @@ public class Arguments {
         required = false) public String startSymbol;
 
     @Parameter(names = { "--lang", "-ol" }, description = "Location of any other language that should be loaded",
-        required = false) public List<String> targetLanguageLocation = Lists.newLinkedList();
+        required = false) public List<String> targetLanguageLocation = new ArrayList<>();
 
     @Parameter(names = { "--reporter", "-C" }, description = "Class name of custom reporter to use",
             required = false) public String customReporter;

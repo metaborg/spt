@@ -25,10 +25,9 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-
-import com.google.common.collect.Lists;
 
 public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator<AnalysisMessageExpectation> {
 
@@ -36,7 +35,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
 
     @Override
     public Collection<Integer> usesSelections(IFragment fragment, AnalysisMessageExpectation expectation) {
-        return Lists.newArrayList(expectation.selections());
+        return Iterables2.toArrayList(expectation.selections());
     }
 
     @Override

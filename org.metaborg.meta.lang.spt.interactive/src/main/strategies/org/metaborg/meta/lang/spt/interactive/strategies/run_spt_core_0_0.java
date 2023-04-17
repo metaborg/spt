@@ -1,7 +1,9 @@
 package org.metaborg.meta.lang.spt.interactive.strategies;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.vfs2.FileObject;
@@ -41,8 +43,6 @@ import org.spoofax.terms.Term;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Injector;
 
 public class run_spt_core_0_0 extends Strategy {
@@ -58,7 +58,7 @@ public class run_spt_core_0_0 extends Strategy {
     private static final String START = "StartSymbol";
 
 
-    private static Map<Injector, Injector> injectorMap = Maps.newHashMap();
+    private static Map<Injector, Injector> injectorMap = new HashMap<>();
 
 
     @Override public IStrategoTerm invoke(Context strategoContext, IStrategoTerm current) {
@@ -74,9 +74,9 @@ public class run_spt_core_0_0 extends Strategy {
         // Setup the things we need to return
         IStrategoTerm ast = null;
         final ITermFactory termFactory = strategoContext.getFactory();
-        final List<IStrategoTerm> errors = Lists.newLinkedList();
-        final List<IStrategoTerm> warnings = Lists.newLinkedList();
-        final List<IStrategoTerm> notes = Lists.newLinkedList();
+        final List<IStrategoTerm> errors = new ArrayList<>();
+        final List<IStrategoTerm> warnings = new ArrayList<>();
+        final List<IStrategoTerm> notes = new ArrayList<>();
 
         // Get required services
         final ISpoofaxInputUnitService inputService = injector.getInstance(ISpoofaxInputUnitService.class);
@@ -218,7 +218,7 @@ public class run_spt_core_0_0 extends Strategy {
         if(fragmentConfig != null) {
             fragmentConfig.putConfig(lut, new JSGLRParserConfiguration(startSymbol));
         }
-        List<ISpoofaxTestResult> testResults = Lists.newLinkedList();
+        List<ISpoofaxTestResult> testResults = new ArrayList<>();
         for(ITestCase test : extractionResult.getTests()) {
             logger.debug("About to run test {}.", test.getDescription());
             // TODO: we don't support dialects yet

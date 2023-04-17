@@ -25,8 +25,8 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 
-import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
 public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator<ResolveExpectation> {
@@ -109,7 +109,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Reference resolution caused an unexpected error.", e));
         }
-        if(r == null || Iterables.isEmpty(r.targets)) {
+        if(r == null || Iterables2.isEmpty(r.targets)) {
             final String msg;
             if(r == null) {
                 msg = "Reference resolution failed";
