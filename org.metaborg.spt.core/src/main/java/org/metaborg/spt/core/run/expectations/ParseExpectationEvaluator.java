@@ -21,7 +21,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<ParseExpectation> {
 

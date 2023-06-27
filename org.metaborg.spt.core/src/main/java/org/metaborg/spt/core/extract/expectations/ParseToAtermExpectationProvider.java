@@ -10,7 +10,7 @@ import org.metaborg.spt.core.expectations.ParseToAtermExpectation;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 /**
  * Deals with 'parse to [ATerm]' expectations, which are specific to Spoofax.

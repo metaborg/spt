@@ -27,7 +27,7 @@ import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator<ResolveExpectation> {
 

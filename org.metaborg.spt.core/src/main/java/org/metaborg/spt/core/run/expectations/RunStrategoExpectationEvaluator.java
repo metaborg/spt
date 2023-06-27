@@ -46,7 +46,7 @@ import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.TermEqualityUtil;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvaluator<RunStrategoExpectation> {
     private static final ILogger logger = LoggerUtils.logger(RunStrategoExpectationEvaluator.class);

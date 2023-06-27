@@ -11,7 +11,7 @@ import org.metaborg.core.unit.IInputUnitService;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.IFragment.FragmentPiece;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 /**
  * Parser for fragments of non-layout sensitive languages.

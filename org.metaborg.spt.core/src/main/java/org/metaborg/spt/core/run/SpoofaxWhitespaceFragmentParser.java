@@ -11,7 +11,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import javax.annotation.Nullable;
 

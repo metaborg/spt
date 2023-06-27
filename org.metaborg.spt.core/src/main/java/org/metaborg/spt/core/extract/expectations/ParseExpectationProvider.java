@@ -12,7 +12,7 @@ import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 /**
  * Implementation for the evaluation of the 'parse succeeds' and 'parse fails' test expectations.
