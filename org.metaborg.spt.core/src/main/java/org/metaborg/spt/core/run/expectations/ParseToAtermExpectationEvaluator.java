@@ -26,7 +26,6 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.collect.Lists;
 import javax.inject.Inject;
 
 /**
@@ -46,7 +45,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, ParseToAtermExpectation expectation) {
-        return Lists.newLinkedList();
+        return new LinkedList<>();
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, ParseToAtermExpectation expectation) {
