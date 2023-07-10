@@ -19,7 +19,7 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.util.TermUtils;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 /**
  * Runs Stratego strategies on selections or the entire test and compares results.

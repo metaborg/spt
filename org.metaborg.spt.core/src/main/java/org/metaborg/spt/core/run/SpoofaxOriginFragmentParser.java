@@ -40,7 +40,7 @@ import org.spoofax.terms.util.TermUtils;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 /**
  * Parser for fragments languages.

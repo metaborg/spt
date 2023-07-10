@@ -26,7 +26,7 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 /**
  * Check if the input fragment parsed to the expected ATerm AST.

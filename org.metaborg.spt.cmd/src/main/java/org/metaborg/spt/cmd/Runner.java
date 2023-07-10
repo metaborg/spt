@@ -42,7 +42,7 @@ import org.metaborg.util.log.Level;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 public class Runner {
     private static final ILogger logger = LoggerUtils.logger(Runner.class);

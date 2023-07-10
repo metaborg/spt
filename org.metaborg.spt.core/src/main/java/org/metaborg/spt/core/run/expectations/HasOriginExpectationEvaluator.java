@@ -1,6 +1,6 @@
 package org.metaborg.spt.core.run.expectations;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;

@@ -1,6 +1,6 @@
 package org.metaborg.spt.core;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
