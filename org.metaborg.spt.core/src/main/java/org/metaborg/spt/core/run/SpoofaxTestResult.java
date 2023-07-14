@@ -1,13 +1,13 @@
 package org.metaborg.spt.core.run;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.mbt.core.model.ITestCase;
-import org.metaborg.mbt.core.run.ITestExpectationOutput;
 import org.metaborg.mbt.core.run.TestResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-
-import com.google.common.collect.Lists;
 
 public class SpoofaxTestResult extends TestResult<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit>
     implements ISpoofaxTestResult {
@@ -16,9 +16,9 @@ public class SpoofaxTestResult extends TestResult<ISpoofaxParseUnit, ISpoofaxAna
     private final ISpoofaxFragmentResult fragmentResult;
 
     public SpoofaxTestResult(ITestCase test, boolean success, Iterable<IMessage> messages,
-        ISpoofaxFragmentResult fragmentResult, Iterable<ISpoofaxTestExpectationOutput> results) {
+        ISpoofaxFragmentResult fragmentResult, Collection<ISpoofaxTestExpectationOutput> results) {
         super(test, success, messages, fragmentResult,
-            Lists.<ITestExpectationOutput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit>>newLinkedList(results));
+            new LinkedList<>(results));
         this.results = results;
         this.fragmentResult = fragmentResult;
     }

@@ -1,6 +1,6 @@
 package org.metaborg.spt.core.run;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContextService;

@@ -13,7 +13,7 @@ import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 /**

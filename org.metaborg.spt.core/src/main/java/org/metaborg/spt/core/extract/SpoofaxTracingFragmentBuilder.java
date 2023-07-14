@@ -16,7 +16,7 @@ import org.metaborg.spt.core.SPTUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.TermVisitor;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 /**

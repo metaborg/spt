@@ -1,7 +1,6 @@
 package org.metaborg.spt.core.run.expectations;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
@@ -25,6 +24,7 @@ import org.spoofax.terms.visitor.StrategoTermVisitee;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -41,7 +41,7 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, HasOriginExpectation expectation) {
-        return Lists.newLinkedList();
+        return new LinkedList<>();
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, HasOriginExpectation expectation) {
@@ -52,7 +52,7 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, HasOriginExpectation expectation) {
 
         final ITestCase test = input.getTestCase();
-        final List<IMessage> messages = Lists.newLinkedList();
+        final List<IMessage> messages = new LinkedList<>();
 
         ISpoofaxAnalyzeUnit a = input.getFragmentResult().getAnalysisResult();
         if(a == null || !a.valid() || !a.hasAst()) {

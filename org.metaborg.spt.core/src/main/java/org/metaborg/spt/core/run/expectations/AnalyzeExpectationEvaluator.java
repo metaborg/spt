@@ -1,7 +1,9 @@
 package org.metaborg.spt.core.run.expectations;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -23,10 +25,9 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-
-import com.google.common.collect.Lists;
 
 public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator<AnalysisMessageExpectation> {
 
@@ -34,7 +35,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
 
     @Override
     public Collection<Integer> usesSelections(IFragment fragment, AnalysisMessageExpectation expectation) {
-        return Lists.newArrayList(expectation.selections());
+        return Iterables2.toArrayList(expectation.selections());
     }
 
     @Override
@@ -45,7 +46,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
     @Override
     public ISpoofaxTestExpectationOutput evaluate(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input,
         AnalysisMessageExpectation expectation) {
-        List<IMessage> messages = Lists.newLinkedList();
+        List<IMessage> messages = new LinkedList<>();
         // analysis expectations don't have output fragments (not at the moment anyway)
 
         ITestCase test = input.getTestCase();
@@ -86,7 +87,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         Collection<IMessage> messages) {
         // collect the messages of the given severity and proper location
         boolean hiddenMessages = false;
-        List<IMessage> interestingMessages = Lists.newLinkedList();
+        List<IMessage> interestingMessages = new LinkedList<>();
         for(IMessage message : analysisMessages) {
             if(severity == message.severity()) {
                 if(message.region() == null || test.getFragment().getRegion().contains(message.region())) {
@@ -133,7 +134,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
 
         // Check message locations
         final List<ISourceRegion> selections = test.getFragment().getSelections();
-        final List<Integer> processedSelections = Lists.newArrayList();
+        final List<Integer> processedSelections = new ArrayList<>();
         IMessage lastSelectedMsg = null;
         for(int i : selectionRefs) {
             if(i > selections.size()) {

@@ -1,7 +1,6 @@
 package org.metaborg.spt.core.extract.expectations;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
@@ -19,6 +18,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.util.TermUtils;
 
 import javax.annotation.Nullable;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -319,7 +320,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
      * Get the numbers of the selections from an optional AtPart term.
      */
     private List<Integer> getSelections(IStrategoTerm optionalAtPart) {
-        final List<Integer> selections = Lists.newArrayList();
+        final List<Integer> selections = new ArrayList<>();
         final IStrategoTerm atPart = SPTUtil.getOptionValue(optionalAtPart);
         if(atPart != null) {
             // Some(AtPart([SelectionRef(i), ...]))

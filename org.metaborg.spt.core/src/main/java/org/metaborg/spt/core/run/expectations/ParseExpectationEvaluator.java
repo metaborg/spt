@@ -1,6 +1,8 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.LinkedList;
+
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.ITestCase;
@@ -20,8 +22,7 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<ParseExpectation> {
 
@@ -36,7 +37,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, ParseExpectation expectation) {
-        return Lists.newLinkedList();
+        return new LinkedList<>();
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, ParseExpectation expectation) {
