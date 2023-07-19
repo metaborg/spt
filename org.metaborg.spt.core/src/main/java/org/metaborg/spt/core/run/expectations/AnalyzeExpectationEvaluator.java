@@ -61,10 +61,12 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
         if(analysisResult == null) {
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Expected analysis to succeed", null));
+            System.out.println("[INFO]  - .AnalyzeExpectationEvaluator | Analysis failed - no result");
             return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
         Iterable<IMessage> analysisMessages = input.getFragmentResult().getAnalysisResult().messages();
+        System.out.println("[INFO]  - .AnalyzeExpectationEvaluator | Analysis finished - messages: " + analysisMessages);
 
         final boolean success = checkMessages(test, analysisMessages, expectation.severity(), expectation.num(),
             expectation.selections(), expectation.operation(), expectation.content(), messages);
@@ -75,10 +77,10 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
     /**
      * Check if the number of messages in the given analysisMessages of the given severity matches the given expected
      * number of messages of this severity.
-     * 
+     *
      * Only considers messages that are within the bounds of the fragment (so it ignores any messages that are on the
      * test fixture).
-     * 
+     *
      * Also make sure the locations of the messages are correct if any selections were given (e.g. '2 errors at #1,
      * #2').
      */
@@ -102,7 +104,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Found unexpected matching messages outside the test region", null));
         }
-        
+
         // check the number of messages
         final boolean numOk;
         switch(operation) {
