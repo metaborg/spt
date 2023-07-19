@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
@@ -22,12 +23,16 @@ import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnitUpdate;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 
 import javax.inject.Inject;
 
 public class SpoofaxTestCaseRunner
     extends TestCaseRunner<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, ISpoofaxAnalyzeUnitUpdate>
     implements ISpoofaxTestCaseRunner {
+
+    private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseRunner.class);
 
     private final ISpoofaxExpectationEvaluatorService evaluatorService;
 
@@ -39,6 +44,18 @@ public class SpoofaxTestCaseRunner
 
     @Override public ISpoofaxTestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
         ILanguageImpl dialectUnderTest, IFragmentParserConfig fragmentParseConfig) {
+        try {
+            // Evaluating Test: statix.test/../.. - unit type ascription
+            final String projectName = project.location().getName().getBaseName();
+            final String testSuite = test.getResource().getName().getRelativeName(project.location().getName());
+            final String message = logger.format("[INFO]  - t.core.run.SpoofaxTestCaseRunner | Evaluating Test: {}/{} - {}",
+                    projectName, testSuite, test.getDescription());
+
+            // Ugh - Repeat '*' `message.length()` times
+            System.out.println(new String(new char[message.length()]).replace('\0', '*'));
+            System.out.println(message);
+        } catch(FileSystemException e) {
+        }
         ITestResult<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> res =
             super.run(project, test, languageUnderTest, dialectUnderTest, fragmentParseConfig);
         // safe as long as the guarantee of TestCaseRunner.run holds (see the JavaDoc of that method)
