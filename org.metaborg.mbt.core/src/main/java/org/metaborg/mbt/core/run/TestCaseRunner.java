@@ -75,7 +75,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
             if(phase.ordinal() > TestPhase.PARSING.ordinal()) {
                 try(IClosableLock lock = context.read()) {
                     analysisRes = analysisService.analyze(parseRes, context).result();
-                    plLogger.info("Test analysis result: {}.", analysisRes);
+                    plLogger.info("{} test result messages: {}.", analysisRes.source(), analysisRes.messages());
                 }
             }
         } catch(ContextException | AnalysisException e) {
