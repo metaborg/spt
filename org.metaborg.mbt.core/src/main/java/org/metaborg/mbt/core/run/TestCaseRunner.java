@@ -24,6 +24,7 @@ import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.metaborg.util.log.PrintlineLogger;
 
 import javax.inject.Inject;
 
@@ -31,6 +32,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
     implements ITestCaseRunner<P, A> {
 
     private static final ILogger logger = LoggerUtils.logger(TestCaseRunner.class);
+    private static final PrintlineLogger plLogger = PrintlineLogger.logger(TestCaseRunner.class);
 
     private final IAnalysisService<P, A, AU> analysisService;
     private final IContextService contextService;
@@ -73,6 +75,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
             if(phase.ordinal() > TestPhase.PARSING.ordinal()) {
                 try(IClosableLock lock = context.read()) {
                     analysisRes = analysisService.analyze(parseRes, context).result();
+                    plLogger.info("Test analysis result: {}.", analysisRes);
                 }
             }
         } catch(ContextException | AnalysisException e) {
@@ -104,7 +107,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
 
     /**
      * The maximum required phase for this input fragment.
-     * 
+     *
      * Determines what we do with the input fragment. i.e. whether we just parse it, or also analyze it.
      */
     protected abstract TestPhase requiredPhase(ITestCase test, IContext languageUnderTestCtx);
