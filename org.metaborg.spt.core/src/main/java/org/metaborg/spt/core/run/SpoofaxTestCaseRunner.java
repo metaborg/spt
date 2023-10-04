@@ -63,8 +63,8 @@ public class SpoofaxTestCaseRunner
     }
 
     @Override protected ISpoofaxTestResult evaluateExpectations(ITestCase test, ISpoofaxParseUnit parseRes,
-        ISpoofaxAnalyzeUnit analysisRes, ILanguageImpl languageUnderTest, List<IMessage> messages,
-        @Nullable IFragmentParserConfig fragmentParseConfig) {
+        ISpoofaxAnalyzeUnit analysisRes, Iterable<IMessage> analysisMessages, ILanguageImpl languageUnderTest,
+        List<IMessage> messages, @Nullable IFragmentParserConfig fragmentParseConfig) {
         boolean success = true;
 
         List<ISpoofaxTestExpectationOutput> expectationOutputs = new ArrayList<>();
@@ -76,14 +76,14 @@ public class SpoofaxTestCaseRunner
                 ISpoofaxExpectationEvaluator<ITestExpectation> evaluator = evaluatorService.lookup(expectation);
                 if(evaluator == null) {
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.region(),
-                        "Could not evaluate this expectation. No suitable evaluator was found.", null));
+                            "Could not evaluate this expectation. No suitable evaluator was found.", null));
                 } else {
                     // TODO: should we really reuse the analysis context for expectation evaluation?
                     // an example is that we reuse it when running a transformation.
-                    SpoofaxTestExpectationInput input = new SpoofaxTestExpectationInput(test, languageUnderTest,
-                        new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes,
-                            analysisRes == null ? null : analysisRes.context()),
-                        fragmentParseConfig);
+                    SpoofaxTestExpectationInput input = new SpoofaxTestExpectationInput(
+                            test, languageUnderTest, new SpoofaxFragmentResult(test.getFragment(), parseRes,
+                                    analysisRes, analysisMessages, analysisRes == null ? null : analysisRes.context()),
+                            fragmentParseConfig);
                     ISpoofaxTestExpectationOutput output = evaluator.evaluate(input, expectation);
                     if(!output.isSuccessful()) {
                         success = false;
@@ -115,7 +115,7 @@ public class SpoofaxTestCaseRunner
         }
 
         return new SpoofaxTestResult(test, success, messages,
-            new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes, null), expectationOutputs);
+            new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes, analysisMessages, null), expectationOutputs);
     }
 
     @Override protected TestPhase requiredPhase(ITestCase test, IContext languageUnderTestCtx) {

@@ -65,7 +65,7 @@ public class AnalyzeExpectationEvaluator implements ISpoofaxExpectationEvaluator
             return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
 
-        Iterable<IMessage> analysisMessages = input.getFragmentResult().getAnalysisResult().messages();
+        Iterable<IMessage> analysisMessages = input.getFragmentResult().getMessages();
         System.out.println("[INFO]  - .run.AnalyzeExpectationEvaluator | Analysis finished - messages: " + analysisMessages);
 
         final boolean success = checkMessages(test, analysisMessages, expectation.severity(), expectation.num(),
