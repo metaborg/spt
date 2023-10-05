@@ -192,7 +192,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                         continue;
                     }
                 }
-                
+
                 // the strategy was successful
                 if(expectation.outputFragment() == null) {
                     // a successful invocation is all we need
@@ -222,7 +222,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     }
                     if(analyzedFragment != null) {
                         fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(),
-                            analyzedFragment.input(), analyzedFragment, null));
+                            analyzedFragment.input(), analyzedFragment, analyzedFragment.messages(), null));
                     }
                 }
                 if(success) {
@@ -286,7 +286,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     IStrategoList strategoList = termFactory.makeList(selectedTermsCollection);
                     parsedArgs.add(strategoList);
                 }
-                
+
             }
         }
 
@@ -295,7 +295,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
 
     /*
      * Obtain the AST nodes to try to run on.
-     * 
+     *
      * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,
      * starting on the outermost term, until we processed them all or one of them passed successfully.
      */

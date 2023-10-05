@@ -192,13 +192,13 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
         @Nullable IFragmentParserConfig fragmentConfig) {
         if(useAnalysis) {
             ISpoofaxAnalyzeUnit a = fragmentUtil.analyzeFragment(fragment, lang, messages, test, fragmentConfig);
-            fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, null));
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, a.messages(), null));
             if(a != null && a.success() && a.hasAst()) {
                 return a.ast();
             }
         } else {
             ISpoofaxParseUnit p = fragmentUtil.parseFragment(fragment, lang, messages, test, fragmentConfig);
-            fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null));
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null, null));
             if(p == null || !p.valid()) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), fragment.getRegion(),
                     "Parsing of the fragment did not return an AST.", null));

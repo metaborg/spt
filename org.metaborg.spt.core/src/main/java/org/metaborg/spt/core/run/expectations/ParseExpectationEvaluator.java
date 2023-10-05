@@ -88,7 +88,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
         // parse the output fragment
         final ISpoofaxParseUnit parsedFragment;
         parsedFragment = parseFragment(input.getLanguageUnderTest(), input.getFragmentParserConfig(), expectation, outputFragment, outputBuilder);
-        outputBuilder.addFragmentResult(new SpoofaxFragmentResult(outputFragment, parsedFragment, null, null));
+        outputBuilder.addFragmentResult(new SpoofaxFragmentResult(outputFragment, parsedFragment, null, null, null));
 
         // compare the results and set the success boolean
         if(parsedFragment == null) {
