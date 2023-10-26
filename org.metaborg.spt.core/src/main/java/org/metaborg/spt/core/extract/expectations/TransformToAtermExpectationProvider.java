@@ -15,7 +15,6 @@ import org.metaborg.spt.core.expectations.TransformToAtermExpectation;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import javax.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectationProvider {
@@ -25,7 +24,7 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
 
     private final ISpoofaxTracingService traceService;
 
-    @Inject public TransformToAtermExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject @javax.inject.Inject public TransformToAtermExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

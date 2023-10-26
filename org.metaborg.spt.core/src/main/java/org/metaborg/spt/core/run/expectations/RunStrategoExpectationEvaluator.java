@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextException;
@@ -51,7 +51,6 @@ import org.spoofax.terms.StrategoInt;
 import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import javax.inject.Inject;
 
 public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvaluator<RunStrategoExpectation> {
     private static final ILogger logger = LoggerUtils.logger(RunStrategoExpectationEvaluator.class);
@@ -64,7 +63,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
     private final IStrategoCommon stratego;
 
 
-    @Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
         ISpoofaxAnalysisService analysisService, ITermFactory termFactory, FragmentUtil fragmentUtil,
         IStrategoCommon stratego) {
         this.contextService = contextService;

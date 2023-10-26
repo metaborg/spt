@@ -9,7 +9,7 @@ import org.metaborg.core.testing.ITestReporterService;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.inject.Injector;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class Main {
     private static final ILogger logger = LoggerUtils.logger(Main.class);

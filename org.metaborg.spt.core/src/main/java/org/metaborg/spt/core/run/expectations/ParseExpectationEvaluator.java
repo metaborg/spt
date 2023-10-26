@@ -22,7 +22,6 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import javax.inject.Inject;
 
 public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<ParseExpectation> {
 
@@ -31,7 +30,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
     private final FragmentUtil fragmentUtil;
     private final ITermFactory termFactory;
 
-    @Inject public ParseExpectationEvaluator(FragmentUtil fragmentUtil, ITermFactory termFactory) {
+    @jakarta.inject.Inject @javax.inject.Inject public ParseExpectationEvaluator(FragmentUtil fragmentUtil, ITermFactory termFactory) {
         this.fragmentUtil = fragmentUtil;
         this.termFactory = termFactory;
     }

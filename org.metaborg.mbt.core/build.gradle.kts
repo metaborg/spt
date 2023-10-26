@@ -9,5 +9,5 @@ dependencies {
 
   api(compositeBuild("org.metaborg.core"))
 
-  compileOnly("com.google.code.findbugs:jsr305")
+  compileOnly("jakarta.annotation:jakarta.annotation-api")
 }

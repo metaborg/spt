@@ -18,7 +18,6 @@ import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import javax.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 public class TransformExpectationProvider implements ISpoofaxTestExpectationProvider {
@@ -30,7 +29,7 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public TransformExpectationProvider(ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject @javax.inject.Inject public TransformExpectationProvider(ISpoofaxTracingService traceService,
         ISpoofaxFragmentBuilder fragmentBuilder, FragmentUtil fragmentUtil) {
         this.traceService = traceService;
         this.fragmentBuilder = fragmentBuilder;

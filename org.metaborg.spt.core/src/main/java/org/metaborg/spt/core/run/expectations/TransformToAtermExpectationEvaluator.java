@@ -33,9 +33,8 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import javax.inject.Inject;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Covers the Spoofax specific TransformationToAtermExpectation.
@@ -51,7 +50,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
     private final IContextService contextService;
     private final ITermFactory termFactory;
 
-    @Inject public TransformToAtermExpectationEvaluator(ISpoofaxTransformService transformService,
+    @jakarta.inject.Inject @javax.inject.Inject public TransformToAtermExpectationEvaluator(ISpoofaxTransformService transformService,
         IContextService contextService, ITermFactory termFactory) {
         this.transformService = transformService;
         this.contextService = contextService;

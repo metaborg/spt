@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.analysis.IAnalysisService;
@@ -29,7 +29,6 @@ import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.log.PrintlineLogger;
 
-import javax.inject.Inject;
 
 public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUnit, AU extends IAnalyzeUnitUpdate>
     implements ITestCaseRunner<P, A> {
@@ -42,7 +41,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
     private final IFragmentParser<P> fragmentParser;
 
 
-    @Inject public TestCaseRunner(IAnalysisService<P, A, AU> analysisService, IContextService contextService,
+    @jakarta.inject.Inject @javax.inject.Inject public TestCaseRunner(IAnalysisService<P, A, AU> analysisService, IContextService contextService,
         IFragmentParser<P> fragmentParser) {
         this.analysisService = analysisService;
         this.contextService = contextService;

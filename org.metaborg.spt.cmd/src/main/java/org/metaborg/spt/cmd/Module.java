@@ -8,9 +8,9 @@ import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.core.testing.ITestReporterService;
 import org.metaborg.spoofax.core.SpoofaxModule;
 
-import javax.inject.Singleton;
+import com.google.inject.Singleton;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class Module extends SpoofaxModule {
 

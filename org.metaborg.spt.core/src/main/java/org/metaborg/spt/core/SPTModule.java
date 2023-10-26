@@ -56,7 +56,7 @@ import org.metaborg.spt.core.run.expectations.TransformExpectationEvaluator;
 import org.metaborg.spt.core.run.expectations.TransformToAtermExpectationEvaluator;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import javax.inject.Singleton;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 

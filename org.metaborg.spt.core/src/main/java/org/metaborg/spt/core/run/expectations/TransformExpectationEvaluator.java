@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.action.ITransformGoal;
 import org.metaborg.core.context.ContextException;
@@ -43,7 +43,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import javax.inject.Inject;
 
 /**
  * Covers the TransformationExpectation.
@@ -61,7 +60,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
+    @jakarta.inject.Inject @javax.inject.Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
         IContextService contextService, ITermFactory termFactory, FragmentUtil fragmentUtil) {
         this.transformService = transformService;
         this.contextService = contextService;

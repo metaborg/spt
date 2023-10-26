@@ -10,7 +10,6 @@ import org.metaborg.spt.core.expectations.ParseToAtermExpectation;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import javax.inject.Inject;
 
 /**
  * Deals with 'parse to [ATerm]' expectations, which are specific to Spoofax.
@@ -23,7 +22,7 @@ public class ParseToAtermExpectationProvider implements ISpoofaxTestExpectationP
 
     private final ISpoofaxTracingService traceService;
 
-    @Inject public ParseToAtermExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject @javax.inject.Inject public ParseToAtermExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

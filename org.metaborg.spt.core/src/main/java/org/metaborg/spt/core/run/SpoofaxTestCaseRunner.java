@@ -3,7 +3,7 @@ package org.metaborg.spt.core.run;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.context.IContext;
@@ -26,7 +26,6 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
-import javax.inject.Inject;
 
 public class SpoofaxTestCaseRunner
     extends TestCaseRunner<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, ISpoofaxAnalyzeUnitUpdate>
@@ -36,7 +35,7 @@ public class SpoofaxTestCaseRunner
 
     private final ISpoofaxExpectationEvaluatorService evaluatorService;
 
-    @Inject public SpoofaxTestCaseRunner(ISpoofaxAnalysisService analysisService, IContextService contextService,
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTestCaseRunner(ISpoofaxAnalysisService analysisService, IContextService contextService,
         ISpoofaxFragmentParser fragmentParser, ISpoofaxExpectationEvaluatorService evaluatorService) {
         super(analysisService, contextService, fragmentParser);
         this.evaluatorService = evaluatorService;

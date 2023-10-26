@@ -14,6 +14,17 @@
     <relativePath>../../releng/parent/eclipse/plugin/pom.xml</relativePath>
   </parent>
 
+  <dependencies>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+    </dependency>
+  </dependencies>
+
   <developers>
     <developer>
       <name>Gabriël Konat</name>

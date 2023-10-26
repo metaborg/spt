@@ -5,7 +5,7 @@ import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.expectations.ATestExpectation;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * A Spoofax specific transformation for 'transform [goal] to [ATerm]'.

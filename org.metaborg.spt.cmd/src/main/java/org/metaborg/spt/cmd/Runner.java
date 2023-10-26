@@ -42,7 +42,6 @@ import org.metaborg.util.log.Level;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
 
-import javax.inject.Inject;
 
 public class Runner {
     private static final ILogger logger = LoggerUtils.logger(Runner.class);
@@ -57,7 +56,7 @@ public class Runner {
     private final ITestReporterService testReporter;
 
 
-    @Inject
+    @jakarta.inject.Inject @javax.inject.Inject
     public Runner(IResourceService resourceService, ISimpleProjectService projectService,
                   ISpoofaxInputUnitService inputService, ITestReporterService testReporter,
                   ILanguageService languageService,
