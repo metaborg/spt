@@ -45,10 +45,10 @@ public class Main {
 
             final Runner runner = injector.getInstance(Runner.class);
 
-            runner.run(arguments.sptLocation, arguments.lutLocation, arguments.targetLanguageLocation,
+            final boolean successFull = runner.run(arguments.sptLocation, arguments.lutLocation, arguments.targetLanguageLocation,
                 arguments.testsLocation, arguments.startSymbol);
 
-            System.exit(0);
+            System.exit(successFull ? 0 : 1);
 
         } catch(Exception e) {
             logger.error("Error while running tests", e);
