@@ -1,5 +1,6 @@
 package org.metaborg.spt.core.extract.expectations;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.metaborg.core.action.EndNamedGoal;
@@ -17,8 +18,6 @@ import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 public class TransformExpectationProvider implements ISpoofaxTestExpectationProvider {
@@ -30,7 +29,7 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public TransformExpectationProvider(ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject @javax.inject.Inject public TransformExpectationProvider(ISpoofaxTracingService traceService,
         ISpoofaxFragmentBuilder fragmentBuilder, FragmentUtil fragmentUtil) {
         this.traceService = traceService;
         this.fragmentBuilder = fragmentBuilder;
@@ -40,7 +39,7 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
 
     protected static List<String> goalNames(String str) {
         String[] goals = str.split(" -> ");
-        List<String> goalNames = Lists.newLinkedList();
+        List<String> goalNames = new LinkedList<>();
         for(String goalName : goals) {
             goalNames.add(goalName.trim());
         }
@@ -52,9 +51,9 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
         if(!TRANSFORM.equals(cons)) {
             return false;
         }
-        if(expectationTerm.getSubtermCount() == 1) {
+        if(expectationTerm.getSubtermCount() == 2) {
             return TermUtils.isString(expectationTerm.getSubterm(0));
-        } else if(expectationTerm.getSubtermCount() == 2) {
+        } else if(expectationTerm.getSubtermCount() == 3) {
             return TermUtils.isString(expectationTerm.getSubterm(0))
                 && goalNames(TermUtils.toJavaString(expectationTerm.getSubterm(0))).size() > 0;
         }
@@ -82,13 +81,28 @@ public class TransformExpectationProvider implements ISpoofaxTestExpectationProv
             goal = new EndNamedGoal(goalNames.get(0));
         }
 
-        if(expectationTerm.getSubtermCount() == 2) {
-            final IStrategoTerm toPart = expectationTerm.getSubterm(1);
+        if(expectationTerm.getSubtermCount() == 3) {
+            final IStrategoTerm onPartTerm = expectationTerm.getSubterm(1);
+            final IStrategoTerm selectionTerm = SPTUtil.getOptionValue(onPartTerm);
+
+            final Integer selection;
+            final ISourceRegion selectionRegion;
+
+            if(selectionTerm == null) {
+                selection = null;
+                selectionRegion = null;
+            } else {
+                selection = TermUtils.toJavaInt(selectionTerm);
+                final ISourceLocation selLoc = traceService.location(selectionTerm);
+                selectionRegion = selLoc == null ? region : selLoc.region();
+            }
+
+            final IStrategoTerm toPart = expectationTerm.getSubterm(2);
             final String lang = FragmentUtil.toPartLangName(toPart);
             final ISourceRegion langRegion = fragmentUtil.toPartLangNameRegion(toPart);
             final IFragment fragment = fragmentBuilder.withFragment(FragmentUtil.toPartFragment(toPart))
                 .withProject(inputFragment.getProject()).withResource(inputFragment.getResource()).build();
-            return new TransformExpectation(region, goal, fragment, lang, langRegion);
+            return new TransformExpectation(region, goal, selection, selectionRegion, fragment, lang, langRegion);
         } else {
             return new TransformExpectation(region, goal, null, null, null);
         }

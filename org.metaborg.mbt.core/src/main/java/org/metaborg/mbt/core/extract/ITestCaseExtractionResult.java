@@ -1,6 +1,6 @@
 package org.metaborg.mbt.core.extract;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;

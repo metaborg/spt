@@ -1,9 +1,11 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.action.ITransformGoal;
 import org.metaborg.core.context.ContextException;
@@ -13,6 +15,7 @@ import org.metaborg.core.context.ITemporaryContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
+import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.transform.TransformConfig;
 import org.metaborg.core.transform.TransformException;
 import org.metaborg.core.unit.IUnit;
@@ -40,12 +43,10 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 /**
  * Covers the TransformationExpectation.
- * 
+ *
  * It parses or analyzes the input fragment and output fragment, depending on what the transformation requires. Then it
  * compares the resulting ASTs.
  */
@@ -59,7 +60,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
+    @jakarta.inject.Inject @javax.inject.Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
         IContextService contextService, ITermFactory termFactory, FragmentUtil fragmentUtil) {
         this.transformService = transformService;
         this.contextService = contextService;
@@ -69,7 +70,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, TransformExpectation expectation) {
-        return Lists.newLinkedList();
+        return new LinkedList<>();
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, TransformExpectation expectation) {
@@ -82,8 +83,8 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
         boolean success = false;
         final ITestCase test = input.getTestCase();
         final ILanguageImpl lut = input.getLanguageUnderTest();
-        final List<IMessage> messages = Lists.newLinkedList();
-        final List<ISpoofaxFragmentResult> fragmentResults = Lists.newLinkedList();
+        final List<IMessage> messages = new LinkedList<>();
+        final List<ISpoofaxFragmentResult> fragmentResults = new LinkedList<>();
 
         // obtain a context
         ITemporaryContext tempCtx = null;
@@ -105,7 +106,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
             if(logger.debugEnabled()) {
                 Iterable<ActionFacet> facets = lut.facets(ActionFacet.class);
                 for(ActionFacet facet : facets) {
-                    for(ITransformGoal availableGoal : facet.actions.keySet()) {
+                    for(ITransformGoal availableGoal : facet.goals()) {
                         logger.debug("Available transformation: {}", availableGoal);
                     }
                 }
@@ -122,10 +123,24 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
         boolean useAnalysis = transformService.requiresAnalysis(lut, expectation.goal());
 
+        final @Nullable Integer selectionIdx = expectation.selection();
+        final List<ISourceRegion> selections = test.getFragment().getSelections();
+        final @Nullable ISourceRegion selection;
+        if(selectionIdx == null) {
+            // no selection
+            selection = null;
+        } else if(selectionIdx > selections.size()) {
+            messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.selectionRegion(),
+                "Not enough selections to resolve #" + expectation.selection(), null));
+            return new SpoofaxTestExpectationOutput(success, messages, Collections.emptyList());
+        } else {
+            selection = selections.get(selectionIdx - 1);
+        }
+
         try {
             // transform the input fragment
             IStrategoTerm result =
-                transform(input, expectation.goal(), ctx, test, messages, useAnalysis, transformService);
+                transform(input, expectation.goal(), selection, ctx, test, messages, useAnalysis, transformService);
             if(result != null) {
                 if(expectation.outputFragment() == null) {
                     success = true;
@@ -176,13 +191,13 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
         @Nullable IFragmentParserConfig fragmentConfig) {
         if(useAnalysis) {
             ISpoofaxAnalyzeUnit a = fragmentUtil.analyzeFragment(fragment, lang, messages, test, fragmentConfig);
-            fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, null));
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, a.messages(), null));
             if(a != null && a.success() && a.hasAst()) {
                 return a.ast();
             }
         } else {
             ISpoofaxParseUnit p = fragmentUtil.parseFragment(fragment, lang, messages, test, fragmentConfig);
-            fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null));
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null, null));
             if(p == null || !p.valid()) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), fragment.getRegion(),
                     "Parsing of the fragment did not return an AST.", null));
@@ -195,9 +210,9 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     // run the transformation on either the analysis or parse result
     protected static @Nullable IStrategoTerm transform(
-        ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ITransformGoal goal, IContext ctx,
-        ITestCase test, Collection<IMessage> messages, boolean useAnalysis, ISpoofaxTransformService transformService)
-        throws TransformException {
+        ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ITransformGoal goal,
+        @Nullable ISourceRegion selection, IContext ctx, ITestCase test, Collection<IMessage> messages,
+        boolean useAnalysis, ISpoofaxTransformService transformService) throws TransformException {
 
         ISpoofaxTransformUnit<? extends IUnit> result;
         if(useAnalysis) {
@@ -208,12 +223,12 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
                     "Expected analysis to succeed before transforming.", null));
             } else {
                 Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> results =
-                    transformService.transform(a, ctx, goal, new TransformConfig(true));
+                    transformService.transform(a, ctx, goal, new TransformConfig(selection, true));
                 result = getTransformResult(goal, results, test, messages);
             }
         } else {
             Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> results = transformService
-                .transform(input.getFragmentResult().getParseResult(), ctx, goal, new TransformConfig(true));
+                .transform(input.getFragmentResult().getParseResult(), ctx, goal, new TransformConfig(selection, true));
             result = getTransformResult(goal, results, test, messages);
         }
         if(result != null && result.success()) {

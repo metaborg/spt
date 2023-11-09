@@ -1,11 +1,15 @@
 package org.metaborg.mbt.core.run;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.analysis.IAnalysisService;
+import org.metaborg.core.analysis.IAnalyzeResult;
 import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.analysis.IAnalyzeUnitUpdate;
 import org.metaborg.core.context.ContextException;
@@ -23,21 +27,21 @@ import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.metaborg.util.log.PrintlineLogger;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUnit, AU extends IAnalyzeUnitUpdate>
     implements ITestCaseRunner<P, A> {
 
     private static final ILogger logger = LoggerUtils.logger(TestCaseRunner.class);
+    private static final PrintlineLogger plLogger = PrintlineLogger.logger(TestCaseRunner.class);
 
     private final IAnalysisService<P, A, AU> analysisService;
     private final IContextService contextService;
     private final IFragmentParser<P> fragmentParser;
 
 
-    @Inject public TestCaseRunner(IAnalysisService<P, A, AU> analysisService, IContextService contextService,
+    @jakarta.inject.Inject @javax.inject.Inject public TestCaseRunner(IAnalysisService<P, A, AU> analysisService, IContextService contextService,
         IFragmentParser<P> fragmentParser) {
         this.analysisService = analysisService;
         this.contextService = contextService;
@@ -52,7 +56,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
         @Nullable ILanguageImpl dialectUnderTest, @Nullable IFragmentParserConfig fragmentParseConfig) {
         logger.debug("About to run test case '{}' with language {}", test.getDescription(), languageUnderTest.id());
 
-        List<IMessage> messages = Lists.newLinkedList();
+        List<IMessage> messages = new LinkedList<>();
 
         // parse the fragment
         final P parseRes;
@@ -66,13 +70,38 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
 
         // analyze the fragment if any expectation requires analysis
         A analysisRes = null;
+        Iterable<IMessage> analysisMessages = null;
         ITemporaryContext context = null;
         try {
             context = contextService.getTemporary(test.getResource(), project, languageUnderTest);
             TestPhase phase = requiredPhase(test, context);
             if(phase.ordinal() > TestPhase.PARSING.ordinal()) {
                 try(IClosableLock lock = context.read()) {
-                    analysisRes = analysisService.analyze(parseRes, context).result();
+                    IAnalyzeResult<A, AU> analysisResult = analysisService.analyze(parseRes, context);
+                    analysisRes = analysisResult.result();
+                    if(!analysisResult.updates().isEmpty()) {
+                        ArrayList<IMessage> analysisMsgs = new ArrayList<>();
+                        if(analysisResult.updates().size() > 1) {
+                            logger.warn("Spurious updates in analysis result");
+                        }
+                        AU update = analysisResult.updates().iterator().next();
+                        // TODO: sanity check if update.source === "."
+
+                        analysisRes.messages().forEach(analysisMsgs::add);
+                        update.messages().forEach(msg -> {
+                            if(msg.source() == null || !msg.source().equals(analysisResult.result().source())) {
+                                plLogger.debug("Add message from update: {}; location: {} != {}", msg, msg.source(),
+                                        analysisResult.result().source());
+                            } else {
+                                plLogger.debug("Add message from update: {}", msg);
+                                analysisMsgs.add(msg);
+                            }
+                        });
+                        analysisMessages = analysisMsgs;
+                    } else {
+                        analysisMessages = analysisRes.messages();
+                    }
+                    plLogger.info("{} test result messages: {}.", analysisRes.source(), analysisRes.messages());
                 }
             }
         } catch(ContextException | AnalysisException e) {
@@ -85,8 +114,8 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
         }
 
         // evaluate the test expectations
-        final ITestResult<P, A> result =
-            evaluateExpectations(test, parseRes, analysisRes, languageUnderTest, messages, fragmentParseConfig);
+        final ITestResult<P, A> result = evaluateExpectations(test, parseRes, analysisRes, analysisMessages,
+                languageUnderTest, messages, fragmentParseConfig);
 
         // close the analysis context for this test run
         if(context != null) {
@@ -100,11 +129,12 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
      * Evaluate the expectations of the test.
      */
     protected abstract ITestResult<P, A> evaluateExpectations(ITestCase test, P parseRes, A analysisRes,
-        ILanguageImpl languageUnderTest, List<IMessage> messages, @Nullable IFragmentParserConfig fragmentParseConfig);
+            Iterable<IMessage> analysisMessages, ILanguageImpl languageUnderTest, List<IMessage> messages,
+            @Nullable IFragmentParserConfig fragmentParseConfig);
 
     /**
      * The maximum required phase for this input fragment.
-     * 
+     *
      * Determines what we do with the input fragment. i.e. whether we just parse it, or also analyze it.
      */
     protected abstract TestPhase requiredPhase(ITestCase test, IContext languageUnderTestCtx);

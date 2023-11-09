@@ -10,7 +10,7 @@ import org.metaborg.spoofax.core.SpoofaxModule;
 
 import com.google.inject.Singleton;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class Module extends SpoofaxModule {
 

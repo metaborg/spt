@@ -9,7 +9,7 @@ import org.metaborg.core.testing.ITestReporterService;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.inject.Injector;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class Main {
     private static final ILogger logger = LoggerUtils.logger(Main.class);
@@ -45,10 +45,10 @@ public class Main {
 
             final Runner runner = injector.getInstance(Runner.class);
 
-            runner.run(arguments.sptLocation, arguments.lutLocation, arguments.targetLanguageLocation,
+            final boolean successFull = runner.run(arguments.sptLocation, arguments.lutLocation, arguments.targetLanguageLocation,
                 arguments.testsLocation, arguments.startSymbol);
 
-            System.exit(0);
+            System.exit(successFull ? 0 : 1);
 
         } catch(Exception e) {
             logger.error("Error while running tests", e);

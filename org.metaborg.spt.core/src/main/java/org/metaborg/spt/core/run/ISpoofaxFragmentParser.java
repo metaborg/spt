@@ -6,7 +6,7 @@ import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.run.IFragmentParser;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Type interface for an IFragmentParser that will parse the fragment with a Spoofax language.

@@ -3,7 +3,9 @@ package org.metaborg.spt.cmd;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,8 +41,6 @@ import org.metaborg.util.log.Level;
 import org.metaborg.util.log.LoggerUtils;
 import org.metaborg.util.resource.FileSelectorUtils;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 public class Runner {
     private static final ILogger logger = LoggerUtils.logger(Runner.class);
@@ -55,7 +55,7 @@ public class Runner {
     private final ITestReporterService testReporter;
 
 
-    @Inject
+    @jakarta.inject.Inject @javax.inject.Inject
     public Runner(IResourceService resourceService, ISimpleProjectService projectService,
                   ISpoofaxInputUnitService inputService, ITestReporterService testReporter,
                   ILanguageService languageService,
@@ -73,7 +73,7 @@ public class Runner {
     }
 
 
-    public void run(String sptPath, String lutPath, List<String> languagePaths, String testsPath, String startSymbol)
+    public boolean run(String sptPath, String lutPath, List<String> languagePaths, String testsPath, String startSymbol)
             throws MetaborgException, FileSystemException {
 
         testReporter.sessionStarted();
@@ -83,6 +83,7 @@ public class Runner {
             throw new IllegalArgumentException("The folder with tests " + testsPath + " does not exist");
         }
         final IProject project = projectService.create(testsLocation);
+        boolean successFull = true;
         try {
             // get SPT
             final ILanguageImpl spt = getLanguageImplFromPath("SPT language", sptPath);
@@ -105,6 +106,7 @@ public class Runner {
                     text = IOUtils.toString(in, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     testReporter.getLogger().error("Unable to process file {}", e, testSuite);
+                    successFull = false;
                     continue;
                 }
                 ISpoofaxInputUnit input = inputService.inputUnit(testSuite, text, spt, null);
@@ -145,10 +147,12 @@ public class Runner {
                             }
                             String failureReason = firstMessage != null ? formatMessage(firstMessage) : "Test failed.";
                             testReporter.testFailed(testName, failureReason, details.toString());
+                            successFull = false;
                         }
                     }
                     testReporter.testSuiteFinished(testSuiteName);
                 } else {
+                    successFull = false;
                     testReporter.getLogger().error("Failed to run tests at {}. Extraction of tests failed.", testSuite);
                 }
 
@@ -160,6 +164,7 @@ public class Runner {
             projectService.remove(project);
             testReporter.sessionFinished();
         }
+        return successFull;
     }
 
     private void logMessage(IMessage m) {
@@ -201,7 +206,7 @@ public class Runner {
     private Collection<ILanguageComponent> loadLanguagesFromPath(String name, String path) throws FileSystemException, MetaborgException {
         Collection<ComponentCreationConfig> configs = getComponentConfigsFromPath(name, path);
 
-        final Collection<ILanguageComponent> components = Lists.newArrayList();
+        final Collection<ILanguageComponent> components = new ArrayList<>();
         for (ComponentCreationConfig config : configs) {
             ILanguageComponent component = languageService.add(config);
             components.add(component);
@@ -218,7 +223,8 @@ public class Runner {
         Collection<IComponentCreationConfigRequest> requests;
         if (location.isFile()) {
             // Hopefully a language artifact.
-            requests = Lists.newArrayList(languageComponentFactory.requestFromArchive(location));
+            requests =
+                Collections.singletonList(languageComponentFactory.requestFromArchive(location));
         } else {
             // Directory hopefully contains some languages.
             requests = languageComponentFactory.requestAllInDirectory(location);

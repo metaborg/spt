@@ -2,6 +2,7 @@ package org.metaborg.spt.core.run.expectations;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.metaborg.core.MetaborgException;
@@ -24,21 +25,19 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator<ResolveExpectation> {
 
     private final ISpoofaxResolverService resolverService;
 
-    @Inject public ResolveExpectationEvaluator(ISpoofaxResolverService resolverService) {
+    @jakarta.inject.Inject @javax.inject.Inject public ResolveExpectationEvaluator(ISpoofaxResolverService resolverService) {
         this.resolverService = resolverService;
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, ResolveExpectation expectation) {
-        List<Integer> used = Lists.newLinkedList();
+        List<Integer> used = new LinkedList<>();
         used.add(expectation.from());
         if(expectation.to() != -1) {
             used.add(expectation.to());
@@ -54,7 +53,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
         evaluate(ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input, ResolveExpectation expectation) {
 
         final boolean success;
-        List<IMessage> messages = Lists.newLinkedList();
+        List<IMessage> messages = new LinkedList<>();
         // resolving expectations don't have output fragments
         // indicates if, after collecting preliminary messages, we still need to try to resolve
         boolean tryResolve = true;
@@ -109,7 +108,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
             messages.add(MessageFactory.newAnalysisError(test.getResource(), test.getDescriptionRegion(),
                 "Reference resolution caused an unexpected error.", e));
         }
-        if(r == null || Iterables.isEmpty(r.targets)) {
+        if(r == null || Iterables2.isEmpty(r.targets)) {
             final String msg;
             if(r == null) {
                 msg = "Reference resolution failed";

@@ -2,7 +2,7 @@ package org.metaborg.spt.core.extract.expectations;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
@@ -19,7 +19,6 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.util.TermUtils;
 
-import com.google.inject.Inject;
 
 /**
  * Runs Stratego strategies on selections or the entire test and compares results.
@@ -36,7 +35,7 @@ public class RunStrategoExpectationProvider implements ISpoofaxTestExpectationPr
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder,
+    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoExpectationProvider(ISpoofaxFragmentBuilder fragmentBuilder,
         ISpoofaxTracingService traceService, FragmentUtil fragmentUtil) {
         this.fragmentBuilder = fragmentBuilder;
         this.traceService = traceService;

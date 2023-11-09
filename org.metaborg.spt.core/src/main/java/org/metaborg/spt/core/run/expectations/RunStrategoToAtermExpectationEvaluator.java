@@ -1,10 +1,13 @@
 package org.metaborg.spt.core.run.expectations;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextException;
@@ -30,13 +33,13 @@ import org.metaborg.spt.core.expectations.RunStrategoToAtermExpectation;
 import org.metaborg.spt.core.run.ISpoofaxExpectationEvaluator;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.iterators.ReverseListIterator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 public class RunStrategoToAtermExpectationEvaluator
     implements ISpoofaxExpectationEvaluator<RunStrategoToAtermExpectation> {
@@ -49,7 +52,7 @@ public class RunStrategoToAtermExpectationEvaluator
     private final IStrategoCommon stratego;
 
 
-    @Inject public RunStrategoToAtermExpectationEvaluator(IContextService contextService,
+    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoToAtermExpectationEvaluator(IContextService contextService,
         ISpoofaxTracingService traceService, ISpoofaxAnalysisService analysisService,
         ITermFactory termFactory, IStrategoCommon stratego) {
         this.contextService = contextService;
@@ -61,8 +64,7 @@ public class RunStrategoToAtermExpectationEvaluator
 
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoToAtermExpectation expectation) {
-        return expectation.selection() == null ? Lists.newArrayList()
-            : Lists.newArrayList(expectation.selection());
+        return expectation.selection() == null ? Collections.emptyList() : Arrays.asList(expectation.selection());
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, RunStrategoToAtermExpectation expectation) {
@@ -77,7 +79,7 @@ public class RunStrategoToAtermExpectationEvaluator
         ITestExpectationInput<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> input,
         RunStrategoToAtermExpectation expectation) {
 
-        List<IMessage> messages = Lists.newLinkedList();
+        List<IMessage> messages = new LinkedList<>();
         // the 'to ATerm' variant of this expectation doesn't have a fragment
 
         ITestCase test = input.getTestCase();
@@ -118,10 +120,10 @@ public class RunStrategoToAtermExpectationEvaluator
         }
 
         // Obtain the AST nodes to try to run on.
-        final List<IStrategoTerm> terms = runOnTerms(test, expectation, actionResult, selections, messages);
+        final Iterable<IStrategoTerm> terms = runOnTerms(test, expectation, actionResult, selections, messages);
 
         // before we try to run anything, make sure we have a runtime and something to execute on
-        if(terms.isEmpty()) {
+        if(Iterables2.isEmpty(terms)) {
             logger.debug("Returning early, as there is either no runtime or nothing to run on.");
             return new SpoofaxTestExpectationOutput(false, messages, Collections.emptyList());
         }
@@ -178,9 +180,9 @@ public class RunStrategoToAtermExpectationEvaluator
      * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,
      * starting on the outermost term, until we processed them all or one of them passed successfully.
      */
-    private List<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoToAtermExpectation expectation,
+    private Iterable<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoToAtermExpectation expectation,
         final IUnit result, List<ISourceRegion> selections, List<IMessage> outMessages) {
-        final List<IStrategoTerm> terms = Lists.newLinkedList();
+        final List<IStrategoTerm> terms = new LinkedList<>();
         if(expectation.selection() == null) {
             // no selections, so we run on the entire ast
             // but only on the part that is inside the actual fragment, not the fixture
@@ -214,6 +216,6 @@ public class RunStrategoToAtermExpectationEvaluator
                     "Could not resolve this selection to an AST node.", null));
             }
         }
-        return Lists.reverse(terms);
+        return ReverseListIterator.reverse(terms);
     }
 }

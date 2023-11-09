@@ -3,15 +3,14 @@ package org.metaborg.mbt.core.extract;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.syntax.IParseUnit;
 import org.metaborg.mbt.core.model.ITestCase;
-
-import com.google.common.collect.Iterables;
+import org.metaborg.util.iterators.Iterables2;
 
 public class TestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUnit>
     implements ITestCaseExtractionResult<P, A> {
@@ -33,10 +32,10 @@ public class TestCaseExtractionResult<P extends IParseUnit, A extends IAnalyzeUn
         this.a = analysisResult;
         this.extraMessages = extraMessages;
         this.tests = testCases;
-        Iterables.addAll(allMessages, extraMessages);
-        Iterables.addAll(allMessages, p.messages());
+        Iterables2.addAll(allMessages, extraMessages);
+        Iterables2.addAll(allMessages, p.messages());
         if(a != null) {
-            Iterables.addAll(allMessages, a.messages());
+            Iterables2.addAll(allMessages, a.messages());
         }
         boolean suc = p.success() && a != null && a.success();
         for(IMessage m : allMessages) {

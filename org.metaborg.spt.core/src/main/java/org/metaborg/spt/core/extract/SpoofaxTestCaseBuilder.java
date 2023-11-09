@@ -21,7 +21,6 @@ import org.metaborg.spt.core.model.expectations.SpoofaxNoExpectationError;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
@@ -38,7 +37,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
     private final ISpoofaxFragmentBuilder fragmentBuilder;
     private final ISpoofaxTracingService trace;
 
-    @Inject public SpoofaxTestCaseBuilder(Set<ISpoofaxTestExpectationProvider> expectationProviders,
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTestCaseBuilder(Set<ISpoofaxTestExpectationProvider> expectationProviders,
         ISpoofaxFragmentBuilder fragmentBuilder, ISpoofaxTracingService trace) {
         this.expectationProviders = expectationProviders;
         this.fragmentBuilder = fragmentBuilder;

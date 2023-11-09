@@ -7,7 +7,6 @@ import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
 import com.google.inject.ConfigurationException;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Types;
@@ -18,7 +17,7 @@ public class SpoofaxExpectationEvaluatorService implements ISpoofaxExpectationEv
 
     private final Injector injector;
 
-    @Inject public SpoofaxExpectationEvaluatorService(Injector injector) {
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxExpectationEvaluatorService(Injector injector) {
         this.injector = injector;
     }
 

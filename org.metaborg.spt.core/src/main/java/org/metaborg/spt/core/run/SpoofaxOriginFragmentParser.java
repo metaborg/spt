@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
@@ -40,7 +40,6 @@ import org.spoofax.terms.util.TermUtils;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
 
-import com.google.inject.Inject;
 
 /**
  * Parser for fragments languages.
@@ -57,7 +56,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
     private final ISpoofaxUnitService unitService;
     private final ISpoofaxSyntaxService parseService;
 
-    @Inject public SpoofaxOriginFragmentParser(ISpoofaxInputUnitService inputService, ISpoofaxUnitService unitService,
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxOriginFragmentParser(ISpoofaxInputUnitService inputService, ISpoofaxUnitService unitService,
         ISpoofaxSyntaxService parseService) {
         this.inputService = inputService;
         this.unitService = unitService;

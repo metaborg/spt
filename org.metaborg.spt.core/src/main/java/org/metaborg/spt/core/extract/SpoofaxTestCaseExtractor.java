@@ -30,7 +30,6 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.TermVisitor;
 
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
@@ -42,7 +41,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
     private final IContextService contextService;
     private final ISpoofaxTestCaseBuilder testBuilder;
 
-    @Inject public SpoofaxTestCaseExtractor(ISpoofaxSyntaxService parseService, ISpoofaxAnalysisService analysisService,
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTestCaseExtractor(ISpoofaxSyntaxService parseService, ISpoofaxAnalysisService analysisService,
         IContextService contextService, ISpoofaxTestCaseBuilder builder) {
         this.parseService = parseService;
         this.analysisService = analysisService;

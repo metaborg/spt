@@ -13,7 +13,7 @@ import org.metaborg.mbt.core.run.IFragmentResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 

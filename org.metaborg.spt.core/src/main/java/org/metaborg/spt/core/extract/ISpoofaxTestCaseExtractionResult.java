@@ -1,6 +1,6 @@
 package org.metaborg.spt.core.extract;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.mbt.core.extract.ITestCaseExtractionResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;

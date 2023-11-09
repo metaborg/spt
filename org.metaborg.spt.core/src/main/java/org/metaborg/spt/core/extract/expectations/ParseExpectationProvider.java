@@ -12,7 +12,6 @@ import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.metaborg.spt.core.run.FragmentUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
 
 /**
  * Implementation for the evaluation of the 'parse succeeds' and 'parse fails' test expectations.
@@ -31,7 +30,7 @@ public class ParseExpectationProvider implements ISpoofaxTestExpectationProvider
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public ParseExpectationProvider(ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject @javax.inject.Inject public ParseExpectationProvider(ISpoofaxTracingService traceService,
         ISpoofaxFragmentBuilder fragmentBuilder, FragmentUtil fragmentUtil) {
         this.traceService = traceService;
         this.fragmentBuilder = fragmentBuilder;

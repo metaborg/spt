@@ -1,10 +1,14 @@
 package org.metaborg.spt.core.run.expectations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextException;
@@ -35,6 +39,8 @@ import org.metaborg.spt.core.run.ISpoofaxFragmentResult;
 import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxFragmentResult;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
+import org.metaborg.util.iterators.Iterables2;
+import org.metaborg.util.iterators.ReverseListIterator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -45,8 +51,6 @@ import org.spoofax.terms.StrategoInt;
 import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvaluator<RunStrategoExpectation> {
     private static final ILogger logger = LoggerUtils.logger(RunStrategoExpectationEvaluator.class);
@@ -59,7 +63,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
     private final IStrategoCommon stratego;
 
 
-    @Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
         ISpoofaxAnalysisService analysisService, ITermFactory termFactory, FragmentUtil fragmentUtil,
         IStrategoCommon stratego) {
         this.contextService = contextService;
@@ -72,8 +76,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
 
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, RunStrategoExpectation expectation) {
-        return expectation.selection() == null ? Lists.newArrayList()
-            : Lists.newArrayList(expectation.selection());
+        return expectation.selection() == null ? Collections.emptyList() : Arrays.asList(expectation.selection());
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, RunStrategoExpectation expectation) {
@@ -89,8 +92,8 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         logger.debug("Evaluating a RunStrategoExpectation (strat: {}, outputLang: {}, outputFragment: {})",
             expectation.strategy(), expectation.outputLanguage(), expectation.outputFragment());
 
-        List<IMessage> messages = Lists.newLinkedList();
-        List<ISpoofaxFragmentResult> fragmentResults = Lists.newLinkedList();
+        List<IMessage> messages = new LinkedList<>();
+        List<ISpoofaxFragmentResult> fragmentResults = new LinkedList<>();
 
         ITestCase test = input.getTestCase();
         List<ISourceRegion> selections = test.getFragment().getSelections();
@@ -130,10 +133,10 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
         }
 
         // Obtain the AST nodes to try to run on.
-        final List<IStrategoTerm> terms = runOnTerms(test, expectation, actionResult, selections, messages);
+        final Iterable<IStrategoTerm> terms = runOnTerms(test, expectation, actionResult, selections, messages);
 
         // before we try to run anything, make sure we have something to execute on
-        if(terms.isEmpty()) {
+        if(Iterables2.isEmpty(terms)) {
             messages.add(MessageFactory.newMessage(test.getResource(), test.getDescriptionRegion(),
                 "Could not select fragment(s) to run strategy on.", MessageSeverity.ERROR, MessageType.TRANSFORMATION,
                 null));
@@ -188,7 +191,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                         continue;
                     }
                 }
-                
+
                 // the strategy was successful
                 if(expectation.outputFragment() == null) {
                     // a successful invocation is all we need
@@ -218,7 +221,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     }
                     if(analyzedFragment != null) {
                         fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(),
-                            analyzedFragment.input(), analyzedFragment, null));
+                            analyzedFragment.input(), analyzedFragment, analyzedFragment.messages(), null));
                     }
                 }
                 if(success) {
@@ -282,7 +285,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     IStrategoList strategoList = termFactory.makeList(selectedTermsCollection);
                     parsedArgs.add(strategoList);
                 }
-                
+
             }
         }
 
@@ -291,13 +294,13 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
 
     /*
      * Obtain the AST nodes to try to run on.
-     * 
+     *
      * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,
      * starting on the outermost term, until we processed them all or one of them passed successfully.
      */
-    private List<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoExpectation expectation, final IUnit result,
+    private Iterable<IStrategoTerm> runOnTerms(ITestCase test, RunStrategoExpectation expectation, final IUnit result,
         List<ISourceRegion> selections, List<IMessage> outMessages) {
-        final List<IStrategoTerm> terms = Lists.newLinkedList();
+        final List<IStrategoTerm> terms = new LinkedList<>();
         if(expectation.selection() == null) {
             // no selections, so we run on the entire ast
             // but only on the part that is inside the actual fragment, not the fixture
@@ -331,6 +334,6 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     "Could not resolve this selection to an AST node.", null));
             }
         }
-        return Lists.reverse(terms);
+        return ReverseListIterator.reverse(terms);
     }
 }

@@ -6,7 +6,7 @@ import org.metaborg.mbt.core.run.ITestExpectationOutputBuilder;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Type interface for the output of evaluating a test expectation when running the test on Spoofax languages.

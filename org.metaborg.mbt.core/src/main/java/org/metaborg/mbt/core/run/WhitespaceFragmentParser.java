@@ -1,6 +1,6 @@
 package org.metaborg.mbt.core.run;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.syntax.IInputUnit;
@@ -11,7 +11,6 @@ import org.metaborg.core.unit.IInputUnitService;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.IFragment.FragmentPiece;
 
-import com.google.inject.Inject;
 
 /**
  * Parser for fragments of non-layout sensitive languages.
@@ -23,7 +22,7 @@ public class WhitespaceFragmentParser<I extends IInputUnit, P extends IParseUnit
     private final IInputUnitService<I> inputService;
     private final ISyntaxService<I, P> parseService;
 
-    @Inject public WhitespaceFragmentParser(IInputUnitService<I> inputService, ISyntaxService<I, P> parseService) {
+    @jakarta.inject.Inject @javax.inject.Inject public WhitespaceFragmentParser(IInputUnitService<I> inputService, ISyntaxService<I, P> parseService) {
         this.inputService = inputService;
         this.parseService = parseService;
     }

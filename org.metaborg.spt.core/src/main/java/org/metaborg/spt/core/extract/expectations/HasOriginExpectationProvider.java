@@ -9,7 +9,6 @@ import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
 
 /**
  * Provider for the `has origin locations` expectation.
@@ -20,7 +19,7 @@ public class HasOriginExpectationProvider implements ISpoofaxTestExpectationProv
 
     private final ISpoofaxTracingService traceService;
 
-    @Inject public HasOriginExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject @javax.inject.Inject public HasOriginExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

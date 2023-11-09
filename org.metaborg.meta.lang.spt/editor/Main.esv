@@ -9,7 +9,6 @@ language
   table         : target/metaborg/sdf.tbl
   start symbols : TestSuite
 
-  provider : target/metaborg/stratego.ctree
   provider : target/metaborg/stratego.jar
   observer : editor-analyze
 

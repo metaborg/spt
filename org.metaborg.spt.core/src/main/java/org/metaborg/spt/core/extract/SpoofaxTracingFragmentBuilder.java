@@ -16,7 +16,6 @@ import org.metaborg.spt.core.SPTUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.TermVisitor;
 
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 /**
@@ -32,7 +31,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
     private FileObject resource = null;
     private IProject project = null;
 
-    @Inject public SpoofaxTracingFragmentBuilder(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTracingFragmentBuilder(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

@@ -2,7 +2,7 @@ package org.metaborg.mbt.core.model.expectations;
 
 import java.util.Collection;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageBuilder;

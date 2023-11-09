@@ -114,9 +114,9 @@ context-free syntax
   SResult.Fails = <fails>
 
   // transformations
-  Expectation.Transform = <transform <STRING>>
-  Expectation.Transform = <transform <STRING> <ToPart>>
-  Expectation.TransformToAterm = <transform <STRING> <ToAterm>>
+  Expectation.Transform = <transform <STRING> <OnPart?>>
+  Expectation.Transform = <transform <STRING> <OnPart?> <ToPart>>
+  Expectation.TransformToAterm = <transform <STRING> <OnPart?> <ToAterm>>
 
 lexical syntax
   // syntax for the analyze expectation

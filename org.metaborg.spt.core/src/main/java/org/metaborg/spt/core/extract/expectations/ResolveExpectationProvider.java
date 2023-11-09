@@ -10,7 +10,6 @@ import org.metaborg.spt.core.SPTUtil;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 /**
@@ -26,7 +25,7 @@ public class ResolveExpectationProvider implements ISpoofaxTestExpectationProvid
 
     private final ISpoofaxTracingService traceService;
 
-    @Inject public ResolveExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject @javax.inject.Inject public ResolveExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

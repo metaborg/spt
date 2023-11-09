@@ -11,9 +11,8 @@ import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnitService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
-import com.google.inject.Inject;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Use this parser to parse fragments with Spoofax languages.
@@ -25,7 +24,7 @@ public class SpoofaxWhitespaceFragmentParser extends WhitespaceFragmentParser<IS
 
     private final ISpoofaxInputUnitService inputService;
 
-    @Inject public SpoofaxWhitespaceFragmentParser(ISpoofaxInputUnitService inputService,
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxWhitespaceFragmentParser(ISpoofaxInputUnitService inputService,
         ISpoofaxSyntaxService parseService) {
         super(inputService, parseService);
         this.inputService = inputService;

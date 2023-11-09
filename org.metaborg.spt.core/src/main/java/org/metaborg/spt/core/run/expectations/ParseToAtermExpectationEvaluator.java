@@ -26,8 +26,6 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 /**
  * Check if the input fragment parsed to the expected ATerm AST.
@@ -39,14 +37,14 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
     private final ITermFactory termFactory;
     private final ISpoofaxTracingService traceService;
 
-    @Inject public ParseToAtermExpectationEvaluator(ITermFactory termFactory,
+    @jakarta.inject.Inject @javax.inject.Inject public ParseToAtermExpectationEvaluator(ITermFactory termFactory,
         ISpoofaxTracingService traceService) {
         this.termFactory = termFactory;
         this.traceService = traceService;
     }
 
     @Override public Collection<Integer> usesSelections(IFragment fragment, ParseToAtermExpectation expectation) {
-        return Lists.newLinkedList();
+        return new LinkedList<>();
     }
 
     @Override public TestPhase getPhase(ILanguageImpl language, ParseToAtermExpectation expectation) {

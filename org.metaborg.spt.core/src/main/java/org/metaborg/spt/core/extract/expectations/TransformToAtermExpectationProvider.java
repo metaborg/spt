@@ -15,17 +15,16 @@ import org.metaborg.spt.core.expectations.TransformToAtermExpectation;
 import org.metaborg.spt.core.extract.ISpoofaxTestExpectationProvider;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
 import org.spoofax.terms.util.TermUtils;
 
 public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectationProvider {
 
-    // TransformToAterm("goal", ToAterm(ast))
+    // TransformToAterm("goal", OnPart(idx), ToAterm(ast))
     private static final String TRANSFORM = "TransformToAterm";
 
     private final ISpoofaxTracingService traceService;
 
-    @Inject public TransformToAtermExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject @javax.inject.Inject public TransformToAtermExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 
@@ -44,6 +43,21 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
         }
         final List<String> goalNames = TransformExpectationProvider.goalNames(unQuotedGoalStr);
 
+        final IStrategoTerm onPartTerm = getSelectionTerm(expectationTerm);
+        final IStrategoTerm selectionTerm = SPTUtil.getOptionValue(onPartTerm);
+
+        final Integer selection;
+        final ISourceRegion selectionRegion;
+
+        if(selectionTerm == null) {
+            selection = null;
+            selectionRegion = null;
+        } else {
+            selection = TermUtils.toJavaInt(selectionTerm);
+            final ISourceLocation selLoc = traceService.location(selectionTerm);
+            selectionRegion = selLoc == null ? region : selLoc.region();
+        }
+
         final ITransformGoal goal;
         if(goalNames.size() > 1) {
             goal = new NamedGoal(goalNames);
@@ -55,23 +69,27 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
         }
 
         final IStrategoTerm toAtermPart = getToAtermTerm(expectationTerm);
-        return new TransformToAtermExpectation(region, goal, toAtermPart.getSubterm(0));
+        return new TransformToAtermExpectation(region, selection, selectionRegion, goal, toAtermPart.getSubterm(0));
     }
 
     private IStrategoTerm getGoalTerm(IStrategoTerm expectationTerm) {
         return expectationTerm.getSubterm(0);
     }
 
-    private IStrategoTerm getToAtermTerm(IStrategoTerm expectationTerm) {
+    private IStrategoTerm getSelectionTerm(IStrategoTerm expectationTerm) {
         return expectationTerm.getSubterm(1);
+    }
+
+    private IStrategoTerm getToAtermTerm(IStrategoTerm expectationTerm) {
+        return expectationTerm.getSubterm(2);
     }
 
     /**
      * Check if the given term is a TransformToAterm term that we can handle.
      */
     private boolean checkTransformToAterm(IStrategoTerm expectationTerm) {
-        // TransformToAterm("goal", ToAterm(ast))
-        if(!TRANSFORM.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 2) {
+        // TransformToAterm("goal", OnPart(idx), ToAterm(ast))
+        if(!TRANSFORM.equals(SPTUtil.consName(expectationTerm)) || expectationTerm.getSubtermCount() != 3) {
             return false;
         }
 

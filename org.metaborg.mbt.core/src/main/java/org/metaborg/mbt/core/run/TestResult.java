@@ -7,8 +7,7 @@ import org.metaborg.core.analysis.IAnalyzeUnit;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.syntax.IParseUnit;
 import org.metaborg.mbt.core.model.ITestCase;
-
-import com.google.common.collect.Iterables;
+import org.metaborg.util.iterators.Iterables2;
 
 public class TestResult<P extends IParseUnit, A extends IAnalyzeUnit> implements ITestResult<P, A> {
 
@@ -28,9 +27,9 @@ public class TestResult<P extends IParseUnit, A extends IAnalyzeUnit> implements
         this.results = results;
 
         Collection<IMessage> allM = new ArrayList<>();
-        Iterables.addAll(allM, messages);
+        Iterables2.addAll(allM, messages);
         for(ITestExpectationOutput<P, A> res : results) {
-            Iterables.addAll(allM, res.getMessages());
+            Iterables2.addAll(allM, res.getMessages());
         }
         this.allMessages = allM;
     }
