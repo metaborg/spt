@@ -1,6 +1,6 @@
 package org.metaborg.mbt.core.model.expectations;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.source.ISourceRegion;

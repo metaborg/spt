@@ -3,8 +3,9 @@ package org.metaborg.spt.core.run;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
+import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
@@ -22,16 +23,19 @@ import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnitUpdate;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 
-import javax.inject.Inject;
 
 public class SpoofaxTestCaseRunner
     extends TestCaseRunner<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit, ISpoofaxAnalyzeUnitUpdate>
     implements ISpoofaxTestCaseRunner {
 
+    private static final ILogger logger = LoggerUtils.logger(SpoofaxTestCaseRunner.class);
+
     private final ISpoofaxExpectationEvaluatorService evaluatorService;
 
-    @Inject public SpoofaxTestCaseRunner(ISpoofaxAnalysisService analysisService, IContextService contextService,
+    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTestCaseRunner(ISpoofaxAnalysisService analysisService, IContextService contextService,
         ISpoofaxFragmentParser fragmentParser, ISpoofaxExpectationEvaluatorService evaluatorService) {
         super(analysisService, contextService, fragmentParser);
         this.evaluatorService = evaluatorService;
@@ -39,6 +43,18 @@ public class SpoofaxTestCaseRunner
 
     @Override public ISpoofaxTestResult run(IProject project, ITestCase test, ILanguageImpl languageUnderTest,
         ILanguageImpl dialectUnderTest, IFragmentParserConfig fragmentParseConfig) {
+        try {
+            // Evaluating Test: statix.test/../.. - unit type ascription
+            final String projectName = project.location().getName().getBaseName();
+            final String testSuite = test.getResource().getName().getRelativeName(project.location().getName());
+            final String message = logger.format("[INFO]  - t.core.run.SpoofaxTestCaseRunner | Evaluating Test: {}/{} - {}",
+                    projectName, testSuite, test.getDescription());
+
+            // Ugh - Repeat '*' `message.length()` times
+            System.out.println(new String(new char[message.length()]).replace('\0', '*'));
+            System.out.println(message);
+        } catch(FileSystemException e) {
+        }
         ITestResult<ISpoofaxParseUnit, ISpoofaxAnalyzeUnit> res =
             super.run(project, test, languageUnderTest, dialectUnderTest, fragmentParseConfig);
         // safe as long as the guarantee of TestCaseRunner.run holds (see the JavaDoc of that method)
@@ -46,8 +62,8 @@ public class SpoofaxTestCaseRunner
     }
 
     @Override protected ISpoofaxTestResult evaluateExpectations(ITestCase test, ISpoofaxParseUnit parseRes,
-        ISpoofaxAnalyzeUnit analysisRes, ILanguageImpl languageUnderTest, List<IMessage> messages,
-        @Nullable IFragmentParserConfig fragmentParseConfig) {
+        ISpoofaxAnalyzeUnit analysisRes, Iterable<IMessage> analysisMessages, ILanguageImpl languageUnderTest,
+        List<IMessage> messages, @Nullable IFragmentParserConfig fragmentParseConfig) {
         boolean success = true;
 
         List<ISpoofaxTestExpectationOutput> expectationOutputs = new ArrayList<>();
@@ -59,14 +75,14 @@ public class SpoofaxTestCaseRunner
                 ISpoofaxExpectationEvaluator<ITestExpectation> evaluator = evaluatorService.lookup(expectation);
                 if(evaluator == null) {
                     messages.add(MessageFactory.newAnalysisError(test.getResource(), expectation.region(),
-                        "Could not evaluate this expectation. No suitable evaluator was found.", null));
+                            "Could not evaluate this expectation. No suitable evaluator was found.", null));
                 } else {
                     // TODO: should we really reuse the analysis context for expectation evaluation?
                     // an example is that we reuse it when running a transformation.
-                    SpoofaxTestExpectationInput input = new SpoofaxTestExpectationInput(test, languageUnderTest,
-                        new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes,
-                            analysisRes == null ? null : analysisRes.context()),
-                        fragmentParseConfig);
+                    SpoofaxTestExpectationInput input = new SpoofaxTestExpectationInput(
+                            test, languageUnderTest, new SpoofaxFragmentResult(test.getFragment(), parseRes,
+                                    analysisRes, analysisMessages, analysisRes == null ? null : analysisRes.context()),
+                            fragmentParseConfig);
                     ISpoofaxTestExpectationOutput output = evaluator.evaluate(input, expectation);
                     if(!output.isSuccessful()) {
                         success = false;
@@ -98,7 +114,7 @@ public class SpoofaxTestCaseRunner
         }
 
         return new SpoofaxTestResult(test, success, messages,
-            new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes, null), expectationOutputs);
+            new SpoofaxFragmentResult(test.getFragment(), parseRes, analysisRes, analysisMessages, null), expectationOutputs);
     }
 
     @Override protected TestPhase requiredPhase(ITestCase test, IContext languageUnderTestCtx) {

@@ -1,6 +1,6 @@
 package org.metaborg.spt.core.run;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.mbt.core.run.IFragmentParserConfig;

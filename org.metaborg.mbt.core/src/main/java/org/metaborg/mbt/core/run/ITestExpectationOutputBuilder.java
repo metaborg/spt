@@ -8,7 +8,7 @@ import org.metaborg.core.messages.MessageType;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.syntax.IParseUnit;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Builds the test expectation output.

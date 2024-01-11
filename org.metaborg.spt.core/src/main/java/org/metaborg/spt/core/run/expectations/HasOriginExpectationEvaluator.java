@@ -1,6 +1,5 @@
 package org.metaborg.spt.core.run.expectations;
 
-import javax.inject.Inject;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.messages.MessageFactory;
@@ -36,7 +35,7 @@ public class HasOriginExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     private final ISpoofaxTracingService traceService;
 
-    @Inject public HasOriginExpectationEvaluator(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject @javax.inject.Inject public HasOriginExpectationEvaluator(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

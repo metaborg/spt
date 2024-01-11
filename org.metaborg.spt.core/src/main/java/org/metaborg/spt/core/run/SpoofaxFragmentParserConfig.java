@@ -3,7 +3,7 @@ package org.metaborg.spt.core.run;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;

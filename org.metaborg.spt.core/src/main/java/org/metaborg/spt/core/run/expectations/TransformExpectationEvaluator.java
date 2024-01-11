@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.action.ITransformGoal;
 import org.metaborg.core.context.ContextException;
@@ -43,7 +43,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import javax.inject.Inject;
 
 /**
  * Covers the TransformationExpectation.
@@ -61,7 +60,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     private final FragmentUtil fragmentUtil;
 
-    @Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
+    @jakarta.inject.Inject @javax.inject.Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
         IContextService contextService, ITermFactory termFactory, FragmentUtil fragmentUtil) {
         this.transformService = transformService;
         this.contextService = contextService;
@@ -192,13 +191,13 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
         @Nullable IFragmentParserConfig fragmentConfig) {
         if(useAnalysis) {
             ISpoofaxAnalyzeUnit a = fragmentUtil.analyzeFragment(fragment, lang, messages, test, fragmentConfig);
-            fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, null));
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, a.input(), a, a.messages(), null));
             if(a != null && a.success() && a.hasAst()) {
                 return a.ast();
             }
         } else {
             ISpoofaxParseUnit p = fragmentUtil.parseFragment(fragment, lang, messages, test, fragmentConfig);
-            fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null));
+            fragmentResults.add(new SpoofaxFragmentResult(fragment, p, null, null, null));
             if(p == null || !p.valid()) {
                 messages.add(MessageFactory.newAnalysisError(test.getResource(), fragment.getRegion(),
                     "Parsing of the fragment did not return an AST.", null));

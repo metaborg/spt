@@ -2,7 +2,7 @@ package org.metaborg.spt.core;
 
 import java.util.Iterator;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;

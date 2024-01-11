@@ -10,5 +10,5 @@ dependencies {
   api(project(":org.metaborg.mbt.core"))
   api(compositeBuild("org.metaborg.spoofax.core"))
 
-  compileOnly("com.google.code.findbugs:jsr305")
+  implementation("jakarta.annotation:jakarta.annotation-api")
 }

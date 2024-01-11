@@ -4,7 +4,7 @@ import org.metaborg.core.action.ITransformGoal;
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.mbt.core.model.IFragment;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * A generic transformation for 'transform [goal] on [int] to [fragment]'.

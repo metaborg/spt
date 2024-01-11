@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.ContextException;
@@ -51,7 +51,6 @@ import org.spoofax.terms.StrategoInt;
 import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.TermEqualityUtil;
 
-import javax.inject.Inject;
 
 public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvaluator<RunStrategoExpectation> {
     private static final ILogger logger = LoggerUtils.logger(RunStrategoExpectationEvaluator.class);
@@ -64,7 +63,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
     private final IStrategoCommon stratego;
 
 
-    @Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
         ISpoofaxAnalysisService analysisService, ITermFactory termFactory, FragmentUtil fragmentUtil,
         IStrategoCommon stratego) {
         this.contextService = contextService;
@@ -192,7 +191,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                         continue;
                     }
                 }
-                
+
                 // the strategy was successful
                 if(expectation.outputFragment() == null) {
                     // a successful invocation is all we need
@@ -222,7 +221,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     }
                     if(analyzedFragment != null) {
                         fragmentResults.add(new SpoofaxFragmentResult(expectation.outputFragment(),
-                            analyzedFragment.input(), analyzedFragment, null));
+                            analyzedFragment.input(), analyzedFragment, analyzedFragment.messages(), null));
                     }
                 }
                 if(success) {
@@ -286,7 +285,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
                     IStrategoList strategoList = termFactory.makeList(selectedTermsCollection);
                     parsedArgs.add(strategoList);
                 }
-                
+
             }
         }
 
@@ -295,7 +294,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
 
     /*
      * Obtain the AST nodes to try to run on.
-     * 
+     *
      * We collect all terms with the exact right offsets, and try to execute the strategy on each of these terms,
      * starting on the outermost term, until we processed them all or one of them passed successfully.
      */

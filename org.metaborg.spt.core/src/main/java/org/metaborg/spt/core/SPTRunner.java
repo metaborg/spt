@@ -1,6 +1,5 @@
 package org.metaborg.spt.core;
 
-import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -36,7 +35,7 @@ public class SPTRunner {
     private final ISpoofaxTestCaseRunner runner;
 
 
-    @Inject public SPTRunner(ISpoofaxInputUnitService unitService, ISpoofaxTestCaseExtractor extractor,
+    @jakarta.inject.Inject @javax.inject.Inject public SPTRunner(ISpoofaxInputUnitService unitService, ISpoofaxTestCaseExtractor extractor,
         ISpoofaxTestCaseRunner runner) {
         this.unitService = unitService;
         this.extractor = extractor;

@@ -27,13 +27,12 @@ import org.metaborg.spt.core.run.ISpoofaxTestExpectationOutput;
 import org.metaborg.spt.core.run.SpoofaxTestExpectationOutput;
 import org.metaborg.util.iterators.Iterables2;
 
-import javax.inject.Inject;
 
 public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator<ResolveExpectation> {
 
     private final ISpoofaxResolverService resolverService;
 
-    @Inject public ResolveExpectationEvaluator(ISpoofaxResolverService resolverService) {
+    @jakarta.inject.Inject @javax.inject.Inject public ResolveExpectationEvaluator(ISpoofaxResolverService resolverService) {
         this.resolverService = resolverService;
     }
 
