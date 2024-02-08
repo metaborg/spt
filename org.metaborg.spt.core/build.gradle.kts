@@ -11,4 +11,5 @@ dependencies {
   api(compositeBuild("org.metaborg.spoofax.core"))
 
   implementation("jakarta.annotation:jakarta.annotation-api")
+  implementation("jakarta.inject:jakarta.inject-api")
 }
