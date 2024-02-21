@@ -38,7 +38,7 @@ import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import jsglr.shared.ImploderAttachment;
 import org.spoofax.terms.Term;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;

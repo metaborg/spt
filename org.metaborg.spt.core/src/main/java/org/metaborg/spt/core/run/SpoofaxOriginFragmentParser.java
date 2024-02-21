@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import jakarta.annotation.Nullable;
+import jsglr.shared.FilteredTokenIterator;
+import jsglr.shared.IToken;
+import jsglr.shared.ITokens;
+import jsglr.shared.ImploderAttachment;
+import jsglr.shared.ListImploderAttachment;
+import jsglr.shared.Token;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
@@ -30,12 +36,6 @@ import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr.client.imploder.ListImploderAttachment;
-import org.spoofax.jsglr.client.imploder.Token;
-import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.terms.util.TermUtils;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
@@ -280,7 +280,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
         }
 
         @Override public Iterator<IToken> iterator() {
-            return new Tokenizer.FilteredTokenIterator(allTokens());
+            return new FilteredTokenIterator(allTokens());
         }
 
         @Override public Iterable<IToken> allTokens() {
