@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import jakarta.annotation.Nullable;
-import jsglr.shared.FilteredTokenIterator;
-import jsglr.shared.IToken;
-import jsglr.shared.ITokens;
-import jsglr.shared.ImploderAttachment;
-import jsglr.shared.ListImploderAttachment;
-import jsglr.shared.Token;
+import mb.jsglr.shared.FilteredTokenIterator;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokens;
+import mb.jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.ListImploderAttachment;
+import mb.jsglr.shared.Token;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
