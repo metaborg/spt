@@ -9,6 +9,7 @@ dependencies {
 
   api(project(":org.metaborg.mbt.core"))
   api(compositeBuild("org.metaborg.spoofax.core"))
+  api(compositeBuild("jsglr.shared"))
 
   implementation("jakarta.annotation:jakarta.annotation-api")
   implementation("jakarta.inject:jakarta.inject-api")
