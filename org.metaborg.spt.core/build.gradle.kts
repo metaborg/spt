@@ -12,4 +12,5 @@ dependencies {
   api(compositeBuild("jsglr.shared"))
 
   implementation("jakarta.annotation:jakarta.annotation-api")
+  implementation("jakarta.inject:jakarta.inject-api")
 }
