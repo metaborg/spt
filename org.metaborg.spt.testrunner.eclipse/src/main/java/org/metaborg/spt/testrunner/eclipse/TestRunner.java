@@ -37,7 +37,7 @@ import org.metaborg.spt.testrunner.eclipse.model.TestCaseRun;
 import org.metaborg.spt.testrunner.eclipse.model.TestSuiteRun;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.metaborg.util.resource.FileSelectorUtils;
+import mb.util.vfs2.resource.FileSelectorUtils;
 
 import com.google.inject.Injector;
 
