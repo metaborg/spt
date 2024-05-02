@@ -39,7 +39,7 @@ import org.metaborg.spt.core.run.SpoofaxFragmentParserConfig;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.Level;
 import org.metaborg.util.log.LoggerUtils;
-import org.metaborg.util.resource.FileSelectorUtils;
+import mb.util.vfs2.resource.FileSelectorUtils;
 
 
 public class Runner {
