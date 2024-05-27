@@ -1,5 +1,5 @@
 ---
-id: org.metaborg:org.metaborg.meta.lang.spt.interactive:2.6.0-SNAPSHOT
+id: org.metaborg:org.metaborg.meta.lang.spt.interactive:${metaborgVersion}
 name: SPT-Interactive
 metaborgVersion: 2.6.0-SNAPSHOT
 dependencies:
