@@ -5,15 +5,13 @@ plugins {
     id("org.metaborg.convention.maven-publish")
 }
 
-fun compositeBuild(name: String) = "$group:$name:$version"
-val spoofax2Version: String by ext
 dependencies {
     api(platform(libs.metaborg.platform)) { version { require("latest.integration") } }
 
     api(project(":org.metaborg.mbt.core"))
-    api(compositeBuild("org.metaborg.spoofax.core"))
-    api(compositeBuild("jsglr.shared"))
+    api(libs.spoofax2.core)
+    api(libs.jsglr.shared)
 
-    implementation("jakarta.annotation:jakarta.annotation-api")
-    implementation("jakarta.inject:jakarta.inject-api")
+    implementation(libs.jakarta.annotation)
+    implementation(libs.jakarta.inject)
 }
