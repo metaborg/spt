@@ -19,7 +19,7 @@ dependencies {
     compileLanguage(libs.spoofax2.esv.lang)     // Bootstrap using Spoofax 2 artifact
     compileLanguage(libs.spoofax2.sdf3.lang)    // Bootstrap using Spoofax 2 artifact
 
-    sourceLanguage(libs.spoofax2.meta.lib.spoofax)
+    sourceLanguage(libs.meta.lib.spoofax)
 
-    compileOnly(libs.spoofax2.core)
+    compileOnly(libs.spoofax.core)
 }

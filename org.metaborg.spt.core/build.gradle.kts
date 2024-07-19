@@ -9,7 +9,7 @@ dependencies {
     api(platform(libs.metaborg.platform)) { version { require("latest.integration") } }
 
     api(project(":org.metaborg.mbt.core"))
-    api(libs.spoofax2.core)
+    api(libs.spoofax.core)
     api(libs.jsglr.shared)
 
     implementation(libs.jakarta.annotation)
