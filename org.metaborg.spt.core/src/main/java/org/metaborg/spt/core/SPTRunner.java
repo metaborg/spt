@@ -21,7 +21,7 @@ import org.metaborg.spt.core.run.ISpoofaxTestResult;
 import org.metaborg.spt.core.run.SpoofaxFragmentParserConfig;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.metaborg.util.resource.FileSelectorUtils;
+import mb.util.vfs2.resource.FileSelectorUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
