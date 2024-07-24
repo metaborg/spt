@@ -22,7 +22,7 @@ public class WhitespaceFragmentParser<I extends IInputUnit, P extends IParseUnit
     private final IInputUnitService<I> inputService;
     private final ISyntaxService<I, P> parseService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public WhitespaceFragmentParser(IInputUnitService<I> inputService, ISyntaxService<I, P> parseService) {
+    @jakarta.inject.Inject public WhitespaceFragmentParser(IInputUnitService<I> inputService, ISyntaxService<I, P> parseService) {
         this.inputService = inputService;
         this.parseService = parseService;
     }

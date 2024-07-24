@@ -37,7 +37,7 @@ public class ParseToAtermExpectationEvaluator implements ISpoofaxExpectationEval
     private final ITermFactory termFactory;
     private final ISpoofaxTracingService traceService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public ParseToAtermExpectationEvaluator(ITermFactory termFactory,
+    @jakarta.inject.Inject public ParseToAtermExpectationEvaluator(ITermFactory termFactory,
         ISpoofaxTracingService traceService) {
         this.termFactory = termFactory;
         this.traceService = traceService;

@@ -50,7 +50,7 @@ public class TransformToAtermExpectationEvaluator implements ISpoofaxExpectation
     private final IContextService contextService;
     private final ITermFactory termFactory;
 
-    @jakarta.inject.Inject @javax.inject.Inject public TransformToAtermExpectationEvaluator(ISpoofaxTransformService transformService,
+    @jakarta.inject.Inject public TransformToAtermExpectationEvaluator(ISpoofaxTransformService transformService,
         IContextService contextService, ITermFactory termFactory) {
         this.transformService = transformService;
         this.contextService = contextService;

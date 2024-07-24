@@ -37,7 +37,7 @@ public class SpoofaxTestCaseBuilder implements ISpoofaxTestCaseBuilder {
     private final ISpoofaxFragmentBuilder fragmentBuilder;
     private final ISpoofaxTracingService trace;
 
-    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTestCaseBuilder(Set<ISpoofaxTestExpectationProvider> expectationProviders,
+    @jakarta.inject.Inject public SpoofaxTestCaseBuilder(Set<ISpoofaxTestExpectationProvider> expectationProviders,
         ISpoofaxFragmentBuilder fragmentBuilder, ISpoofaxTracingService trace) {
         this.expectationProviders = expectationProviders;
         this.fragmentBuilder = fragmentBuilder;

@@ -1,5 +1,6 @@
 package org.metaborg.spt.core.extract.expectations;
 
+import jakarta.inject.Inject;
 import org.metaborg.core.messages.MessageSeverity;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.source.ISourceRegion;
@@ -44,7 +45,7 @@ public class AnalyzeExpectationProvider implements ISpoofaxTestExpectationProvid
 
     private final ISpoofaxTracingService traceService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public AnalyzeExpectationProvider(ISpoofaxTracingService traceService) {
+    @Inject public AnalyzeExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

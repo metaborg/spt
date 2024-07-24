@@ -1,7 +1,6 @@
 package org.metaborg.mbt.core.run;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,21 +26,19 @@ import org.metaborg.mbt.core.model.TestPhase;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.metaborg.util.log.PrintlineLogger;
 
 
 public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUnit, AU extends IAnalyzeUnitUpdate>
     implements ITestCaseRunner<P, A> {
 
     private static final ILogger logger = LoggerUtils.logger(TestCaseRunner.class);
-    private static final PrintlineLogger plLogger = PrintlineLogger.logger(TestCaseRunner.class);
 
     private final IAnalysisService<P, A, AU> analysisService;
     private final IContextService contextService;
     private final IFragmentParser<P> fragmentParser;
 
 
-    @jakarta.inject.Inject @javax.inject.Inject public TestCaseRunner(IAnalysisService<P, A, AU> analysisService, IContextService contextService,
+    @jakarta.inject.Inject public TestCaseRunner(IAnalysisService<P, A, AU> analysisService, IContextService contextService,
         IFragmentParser<P> fragmentParser) {
         this.analysisService = analysisService;
         this.contextService = contextService;
@@ -89,11 +86,7 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
 
                         analysisRes.messages().forEach(analysisMsgs::add);
                         update.messages().forEach(msg -> {
-                            if(msg.source() == null || !msg.source().equals(analysisResult.result().source())) {
-                                plLogger.debug("Add message from update: {}; location: {} != {}", msg, msg.source(),
-                                        analysisResult.result().source());
-                            } else {
-                                plLogger.debug("Add message from update: {}", msg);
+                            if (msg.source() != null && msg.source().equals(analysisResult.result().source())) {
                                 analysisMsgs.add(msg);
                             }
                         });
@@ -101,7 +94,6 @@ public abstract class TestCaseRunner<P extends IParseUnit, A extends IAnalyzeUni
                     } else {
                         analysisMessages = analysisRes.messages();
                     }
-                    plLogger.info("{} test result messages: {}.", analysisRes.source(), analysisRes.messages());
                 }
             }
         } catch(ContextException | AnalysisException e) {

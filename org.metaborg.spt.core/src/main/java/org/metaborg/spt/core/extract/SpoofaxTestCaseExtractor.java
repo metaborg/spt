@@ -41,7 +41,7 @@ public class SpoofaxTestCaseExtractor implements ISpoofaxTestCaseExtractor {
     private final IContextService contextService;
     private final ISpoofaxTestCaseBuilder testBuilder;
 
-    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTestCaseExtractor(ISpoofaxSyntaxService parseService, ISpoofaxAnalysisService analysisService,
+    @jakarta.inject.Inject public SpoofaxTestCaseExtractor(ISpoofaxSyntaxService parseService, ISpoofaxAnalysisService analysisService,
         IContextService contextService, ISpoofaxTestCaseBuilder builder) {
         this.parseService = parseService;
         this.analysisService = analysisService;
