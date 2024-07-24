@@ -17,7 +17,7 @@ public class SpoofaxExpectationEvaluatorService implements ISpoofaxExpectationEv
 
     private final Injector injector;
 
-    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxExpectationEvaluatorService(Injector injector) {
+    @jakarta.inject.Inject public SpoofaxExpectationEvaluatorService(Injector injector) {
         this.injector = injector;
     }
 

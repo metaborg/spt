@@ -24,7 +24,7 @@ public class TransformToAtermExpectationProvider implements ISpoofaxTestExpectat
 
     private final ISpoofaxTracingService traceService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public TransformToAtermExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject public TransformToAtermExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

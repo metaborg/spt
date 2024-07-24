@@ -1,5 +1,6 @@
 package org.metaborg.spt.core.extract.expectations;
 
+import jakarta.inject.Inject;
 import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.mbt.core.model.IFragment;
 import org.metaborg.mbt.core.model.expectations.HasOriginExpectation;
@@ -19,7 +20,7 @@ public class HasOriginExpectationProvider implements ISpoofaxTestExpectationProv
 
     private final ISpoofaxTracingService traceService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public HasOriginExpectationProvider(ISpoofaxTracingService traceService) {
+    @Inject public HasOriginExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

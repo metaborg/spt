@@ -25,7 +25,7 @@ public class ResolveExpectationProvider implements ISpoofaxTestExpectationProvid
 
     private final ISpoofaxTracingService traceService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public ResolveExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject public ResolveExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

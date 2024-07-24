@@ -27,7 +27,7 @@ public class RunStrategoToAtermExpectationProvider implements ISpoofaxTestExpect
     private final ISpoofaxTracingService traceService;
 
 
-    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoToAtermExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject public RunStrategoToAtermExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

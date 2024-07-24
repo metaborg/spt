@@ -1,5 +1,6 @@
 package org.metaborg.spt.core.run;
 
+import jakarta.inject.Inject;
 import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.context.ContextException;
 import org.metaborg.core.context.IContextService;
@@ -43,8 +44,8 @@ public class FragmentUtil {
     private final ISpoofaxAnalysisService analysisService;
     private final IContextService contextService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public FragmentUtil(ISpoofaxFragmentParser fragmentParser, ILanguageService langService,
-        ISpoofaxTracingService traceService, ISpoofaxAnalysisService analysisService, IContextService contextService) {
+    @Inject public FragmentUtil(ISpoofaxFragmentParser fragmentParser, ILanguageService langService,
+                                ISpoofaxTracingService traceService, ISpoofaxAnalysisService analysisService, IContextService contextService) {
         this.fragmentParser = fragmentParser;
         this.langService = langService;
         this.traceService = traceService;

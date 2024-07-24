@@ -31,7 +31,7 @@ public class SpoofaxTracingFragmentBuilder implements ISpoofaxFragmentBuilder {
     private FileObject resource = null;
     private IProject project = null;
 
-    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTracingFragmentBuilder(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject public SpoofaxTracingFragmentBuilder(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

@@ -22,7 +22,7 @@ public class ParseToAtermExpectationProvider implements ISpoofaxTestExpectationP
 
     private final ISpoofaxTracingService traceService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public ParseToAtermExpectationProvider(ISpoofaxTracingService traceService) {
+    @jakarta.inject.Inject public ParseToAtermExpectationProvider(ISpoofaxTracingService traceService) {
         this.traceService = traceService;
     }
 

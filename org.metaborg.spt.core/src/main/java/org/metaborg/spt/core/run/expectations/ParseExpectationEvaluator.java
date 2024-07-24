@@ -30,7 +30,7 @@ public class ParseExpectationEvaluator implements ISpoofaxExpectationEvaluator<P
     private final FragmentUtil fragmentUtil;
     private final ITermFactory termFactory;
 
-    @jakarta.inject.Inject @javax.inject.Inject public ParseExpectationEvaluator(FragmentUtil fragmentUtil, ITermFactory termFactory) {
+    @jakarta.inject.Inject public ParseExpectationEvaluator(FragmentUtil fragmentUtil, ITermFactory termFactory) {
         this.fragmentUtil = fragmentUtil;
         this.termFactory = termFactory;
     }

@@ -56,7 +56,7 @@ public class SpoofaxOriginFragmentParser implements ISpoofaxFragmentParser {
     private final ISpoofaxUnitService unitService;
     private final ISpoofaxSyntaxService parseService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxOriginFragmentParser(ISpoofaxInputUnitService inputService, ISpoofaxUnitService unitService,
+    @jakarta.inject.Inject public SpoofaxOriginFragmentParser(ISpoofaxInputUnitService inputService, ISpoofaxUnitService unitService,
         ISpoofaxSyntaxService parseService) {
         this.inputService = inputService;
         this.unitService = unitService;

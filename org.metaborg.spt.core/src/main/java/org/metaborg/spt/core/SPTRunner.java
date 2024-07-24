@@ -35,7 +35,7 @@ public class SPTRunner {
     private final ISpoofaxTestCaseRunner runner;
 
 
-    @jakarta.inject.Inject @javax.inject.Inject public SPTRunner(ISpoofaxInputUnitService unitService, ISpoofaxTestCaseExtractor extractor,
+    @jakarta.inject.Inject public SPTRunner(ISpoofaxInputUnitService unitService, ISpoofaxTestCaseExtractor extractor,
         ISpoofaxTestCaseRunner runner) {
         this.unitService = unitService;
         this.extractor = extractor;
