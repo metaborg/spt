@@ -56,7 +56,7 @@ To publish the plugin in the JetBrains plugin repository, use the following comm
 
 ## Overview
 This plugin contains just the parts that are necessary to add a run configuration to IntelliJ. It has three main dependencies:
- 
+
 - [Metaborg Core][4] - The core library used by all Spoofax languages. This plugin mostly uses the test reporter functionality.
 - [SPT Command Line][5] - The SPT command-line test runner, which is invoked by the run configuration.
 - [SPT Language][6] - The SPT language, used by the command-line utility to parse the test suites.
@@ -72,7 +72,7 @@ The main resources useful for working on this plugin are:
 
 
 ## License
-Copyright 2017-2018 Daniel Pelsmaeker
+Copyright 2017-2018 [Programming Languages Group](https://pl.ewi.tudelft.nl/), [Delft University of Technology](https://www.tudelft.nl/)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
 
