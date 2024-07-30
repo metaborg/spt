@@ -35,7 +35,7 @@ public class SpoofaxTestCaseRunner
 
     private final ISpoofaxExpectationEvaluatorService evaluatorService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxTestCaseRunner(ISpoofaxAnalysisService analysisService, IContextService contextService,
+    @jakarta.inject.Inject public SpoofaxTestCaseRunner(ISpoofaxAnalysisService analysisService, IContextService contextService,
         ISpoofaxFragmentParser fragmentParser, ISpoofaxExpectationEvaluatorService evaluatorService) {
         super(analysisService, contextService, fragmentParser);
         this.evaluatorService = evaluatorService;

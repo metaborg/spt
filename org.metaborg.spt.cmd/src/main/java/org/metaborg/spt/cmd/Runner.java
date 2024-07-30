@@ -55,7 +55,7 @@ public class Runner {
     private final ITestReporterService testReporter;
 
 
-    @jakarta.inject.Inject @javax.inject.Inject
+    @jakarta.inject.Inject
     public Runner(IResourceService resourceService, ISimpleProjectService projectService,
                   ISpoofaxInputUnitService inputService, ITestReporterService testReporter,
                   ILanguageService languageService,

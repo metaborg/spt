@@ -60,7 +60,7 @@ public class TransformExpectationEvaluator implements ISpoofaxExpectationEvaluat
 
     private final FragmentUtil fragmentUtil;
 
-    @jakarta.inject.Inject @javax.inject.Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
+    @jakarta.inject.Inject public TransformExpectationEvaluator(ISpoofaxTransformService transformService,
         IContextService contextService, ITermFactory termFactory, FragmentUtil fragmentUtil) {
         this.transformService = transformService;
         this.contextService = contextService;

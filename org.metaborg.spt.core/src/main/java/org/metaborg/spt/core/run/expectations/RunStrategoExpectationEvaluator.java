@@ -63,7 +63,7 @@ public class RunStrategoExpectationEvaluator implements ISpoofaxExpectationEvalu
     private final IStrategoCommon stratego;
 
 
-    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject public RunStrategoExpectationEvaluator(IContextService contextService, ISpoofaxTracingService traceService,
         ISpoofaxAnalysisService analysisService, ITermFactory termFactory, FragmentUtil fragmentUtil,
         IStrategoCommon stratego) {
         this.contextService = contextService;

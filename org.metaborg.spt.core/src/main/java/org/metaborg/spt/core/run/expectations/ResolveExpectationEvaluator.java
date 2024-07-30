@@ -32,7 +32,7 @@ public class ResolveExpectationEvaluator implements ISpoofaxExpectationEvaluator
 
     private final ISpoofaxResolverService resolverService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public ResolveExpectationEvaluator(ISpoofaxResolverService resolverService) {
+    @jakarta.inject.Inject public ResolveExpectationEvaluator(ISpoofaxResolverService resolverService) {
         this.resolverService = resolverService;
     }
 

@@ -30,7 +30,7 @@ public class ParseExpectationProvider implements ISpoofaxTestExpectationProvider
 
     private final FragmentUtil fragmentUtil;
 
-    @jakarta.inject.Inject @javax.inject.Inject public ParseExpectationProvider(ISpoofaxTracingService traceService,
+    @jakarta.inject.Inject public ParseExpectationProvider(ISpoofaxTracingService traceService,
         ISpoofaxFragmentBuilder fragmentBuilder, FragmentUtil fragmentUtil) {
         this.traceService = traceService;
         this.fragmentBuilder = fragmentBuilder;

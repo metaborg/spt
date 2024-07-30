@@ -24,7 +24,7 @@ public class SpoofaxWhitespaceFragmentParser extends WhitespaceFragmentParser<IS
 
     private final ISpoofaxInputUnitService inputService;
 
-    @jakarta.inject.Inject @javax.inject.Inject public SpoofaxWhitespaceFragmentParser(ISpoofaxInputUnitService inputService,
+    @jakarta.inject.Inject public SpoofaxWhitespaceFragmentParser(ISpoofaxInputUnitService inputService,
         ISpoofaxSyntaxService parseService) {
         super(inputService, parseService);
         this.inputService = inputService;

@@ -52,7 +52,7 @@ public class RunStrategoToAtermExpectationEvaluator
     private final IStrategoCommon stratego;
 
 
-    @jakarta.inject.Inject @javax.inject.Inject public RunStrategoToAtermExpectationEvaluator(IContextService contextService,
+    @jakarta.inject.Inject public RunStrategoToAtermExpectationEvaluator(IContextService contextService,
         ISpoofaxTracingService traceService, ISpoofaxAnalysisService analysisService,
         ITermFactory termFactory, IStrategoCommon stratego) {
         this.contextService = contextService;
