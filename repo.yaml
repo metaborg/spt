@@ -3,22 +3,45 @@ repoOwner: "metaborg"
 repoName: "spt"
 mainBranch: "master"
 mavenGroup: "org.metaborg.devenv"
+releaseTagPrefix: "devenv-release/"
 
 title: "SPT"
 description: |
   Meta-languages for testing your DSLs.
 inceptionYear: "2010"
 
-languages:
+spoofax3Languages:
   - group: "org.metaborg.devenv"
     name: "org.metaborg.meta.lang.spt"
     description: "SPT language"
 
-libraries:
+spoofax3Libraries:
   - group: "org.metaborg.devenv"
     name: "org.metaborg.mbt.core"
   - group: "org.metaborg.devenv"
     name: "org.metaborg.spt.core"
+
+spoofax2Languages:
+  - group: "org.metaborg"
+    name: "org.metaborg.lang.minisql"
+  - group: "org.metaborg"
+    name: "org.metaborg.meta.lang.spt"
+  - group: "org.metaborg"
+    name: "org.metaborg.meta.lang.spt.interactive"
+
+spoofax2Libraries:
+  - group: "org.metaborg"
+    name: "org.metaborg.mbt.core"
+  - group: "org.metaborg"
+    name: "org.metaborg.meta.lang.spt.eclipse"
+  - group: "org.metaborg"
+    name: "org.metaborg.meta.lang.spt.interactive.eclipse"
+  - group: "org.metaborg"
+    name: "org.metaborg.spt.core"
+  - group: "org.metaborg"
+    name: "org.metaborg.spt.cmd"
+  - group: "org.metaborg"
+    name: "org.metaborg.spt.testrunner.eclipse"
 
 contributors:
   - id: "Gohla"
@@ -41,14 +64,11 @@ developers:
     name: "Jeff Smits"
 
 files:
-  changelog:
-    generate: false
   githubWorkflows:
     publishRelease: true
     publishSnapshot: true
   gradleRootProject:
-    update: true
-    createPublishTasks: true
+    generate: true
     rootProjectName: "spt-project"
     includedProjects:
       - name: ":org.metaborg.mbt.core"
